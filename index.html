@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Въпросник — начален преглед</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 22px 18px 18px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 21px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  fieldset {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 14px 16px 18px;
+  }
+  legend {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-dark);
+    padding: 0 6px;
+  }
+  label.q {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+  .hint {
+    display: block;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--hint);
+    margin-top: 2px;
+  }
+  input[type=text], input[type=number], textarea, select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > div { flex: 1; }
+  .actions {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #e6f4ec;
+    border: 1px solid #b7dcc6;
+    border-radius: 10px;
+    color: var(--accent-dark);
+    font-size: 15px;
+    text-align: center;
+  }
+  .ok.show { display: block; }
+  .intro {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Кратък начален въпросник</h1>
+    <p>За да изготвим точна и безопасна програма за теб</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    Отделѝ 5–7 минути и отговори спокойно. Няма грешни отговори — колкото по-точно
+    попълниш, толкова по-добре ще преценим какво е подходящо за теб. На края натисни
+    големия бутон <b>„Копирай отговорите"</b> и ги залепи в нашия чат.
+  </div>
+
+  <form id="form">
+
+    <!-- 1 -->
+    <fieldset>
+      <legend>1. Основни данни</legend>
+
+      <label class="q">Име</label>
+      <input type="text" id="ime">
+
+      <div class="row2">
+        <div>
+          <label class="q">Възраст</label>
+          <input type="number" id="vazrast" inputmode="numeric">
+        </div>
+        <div>
+          <label class="q">Височина (см)</label>
+          <input type="number" id="visochina" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="q">Тегло сега (кг)</label>
+          <input type="number" id="teglo" inputmode="decimal">
+        </div>
+        <div>
+          <label class="q">Желано тегло (кг)</label>
+          <input type="number" id="zhelano_teglo" inputmode="decimal">
+        </div>
+      </div>
+
+      <label class="q">Талия (см)
+        <span class="hint">Измери на най-тясното, около пъпа, с отпуснат корем.</span>
+      </label>
+      <input type="number" id="taliya" inputmode="numeric">
+
+      <label class="q">Ханш (см)
+        <span class="hint">Измери на най-широкото на седалището.</span>
+      </label>
+      <input type="number" id="hansh" inputmode="numeric">
+
+      <label class="q">Каква е целта ти?</label>
+      <div class="opts" data-radio="cel">
+        <label><input type="radio" name="cel" value="Сваляне на килограми"> Сваляне на килограми</label>
+        <label><input type="radio" name="cel" value="Форма и тонус"> Форма и тонус</label>
+        <label><input type="radio" name="cel" value="Качване на килограми (мускулна маса)"> Качване на килограми (мускулна маса)</label>
+        <label><input type="radio" name="cel" value="Изчистване (рекомпозиция)"> Изчистване (рекомпозиция)</label>
+        <label><input type="radio" name="cel" value="Повече сила"> Повече сила</label>
+        <label><input type="radio" name="cel" value="Здраве и енергия"> Здраве и енергия</label>
+        <label><input type="radio" name="cel" value="Друго"> Друго</label>
+      </div>
+    </fieldset>
+
+    <!-- 2 -->
+    <fieldset>
+      <legend>2. Здраве и състояния</legend>
+
+      <label class="q">Имаш ли диагностицирани заболявания?
+        <span class="hint">Например щитовидна жлеза, кръвно налягане, диабет, друго. Ако нямаш — напиши „нямам".</span>
+      </label>
+      <textarea id="zabolyavaniya"></textarea>
+
+      <label class="q">Минали операции или сериозни контузии?
+        <span class="hint">Ако нямаш — напиши „нямам".</span>
+      </label>
+      <textarea id="operacii"></textarea>
+
+      <label class="q">Менструален цикъл</label>
+      <div class="opts" data-radio="cikyl">
+        <label><input type="radio" name="cikyl" value="Редовен"> Редовен</label>
+        <label><input type="radio" name="cikyl" value="Нередовен"> Нередовен</label>
+        <label><input type="radio" name="cikyl" value="В менопауза съм"> В менопауза съм</label>
+      </div>
+    </fieldset>
+
+    <!-- 3 -->
+    <fieldset>
+      <legend>3. Лекарства и добавки</legend>
+
+      <label class="q">Приемаш ли лекарства редовно?
+        <span class="hint">Изброй кои. Ако не приемаш — напиши „не".</span>
+      </label>
+      <textarea id="lekarstva"></textarea>
+
+      <label class="q">Приемаш ли добавки или витамини сега?
+        <span class="hint">Изброй кои. Ако не приемаш — напиши „не".</span>
+      </label>
+      <textarea id="dobavki"></textarea>
+    </fieldset>
+
+    <!-- 4 -->
+    <fieldset>
+      <legend>4. Алергии и непоносимости</legend>
+
+      <label class="q">Алергии към храни или лекарства?
+        <span class="hint">Ако нямаш — напиши „нямам".</span>
+      </label>
+      <textarea id="alergii"></textarea>
+
+      <label class="q">Известни непоносимости?
+        <span class="hint">Например лактоза (мляко), глутен (хляб/тестено), друго. Ако нямаш — „нямам".</span>
+      </label>
+      <textarea id="neponosimosti"></textarea>
+    </fieldset>
+
+    <!-- 5 -->
+    <fieldset>
+      <legend>5. Храносмилане и хранене</legend>
+
+      <label class="q">Колко пъти на ден се храниш?</label>
+      <input type="number" id="hraneniya" inputmode="numeric">
+
+      <label class="q">Имаш ли храносмилателни оплаквания?
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="hranosmilane">
+        <label><input type="checkbox" value="Подуване"> Подуване</label>
+        <label><input type="checkbox" value="Киселини"> Киселини</label>
+        <label><input type="checkbox" value="Запек"> Запек</label>
+        <label><input type="checkbox" value="Тежест след хранене"> Тежест след хранене</label>
+        <label><input type="checkbox" value="Нямам оплаквания"> Нямам оплаквания</label>
+      </div>
+
+      <label class="q">Колко вода пиеш на ден приблизително?</label>
+      <div class="opts" data-radio="voda">
+        <label><input type="radio" name="voda" value="Под 1 литър"> Под 1 литър</label>
+        <label><input type="radio" name="voda" value="1–2 литра"> 1–2 литра</label>
+        <label><input type="radio" name="voda" value="Над 2 литра"> Над 2 литра</label>
+      </div>
+
+      <label class="q">Кафе и алкохол — колко често?
+        <span class="hint">Например „2 кафета на ден, алкохол рядко".</span>
+      </label>
+      <textarea id="kafe_alkohol"></textarea>
+
+      <label class="q">Има ли храни, които не ядеш или не понасяш?
+        <span class="hint">Ако няма — напиши „няма".</span>
+      </label>
+      <textarea id="izkljucheni_hrani"></textarea>
+
+      <label class="q">Готвиш ли си сама или често ядеш навън/готова храна?</label>
+      <div class="opts" data-radio="gotvene">
+        <label><input type="radio" name="gotvene" value="Готвя си сама"> Готвя си сама</label>
+        <label><input type="radio" name="gotvene" value="По малко от двете"> По малко от двете</label>
+        <label><input type="radio" name="gotvene" value="Често навън/готова храна"> Често навън/готова храна</label>
+      </div>
+    </fieldset>
+
+    <!-- 6 -->
+    <fieldset>
+      <legend>6. Тренировки</legend>
+
+      <label class="q">В момента тренираш ли?</label>
+      <div class="opts" data-radio="sega">
+        <label><input type="radio" name="sega" value="Да"> Да</label>
+        <label><input type="radio" name="sega" value="Не"> Не</label>
+      </div>
+
+      <label class="q">Колко дни седмично тренираш?
+        <span class="hint">Напиши число, например 3.</span>
+      </label>
+      <input type="number" id="dni_broy" inputmode="numeric">
+
+      <label class="q">Колко минути трае една тренировка?
+        <span class="hint">Напиши число, например 60.</span>
+      </label>
+      <input type="number" id="vreme_min" inputmode="numeric">
+
+      <label class="q">В колко часа тренираш?
+        <span class="hint">Напиши число — часа от деня, например 18.</span>
+      </label>
+      <input type="number" id="chas" inputmode="numeric">
+    </fieldset>
+
+    <!-- 7 -->
+    <fieldset>
+      <legend>7. Сън и стрес</legend>
+
+      <label class="q">Колко часа спиш на нощ?</label>
+      <div class="opts" data-radio="syn_chasove">
+        <label><input type="radio" name="syn_chasove" value="Под 6"> Под 6</label>
+        <label><input type="radio" name="syn_chasove" value="6–7"> 6–7</label>
+        <label><input type="radio" name="syn_chasove" value="7–8"> 7–8</label>
+        <label><input type="radio" name="syn_chasove" value="Над 8"> Над 8</label>
+      </div>
+
+      <label class="q">Как е сънят?</label>
+      <div class="opts" data-radio="syn_kachestvo">
+        <label><input type="radio" name="syn_kachestvo" value="Спокоен"> Спокоен</label>
+        <label><input type="radio" name="syn_kachestvo" value="Будя се през нощта"> Будя се през нощта</label>
+        <label><input type="radio" name="syn_kachestvo" value="Трудно заспивам"> Трудно заспивам</label>
+      </div>
+
+      <label class="q">Ниво на стрес в момента?</label>
+      <div class="opts" data-radio="stres">
+        <label><input type="radio" name="stres" value="Ниско"> Ниско</label>
+        <label><input type="radio" name="stres" value="Средно"> Средно</label>
+        <label><input type="radio" name="stres" value="Високо"> Високо</label>
+      </div>
+
+      <label class="q">Енергия през деня?</label>
+      <div class="opts" data-radio="energiya">
+        <label><input type="radio" name="energiya" value="Добра"> Добра</label>
+        <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
+        <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+      </div>
+    </fieldset>
+
+    <!-- 8 -->
+    <fieldset>
+      <legend>8. Цел и мотивация</legend>
+
+      <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
+      <textarea id="motivaciya"></textarea>
+
+      <label class="q">Пробвала ли си нещо преди, което не сработи?
+        <span class="hint">Ако не — напиши „не".</span>
+      </label>
+      <textarea id="minal_opit"></textarea>
+    </fieldset>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="copyBtn">Копирай отговорите</button>
+  <div class="ok" id="okMsg">Готово! Отговорите са копирани. Залепи ги в нашия чат (задръж пръст → „Постави").</div>
+</div>
+
+<script>
+(function () {
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+  function radio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; }).join(", ");
+  }
+  function line(label, value) {
+    return label + ": " + (value || "—");
+  }
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym ===");
+    L.push("Дата: " + date);
+    L.push("");
+    L.push("[БАЗОВИ ДАННИ]");
+    L.push(line("Име", val("ime")));
+    L.push(line("Възраст", val("vazrast")));
+    L.push(line("Височина (см)", val("visochina")));
+    L.push(line("Тегло (кг)", val("teglo")));
+    L.push(line("Желано тегло (кг)", val("zhelano_teglo")));
+    L.push(line("Талия (см)", val("taliya")));
+    L.push(line("Ханш (см)", val("hansh")));
+    L.push(line("Цел", radio("cel")));
+    L.push("");
+    L.push("[ЗДРАВЕ И СЪСТОЯНИЯ]");
+    L.push(line("Заболявания", val("zabolyavaniya")));
+    L.push(line("Операции/контузии", val("operacii")));
+    L.push(line("Цикъл", radio("cikyl")));
+    L.push("");
+    L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
+    L.push(line("Лекарства", val("lekarstva")));
+    L.push(line("Добавки", val("dobavki")));
+    L.push("");
+    L.push("[АЛЕРГИИ И НЕПОНОСИМОСТИ]");
+    L.push(line("Алергии", val("alergii")));
+    L.push(line("Непоносимости", val("neponosimosti")));
+    L.push("");
+    L.push("[ХРАНОСМИЛАНЕ И ХРАНЕНЕ]");
+    L.push(line("Хранения на ден", val("hraneniya")));
+    L.push(line("Храносмилателни оплаквания", checks("hranosmilane")));
+    L.push(line("Вода на ден", radio("voda")));
+    L.push(line("Кафе/алкохол", val("kafe_alkohol")));
+    L.push(line("Изключени/непоносими храни", val("izkljucheni_hrani")));
+    L.push(line("Готвене", radio("gotvene")));
+    L.push("");
+    L.push("[ТРЕНИРОВКИ]");
+    L.push(line("Тренира сега", radio("sega")));
+    L.push(line("Дни седмично", val("dni_broy")));
+    L.push(line("Минути на тренировка", val("vreme_min")));
+    L.push(line("Час на деня", val("chas")));
+    L.push("");
+    L.push("[СЪН И СТРЕС]");
+    L.push(line("Сън (часове)", radio("syn_chasove")));
+    L.push(line("Качество на съня", radio("syn_kachestvo")));
+    L.push(line("Стрес", radio("stres")));
+    L.push(line("Енергия", radio("energiya")));
+    L.push("");
+    L.push("[ЦЕЛ И МОТИВАЦИЯ]");
+    L.push(line("Цел/срок", val("motivaciya")));
+    L.push(line("Минал опит", val("minal_opit")));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function showOk() {
+    var ok = document.getElementById("okMsg");
+    ok.classList.add("show");
+    ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "absolute";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = build();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showOk, function () {
+        fallbackCopy(text);
+        showOk();
+      });
+    } else {
+      fallbackCopy(text);
+      showOk();
+    }
+  });
+})();
+</script>
+</body>
+</html>
