@@ -323,6 +323,11 @@
     <fieldset>
       <legend>7. Сън и стрес</legend>
 
+      <label class="q">В колко часа обикновено си лягаш?
+        <span class="hint">Напиши приблизителния час, например „23:00".</span>
+      </label>
+      <input type="text" id="chas_lyagane">
+
       <label class="q">Колко часа спиш на нощ?</label>
       <div class="opts" data-radio="syn_chasove">
         <label><input type="radio" name="syn_chasove" value="Под 6"> Под 6</label>
@@ -441,6 +446,7 @@
     L.push(line("Час на деня", val("chas")));
     L.push("");
     L.push("[СЪН И СТРЕС]");
+    L.push(line("Час на лягане", val("chas_lyagane")));
     L.push(line("Сън (часове)", radio("syn_chasove")));
     L.push(line("Качество на съня", radio("syn_kachestvo")));
     L.push(line("Стрес", radio("stres")));
