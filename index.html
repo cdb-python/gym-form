@@ -252,6 +252,11 @@
       <label class="q">Колко пъти на ден се храниш?</label>
       <input type="number" id="hraneniya" inputmode="numeric">
 
+      <label class="q">В колко часа са храненията ти?
+        <span class="hint">Напиши приблизителните часове, например „8:00, 13:00, 19:30".</span>
+      </label>
+      <input type="text" id="chasove_hranene">
+
       <label class="q">Имаш ли храносмилателни оплаквания?
         <span class="hint">Отбележи всичко, което важи.</span>
       </label>
@@ -422,6 +427,7 @@
     L.push("");
     L.push("[ХРАНОСМИЛАНЕ И ХРАНЕНЕ]");
     L.push(line("Хранения на ден", val("hraneniya")));
+    L.push(line("Часове на хранене", val("chasove_hranene")));
     L.push(line("Храносмилателни оплаквания", checks("hranosmilane")));
     L.push(line("Вода на ден", radio("voda")));
     L.push(line("Кафе/алкохол", val("kafe_alkohol")));
