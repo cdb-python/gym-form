@@ -267,7 +267,8 @@
 
 <div class="actions">
   <button type="button" id="copyBtn">Копирай отговорите</button>
-  <div class="ok" id="okMsg">Готово! Отговорите са копирани. Залепи ги в нашия чат (задръж пръст → „Постави").</div>
+  <div class="ok" id="okMsg">Готово! Ако при пействане излезе празно — маркирай текста в полето долу, копирай го ръчно и го залепи в чата.</div>
+  <textarea id="outBox" readonly style="display:none; width:100%; height:170px; margin-top:10px; padding:10px; font-size:13px; border:1px solid var(--border); border-radius:9px; font-family:inherit; background:#fff; color:var(--ink);"></textarea>
 </div>
 
 <div class="wrap">
@@ -381,24 +382,25 @@
     return L.join("\n");
   }
 
-  function showOk() {
+  function reveal(text) {
     var ok = document.getElementById("okMsg");
     ok.classList.add("show");
+    var box = document.getElementById("outBox");
+    box.value = text;
+    box.style.display = "block";
     ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    try { box.focus(); box.select(); box.setSelectionRange(0, text.length); } catch (e) {}
   }
   function fallbackCopy(text) {
-    var ta = document.createElement("textarea");
-    ta.value = text; ta.setAttribute("readonly", "");
-    ta.style.position = "absolute"; ta.style.left = "-9999px";
-    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
-    try { document.execCommand("copy"); } catch (e) {}
-    document.body.removeChild(ta);
+    var ta = document.getElementById("outBox");
+    try { ta.focus(); ta.select(); ta.setSelectionRange(0, text.length); document.execCommand("copy"); } catch (e) {}
   }
   document.getElementById("copyBtn").addEventListener("click", function () {
     var text = build();
+    reveal(text);
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(showOk, function () { fallbackCopy(text); showOk(); });
-    } else { fallbackCopy(text); showOk(); }
+      navigator.clipboard.writeText(text)["catch"](function () { fallbackCopy(text); });
+    } else { fallbackCopy(text); }
   });
 })();
 </script>
