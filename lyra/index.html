@@ -177,8 +177,8 @@
         <span class="hint">Ако няма — напиши „няма".</span>
       </label>
       <textarea id="drugi_lekarstva"></textarea>
-      <label class="q">Добавки или витамини?
-        <span class="hint">Изброй кои. Ако не приемаш — „не".</span>
+      <label class="q">Придържаш ли се към добавките от режима?
+        <span class="hint">Витамин D3+K2, омега-3, магнезий, креатин. Пропускаш ли някоя, или си спряла нещо? Има ли друга добавка, която взимаш сама?</span>
       </label>
       <textarea id="dobavki"></textarea>
     </fieldset>
@@ -359,7 +359,7 @@
     L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
     L.push(line("Лекарства за нерви", val("nervi")));
     L.push(line("Други лекарства", val("drugi_lekarstva")));
-    L.push(line("Добавки", val("dobavki")));
+    L.push(line("Добавки от режима (придържане)", val("dobavki")));
     L.push("");
     L.push("[ДНИ БЕЗ СИЛА]");
     L.push(line("Честота", radio("chestota")));
