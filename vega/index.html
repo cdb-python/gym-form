@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Vega — твоята страница</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #6a4ea3;
+    --accent-dark: #523c80;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #f0ecf7;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    padding: 0 0 40px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 24px 18px 20px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 0 14px; }
+  h2.sec {
+    font-size: 19px;
+    color: var(--accent-dark);
+    margin: 30px 0 4px;
+    padding-top: 14px;
+    border-top: 2px solid var(--border);
+  }
+  .step {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 22px;
+  }
+  fieldset {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 14px 0;
+    padding: 14px 16px 18px;
+  }
+  legend {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-dark);
+    padding: 0 6px;
+  }
+  label.q { display: block; margin: 14px 0 6px; font-weight: 600; }
+  .hint {
+    display: block; font-weight: 400; font-size: 13px;
+    color: var(--hint); margin-top: 2px;
+  }
+  input[type=text], input[type=number], textarea, select {
+    width: 100%; padding: 11px 12px; font-size: 16px;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: #fff; color: var(--ink); font-family: inherit;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 4px; font-weight: 400; cursor: pointer;
+  }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > div { flex: 1; }
+  .intro, .card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin: 14px 0;
+  }
+  .intro { font-size: 15px; color: var(--muted); }
+  .tip { background: var(--soft); border-color: #d8cdec; }
+  .tip ul { margin: 8px 0 0; padding-left: 20px; }
+  .tip li { margin: 6px 0; }
+  .actions {
+    position: sticky; bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px; max-width: 660px; margin: 0 auto;
+  }
+  button {
+    width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
+    color: #fff; background: var(--accent); border: none;
+    border-radius: 12px; cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none; margin-top: 12px; padding: 12px 14px;
+    background: #ece6f6; border: 1px solid #c9b9e6; border-radius: 10px;
+    color: var(--accent-dark); font-size: 15px; text-align: center;
+  }
+  .ok.show { display: block; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--border); padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); color: var(--accent-dark); }
+  .ex { margin: 12px 0; padding: 12px 14px; background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .ex h4 { margin: 0 0 6px; font-size: 16px; color: var(--accent-dark); }
+  .ex p { margin: 4px 0; font-size: 15px; }
+  .ex .k { font-weight: 700; }
+  .day { font-weight: 700; color: var(--accent-dark); margin: 16px 0 0; }
+  .note { font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Vega — твоята лична страница</h1>
+    <p>Всичко на едно място: въпросник, добавки, упражнения. Спокойно, стъпка по стъпка.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ 1. КАК ДА ПОПЪЛНИШ ============ -->
+  <div class="step">Стъпка 1 — как се ползва тази страница</div>
+  <div class="intro">
+    Тази страница е само за теб. На нея ще намериш:
+    <br><br>
+    1) <b>Въпросник</b> — попълваш го веднъж, отнема около 10 минути.<br>
+    2) <b>Какво показват изследванията ти</b> — обяснено с прости думи.<br>
+    3) <b>Указания и добавки</b> — кога и колко да приемаш, плюс кои кръвни да направиш.<br>
+    4) <b>Упражнения</b> — как се прави всяко от твоята програма.
+    <br><br>
+    Започни с въпросника по-долу. Като стигнеш края му, натисни големия бутон
+    <b>„Копирай отговорите"</b> и ги залепи в нашия чат — толкова. Останалото остава тук,
+    за да го отваряш когато искаш.
+    <br><br>
+    <b>Не се притеснявай</b> — няма грешни отговори, а на живо ще ти покажа всичко. :)
+  </div>
+
+  <!-- ============ 2. ПРЕПОРЪКИ ЗА ПО-ДОБРО ПОПЪЛВАНЕ ============ -->
+  <div class="step">Стъпка 2 — за да попълниш по-точно</div>
+  <div class="card tip">
+    Преди да започнеш, две минути за това:
+    <ul>
+      <li>Опиши <b>истински обикновен ден</b>, не „идеалния". Колкото по-вярно, толкова по-добре ще ти помогна.</li>
+      <li>За храната — сети се <b>какво яде вчера</b>: закуска, обяд, вечеря, похапвания между тях.</li>
+      <li>Ти спазваш веган няколко дни в седмицата — ще те попитам <b>кои дни</b> и <b>какво ядеш на тях</b> спрямо останалите.</li>
+      <li>Не закръгляй на едро (напр. „малко ядки" → „шепа бадеми").</li>
+      <li>Ако нещо не знаеш или не си сигурна — напиши го както го усещаш. Ще го изгладим заедно.</li>
+    </ul>
+  </div>
+
+  <!-- ============ 3. ВЪПРОСНИКЪТ ============ -->
+  <div class="step">Стъпка 3 — въпросникът</div>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>1. Кратки данни</legend>
+      <div class="row2">
+        <div>
+          <label class="q">Височина (см)</label>
+          <input type="number" id="visochina" inputmode="numeric">
+        </div>
+        <div>
+          <label class="q">Тегло сега (кг)</label>
+          <input type="number" id="teglo" inputmode="decimal">
+        </div>
+      </div>
+      <label class="q">Как се чувстваш с тялото си в момента?
+        <span class="hint">С две думи — какво искаш да се промени.</span>
+      </label>
+      <textarea id="usteshtane"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Хранене — веган дни</legend>
+
+      <label class="q">Кои дни от седмицата си строг веган?
+        <span class="hint">Например „понеделник, сряда, петък".</span>
+      </label>
+      <input type="text" id="vegan_dni">
+
+      <label class="q">На останалите дни какво ядеш от животински произход?
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="zhivotinski">
+        <label><input type="checkbox" value="Мляко/млечни"> Мляко и млечни (сирене, кисело мляко)</label>
+        <label><input type="checkbox" value="Яйца"> Яйца</label>
+        <label><input type="checkbox" value="Риба"> Риба</label>
+        <label><input type="checkbox" value="Пиле/месо"> Пиле или месо</label>
+        <label><input type="checkbox" value="Нищо животинско"> Всъщност и тогава не ям животинско</label>
+      </div>
+
+      <label class="q">Опиши един ВЕГАН ден — какво яде на закуска, обяд, вечеря, междинно?</label>
+      <textarea id="den_vegan"></textarea>
+
+      <label class="q">Опиши един ГЪВКАВ ден — закуска, обяд, вечеря, междинно?</label>
+      <textarea id="den_gavkav"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Хранене — източници</legend>
+
+      <label class="q">Кои от тези ядеш редовно? (богати на калций — важно за костите)
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="kalcii">
+        <label><input type="checkbox" value="Тахан/сусам"> Тахан или сусам</label>
+        <label><input type="checkbox" value="Бадеми"> Бадеми</label>
+        <label><input type="checkbox" value="Тофу"> Тофу</label>
+        <label><input type="checkbox" value="Зелени листни"> Зелени листни (спанак, къдраво зеле, броколи)</label>
+        <label><input type="checkbox" value="Растително мляко с калций"> Растително мляко, обогатено с калций</label>
+        <label><input type="checkbox" value="Млечни продукти"> Млечни продукти (в гъвкавите дни)</label>
+        <label><input type="checkbox" value="Бобови"> Бобови (нахут, леща, боб)</label>
+      </div>
+
+      <label class="q">Какъв протеин ядеш най-често?
+        <span class="hint">Например бобови, тофу, грахов протеин, яйца, риба...</span>
+      </label>
+      <textarea id="protein_iztochnici"></textarea>
+
+      <label class="q">Колко пъти на ден се храниш и в колко часа?
+        <span class="hint">Например „4 пъти: 9:30, 13:00, 16:00, 19:00".</span>
+      </label>
+      <input type="text" id="hraneniya">
+
+      <label class="q">Колко вода пиеш на ден приблизително?</label>
+      <div class="opts" data-radio="voda">
+        <label><input type="radio" name="voda" value="Под 1 литър"> Под 1 литър</label>
+        <label><input type="radio" name="voda" value="1–2 литра"> 1–2 литра</label>
+        <label><input type="radio" name="voda" value="Над 2 литра"> Над 2 литра</label>
+      </div>
+
+      <label class="q">Кафе и алкохол — колко често?</label>
+      <textarea id="kafe_alkohol"></textarea>
+
+      <label class="q">Има ли храни, които изобщо не понасяш или избягваш?
+        <span class="hint">Ако няма — напиши „няма".</span>
+      </label>
+      <textarea id="izbyagvani"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Добавки — какво приемаш сега</legend>
+      <label class="q">Изброй добавките, които приемаш в момента, и по колко.
+        <span class="hint">Ако знаеш дозата — напиши я (напр. „магнезий 1 таблетка вечер"). Ако не — само името.</span>
+      </label>
+      <textarea id="dobavki_sega"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Движение и тренировки</legend>
+      <label class="q">Колко пъти седмично ходиш на фитнес и по колко минути?</label>
+      <input type="text" id="trenirovki">
+
+      <label class="q">В колко часа обикновено тренираш?</label>
+      <input type="text" id="chas_tren">
+
+      <label class="q">Правиш ли друго движение? (йога, разходки, друго)</label>
+      <textarea id="drugo_dvizhenie"></textarea>
+
+      <label class="q">Кои упражнения ти се струват трудни или неясни?
+        <span class="hint">Така ще знам на кои да обърна повече внимание на живо.</span>
+      </label>
+      <textarea id="trudni_uprazhneniya"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>6. История и безопасност</legend>
+
+      <label class="q">Чупила ли си някога кост или падала ли си лошо?
+        <span class="hint">Кога и коя кост. Ако не — напиши „не".</span>
+      </label>
+      <textarea id="frakturi"></textarea>
+
+      <label class="q">Има ли в рода остеопороза или счупено бедро (майка, баща)?
+        <span class="hint">Ако не знаеш или няма — напиши го.</span>
+      </label>
+      <textarea id="famnasledstvo"></textarea>
+
+      <label class="q">Пушиш ли?</label>
+      <div class="opts" data-radio="pushene">
+        <label><input type="radio" name="pushene" value="Не"> Не</label>
+        <label><input type="radio" name="pushene" value="Да"> Да</label>
+        <label><input type="radio" name="pushene" value="Спрях"> Спрях</label>
+      </div>
+
+      <label class="q">Имаш ли болка, скованост или проблем с равновесието?
+        <span class="hint">Например коляно, кръст, замайване при ставане. Ако нямаш — „нямам".</span>
+      </label>
+      <textarea id="bolka_ravnovesie"></textarea>
+
+      <label class="q">Колко активна си през деня извън залата?
+        <span class="hint">На работа стоиш права или седнала? Ходиш ли пеша, разходки?</span>
+      </label>
+      <textarea id="aktivnost_den"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>7. Сън, енергия, притеснения</legend>
+      <label class="q">Колко часа спиш и как е сънят?</label>
+      <input type="text" id="syn">
+
+      <label class="q">Как е енергията ти през деня?</label>
+      <div class="opts" data-radio="energiya">
+        <label><input type="radio" name="energiya" value="Добра"> Добра</label>
+        <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
+        <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+      </div>
+
+      <label class="q">Какво те притеснява или какво искаш да ме питаш?
+        <span class="hint">Пиши спокойно — тук е мястото за всичко, което те вълнува.</span>
+      </label>
+      <textarea id="pritesneniya"></textarea>
+    </fieldset>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="copyBtn">Копирай отговорите</button>
+  <div class="ok" id="okMsg">Готово! Отговорите са копирани. Залепи ги в нашия чат (задръж пръст → „Постави").</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ============ ИНФОРМАЦИЯ ЗА НЕЯ ============ -->
+  <h2 class="sec">Какво показват изследванията ти — за да си наясно</h2>
+  <p class="note">Искам да знаеш всичко за себе си, а не да си в неведение. Ето с прости думи какво
+  открихме, какво означава и защо няма повод за паника.</p>
+
+  <div class="card">
+    <b>Костите ти (от изследването DEXA):</b>
+    <ul>
+      <li><b>Гръбнак</b> — лека загуба на плътност (нарича се <i>остеопения</i>).</li>
+      <li><b>Бедро</b> — по-изразена загуба (нарича се <i>остеопороза</i>).</li>
+    </ul>
+    С прости думи: костите ти са станали малко по-крехки от обичайното. Това <b>не</b> значи, че
+    ще се чупиш при всяко движение — значи, че се грижим за тях отсега.
+  </div>
+
+  <div class="card">
+    <b>Защо се е случило:</b>
+    <ul>
+      <li>Менопаузата ти е дошла рано (на 46) — женският хормон пази костите, а той е намалял по-рано.</li>
+      <li>Ниското тегло — малко натоварване и малък „резерв" за костта.</li>
+    </ul>
+    Точно затова храненето и движението са толкова важни за теб.
+  </div>
+
+  <div class="card tip">
+    <b>Добрата новина — има защо да си спокойна:</b>
+    <ul>
+      <li>Апаратът изчисли риска ти от счупване за следващите 10 години като <b>умерен, не висок</b>.</li>
+      <li>Костта е жива тъкан — отговаря на правилно хранене и натоварване и <b>може да се подобри</b>.</li>
+      <li>Затова лекарят нарочно <b>не</b> ти даде лекарства, а заложи движение, храна и добавки — при теб това е разумният и достатъчен път.</li>
+      <li>Имаш цяла година до следващата снимка, в която да направим разлика.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <b>Защо точно това, което правим:</b>
+    <ul>
+      <li><b>Храна</b> (достатъчно калории + протеин + калций) — суровината, от която костта се строи.</li>
+      <li><b>Тренировки с тежести</b> — всеки път „казват" на костта да се подсили. Безопасни, на машини.</li>
+      <li><b>Йога</b> — пази равновесието, за да не падаш.</li>
+      <li><b>Добавки</b> — попълват това, което липсва (например витамин D).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <b>Две неща от кръвното за внимание:</b>
+    <ul>
+      <li>Витамин D ти е малко под добрите нива — качваме го.</li>
+      <li>Калцият ти е леко висок — затова те молим да направиш още едно изследване (PTH) и да го покажеш на лекаря. Рутинна проверка, не повод за паника.</li>
+    </ul>
+    Целта ни: до края на годината да задържим или подобрим костите. Стъпка по стъпка, аз съм до
+    теб на всяка крачка. :)
+  </div>
+
+  <!-- ============ 4. УКАЗАНИЯ + КРЪВНИ + ДОБАВКИ ============ -->
+  <h2 class="sec">Указания и добавки</h2>
+
+  <div class="card">
+    <b>Няколко важни неща:</b>
+    <ul>
+      <li><b>Вода — поне 2 литра на ден.</b> Заради креатина (той тегли вода в мускулите).</li>
+      <li><b>Закуска и вечеря с малко мазнина</b> (ядки, авокадо, зехтин, тахан) — витамин D, витамин E и омега-3 се усвояват само с мазнина.</li>
+      <li><b>Калций — от храна.</b> Кръвното ти показа калций леко висок, затова не добавяме калциева таблетка. Гледаме да идва от храната.</li>
+      <li><b>Покажи кръвното на лекаря си</b> и питай дали да се направи изследване на паращитовидната жлеза (хормон PTH). Нищо тревожно — рутинна проверка при леко висок калций.</li>
+      <li><b>За костите при движение</b> — пази се от падане и удар; машините са стабилни и безопасни. Гръб винаги изправен.</li>
+    </ul>
+  </div>
+
+  <h3 style="color:var(--accent-dark);">Твоите стойности спрямо оптималното</h3>
+  <p class="note">Това са резултатите ти от април и къде е добре да са. Числата са отправна точка —
+  целта на режима (храна, добавки, тренировки) е да ги подобрим до контролната снимка в края на годината.</p>
+  <table>
+    <tr><th>Изследване</th><th>Оптимално</th><th>Твоята стойност</th><th>Накъде</th></tr>
+    <tr><td>Витамин D (25-OH)</td><td>над 30, идеално 40–50 ng/mL</td><td>24.6 — под оптималното</td><td>да се качи</td></tr>
+    <tr><td>Калций</td><td>2.15–2.50 mmol/L</td><td>2.54 — леко над</td><td>следим (виж PTH)</td></tr>
+    <tr><td>Витамин B12</td><td>над ~300 (норма 145–569)</td><td>289 — на ръба, добре</td><td>поддържаме</td></tr>
+    <tr><td>Фосфор</td><td>0.81–1.45 mmol/L</td><td>1.24 — в норма</td><td>—</td></tr>
+    <tr><td>Остеокалцин</td><td>15–46 ng/mL</td><td>28.56 — в норма</td><td>—</td></tr>
+  </table>
+
+  <p class="note"><b>Костна плътност (DEXA, април):</b> здравото ниво е T-резултат над −1.0.
+  При теб гръбнакът е −2.3, а бедрото −2.7 — затова работим за костите. Добрата новина: 10-годишният
+  риск, който апаратът изчисли, е умерен, а движението с тежести е точно това, което ги подобрява.</p>
+
+  <h3 style="color:var(--accent-dark);">Кои изследвания да си направиш още</h3>
+  <p class="note">Покажи този списък на личния лекар:</p>
+  <table>
+    <tr><th>Изследване</th><th>Оптимално</th><th>Защо</th></tr>
+    <tr><td>PTH (паратхормон)</td><td>в рамките на лаб. норма</td><td>Заради леко високия калций — проверка на паращитовидната жлеза.</td></tr>
+    <tr><td>Феритин и желязо</td><td>феритин над 30–40 µg/L</td><td>Растително хранене — често остава ниско; влияе на енергията.</td></tr>
+    <tr><td>TSH (щитовидна)</td><td>0.4–4.0 mIU/L</td><td>Рутинно при умора и в менопауза.</td></tr>
+    <tr><td>Алкална фосфатаза</td><td>в рамките на лаб. норма</td><td>Маркер за костната обмяна.</td></tr>
+  </table>
+
+  <h3 style="color:var(--accent-dark);">График за добавките</h3>
+  <p class="note">Точните количества за някои ще нагласим, щом снимем етикетите им.</p>
+  <table>
+    <tr><th>Добавка</th><th>Закуска</th><th>Около тренировка</th><th>Вечеря</th><th>Преди сън</th></tr>
+    <tr><td>Magne D'Oro (магнезий + B)</td><td>1 доза</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Витамин D3 + K2 (капки)</td><td>доза от етикета</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Витамин E-200</td><td>1 капсула</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Хиалуронова киселина</td><td>1 капсула</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Креатин</td><td>5 г</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Колаген</td><td>1 доза в вода</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Merz Spezial</td><td>1 драже</td><td>—</td><td>—</td><td>—</td></tr>
+    <tr><td>Омега-3</td><td>1 капсула</td><td>—</td><td>1 капсула</td><td>—</td></tr>
+    <tr><td>Грахов протеин</td><td>—</td><td>1 мерка след трен.</td><td>—</td><td>—</td></tr>
+    <tr><td>L-Карнитин</td><td>—</td><td>1 капсула</td><td>—</td><td>—</td></tr>
+    <tr><td>Магнезий глицинат</td><td>—</td><td>—</td><td>—</td><td>1 доза</td></tr>
+  </table>
+  <p class="note">Грахов протеин и L-Карнитин — само в дните с тренировка. На обяд — нищо.
+  Чайовете SlimFit не влизат (те са за отслабване, а при теб целта е изграждане).</p>
+
+  <!-- ============ 5. РЪКОВОДСТВО ЗА ТРЕНИРОВКИТЕ ============ -->
+  <h2 class="sec">Ръководство за упражненията</h2>
+
+  <div class="card">
+    <b>5 правила за всяко упражнение:</b>
+    <ul>
+      <li>Бавно и контролирано — спускаш за 2–3 секунди.</li>
+      <li>Издишваш при усилието, вдишваш при връщането.</li>
+      <li>Движение докъдето е удобно — леко опъване да, остра болка не.</li>
+      <li>Гръбнакът винаги изправен, коремът стегнат.</li>
+      <li>Загрявка 5 минути преди тренировка.</li>
+    </ul>
+    <span class="note">„4 x 8-10" значи 4 серии по 8–10 повторения, с почивка 60–90 сек между тях.</span>
+  </div>
+
+  <p class="day">ТРЕНИРОВКА 1 — крака (заден ред) + гърди и рамене</p>
+
+  <div class="ex"><h4>1. Добро утро (на хак-машината, без тежест)</h4>
+    <p><span class="k">Тренира:</span> задна част на бедрата и седалище.</p>
+    <p><span class="k">Ключово:</span> навеждаш се от таза с прав гръб, буташ дупето назад, после се изправяш. Без тежест — само водената рамка.</p>
+    <p><span class="k">Грешка:</span> заобляне на гърба.</p></div>
+
+  <div class="ex"><h4>2. Румънска тяга (лек лост или дъмбели 2 x 8 кг)</h4>
+    <p><span class="k">Тренира:</span> задна част на бедрата и седалище.</p>
+    <p><span class="k">Ключово:</span> буташ дупето назад, плъзгаш тежестта надолу по краката, гръб прав. Тежестта е лека нарочно.</p>
+    <p><span class="k">Грешка:</span> клякане вместо навеждане от таза.</p></div>
+
+  <div class="ex"><h4>3. Хамстринг згъвки (машина)</h4>
+    <p><span class="k">Тренира:</span> задна част на бедрата.</p>
+    <p><span class="k">Ключово:</span> дърпаш петите към дупето, после бавно връщаш.</p>
+    <p><span class="k">Грешка:</span> рязко пускане надолу.</p></div>
+
+  <div class="ex"><h4>4. Разтваряне на машина (абдукция)</h4>
+    <p><span class="k">Тренира:</span> външната част на бедрата и седалището.</p>
+    <p><span class="k">Ключово:</span> разтваряш краката навън срещу съпротивлението, бавно затваряш.</p>
+    <p><span class="k">Грешка:</span> засилване с инерция.</p></div>
+
+  <div class="ex"><h4>5. Пек дек (машина, гърди)</h4>
+    <p><span class="k">Тренира:</span> гръдните мускули.</p>
+    <p><span class="k">Ключово:</span> събираш ръцете пред гърдите, после бавно отваряш.</p>
+    <p><span class="k">Грешка:</span> дърпане само с раменете.</p></div>
+
+  <div class="ex"><h4>6. Кабел флайс (скрипци, гърди)</h4>
+    <p><span class="k">Тренира:</span> гръдните мускули.</p>
+    <p><span class="k">Ключово:</span> леко свити лакти, събираш ръцете пред теб в дъга.</p>
+    <p><span class="k">Грешка:</span> изправяне на лактите.</p></div>
+
+  <div class="ex"><h4>7. Раменен прес (машина)</h4>
+    <p><span class="k">Тренира:</span> раменете.</p>
+    <p><span class="k">Ключово:</span> буташ нагоре, бавно сваляш до раменете.</p>
+    <p><span class="k">Грешка:</span> рязко падане надолу.</p></div>
+
+  <div class="ex"><h4>8. Лицево дърпане (въже на скрипец)</h4>
+    <p><span class="k">Тренира:</span> задни рамене и горна част на гърба (за стойката).</p>
+    <p><span class="k">Ключово:</span> дърпаш въжето към лицето, лактите високо.</p>
+    <p><span class="k">Грешка:</span> дърпане ниско към гърдите.</p></div>
+
+  <div class="ex"><h4>9. Трицепс разгъване (скрипец) — 4 x 12</h4>
+    <p><span class="k">Тренира:</span> задната част на ръката.</p>
+    <p><span class="k">Ключово:</span> лактите прибрани, движи се само предмишницата.</p>
+    <p><span class="k">Грешка:</span> махане с цялата ръка.</p></div>
+
+  <div class="ex"><h4>10. Корем</h4>
+    <p><span class="k">Ключово:</span> бавни движения, без дърпане с врата.</p></div>
+
+  <p class="day">ТРЕНИРОВКА 2 — крака (преден ред) + гръб</p>
+
+  <div class="ex"><h4>1. Заден клек (машина Смит)</h4>
+    <p><span class="k">Тренира:</span> предна част на бедрата и седалище.</p>
+    <p><span class="k">Ключово:</span> сядаш надолу като на стол, гръб прав, коленете в посока на пръстите.</p>
+    <p><span class="k">Грешка:</span> колене навътре, вдигане на петите.</p></div>
+
+  <div class="ex"><h4>2. Лег прес (преса за крака)</h4>
+    <p><span class="k">Тренира:</span> бедра и седалище.</p>
+    <p><span class="k">Ключово:</span> буташ платформата, после контролирано сгъваш (не докрай).</p>
+    <p><span class="k">Грешка:</span> изпъване на коленете „на тръс".</p></div>
+
+  <div class="ex"><h4>3. Разгъване на бедра (машина)</h4>
+    <p><span class="k">Тренира:</span> предната част на бедрото.</p>
+    <p><span class="k">Ключово:</span> изпъваш краката нагоре, бавно сваляш.</p>
+    <p><span class="k">Грешка:</span> рязко пускане.</p></div>
+
+  <div class="ex"><h4>4. Затваряне на машина (аддукция)</h4>
+    <p><span class="k">Тренира:</span> вътрешната част на бедрата.</p>
+    <p><span class="k">Ключово:</span> затваряш краката един към друг, бавно отваряш.</p>
+    <p><span class="k">Грешка:</span> инерция.</p></div>
+
+  <div class="ex"><h4>5. Скрипец отпред (лат сваляне)</h4>
+    <p><span class="k">Тренира:</span> гърба на широчина.</p>
+    <p><span class="k">Ключово:</span> дърпаш лоста към горната част на гърдите, лактите надолу.</p>
+    <p><span class="k">Грешка:</span> дърпане зад врата или с люлеене.</p></div>
+
+  <div class="ex"><h4>6. Ниско/високо гребане (скрипец)</h4>
+    <p><span class="k">Тренира:</span> средата на гърба.</p>
+    <p><span class="k">Ключово:</span> дърпаш към корема/гърдите, свиваш лопатките.</p>
+    <p><span class="k">Грешка:</span> заобляне на гърба.</p></div>
+
+  <div class="ex"><h4>7. Гребане с подпора за гърди (машина)</h4>
+    <p><span class="k">Тренира:</span> средата и горната част на гърба.</p>
+    <p><span class="k">Ключово:</span> гърдите опрени, дърпаш дръжките назад, свиваш лопатките.</p>
+    <p><span class="k">Грешка:</span> отлепяне от подложката със засилване.</p></div>
+
+  <div class="ex"><h4>8. Ски гребане — латс (изпънати ръце)</h4>
+    <p><span class="k">Тренира:</span> широчината на гърба.</p>
+    <p><span class="k">Ключово:</span> ръцете почти прави, дърпаш лоста надолу към бедрата по дъга.</p>
+    <p><span class="k">Грешка:</span> сгъване на лактите.</p></div>
+
+  <div class="ex"><h4>9. Бицепс згъвки — 4 x 12</h4>
+    <p><span class="k">Тренира:</span> предната част на ръката.</p>
+    <p><span class="k">Ключово:</span> лактите на място, движи се само предмишницата.</p>
+    <p><span class="k">Грешка:</span> люлеене с тялото.</p></div>
+
+  <div class="ex"><h4>10. Корем</h4>
+    <p><span class="k">Ключово:</span> както в Тренировка 1.</p></div>
+
+  <div class="card" style="margin-top:18px;">
+    <b>Заради костите:</b> тренировките с тежести са от най-добрите неща за теб — натоварването
+    прави костта по-здрава. Започваме леко и постепенно. Ако нещо те боли (не опъва, а боли) —
+    спираш и ми казваш. На живо ще ти покажа всяка машина. :)
+  </div>
+
+</div>
+
+<script>
+(function () {
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ""; }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; }).join(", ");
+  }
+  function line(label, value) { return label + ": " + (value || "—"); }
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / Vega ===");
+    L.push("Дата: " + date);
+    L.push("");
+    L.push("[КРАТКИ ДАННИ]");
+    L.push(line("Височина (см)", val("visochina")));
+    L.push(line("Тегло (кг)", val("teglo")));
+    L.push(line("Усещане за тялото/цел", val("usteshtane")));
+    L.push("");
+    L.push("[ХРАНЕНЕ — ВЕГАН ДНИ]");
+    L.push(line("Веган дни", val("vegan_dni")));
+    L.push(line("Животинско в гъвкавите дни", checks("zhivotinski")));
+    L.push(line("Веган ден (пример)", val("den_vegan")));
+    L.push(line("Гъвкав ден (пример)", val("den_gavkav")));
+    L.push("");
+    L.push("[ХРАНЕНЕ — ИЗТОЧНИЦИ]");
+    L.push(line("Калциеви храни", checks("kalcii")));
+    L.push(line("Протеин източници", val("protein_iztochnici")));
+    L.push(line("Хранения и часове", val("hraneniya")));
+    L.push(line("Вода на ден", radio("voda")));
+    L.push(line("Кафе/алкохол", val("kafe_alkohol")));
+    L.push(line("Избягвани/непоносими храни", val("izbyagvani")));
+    L.push("");
+    L.push("[ДОБАВКИ СЕГА]");
+    L.push(line("Приема", val("dobavki_sega")));
+    L.push("");
+    L.push("[ДВИЖЕНИЕ]");
+    L.push(line("Тренировки (дни/мин)", val("trenirovki")));
+    L.push(line("Час на тренировка", val("chas_tren")));
+    L.push(line("Друго движение", val("drugo_dvizhenie")));
+    L.push(line("Трудни/неясни упражнения", val("trudni_uprazhneniya")));
+    L.push("");
+    L.push("[ИСТОРИЯ И БЕЗОПАСНОСТ]");
+    L.push(line("Минали фрактури/падания", val("frakturi")));
+    L.push(line("Фамилна остеопороза", val("famnasledstvo")));
+    L.push(line("Пушене", radio("pushene")));
+    L.push(line("Болка/равновесие", val("bolka_ravnovesie")));
+    L.push(line("Дневна активност", val("aktivnost_den")));
+    L.push("");
+    L.push("[СЪН И ЕНЕРГИЯ]");
+    L.push(line("Сън", val("syn")));
+    L.push(line("Енергия", radio("energiya")));
+    L.push(line("Притеснения/въпроси", val("pritesneniya")));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function showOk() {
+    var ok = document.getElementById("okMsg");
+    ok.classList.add("show");
+    ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.position = "absolute"; ta.style.left = "-9999px";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = build();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showOk, function () { fallbackCopy(text); showOk(); });
+    } else { fallbackCopy(text); showOk(); }
+  });
+})();
+</script>
+</body>
+</html>
