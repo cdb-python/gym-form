@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Lyra — твоята страница</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2f7d72;
+    --accent-dark: #245f57;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #e6f1ef;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55; padding: 0 0 40px;
+  }
+  header { background: var(--accent); color: #fff; padding: 24px 18px 20px; }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 660px; margin: 0 auto; padding: 0 14px; }
+  h2.sec {
+    font-size: 19px; color: var(--accent-dark); margin: 30px 0 4px;
+    padding-top: 14px; border-top: 2px solid var(--border);
+  }
+  .step {
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 22px;
+  }
+  fieldset {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; margin: 14px 0; padding: 14px 16px 18px;
+  }
+  legend { font-weight: 700; font-size: 16px; color: var(--accent-dark); padding: 0 6px; }
+  label.q { display: block; margin: 14px 0 6px; font-weight: 600; }
+  .hint { display: block; font-weight: 400; font-size: 13px; color: var(--hint); margin-top: 2px; }
+  input[type=text], input[type=number], textarea, select {
+    width: 100%; padding: 11px 12px; font-size: 16px;
+    border: 1px solid var(--border); border-radius: 9px;
+    background: #fff; color: var(--ink); font-family: inherit;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label { display: flex; align-items: center; gap: 10px; padding: 9px 4px; font-weight: 400; cursor: pointer; }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > div { flex: 1; }
+  .intro, .card {
+    background: #fff; border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 16px; margin: 14px 0;
+  }
+  .intro { font-size: 15px; color: var(--muted); }
+  .tip { background: var(--soft); border-color: #bcdcd5; }
+  .tip ul { margin: 8px 0 0; padding-left: 20px; }
+  .tip li { margin: 6px 0; }
+  .actions {
+    position: sticky; bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px; max-width: 660px; margin: 0 auto;
+  }
+  button {
+    width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
+    color: #fff; background: var(--accent); border: none; border-radius: 12px; cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none; margin-top: 12px; padding: 12px 14px;
+    background: var(--soft); border: 1px solid #bcdcd5; border-radius: 10px;
+    color: var(--accent-dark); font-size: 15px; text-align: center;
+  }
+  .ok.show { display: block; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
+  th, td { border: 1px solid var(--border); padding: 7px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); color: var(--accent-dark); }
+  .note { font-size: 14px; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Lyra — твоята лична страница</h1>
+    <p>Въпросник, насоки и какви изследвания да направим — за да ти помогнем точно.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- 1. КАК ДА ПОПЪЛНИШ -->
+  <div class="step">Стъпка 1 — как се ползва тази страница</div>
+  <div class="intro">
+    Тази страница е само за теб. На нея ще намериш:
+    <br><br>
+    1) <b>Въпросник</b> — попълваш го веднъж, около 10 минути.<br>
+    2) <b>Какво гледаме и защо</b> — обяснено с прости думи.<br>
+    3) <b>Насоки и изследвания</b> — кои кръвни е добре да направиш и няколко съвета.
+    <br><br>
+    Започни с въпросника по-долу. На края натисни <b>„Копирай отговорите"</b> и ги залепи в нашия
+    чат — толкова. Останалото остава тук, за да го отваряш когато искаш.
+    <br><br>
+    Целта е една: да разберем защо има дни като днешния (без сила) и да ги махнем.
+  </div>
+
+  <!-- 2. ПРЕПОРЪКИ -->
+  <div class="step">Стъпка 2 — за да попълниш по-точно</div>
+  <div class="card tip">
+    Преди да започнеш:
+    <ul>
+      <li>Опиши <b>истински обикновен ден</b>, не „идеалния".</li>
+      <li>За лекарствата — ако можеш, виж кутийката и напиши <b>точното име и дозата</b>.</li>
+      <li>За дните без сила (като днес) — сети се <b>какво беше преди това</b>: спа ли, яде ли, в кой момент от цикъла си.</li>
+      <li>Няма грешни отговори. Колкото по-вярно, толкова по-точно ще ти помогнем.</li>
+    </ul>
+  </div>
+
+  <!-- 3. ВЪПРОСНИК -->
+  <div class="step">Стъпка 3 — въпросникът</div>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>1. Кратки данни</legend>
+      <div class="row2">
+        <div><label class="q">Тегло сега (кг)</label><input type="number" id="teglo" inputmode="decimal"></div>
+        <div><label class="q">Талия (см)</label><input type="number" id="taliya" inputmode="numeric"></div>
+      </div>
+      <label class="q">Как се чувстваш напоследък — общо?
+        <span class="hint">С две-три думи: добре, уморена, на приливи, друго.</span>
+      </label>
+      <textarea id="obshto"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Цикъл и хормонални промени</legend>
+      <label class="q">Как е цикълът ти в последните месеци?</label>
+      <div class="opts" data-radio="cikyl">
+        <label><input type="radio" name="cikyl" value="Редовен"> Редовен</label>
+        <label><input type="radio" name="cikyl" value="Започна да се колебае"> Започна да се колебае / нередовен</label>
+        <label><input type="radio" name="cikyl" value="Често прескача"> Често прескача месеци</label>
+        <label><input type="radio" name="cikyl" value="Спрял"> Спрял е</label>
+      </div>
+      <label class="q">Кървенето какво е?
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="kravene">
+        <label><input type="checkbox" value="Обилно"> По-обилно от преди</label>
+        <label><input type="checkbox" value="Оскъдно"> По-оскъдно</label>
+        <label><input type="checkbox" value="Както обикновено"> Както обикновено</label>
+      </div>
+      <label class="q">Усещаш ли нещо от тези?
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="simptomi">
+        <label><input type="checkbox" value="Топли вълни"> Топли вълни</label>
+        <label><input type="checkbox" value="Нощно изпотяване"> Нощно изпотяване</label>
+        <label><input type="checkbox" value="Лош сън"> Лош сън</label>
+        <label><input type="checkbox" value="Раздразнителност/тревожност"> Раздразнителност или тревожност</label>
+        <label><input type="checkbox" value="Спад на енергия"> Спадове на енергия</label>
+        <label><input type="checkbox" value="Нищо особено"> Нищо особено</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Лекарства и добавки</legend>
+      <label class="q">Лекарства „за нерви" — кои точно и по колко?
+        <span class="hint">Име от кутийката + доза + откога ги пиеш. Това е важно за нас.</span>
+      </label>
+      <textarea id="nervi"></textarea>
+      <label class="q">Други лекарства, които приемаш редовно?
+        <span class="hint">Ако няма — напиши „няма".</span>
+      </label>
+      <textarea id="drugi_lekarstva"></textarea>
+      <label class="q">Добавки или витамини?
+        <span class="hint">Изброй кои. Ако не приемаш — „не".</span>
+      </label>
+      <textarea id="dobavki"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Дните без сила</legend>
+      <label class="q">Колко често имаш ден като днешния (омаляла, без сила)?</label>
+      <div class="opts" data-radio="chestota">
+        <label><input type="radio" name="chestota" value="Рядко"> Рядко</label>
+        <label><input type="radio" name="chestota" value="Няколко пъти месечно"> Няколко пъти месечно</label>
+        <label><input type="radio" name="chestota" value="Често/седмично"> Често, почти всяка седмица</label>
+      </div>
+      <label class="q">В кой момент идва най-често?
+        <span class="hint">Например „следобед на работа", „вечер преди тренировка".</span>
+      </label>
+      <input type="text" id="koga_umora">
+      <label class="q">В деня без сила — какво беше преди това?
+        <span class="hint">Спа ли добре? Яде ли преди тренировка? В коя част от цикъла беше?</span>
+      </label>
+      <textarea id="predi_umora"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Хранене</legend>
+      <label class="q">Колко стриктно спазваш режима?</label>
+      <div class="opts" data-radio="strict">
+        <label><input type="radio" name="strict" value="Почти винаги"> Почти винаги</label>
+        <label><input type="radio" name="strict" value="През повечето време"> През повечето време</label>
+        <label><input type="radio" name="strict" value="Трудно ми е"> Трудно ми е</label>
+      </div>
+      <label class="q">Опиши един обикновен ден храна — закуска, обяд, вечеря, междинно.</label>
+      <textarea id="den_hrana"></textarea>
+      <label class="q">Когато се отклониш от режима — какво ядеш?
+        <span class="hint">Сладко, солено, хляб, друго.</span>
+      </label>
+      <textarea id="otklonenie"></textarea>
+      <label class="q">Има ли храни, които още избягваш или не понасяш?
+        <span class="hint">Знаем, че зеленчуците вече са ОК. Тук — каквото още стои.</span>
+      </label>
+      <textarea id="izbyagvani"></textarea>
+      <div class="row2">
+        <div>
+          <label class="q">Вода на ден</label>
+          <div class="opts" data-radio="voda">
+            <label><input type="radio" name="voda" value="Под 1 л"> Под 1 л</label>
+            <label><input type="radio" name="voda" value="1–2 л"> 1–2 л</label>
+            <label><input type="radio" name="voda" value="Над 2 л"> Над 2 л</label>
+          </div>
+        </div>
+      </div>
+      <label class="q">Кафе — колко на ден?</label>
+      <input type="text" id="kafe">
+    </fieldset>
+
+    <fieldset>
+      <legend>6. Около тренировката</legend>
+      <label class="q">Тренираш преди или след работа?</label>
+      <input type="text" id="koga_tren">
+      <label class="q">Какво и кога ядеш ПРЕДИ тренировка?
+        <span class="hint">Например „нищо", „кафе", „ядене 2 часа преди". Бъди честна.</span>
+      </label>
+      <textarea id="predi_tren"></textarea>
+      <label class="q">Пиеш ли вода по време на тренировка?</label>
+      <div class="opts" data-radio="voda_tren">
+        <label><input type="radio" name="voda_tren" value="Да"> Да</label>
+        <label><input type="radio" name="voda_tren" value="Малко"> Малко</label>
+        <label><input type="radio" name="voda_tren" value="Не"> Не</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>7. Сън, стрес, движение</legend>
+      <label class="q">Колко часа спиш и как е сънят?</label>
+      <input type="text" id="syn">
+      <label class="q">Ниво на стрес от работата?</label>
+      <div class="opts" data-radio="stres">
+        <label><input type="radio" name="stres" value="Ниско"> Ниско</label>
+        <label><input type="radio" name="stres" value="Средно"> Средно</label>
+        <label><input type="radio" name="stres" value="Високо"> Високо</label>
+      </div>
+      <label class="q">През работния ден ставаш ли да се раздвижиш, или седиш почти през цялото време?</label>
+      <textarea id="dvizhenie"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>8. Притеснения и въпроси</legend>
+      <label class="q">Какво те притеснява или какво искаш да ни питаш?
+        <span class="hint">Пиши спокойно — тук е мястото за всичко.</span>
+      </label>
+      <textarea id="pritesneniya"></textarea>
+    </fieldset>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="copyBtn">Копирай отговорите</button>
+  <div class="ok" id="okMsg">Готово! Отговорите са копирани. Залепи ги в нашия чат (задръж пръст → „Постави").</div>
+</div>
+
+<div class="wrap">
+
+  <!-- ИНФОРМАЦИЯ -->
+  <h2 class="sec">Какво гледаме и защо</h2>
+  <p class="note">За да си наясно — ето какво мислим, че може да стои зад дните без сила, и защо
+  питаме това, което питаме.</p>
+
+  <div class="card">
+    Дни като днешния — омаляла, без сила на тренировка — обикновено имат комбинирана причина.
+    При теб гледаме няколко неща наведнъж:
+    <ul>
+      <li><b>Хормоналната промяна</b>, която сама усещаш (колебаещ се цикъл) — тя сама по себе си носи спадове на енергия.</li>
+      <li><b>Запасите от желязо</b> — когато цикълът е по-обилен или нередовен, желязото може да падне, а ниското желязо дава точно умора и липса на сила.</li>
+      <li><b>Лекарствата за нерви</b> — някои могат да допринасят за умора; затова искаме да знаем точно кои са.</li>
+      <li><b>Горивото около тренировката</b> — след цял ден на бюро и психическо натоварване, ако тренираш на „празно", тялото няма от какво да черпи.</li>
+    </ul>
+    Нищо тук не е страшно — повечето се регулира с малки промени и, ако трябва, желязо. Но първо
+    искаме да видим черно на бяло, не на догадки. Затова — няколко кръвни по-долу.
+  </div>
+
+  <!-- УКАЗАНИЯ + КРЪВНИ -->
+  <h2 class="sec">Изследвания и насоки</h2>
+
+  <h3 style="color:var(--accent-dark);">Кои кръвни да си направиш</h3>
+  <p class="note">Покажи този списък на личния лекар:</p>
+  <table>
+    <tr><th>Изследване</th><th>Защо</th></tr>
+    <tr><td>Кръвна картина + феритин (желязо)</td><td>Най-важното — за умората. Проверява за нисък железен запас/анемия.</td></tr>
+    <tr><td>TSH (щитовидна жлеза)</td><td>Щитовидната също дава умора и се застъпва с хормоналната промяна.</td></tr>
+    <tr><td>Витамин D</td><td>Ниският витамин D дава умора и слабост.</td></tr>
+    <tr><td>Витамин B12</td><td>Друга честа причина за умора.</td></tr>
+    <tr><td>Кръвна захар на гладно + HbA1c + инсулин</td><td>Проверяваме как тялото управлява захарта (връзка с глада и енергията).</td></tr>
+    <tr><td>FSH + естрадиол (по преценка на лекаря)</td><td>Потвърждават хормоналната промяна (перименопауза).</td></tr>
+  </table>
+
+  <h3 style="color:var(--accent-dark);">Малки насоки до тогава</h3>
+  <div class="card">
+    <ul>
+      <li><b>Зареди преди тренировка.</b> След работа не тренирай на „празно" — хапни нещо с
+      въглехидрати и малко протеин 1–2 часа преди (така тялото има гориво).</li>
+      <li><b>Вода.</b> Поне 1.5–2 литра на ден; и по време на тренировка пий.</li>
+      <li><b>Движение на работа.</b> Ставай за по 2–3 минути на всеки час — кратка разходка до
+      кафе-машината брои. Цял ден седене засилва умората.</li>
+      <li><b>Сън.</b> Гледай да е достатъчен и редовен — той е горивото за всичко останало.</li>
+    </ul>
+    Това са временни насоки. Като видим кръвните и отговорите ти, ще нагласим всичко точно за теб.
+  </div>
+
+</div>
+
+<script>
+(function () {
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ""; }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; }).join(", ");
+  }
+  function line(label, value) { return label + ": " + (value || "—"); }
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / Lyra ===");
+    L.push("Дата: " + date);
+    L.push("");
+    L.push("[КРАТКИ ДАННИ]");
+    L.push(line("Тегло (кг)", val("teglo")));
+    L.push(line("Талия (см)", val("taliya")));
+    L.push(line("Общо усещане", val("obshto")));
+    L.push("");
+    L.push("[ЦИКЪЛ И ХОРМОНИ]");
+    L.push(line("Цикъл", radio("cikyl")));
+    L.push(line("Кървене", checks("kravene")));
+    L.push(line("Симптоми", checks("simptomi")));
+    L.push("");
+    L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
+    L.push(line("Лекарства за нерви", val("nervi")));
+    L.push(line("Други лекарства", val("drugi_lekarstva")));
+    L.push(line("Добавки", val("dobavki")));
+    L.push("");
+    L.push("[ДНИ БЕЗ СИЛА]");
+    L.push(line("Честота", radio("chestota")));
+    L.push(line("Кога идва", val("koga_umora")));
+    L.push(line("Какво беше преди", val("predi_umora")));
+    L.push("");
+    L.push("[ХРАНЕНЕ]");
+    L.push(line("Стриктност", radio("strict")));
+    L.push(line("Обикновен ден храна", val("den_hrana")));
+    L.push(line("Отклонение", val("otklonenie")));
+    L.push(line("Избягвани храни", val("izbyagvani")));
+    L.push(line("Вода", radio("voda")));
+    L.push(line("Кафе", val("kafe")));
+    L.push("");
+    L.push("[ОКОЛО ТРЕНИРОВКАТА]");
+    L.push(line("Кога тренира", val("koga_tren")));
+    L.push(line("Преди тренировка", val("predi_tren")));
+    L.push(line("Вода по време", radio("voda_tren")));
+    L.push("");
+    L.push("[СЪН, СТРЕС, ДВИЖЕНИЕ]");
+    L.push(line("Сън", val("syn")));
+    L.push(line("Стрес", radio("stres")));
+    L.push(line("Движение на работа", val("dvizhenie")));
+    L.push("");
+    L.push("[ПРИТЕСНЕНИЯ]");
+    L.push(line("Въпроси", val("pritesneniya")));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function showOk() {
+    var ok = document.getElementById("okMsg");
+    ok.classList.add("show");
+    ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.position = "absolute"; ta.style.left = "-9999px";
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    try { document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta);
+  }
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    var text = build();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showOk, function () { fallbackCopy(text); showOk(); });
+    } else { fallbackCopy(text); showOk(); }
+  });
+})();
+</script>
+</body>
+</html>
