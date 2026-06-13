@@ -42,6 +42,7 @@
     padding-top: 14px;
     border-top: 2px solid var(--border);
   }
+  h3.grp { color: var(--accent-dark); margin: 18px 0 6px; font-size: 16px; }
   .step {
     font-size: 13px;
     font-weight: 700;
@@ -90,15 +91,10 @@
   .tip { background: var(--soft); border-color: #d8cdec; }
   .tip ul { margin: 8px 0 0; padding-left: 20px; }
   .tip li { margin: 6px 0; }
-  .actions {
-    position: sticky; bottom: 0;
-    background: linear-gradient(transparent, var(--bg) 22%);
-    padding: 18px 14px 8px; max-width: 660px; margin: 0 auto;
-  }
   button {
     width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
     color: #fff; background: var(--accent); border: none;
-    border-radius: 12px; cursor: pointer;
+    border-radius: 12px; cursor: pointer; margin-top: 8px;
   }
   button:active { background: var(--accent-dark); }
   .ok {
@@ -116,284 +112,139 @@
   .ex .k { font-weight: 700; }
   .day { font-weight: 700; color: var(--accent-dark); margin: 16px 0 0; }
   .note { font-size: 14px; color: var(--muted); }
+  /* сгъваеми менюта */
+  details.box { background: #fff; border: 1px solid var(--border); border-radius: 12px; margin: 10px 0; padding: 0 14px; }
+  details.box > summary { font-weight: 700; color: var(--accent-dark); padding: 13px 0; cursor: pointer; font-size: 16px; list-style: none; }
+  details.box > summary::-webkit-details-marker { display: none; }
+  details.box > summary::before { content: "▸ "; color: var(--accent); }
+  details.box[open] > summary::before { content: "▾ "; }
+  details.box .mealp { margin: 8px 0; font-size: 15px; }
+  details.box .mealp b { color: var(--accent-dark); }
+  details.box .tot { font-size: 13px; color: var(--hint); margin: 10px 0 14px; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap" style="padding:0 4px;">
     <h1>Vega — твоята лична страница</h1>
-    <p>Всичко на едно място: въпросник, добавки, упражнения. Спокойно, стъпка по стъпка.</p>
+    <p>Всичко на едно място: хранене, добавки, упражнения, изследвания.</p>
   </div>
 </header>
 
 <div class="wrap">
 
-  <!-- ============ 1. КАК ДА ПОПЪЛНИШ ============ -->
-  <div class="step">Стъпка 1 — как се ползва тази страница</div>
+  <!-- ============ ИНТРО ============ -->
   <div class="intro">
-    Тази страница е само за теб. На нея ще намериш:
+    Тази страница е само за теб — отваряй я когато искаш. На нея ще намериш:
     <br><br>
-    1) <b>Въпросник</b> — попълваш го веднъж, отнема около 10 минути.<br>
-    2) <b>Какво показват изследванията ти</b> — обяснено с прости думи.<br>
-    3) <b>Указания и добавки</b> — кога и колко да приемаш, плюс кои кръвни да направиш.<br>
-    4) <b>Упражнения</b> — как се прави всяко от твоята програма.
+    1) <b>Хранене</b> — готови менюта за деня (веган и гъвкави), от които си избираш.<br>
+    2) <b>Указания и добавки</b> — кога и колко да приемаш.<br>
+    3) <b>Упражнения</b> — как се прави всяко от твоята програма.
     <br><br>
-    Започни с въпросника по-долу. Като стигнеш края му, натисни големия бутон
-    <b>„Копирай отговорите"</b> и ги залепи в чата — толкова. Останалото остава тук,
-    за да го отваряш когато искаш.
-    <br><br>
-    <b>Не се притеснявай</b> — няма грешни отговори, а на място всичко ще се покаже едно по едно. :)
+    Спокойно, стъпка по стъпка. При въпрос — пиши без колебание. :)
   </div>
 
-  <!-- ============ 2. ПРЕПОРЪКИ ЗА ПО-ДОБРО ПОПЪЛВАНЕ ============ -->
-  <div class="step">Стъпка 2 — за да попълниш по-точно</div>
-  <div class="card tip">
-    Преди да започнеш, две минути за това:
-    <ul>
-      <li>Опиши <b>истински обикновен ден</b>, не „идеалния". Колкото по-вярно, толкова по-точна е насоката.</li>
-      <li>За храната — сети се <b>какво яде вчера</b>: закуска, обяд, вечеря, похапвания между тях.</li>
-      <li>Ти спазваш веган няколко дни в седмицата — важно е <b>кои дни</b> и <b>какво ядеш на тях</b> спрямо останалите.</li>
-      <li>Не закръгляй на едро (напр. „малко ядки" → „шепа бадеми").</li>
-      <li>Ако нещо не знаеш или не си сигурна — напиши го както го усещаш; ще се доуточни на място.</li>
-    </ul>
-  </div>
-
-  <!-- ============ 3. ВЪПРОСНИКЪТ ============ -->
-  <div class="step">Стъпка 3 — въпросникът</div>
-
-  <form id="form">
-
-    <fieldset>
-      <legend>1. Кратки данни</legend>
-      <p class="note" style="margin:6px 0 0;">Имаме предишните ти мерки — попълни ги пак за сравнение.</p>
-      <div class="row2">
-        <div>
-          <label class="q">Тегло сега (кг)</label>
-          <input type="number" id="teglo" inputmode="decimal">
-        </div>
-        <div>
-          <label class="q">Талия (см)</label>
-          <input type="number" id="taliya" inputmode="numeric">
-        </div>
-      </div>
-      <label class="q">Ханш (см)
-        <span class="hint">На най-широкото на седалището.</span>
-      </label>
-      <input type="number" id="hansh" inputmode="numeric">
-      <label class="q">Как се чувстваш с тялото си в момента?
-        <span class="hint">С две думи — какво искаш да се промени.</span>
-      </label>
-      <textarea id="usteshtane"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>2. Хранене — веган дни</legend>
-
-      <label class="q">Кои дни от седмицата си строг веган?
-        <span class="hint">Например „понеделник, сряда, петък".</span>
-      </label>
-      <input type="text" id="vegan_dni">
-
-      <label class="q">На останалите дни какво ядеш от животински произход?
-        <span class="hint">Отбележи всичко, което важи.</span>
-      </label>
-      <div class="opts" data-check="zhivotinski">
-        <label><input type="checkbox" value="Мляко/млечни"> Мляко и млечни (сирене, кисело мляко)</label>
-        <label><input type="checkbox" value="Яйца"> Яйца</label>
-        <label><input type="checkbox" value="Риба"> Риба</label>
-        <label><input type="checkbox" value="Пиле/месо"> Пиле или месо</label>
-        <label><input type="checkbox" value="Нищо животинско"> Всъщност и тогава не ям животинско</label>
-      </div>
-
-      <label class="q">Опиши един ВЕГАН ден — какво яде на закуска, обяд, вечеря, междинно?</label>
-      <textarea id="den_vegan"></textarea>
-
-      <label class="q">Опиши един ГЪВКАВ ден — закуска, обяд, вечеря, междинно?</label>
-      <textarea id="den_gavkav"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>3. Хранене — източници</legend>
-
-      <label class="q">Кои от тези ядеш редовно? (богати на калций — важно за костите)
-        <span class="hint">Отбележи всичко, което важи.</span>
-      </label>
-      <div class="opts" data-check="kalcii">
-        <label><input type="checkbox" value="Тахан/сусам"> Тахан или сусам</label>
-        <label><input type="checkbox" value="Бадеми"> Бадеми</label>
-        <label><input type="checkbox" value="Тофу"> Тофу</label>
-        <label><input type="checkbox" value="Зелени листни"> Зелени листни (спанак, къдраво зеле, броколи)</label>
-        <label><input type="checkbox" value="Растително мляко с калций"> Растително мляко, обогатено с калций</label>
-        <label><input type="checkbox" value="Млечни продукти"> Млечни продукти (в гъвкавите дни)</label>
-        <label><input type="checkbox" value="Бобови"> Бобови (нахут, леща, боб)</label>
-      </div>
-
-      <label class="q">Какъв протеин ядеш най-често?
-        <span class="hint">Например бобови, тофу, грахов протеин, яйца, риба...</span>
-      </label>
-      <textarea id="protein_iztochnici"></textarea>
-
-      <label class="q">Колко пъти на ден се храниш и в колко часа?
-        <span class="hint">Например „4 пъти: 9:30, 13:00, 16:00, 19:00".</span>
-      </label>
-      <input type="text" id="hraneniya">
-
-      <label class="q">Колко вода пиеш на ден приблизително?</label>
-      <div class="opts" data-radio="voda">
-        <label><input type="radio" name="voda" value="Под 1 литър"> Под 1 литър</label>
-        <label><input type="radio" name="voda" value="1–2 литра"> 1–2 литра</label>
-        <label><input type="radio" name="voda" value="Над 2 литра"> Над 2 литра</label>
-      </div>
-
-      <label class="q">Кафе и алкохол — колко често?</label>
-      <textarea id="kafe_alkohol"></textarea>
-
-      <label class="q">Има ли храни, които изобщо не понасяш или избягваш?
-        <span class="hint">Ако няма — напиши „няма".</span>
-      </label>
-      <textarea id="izbyagvani"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>4. Добавки — какво приемаш сега</legend>
-      <label class="q">Придържаш ли се към добавките, които ти дадох?
-        <span class="hint">Витамин D3+K2, витамин E, хиалурон, креатин, колаген, Merz, омега-3, грахов протеин, L-карнитин. Пропускаш ли някоя, или взимаш и нещо друго?</span>
-      </label>
-      <textarea id="dobavki_sega"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>5. Движение и тренировки</legend>
-      <label class="q">Колко пъти седмично ходиш на фитнес и по колко минути?</label>
-      <input type="text" id="trenirovki">
-
-      <label class="q">В колко часа обикновено тренираш?</label>
-      <input type="text" id="chas_tren">
-
-      <label class="q">Правиш ли друго движение? (йога, разходки, друго)</label>
-      <textarea id="drugo_dvizhenie"></textarea>
-
-      <label class="q">Кои упражнения ти се струват трудни или неясни?
-        <span class="hint">Така ще е ясно на кои да се обърне повече внимание на живо.</span>
-      </label>
-      <textarea id="trudni_uprazhneniya"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>6. История и безопасност</legend>
-
-      <label class="q">Чупила ли си някога кост или падала ли си лошо?
-        <span class="hint">Кога и коя кост. Ако не — напиши „не".</span>
-      </label>
-      <textarea id="frakturi"></textarea>
-
-      <label class="q">Има ли в рода остеопороза или счупено бедро (майка, баща)?
-        <span class="hint">Ако не знаеш или няма — напиши го.</span>
-      </label>
-      <textarea id="famnasledstvo"></textarea>
-
-      <label class="q">Пушиш ли?</label>
-      <div class="opts" data-radio="pushene">
-        <label><input type="radio" name="pushene" value="Не"> Не</label>
-        <label><input type="radio" name="pushene" value="Да"> Да</label>
-        <label><input type="radio" name="pushene" value="Спрях"> Спрях</label>
-      </div>
-
-      <label class="q">Имаш ли болка, скованост или проблем с равновесието?
-        <span class="hint">Например коляно, кръст, замайване при ставане. Ако нямаш — „нямам".</span>
-      </label>
-      <textarea id="bolka_ravnovesie"></textarea>
-
-      <label class="q">Колко активна си през деня извън залата?
-        <span class="hint">На работа стоиш права или седнала? Ходиш ли пеша, разходки?</span>
-      </label>
-      <textarea id="aktivnost_den"></textarea>
-    </fieldset>
-
-    <fieldset>
-      <legend>7. Сън, енергия, притеснения</legend>
-      <label class="q">Колко часа спиш и как е сънят?</label>
-      <input type="text" id="syn">
-
-      <label class="q">Как е енергията ти през деня?</label>
-      <div class="opts" data-radio="energiya">
-        <label><input type="radio" name="energiya" value="Добра"> Добра</label>
-        <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
-        <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
-      </div>
-
-      <label class="q">Какво те притеснява или какво искаш да ме питаш?
-        <span class="hint">Пиши спокойно — тук е мястото за всичко, което те вълнува.</span>
-      </label>
-      <textarea id="pritesneniya"></textarea>
-    </fieldset>
-
-  </form>
-</div>
-
-<div class="actions">
-  <button type="button" id="copyBtn">Копирай отговорите</button>
-  <div class="ok" id="okMsg">Готово! Ако при пействане излезе празно — маркирай текста в полето долу, копирай го ръчно и го залепи в чата.</div>
-  <textarea id="outBox" readonly style="display:none; width:100%; height:170px; margin-top:10px; padding:10px; font-size:13px; border:1px solid var(--border); border-radius:9px; font-family:inherit; background:#fff; color:var(--ink);"></textarea>
-</div>
-
-<div class="wrap">
-
-  <!-- ============ ИНФОРМАЦИЯ ЗА НЕЯ ============ -->
-  <h2 class="sec">Какво показват изследванията ти — за да си наясно</h2>
-  <p class="note">Важно е да знаеш всичко за себе си, а не да си в неведение. Ето с прости думи какво
-  показват изследванията, какво означава и защо няма повод за паника.</p>
-
-  <div class="card">
-    <b>Костите ти (от изследването DEXA):</b>
-    <ul>
-      <li><b>Гръбнак</b> — лека загуба на плътност (нарича се <i>остеопения</i>).</li>
-      <li><b>Бедро</b> — по-изразена загуба (нарича се <i>остеопороза</i>).</li>
-    </ul>
-    С прости думи: костите ти са станали малко по-крехки от обичайното. Това <b>не</b> значи, че
-    ще се чупиш при всяко движение — значи, че за тях вече се полага грижа.
-  </div>
-
-  <div class="card">
-    <b>Защо се е случило:</b>
-    <ul>
-      <li>Менопаузата ти е дошла рано (на 46) — женският хормон пази костите, а той е намалял по-рано.</li>
-      <li>Ниското тегло — малко натоварване и малък „резерв" за костта.</li>
-    </ul>
-    Точно затова храненето и движението са толкова важни за теб.
-  </div>
+  <!-- ============ ХРАНЕНЕ ============ -->
+  <h2 class="sec">Хранене — твоите менюта</h2>
+  <p class="note">Имаш банка от менюта. Избираш според деня: <b>веган</b> ли е или <b>гъвкав</b>
+  (с животински продукти) и <b>тренираш</b> ли. После взимаш кое да е меню от групата — всяко е цял ден.</p>
 
   <div class="card tip">
-    <b>Добрата новина — има защо да си спокойна:</b>
-    <ul>
-      <li>Апаратът изчисли риска ти от счупване за следващите 10 години като <b>умерен, не висок</b>.</li>
-      <li>Костта е жива тъкан — отговаря на правилно хранене и натоварване и <b>може да се подобри</b>.</li>
-      <li>Затова лекарят нарочно <b>не</b> ти даде лекарства, а заложи движение, храна и добавки — при теб това е разумният и достатъчен път.</li>
-      <li>Имаш цяла година до следващата снимка, в която да се направи разлика.</li>
-    </ul>
+    <b>Започни спокойно.</b> Тялото не е свикнало на толкова храна наведнъж. Първите 1–2 седмици
+    карай с по-малки порции (например пропусни следобедния шейк или сложи половин въглехидрат) и
+    постепенно за 2–3 седмици стигни пълните количества. По-добре спокойно, отколкото много изведнъж.
   </div>
 
+  <p class="note">Дребни правила: <b>тренировъчните дни</b> (Пн/Ср/Пт) — шейкът след тренировка е лек
+  (протеин + плод), а ориз/картофите са в обяда и вечерята. <b>Без тренировка</b> — шейкът е следобед.
+  Месо/риба мери <b>сурово</b>; ориз/картоф/варива — <b>сготвени</b>. Плодовете са на брой (1 банан, 1 ябълка).</p>
+
+  <h3 class="grp">Веган · тренировъчен ден</h3>
+
+  <details class="box"><summary>Тофу и бобови</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Смути — соево мляко 250мл, овесени ядки 35г, чия 15г, грахов протеин 15г</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Тофу 120г + нахут 60г (варен) + ориз 45г (варен) + зеленчуци 200г + зехтин 5мл</p>
+    <p class="mealp"><b>След тренировка · ~18:00:</b> Грахов протеин 30г + 1 среден банан</p>
+    <p class="mealp"><b>Вечеря · 20:00:</b> Тофу 120г + леща 80г (варена) + ориз 40г (варен) + зеленчуци 200г + тахан 8г</p>
+    <p class="tot">Дневно: ~112 г белтък · ~1390 ккал</p>
+  </details>
+
+  <details class="box"><summary>Сейтан и боб</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Соев йогурт 150г + овесени ядки 30г + чия 10г + грахов протеин 25г</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Сейтан 140г + ориз 35г (варен) + зеленчуци 200г + авокадо 70г</p>
+    <p class="mealp"><b>След тренировка · ~18:00:</b> Грахов протеин 30г + 1 среден банан</p>
+    <p class="mealp"><b>Вечеря · 20:00:</b> Черен боб 110г (варен) + ориз 35г (варен) + зеленчуци 200г + хумус 40г + тиквено семе 10г + зехтин 10мл</p>
+    <p class="tot">Дневно: ~112 г белтък · ~1390 ккал</p>
+  </details>
+
+  <h3 class="grp">Веган · нетренировъчен ден</h3>
+
+  <details class="box"><summary>Темпе и едамаме</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Соево мляко 250мл + овесени ядки 40г + чия 15г + 1 ябълка + грахов протеин 15г</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Темпе 100г + киноа 100г (варена) + зеленчуци 200г</p>
+    <p class="mealp"><b>Следобед шейк · 16:00:</b> Грахов протеин 30г + 1 ябълка</p>
+    <p class="mealp"><b>Вечеря · 19:00:</b> Едамаме 150г (варено) + тофу 80г + зеленчуци 200г + тахан 10г</p>
+    <p class="tot">Дневно: ~113 г белтък · ~1400 ккал</p>
+  </details>
+
+  <details class="box"><summary>Леща и нахут</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Соево мляко 250мл + овесени ядки 40г + фъстъчено масло 15г + 1 ябълка + грахов протеин 15г</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Леща 150г (варена) + сейтан 80г + зеленчуци 200г + зехтин 5мл</p>
+    <p class="mealp"><b>Следобед шейк · 16:00:</b> Грахов протеин 30г + 1 ябълка</p>
+    <p class="mealp"><b>Вечеря · 19:00:</b> Нахут 120г (варен) + тофу 100г + зеленчуци 200г + авокадо 50г</p>
+    <p class="tot">Дневно: ~118 г белтък · ~1390 ккал</p>
+  </details>
+
+  <h3 class="grp">Гъвкав · тренировъчен ден</h3>
+
+  <details class="box"><summary>Скир и пиле</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Скир 150г + овесени ядки 35г + 1 ябълка</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Пилешко гърди 120г (сурово) + картоф 75г (варен) + зеленчуци 200г + авокадо 70г + зехтин 5мл</p>
+    <p class="mealp"><b>След тренировка · ~18:00:</b> Суроватъчен протеин 30г + 1 среден банан</p>
+    <p class="mealp"><b>Вечеря · 20:00:</b> Пилешко гърди 120г (сурово) + картоф 75г (варен) + зеленчуци 200г + бадеми 25г + зехтин 8мл</p>
+    <p class="tot">Дневно: ~116 г белтък · ~1390 ккал</p>
+  </details>
+
+  <details class="box"><summary>Риба</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Скир 150г + овесени ядки 35г + 1 ябълка</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Риба тон (във вода) 120г + картоф 85г (варен) + зеленчуци 200г + авокадо 70г + зехтин 5мл</p>
+    <p class="mealp"><b>След тренировка · ~18:00:</b> Суроватъчен протеин 30г + 1 среден банан</p>
+    <p class="mealp"><b>Вечеря · 20:00:</b> Бяла риба 150г + картоф 85г (варен) + зеленчуци 200г + авокадо 70г + зехтин 8мл + бадеми 10г</p>
+    <p class="tot">Дневно: ~117 г белтък · ~1420 ккал</p>
+  </details>
+
+  <h3 class="grp">Гъвкав · нетренировъчен ден</h3>
+
+  <details class="box"><summary>Само пиле</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Скир 150г + овесени ядки 40г + 1 ябълка</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Пилешко гърди 120г (сурово) + картоф 90г (варен) + зеленчуци 200г + авокадо 50г + зехтин 8мл</p>
+    <p class="mealp"><b>Следобед шейк · 16:00:</b> Суроватъчен протеин 30г + 1 среден банан</p>
+    <p class="mealp"><b>Вечеря · 19:00:</b> Пилешко гърди 120г (сурово) + картоф 90г (варен) + зеленчуци 200г + бадеми 25г + зехтин 5мл</p>
+    <p class="tot">Дневно: ~118 г белтък · ~1400 ккал</p>
+  </details>
+
+  <details class="box"><summary>Пуешко и пушено филе</summary>
+    <p class="mealp"><b>Закуска · 09:30:</b> Скир 150г + овесени ядки 45г + 1 среден банан</p>
+    <p class="mealp"><b>Обяд · 13:00:</b> Пуешко гърди 120г (сурово) + картоф 140г (варен) + зеленчуци 200г + зехтин 8мл</p>
+    <p class="mealp"><b>Следобед шейк · 16:00:</b> Суроватъчен протеин 30г + 1 ябълка</p>
+    <p class="mealp"><b>Вечеря · 19:00:</b> Пушено пуешко филе 100г + яйца 2 бр + зеленчуци 200г + авокадо 70г</p>
+    <p class="tot">Дневно: ~117 г белтък · ~1350 ккал</p>
+  </details>
+
+  <!-- ============ ЗАЩО ТОЗИ ПОДХОД (без данни) ============ -->
+  <h2 class="sec">Защо този подход</h2>
   <div class="card">
-    <b>Защо точно този подход:</b>
+    Целта е <b>по-здрави кости и повече сила</b>. Затова работим по три неща заедно:
     <ul>
-      <li><b>Храна</b> (достатъчно калории + протеин + калций) — суровината, от която костта се строи.</li>
-      <li><b>Тренировки с тежести</b> — всеки път „казват" на костта да се подсили. Безопасни, на машини.</li>
-      <li><b>Йога</b> — пази равновесието, за да не падаш.</li>
-      <li><b>Добавки</b> — попълват това, което липсва (например витамин D).</li>
+      <li><b>Храна</b> — достатъчно калории, протеин и калций; суровината, от която тялото се укрепва.</li>
+      <li><b>Тренировки с тежести</b> — натоварването стимулира костите да стават по-здрави. Безопасно, на машини.</li>
+      <li><b>Добавки</b> — попълват това, което липсва.</li>
     </ul>
+    Костта е жива тъкан и отговаря на правилно хранене и натоварване — има цяла година напред, в която
+    да се направи разлика. Подробните ти изследвания и какво показват ще ти ги дам лично. :)
   </div>
 
-  <div class="card">
-    <b>Две неща от кръвното за внимание:</b>
-    <ul>
-      <li>Витамин D ти е малко под добрите нива — затова се качва.</li>
-      <li>Калцият ти е леко висок — затова е добре да направиш още едно изследване (PTH) и да го покажеш на лекаря. Рутинна проверка, не повод за паника.</li>
-    </ul>
-    Целта: до края на годината костите да се задържат или подобрят. Стъпка по стъпка, на всяка
-    крачка — с теб. :)
-  </div>
-
-  <!-- ============ 4. УКАЗАНИЯ + КРЪВНИ + ДОБАВКИ ============ -->
+  <!-- ============ УКАЗАНИЯ + ДОБАВКИ ============ -->
   <h2 class="sec">Указания и добавки</h2>
 
   <div class="card">
@@ -401,41 +252,13 @@
     <ul>
       <li><b>Вода — поне 2 литра на ден.</b> Заради креатина (той тегли вода в мускулите).</li>
       <li><b>Закуска и вечеря с малко мазнина</b> (ядки, авокадо, зехтин, тахан) — витамин D, витамин E и омега-3 се усвояват само с мазнина.</li>
-      <li><b>Калций — от храна.</b> Кръвното ти показа калций леко висок, затова не се добавя калциева таблетка. Добре е да идва от храната.</li>
-      <li><b>Покажи кръвното на лекаря си</b> и питай дали да се направи изследване на паращитовидната жлеза (хормон PTH). Нищо тревожно — рутинна проверка при леко висок калций.</li>
+      <li><b>Калций — от храна.</b> Калциева таблетка не се добавя; добре е калцият да идва от храната (тахан, обогатено соево мляко, тофу, зелени листни).</li>
       <li><b>За костите при движение</b> — пази се от падане и удар; машините са стабилни и безопасни. Гръб винаги изправен.</li>
     </ul>
   </div>
 
-  <h3 style="color:var(--accent-dark);">Твоите стойности спрямо оптималното</h3>
-  <p class="note">Това са резултатите ти от април и къде е добре да са. Числата са отправна точка —
-  целта на режима (храна, добавки, тренировки) е да се подобрят до контролната снимка в края на годината.</p>
-  <table>
-    <tr><th>Изследване</th><th>Оптимално</th><th>Твоята стойност</th><th>Накъде</th></tr>
-    <tr><td>Витамин D (25-OH)</td><td>над 30, идеално 40–50 ng/mL</td><td>24.6 — под оптималното</td><td>да се качи</td></tr>
-    <tr><td>Калций</td><td>2.15–2.50 mmol/L</td><td>2.54 — леко над</td><td>следи се (виж PTH)</td></tr>
-    <tr><td>Витамин B12</td><td>над ~300 (норма 145–569)</td><td>289 — на ръба, добре</td><td>поддържа се</td></tr>
-    <tr><td>Фосфор</td><td>0.81–1.45 mmol/L</td><td>1.24 — в норма</td><td>—</td></tr>
-    <tr><td>Остеокалцин</td><td>15–46 ng/mL</td><td>28.56 — в норма</td><td>—</td></tr>
-  </table>
-
-  <p class="note"><b>Костна плътност (DEXA, април):</b> здравото ниво е T-резултат над −1.0.
-  При теб гръбнакът е −2.3, а бедрото −2.7 — затова целта е укрепване на костите. Добрата новина: 10-годишният
-  риск, който апаратът изчисли, е умерен, а движението с тежести е точно това, което ги подобрява.</p>
-
-  <h3 style="color:var(--accent-dark);">Кои изследвания да си направиш още (с цени)</h3>
-  <p class="note">Готови пакети от лаборатория Рамус (цени към май 2026). Вземането на кръв
-  (венепункция) е еднократно за всички, на гладно сутрин. Покажи списъка на личния лекар.</p>
-  <table>
-    <tr><th>Изследване</th><th>За какво</th><th>Цена</th></tr>
-    <tr><td>Феритин + Желязо/ЖСК</td><td>Желязо — при растително хранене често е ниско; влияе на енергията.</td><td>16.00 €</td></tr>
-    <tr><td>TSH</td><td>Щитовидна жлеза — при умора и в менопауза.</td><td>7.50 €</td></tr>
-    <tr><td>Алкална фосфатаза</td><td>Маркер за костната обмяна.</td><td>1.60 €</td></tr>
-    <tr><td>PTH (паратхормон)</td><td>Заради леко високия калций — проверка на паращитовидната жлеза. Важното.</td><td>цена в лабораторията*</td></tr>
-    <tr><td>Венепункция (еднократно)</td><td>Самото вземане на кръв.</td><td>2.60 €</td></tr>
-  </table>
-  <p class="note">Общо (без PTH): <b>27.70 €</b>. *PTH не е в стандартния ценоразпис — питай в
-  лабораторията. Витамин D, B12 и калций вече си ги изследвала — тях не се повтарят сега.</p>
+  <p class="note">Твоите изследвания, какво показват и кои кръвни да си направиш — ще ти ги пратя лично
+  (във Вайбър), за да не са на тази страница.</p>
 
   <h3 style="color:var(--accent-dark);">График за добавките</h3>
   <p class="note">Дозите са от етикетите.</p>
@@ -461,12 +284,11 @@
       <li><b>После:</b> следва по-силен витамин D3+K2 (общо 4000 IU/ден), за да се качи в кръвта
       над 50 — нивото, при което работи най-добре.</li>
     </ul>
-    <b>Важно:</b> преди по-високата доза, първо направи кръвно за паращитовидната жлеза
-    (<b>PTH</b>) — то е в списъка с изследванията по-горе. Калцият ти е леко висок, а витамин D
-    вдига усвояването на калция, затова е добре първо да е ясно. Щом е чисто — дозата се вдига спокойно.
+    <b>Важно:</b> по-високата доза идва <b>след едно контролно кръвно</b> — ще ти кажа лично кое и кога.
+    Дотогава караш на сегашната доза (2×11 капки).
   </div>
 
-  <!-- ============ 5. РЪКОВОДСТВО ЗА ТРЕНИРОВКИТЕ ============ -->
+  <!-- ============ РЪКОВОДСТВО ЗА ТРЕНИРОВКИТЕ ============ -->
   <h2 class="sec">Ръководство за упражненията</h2>
 
   <div class="card">
@@ -587,6 +409,167 @@
     спираш и казваш. На живо всяка машина ще се покаже на място. :)
   </div>
 
+  <!-- ============ ВЪПРОСНИК (сгънат, по желание) ============ -->
+  <h2 class="sec">Обнови данните си (по желание)</h2>
+  <p class="note">Въпросникът вече е попълнен. Отвори го само ако искаш да пратиш нови мерки или промени.
+  Като попълниш, натисни „Копирай отговорите" и ги залепи в чата.</p>
+
+  <details class="box"><summary>Отвори въпросника</summary>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>1. Кратки данни</legend>
+      <div class="row2">
+        <div>
+          <label class="q">Тегло сега (кг)</label>
+          <input type="number" id="teglo" inputmode="decimal">
+        </div>
+        <div>
+          <label class="q">Талия (см)</label>
+          <input type="number" id="taliya" inputmode="numeric">
+        </div>
+      </div>
+      <label class="q">Ханш (см)
+        <span class="hint">На най-широкото на седалището.</span>
+      </label>
+      <input type="number" id="hansh" inputmode="numeric">
+      <label class="q">Как се чувстваш с тялото си в момента?
+        <span class="hint">С две думи — какво искаш да се промени.</span>
+      </label>
+      <textarea id="usteshtane"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Хранене — веган дни</legend>
+      <label class="q">Кои дни от седмицата си строг веган?
+        <span class="hint">Например „понеделник, сряда, петък".</span>
+      </label>
+      <input type="text" id="vegan_dni">
+      <label class="q">На останалите дни какво ядеш от животински произход?
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="zhivotinski">
+        <label><input type="checkbox" value="Мляко/млечни"> Мляко и млечни (сирене, кисело мляко)</label>
+        <label><input type="checkbox" value="Яйца"> Яйца</label>
+        <label><input type="checkbox" value="Риба"> Риба</label>
+        <label><input type="checkbox" value="Пиле/месо"> Пиле или месо</label>
+        <label><input type="checkbox" value="Нищо животинско"> Всъщност и тогава не ям животинско</label>
+      </div>
+      <label class="q">Опиши един ВЕГАН ден — какво яде на закуска, обяд, вечеря, междинно?</label>
+      <textarea id="den_vegan"></textarea>
+      <label class="q">Опиши един ГЪВКАВ ден — закуска, обяд, вечеря, междинно?</label>
+      <textarea id="den_gavkav"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Хранене — източници</legend>
+      <label class="q">Кои от тези ядеш редовно? (богати на калций — важно за костите)
+        <span class="hint">Отбележи всичко, което важи.</span>
+      </label>
+      <div class="opts" data-check="kalcii">
+        <label><input type="checkbox" value="Тахан/сусам"> Тахан или сусам</label>
+        <label><input type="checkbox" value="Бадеми"> Бадеми</label>
+        <label><input type="checkbox" value="Тофу"> Тофу</label>
+        <label><input type="checkbox" value="Зелени листни"> Зелени листни (спанак, къдраво зеле, броколи)</label>
+        <label><input type="checkbox" value="Растително мляко с калций"> Растително мляко, обогатено с калций</label>
+        <label><input type="checkbox" value="Млечни продукти"> Млечни продукти (в гъвкавите дни)</label>
+        <label><input type="checkbox" value="Бобови"> Бобови (нахут, леща, боб)</label>
+      </div>
+      <label class="q">Какъв протеин ядеш най-често?
+        <span class="hint">Например бобови, тофу, грахов протеин, яйца, риба...</span>
+      </label>
+      <textarea id="protein_iztochnici"></textarea>
+      <label class="q">Колко пъти на ден се храниш и в колко часа?
+        <span class="hint">Например „4 пъти: 9:30, 13:00, 16:00, 19:00".</span>
+      </label>
+      <input type="text" id="hraneniya">
+      <label class="q">Колко вода пиеш на ден приблизително?</label>
+      <div class="opts" data-radio="voda">
+        <label><input type="radio" name="voda" value="Под 1 литър"> Под 1 литър</label>
+        <label><input type="radio" name="voda" value="1–2 литра"> 1–2 литра</label>
+        <label><input type="radio" name="voda" value="Над 2 литра"> Над 2 литра</label>
+      </div>
+      <label class="q">Кафе и алкохол — колко често?</label>
+      <textarea id="kafe_alkohol"></textarea>
+      <label class="q">Има ли храни, които изобщо не понасяш или избягваш?
+        <span class="hint">Ако няма — напиши „няма".</span>
+      </label>
+      <textarea id="izbyagvani"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Добавки — какво приемаш сега</legend>
+      <label class="q">Придържаш ли се към добавките, които ти дадох?
+        <span class="hint">Витамин D3+K2, витамин E, хиалурон, креатин, колаген, Merz, омега-3, грахов протеин, L-карнитин. Пропускаш ли някоя, или взимаш и нещо друго?</span>
+      </label>
+      <textarea id="dobavki_sega"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Движение и тренировки</legend>
+      <label class="q">Колко пъти седмично ходиш на фитнес и по колко минути?</label>
+      <input type="text" id="trenirovki">
+      <label class="q">В колко часа обикновено тренираш?</label>
+      <input type="text" id="chas_tren">
+      <label class="q">Правиш ли друго движение? (йога, разходки, друго)</label>
+      <textarea id="drugo_dvizhenie"></textarea>
+      <label class="q">Кои упражнения ти се струват трудни или неясни?
+        <span class="hint">Така ще е ясно на кои да се обърне повече внимание на живо.</span>
+      </label>
+      <textarea id="trudni_uprazhneniya"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>6. История и безопасност</legend>
+      <label class="q">Чупила ли си някога кост или падала ли си лошо?
+        <span class="hint">Кога и коя кост. Ако не — напиши „не".</span>
+      </label>
+      <textarea id="frakturi"></textarea>
+      <label class="q">Има ли в рода чупливи кости или счупено бедро (майка, баща)?
+        <span class="hint">Ако не знаеш или няма — напиши го.</span>
+      </label>
+      <textarea id="famnasledstvo"></textarea>
+      <label class="q">Пушиш ли?</label>
+      <div class="opts" data-radio="pushene">
+        <label><input type="radio" name="pushene" value="Не"> Не</label>
+        <label><input type="radio" name="pushene" value="Да"> Да</label>
+        <label><input type="radio" name="pushene" value="Спрях"> Спрях</label>
+      </div>
+      <label class="q">Имаш ли болка, скованост или проблем с равновесието?
+        <span class="hint">Например коляно, кръст, замайване при ставане. Ако нямаш — „нямам".</span>
+      </label>
+      <textarea id="bolka_ravnovesie"></textarea>
+      <label class="q">Колко активна си през деня извън залата?
+        <span class="hint">На работа стоиш права или седнала? Ходиш ли пеша, разходки?</span>
+      </label>
+      <textarea id="aktivnost_den"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>7. Сън, енергия, притеснения</legend>
+      <label class="q">Колко часа спиш и как е сънят?</label>
+      <input type="text" id="syn">
+      <label class="q">Как е енергията ти през деня?</label>
+      <div class="opts" data-radio="energiya">
+        <label><input type="radio" name="energiya" value="Добра"> Добра</label>
+        <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
+        <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+      </div>
+      <label class="q">Какво те притеснява или какво искаш да ме питаш?
+        <span class="hint">Пиши спокойно — тук е мястото за всичко, което те вълнува.</span>
+      </label>
+      <textarea id="pritesneniya"></textarea>
+    </fieldset>
+
+  </form>
+
+  <button type="button" id="copyBtn">Копирай отговорите</button>
+  <div class="ok" id="okMsg">Готово! Ако при пействане излезе празно — маркирай текста в полето долу, копирай го ръчно и го залепи в чата.</div>
+  <textarea id="outBox" readonly style="display:none; width:100%; height:170px; margin-top:10px; padding:10px; font-size:13px; border:1px solid var(--border); border-radius:9px; font-family:inherit; background:#fff; color:var(--ink);"></textarea>
+
+  </details>
+
 </div>
 
 <script>
@@ -637,7 +620,7 @@
     L.push("");
     L.push("[ИСТОРИЯ И БЕЗОПАСНОСТ]");
     L.push(line("Минали фрактури/падания", val("frakturi")));
-    L.push(line("Фамилна остеопороза", val("famnasledstvo")));
+    L.push(line("Фамилно чупливи кости", val("famnasledstvo")));
     L.push(line("Пушене", radio("pushene")));
     L.push(line("Болка/равновесие", val("bolka_ravnovesie")));
     L.push(line("Дневна активност", val("aktivnost_den")));
