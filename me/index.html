@@ -132,6 +132,11 @@
       content.innerHTML = '<div class="state">Планът ти още се подготвя. Скоро тук ще има съдържание.</div>';
       return;
     }
+    var OPEN_KEY = "diary_open_" + token;
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(OPEN_KEY)); } catch (e) {}
+    var hasSaved = saved && typeof saved.length === "number";
+
     var html = "";
     SECTIONS.forEach(function (sec) {
       var rows = items.filter(function (r) { return r.section === sec.key; });
@@ -141,7 +146,9 @@
       }
       html += '<div class="sec"><h2>' + esc(sec.label) + "</h2>";
       rows.forEach(function (r, i) {
-        html += '<div class="card' + (i === 0 ? " open" : "") + '">';
+        var key = sec.key + "_" + r.sort;
+        var isOpen = hasSaved ? (saved.indexOf(key) > -1) : (i === 0);
+        html += '<div class="card' + (isOpen ? " open" : "") + '" data-key="' + key + '">';
         if (r.entry_date) html += '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>";
         html += '<div class="t">' + esc(r.title || "Виж") + "</div>";
         if (r.body) html += '<div class="body">' + r.body + "</div>";
@@ -150,15 +157,41 @@
       html += "</div>";
     });
     content.innerHTML = html;
+
+    function saveOpen() {
+      var keys = [];
+      content.querySelectorAll(".card.open").forEach(function (c) { keys.push(c.dataset.key); });
+      try { localStorage.setItem(OPEN_KEY, JSON.stringify(keys)); } catch (e) {}
+    }
+    if (!hasSaved) saveOpen();
+
     content.addEventListener("click", function (e) {
       if (e.target.closest(".body")) return;
       var card = e.target.closest(".card");
-      if (card) card.classList.toggle("open");
+      if (card) { card.classList.toggle("open"); saveOpen(); }
     });
+
+    var sy = parseInt(sessionStorage.getItem("diary_scroll_" + token), 10);
+    if (sy > 0) {
+      var doRestore = function () { window.scrollTo(0, sy); };
+      void document.body.offsetHeight;
+      doRestore();
+      setTimeout(doRestore, 80);
+      setTimeout(doRestore, 250);
+    }
   }
 
   var token = new URLSearchParams(location.search).get("t");
   if (!token) { showState("Липсва код в линка. Отвори линка, който получи."); return; }
+
+  if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+  var scrollT;
+  window.addEventListener("scroll", function () {
+    clearTimeout(scrollT);
+    scrollT = setTimeout(function () {
+      try { sessionStorage.setItem("diary_scroll_" + token, String(window.scrollY)); } catch (e) {}
+    }, 120);
+  });
 
   sb.rpc("get_client_diary", { p_token: token }).then(function (res) {
     if (res.error) { showState("Възникна грешка при зареждането. Опитай по-късно."); return; }
