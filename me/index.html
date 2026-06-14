@@ -58,9 +58,10 @@
   .card.open .body { display: block; }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
-  .card .body table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14.5px; }
-  .card .body th, .card .body td { border: 1px solid var(--border); padding: 7px 9px; text-align: left; }
+  .card .body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 8px 0; font-size: 13.5px; }
+  .card .body th, .card .body td { border: 1px solid var(--border); padding: 6px 7px; text-align: left; word-break: break-word; vertical-align: top; }
   .card .body th { background: var(--soft); color: var(--accent-dark); }
+  .card .body td:first-child, .card .body th:first-child { width: 40%; }
   .state {
     background: var(--card);
     border: 1px solid var(--border);
