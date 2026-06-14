@@ -113,6 +113,20 @@
     line-height: 1.45;
   }
   .reqnote.show { display: block; }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 12px;
+    padding: 11px 13px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-weight: 400;
+  }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
   .actions {
     position: sticky;
     bottom: 0;
@@ -486,11 +500,14 @@
 </div>
 
 <div class="actions">
-  <button type="button" id="copyBtn">Копирай отговорите</button>
-  <div class="ok" id="okMsg">Готово. Ако не се е копирало само — маркирай текста долу и копирай ръчно, после го залепи в съобщение.</div>
+  <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+  <button type="button" id="sendBtn">Изпрати</button>
+  <div class="ok" id="okMsg">Отговорите бяха изпратени. Планът ще бъде изготвен и ще получиш линк към личния си дневник.</div>
+  <div class="reqnote" id="sendErr"></div>
   <textarea id="outBox" readonly></textarea>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function () {
   function val(id) {
@@ -650,15 +667,24 @@
     return L.join("\n");
   }
 
-  function showOut(text) {
-    var ok = document.getElementById("okMsg");
-    var box = document.getElementById("outBox");
-    box.value = text;
-    box.classList.add("show");
-    ok.classList.add("show");
-    box.focus();
-    box.setSelectionRange(0, text.length);
-    ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  function gatherData() {
+    return {
+      ime: val("ime"), pol: radio("pol"), godina_razhdane: val("godina_razhdane"),
+      visochina: val("visochina"), teglo: val("teglo"), zhelano_teglo: val("zhelano_teglo"),
+      taliya: val("taliya"), hansh: val("hansh"),
+      rabota: radio("rabota"), na_krak: radio("na_krak"), dvizhenie: radio("dvizhenie"),
+      krachki_tochno: val("krachki_tochno"), druga_aktivnost: val("druga_aktivnost"),
+      trenira: radio("trenira"), dni: checks("dni"), vreme_min: val("vreme_min"),
+      chas: val("chas"), kade_kakvo: val("kade_kakvo"),
+      chas_lyagane: val("chas_lyagane"), syn_chasove: radio("syn_chasove"),
+      syn_kachestvo: radio("syn_kachestvo"), stres: radio("stres"), energiya: radio("energiya"),
+      syn_tochno: val("syn_tochno"), puls_pokoy: val("puls_pokoy"),
+      cel: radio("cel"), motivaciya: val("motivaciya"), minal_opit: val("minal_opit"),
+      pushene: radio("pushene"), alkohol: radio("alkohol"),
+      gazirani: radio("gazirani"), kafe: radio("kafe"),
+      zdrave: flaggedAreas(), drugo_sastoyanie: val("drugo_sastoyanie"),
+      iziskva_forma2: hasFlag()
+    };
   }
 
   var ztReq = document.getElementById("ztReq");
@@ -666,7 +692,16 @@
     if (this.value.trim() !== "") ztReq.classList.remove("show");
   });
 
-  document.getElementById("copyBtn").addEventListener("click", function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var okMsg = document.getElementById("okMsg");
+  var sendErr = document.getElementById("sendErr");
+  var outBox = document.getElementById("outBox");
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
     var zt = document.getElementById("zhelano_teglo");
     if (zt.value.trim() === "") {
       ztReq.classList.add("show");
@@ -674,13 +709,37 @@
       zt.focus();
       return;
     }
-    var text = build();
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(function () { showOut(text); },
-        function () { showOut(text); });
-    } else {
-      showOut(text);
+    var consent = document.getElementById("consent");
+    if (!consent.checked) {
+      sendErr.textContent = "За да продължиш, отбележи съгласието по-горе.";
+      sendErr.classList.add("show");
+      consent.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
     }
+    sendErr.classList.remove("show");
+
+    var data = gatherData();
+    var text = build();
+    btn.disabled = true;
+    btn.textContent = "Изпращане…";
+
+    sb.from("submissions").insert({ form_type: "form1", payload: data, raw_block: text })
+      .then(function (res) {
+        if (res.error) { throw res.error; }
+        okMsg.classList.add("show");
+        okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        btn.textContent = "Изпратено ✓";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Изпрати";
+        sendErr.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+        sendErr.classList.add("show");
+        outBox.value = text;
+        outBox.classList.add("show");
+        outBox.focus();
+        outBox.setSelectionRange(0, text.length);
+      });
   });
 })();
 </script>
