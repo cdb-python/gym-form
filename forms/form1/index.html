@@ -119,7 +119,7 @@
     align-items: flex-start;
     font-size: 14px;
     color: var(--ink);
-    margin-bottom: 12px;
+    margin: 8px 0 4px;
     padding: 11px 13px;
     background: #fff;
     border: 1px solid var(--border);
@@ -496,11 +496,12 @@
       <div class="gate" id="gate"></div>
     </fieldset>
 
+    <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+
   </form>
 </div>
 
 <div class="actions">
-  <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
   <button type="button" id="sendBtn">Изпрати</button>
   <div class="ok" id="okMsg">Отговорите бяха изпратени. Планът ще бъде изготвен и ще получиш линк към личния си дневник.</div>
   <div class="reqnote" id="sendErr"></div>
