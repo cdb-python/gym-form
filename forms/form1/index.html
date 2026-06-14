@@ -44,11 +44,15 @@
     padding: 14px 16px 18px;
   }
   legend {
+    float: left;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
     font-weight: 700;
     font-size: 16px;
     color: var(--accent-dark);
-    padding: 0 6px;
   }
+  fieldset > legend + * { clear: both; }
   label.q {
     display: block;
     margin: 14px 0 6px;
