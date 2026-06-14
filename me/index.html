@@ -25,6 +25,7 @@
     font-size: 17px;
     line-height: 1.55;
     padding: 0 0 40px;
+    overflow-x: hidden;
   }
   header {
     background: var(--accent);
@@ -54,7 +55,7 @@
   .card .t::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
   .card.open .t::after { content: "▾"; }
   .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
-  .card .body { font-size: 15.5px; margin-top: 8px; display: none; }
+  .card .body { font-size: 15.5px; margin-top: 8px; display: none; overflow-x: auto; }
   .card.open .body { display: block; }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
