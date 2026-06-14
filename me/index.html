@@ -74,6 +74,19 @@
     font-size: 15.5px;
   }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+  .lf label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
+  .lf input, .lf textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .lf textarea { min-height: 54px; resize: vertical; }
+  .lf .row2 { display: flex; gap: 10px; }
+  .lf .row2 > div { flex: 1; }
+  .lf button { width: 100%; margin-top: 12px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
+  .lf button:active { background: var(--accent-dark); }
+  .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .lf .ok.show { display: block; }
+  .logitem { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .logitem:last-child { border-bottom: none; }
+  .logitem .d { font-weight: 700; }
+  .logitem .m { color: #6b7886; }
 </style>
 </head>
 <body>
@@ -156,7 +169,54 @@
       });
       html += "</div>";
     });
-    content.innerHTML = html;
+    function renderLogItem(e) {
+      var bits = [];
+      if (e.weight != null && e.weight !== "") bits.push("тегло " + e.weight + " кг");
+      if (e.waist != null && e.waist !== "") bits.push("талия " + e.waist + " см");
+      var m = bits.join(" · ");
+      return '<div class="logitem"><span class="d">' + esc(fmtDate(e.entry_date)) + "</span>"
+        + (m ? ' — <span class="m">' + esc(m) + "</span>" : "")
+        + (e.note ? "<br>" + esc(e.note) : "") + "</div>";
+    }
+    function renderLogList(arr) {
+      if (!arr || !arr.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи.</p>';
+      return arr.map(renderLogItem).join("");
+    }
+    var logHtml = '<div class="sec"><h2>Моят прогрес</h2>'
+      + '<div class="card open" data-key="log_form"><div class="t">Впиши днешното</div><div class="body lf">'
+      + '<div class="row2"><div><label>Дата</label><input type="date" id="lg_date"></div>'
+      + '<div><label>Тегло (кг)</label><input type="number" id="lg_weight" inputmode="decimal"></div></div>'
+      + '<label>Талия (см) — по желание</label><input type="number" id="lg_waist" inputmode="numeric">'
+      + '<label>Бележка — как се чувстваш или въпрос</label><textarea id="lg_note"></textarea>'
+      + '<button type="button" id="lgBtn">Запиши</button>'
+      + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div>'
+      + '<div class="card open" data-key="log_list"><div class="t">Минали записи</div><div class="body" id="logList">'
+      + renderLogList(data.log || []) + "</div></div></div>";
+    content.innerHTML = logHtml + html;
+
+    var ldate = document.getElementById("lg_date");
+    if (ldate) { try { ldate.value = new Date().toISOString().slice(0, 10); } catch (e) {} }
+    var lgBtn = document.getElementById("lgBtn");
+    if (lgBtn) lgBtn.addEventListener("click", function () {
+      var w = document.getElementById("lg_weight").value.trim();
+      var wa = document.getElementById("lg_waist").value.trim();
+      var nt = document.getElementById("lg_note").value.trim();
+      var dt = document.getElementById("lg_date").value || null;
+      var ok = document.getElementById("lgOk");
+      if (!w && !wa && !nt) { ok.textContent = "Попълни поне едно поле."; ok.classList.add("show"); return; }
+      lgBtn.disabled = true; lgBtn.textContent = "Записване…";
+      sb.rpc("add_log_entry", { p_token: token, p_weight: w ? parseFloat(w) : null, p_waist: wa ? parseFloat(wa) : null, p_note: nt || null, p_date: dt })
+        .then(function (res) {
+          if (res.error || res.data === false) throw (res.error || new Error("fail"));
+          ok.textContent = "Записано. Благодаря!"; ok.classList.add("show");
+          var list = document.getElementById("logList");
+          if (!list.querySelector(".logitem")) list.innerHTML = "";
+          list.insertAdjacentHTML("afterbegin", renderLogItem({ entry_date: dt || new Date().toISOString().slice(0, 10), weight: w || null, waist: wa || null, note: nt || null }));
+          document.getElementById("lg_weight").value = ""; document.getElementById("lg_waist").value = ""; document.getElementById("lg_note").value = "";
+          lgBtn.disabled = false; lgBtn.textContent = "Запиши";
+        })
+        .catch(function () { lgBtn.disabled = false; lgBtn.textContent = "Запиши"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
+    });
 
     function saveOpen() {
       var keys = [];
