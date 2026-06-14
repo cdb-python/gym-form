@@ -50,9 +50,12 @@
     padding: 14px 16px;
     margin: 0 0 12px;
   }
-  .card .t { font-weight: 700; font-size: 16px; margin: 0 0 6px; }
-  .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 6px; }
-  .card .body { font-size: 15.5px; }
+  .card .t { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .card .t::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
+  .card.open .t::after { content: "▾"; }
+  .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
+  .card .body { font-size: 15.5px; margin-top: 8px; display: none; }
+  .card.open .body { display: block; }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
   .card .body table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 14.5px; }
@@ -94,6 +97,7 @@
   var SECTIONS = [
     { key: "nutrition", label: "Хранителен режим" },
     { key: "training", label: "Тренировки" },
+    { key: "supplements", label: "Добавки" },
     { key: "info", label: "Информация" },
     { key: "instruction", label: "Указания" }
   ];
@@ -133,16 +137,20 @@
         rows.sort(function (a, b) { return (b.entry_date || "").localeCompare(a.entry_date || ""); });
       }
       html += '<div class="sec"><h2>' + esc(sec.label) + "</h2>";
-      rows.forEach(function (r) {
-        html += '<div class="card">';
+      rows.forEach(function (r, i) {
+        html += '<div class="card' + (i === 0 ? " open" : "") + '">';
         if (r.entry_date) html += '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>";
-        if (r.title) html += '<div class="t">' + esc(r.title) + "</div>";
+        html += '<div class="t">' + esc(r.title || "Виж") + "</div>";
         if (r.body) html += '<div class="body">' + r.body + "</div>";
         html += "</div>";
       });
       html += "</div>";
     });
     content.innerHTML = html;
+    content.addEventListener("click", function (e) {
+      var t = e.target.closest(".t");
+      if (t && content.contains(t)) t.parentNode.classList.toggle("open");
+    });
   }
 
   var token = new URLSearchParams(location.search).get("t");
