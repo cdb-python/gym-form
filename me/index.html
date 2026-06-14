@@ -192,7 +192,7 @@
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div>'
       + '<div class="card open" data-key="log_list"><div class="t">Минали записи</div><div class="body" id="logList">'
       + renderLogList(data.log || []) + "</div></div></div>";
-    content.innerHTML = logHtml + html;
+    content.innerHTML = html + logHtml;
 
     var ldate = document.getElementById("lg_date");
     if (ldate) { try { ldate.value = new Date().toISOString().slice(0, 10); } catch (e) {} }
