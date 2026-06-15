@@ -132,6 +132,12 @@
     var p = String(s).split("-");
     return p.length === 3 ? (p[2] + "." + p[1] + "." + p[0]) : s;
   }
+  function fmtTime(s) {
+    if (!s) return "";
+    try {
+      return new Date(s).toLocaleTimeString("bg-BG", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sofia" });
+    } catch (e) { return ""; }
+  }
   function showState(msg) {
     loading.style.display = "none";
     content.innerHTML = '<div class="state">' + esc(msg) + "</div>";
@@ -169,19 +175,37 @@
       });
       html += "</div>";
     });
-    function renderLogItem(e) {
+    function logSummary(e) {
       var bits = [];
       if (e.weight != null && e.weight !== "") bits.push("тегло " + e.weight + " кг");
       if (e.waist != null && e.waist !== "") bits.push("талия " + e.waist + " см");
       if (e.hip != null && e.hip !== "") bits.push("ханш " + e.hip + " см");
-      var m = bits.join(" · ");
-      return '<div class="logitem"><span class="d">' + esc(fmtDate(e.entry_date)) + "</span>"
-        + (m ? ' — <span class="m">' + esc(m) + "</span>" : "")
-        + (e.note ? "<br>" + esc(e.note) : "") + "</div>";
+      return bits.join(" · ");
+    }
+    function notePreview(t) {
+      t = String(t || "").replace(/\s+/g, " ").trim();
+      return t.length > 50 ? t.slice(0, 50) + "…" : t;
+    }
+    function renderLogCard(e, idx) {
+      var meas = logSummary(e);
+      var note = e.note ? String(e.note) : "";
+      var title = note ? notePreview(note) : (meas || "Запис");
+      var when = fmtDate(e.entry_date) + (fmtTime(e.created_at) ? ", " + fmtTime(e.created_at) : "");
+      var body;
+      if (note) {
+        body = (meas ? '<span class="m">' + esc(meas) + "</span><br>" : "") + esc(note).replace(/\n/g, "<br>");
+      } else {
+        body = '<span class="m">Само мерки — без бележка.</span>';
+      }
+      var key = "log_" + (e.created_at || ("i" + idx));
+      return '<div class="card logcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(key) + '">'
+        + '<div class="date">' + esc(when) + "</div>"
+        + '<div class="t">' + esc(title) + "</div>"
+        + '<div class="body">' + body + "</div></div>";
     }
     function renderLogList(arr) {
       if (!arr || !arr.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи.</p>';
-      return arr.map(renderLogItem).join("");
+      return arr.map(renderLogCard).join("");
     }
     var logHtml = '<div class="sec"><h2>Моят прогрес</h2>'
       + '<div class="card open" data-key="log_form"><div class="t">Впиши днешното</div><div class="body lf">'
@@ -192,9 +216,9 @@
       + '<div><label>Ханш (см)</label><input type="number" id="lg_hip" inputmode="numeric"></div></div>'
       + '<label>Бележка — как се чувстваш или въпрос</label><textarea id="lg_note"></textarea>'
       + '<button type="button" id="lgBtn">Запиши</button>'
-      + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div>'
-      + '<div class="card open" data-key="log_list"><div class="t">Минали записи</div><div class="body" id="logList">'
-      + renderLogList(data.log || []) + "</div></div></div>";
+      + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
+      + '<div class="sec"><h2>Минали записи</h2><div id="logList">'
+      + renderLogList(data.log || []) + "</div></div>";
     content.innerHTML = html + logHtml;
 
     var ldate = document.getElementById("lg_date");
@@ -214,8 +238,8 @@
           if (res.error || res.data === false) throw (res.error || new Error("fail"));
           ok.textContent = "Записано. Благодаря!"; ok.classList.add("show");
           var list = document.getElementById("logList");
-          if (!list.querySelector(".logitem")) list.innerHTML = "";
-          list.insertAdjacentHTML("afterbegin", renderLogItem({ entry_date: dt || new Date().toISOString().slice(0, 10), weight: w || null, waist: wa || null, hip: hp || null, note: nt || null }));
+          if (!list.querySelector(".logcard")) list.innerHTML = "";
+          list.insertAdjacentHTML("afterbegin", renderLogCard({ entry_date: dt || new Date().toISOString().slice(0, 10), created_at: new Date().toISOString(), weight: w || null, waist: wa || null, hip: hp || null, note: nt || null }, 0));
           document.getElementById("lg_weight").value = ""; document.getElementById("lg_waist").value = ""; document.getElementById("lg_hip").value = ""; document.getElementById("lg_note").value = "";
           lgBtn.disabled = false; lgBtn.textContent = "Запиши";
         })
@@ -224,7 +248,7 @@
 
     function saveOpen() {
       var keys = [];
-      content.querySelectorAll(".card.open").forEach(function (c) { keys.push(c.dataset.key); });
+      content.querySelectorAll(".card.open:not(.logcard)").forEach(function (c) { keys.push(c.dataset.key); });
       try { localStorage.setItem(OPEN_KEY, JSON.stringify(keys)); } catch (e) {}
     }
     if (!hasSaved) saveOpen();
