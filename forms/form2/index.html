@@ -190,6 +190,8 @@
     Отбележи областите, които те засягат, и под всяка ще се появят няколко въпроса. Попълва се само
     каквото важи за теб; където не знаеш отговор, остави празно или напиши „не знам". Накрая се
     натиска <b>„Изпрати"</b> — данните се записват сигурно и поверително.
+    <br><br>Снимки на епикризи, изследвания и резултати се изпращат <b>по Viber на треньора</b> —
+    тук те само се описват накратко.
   </div>
 
   <form id="form">
@@ -236,6 +238,15 @@
         <span class="hint">Каквото прецениш — минали проблеми, бременност/кърмене, нещо, което те притеснява. Ако няма — остави празно.</span>
       </label>
       <textarea id="drugo_vazhno"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Документи (епикризи, изследвания)</legend>
+      <p class="hint" style="margin:0 0 4px">Ако имаш епикризи, кръвни или образни изследвания, те са много
+      полезни за плана. Изпрати ги като снимки <b>по Viber на треньора</b> — не се качват тук (така остават поверителни).</p>
+      <div class="opts" data-radio="_docs">
+        <label><input type="checkbox" id="docs_viber"> Ще изпратя епикризи/изследвания по Viber</label>
+      </div>
     </fieldset>
 
     <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
@@ -290,7 +301,8 @@
     h += '<label class="q">Поставена ли е диагноза от лекар? Коя?<span class="hint">Ако няма — напиши „няма".</span></label>'
       + '<input type="text" id="' + k + '_diagnoza">';
     h += '<label class="q">Лечение или лекарства за това?</label><input type="text" id="' + k + '_lechenie">';
-    h += '<label class="q">Правени ли са изследвания (рентген, ехограф, кръвни)? Какво показаха?</label>'
+    h += '<label class="q">Правени ли са изследвания (рентген, ехограф, кръвни)? Какво показаха?'
+      + '<span class="hint">Опиши накратко. Самите снимки/епикризи изпрати по Viber на треньора.</span></label>'
       + '<textarea id="' + k + '_izsledvania"></textarea>';
     if (a.bp) {
       h += '<label class="q">Знаеш ли стойностите на кръвното налягане?<span class="hint">Напр. 130/85. Ако мериш редовно — средно.</span></label>'
@@ -370,6 +382,8 @@
     L.push("[ДРУГО ВАЖНО]");
     L.push(val("drugo_vazhno") || "—");
     L.push("");
+    L.push(line("Ще прати документи по Viber", document.getElementById("docs_viber").checked ? "ДА" : "не"));
+    L.push("");
     L.push("=== КРАЙ ===");
     return L.join("\n");
   }
@@ -395,7 +409,8 @@
       ime: val("ime"), godina_razhdane: val("godina_razhdane"),
       oblasti: oblasti,
       lekarstva: val("lekarstva"), dobavki: val("dobavki"),
-      drugo_vazhno: val("drugo_vazhno")
+      drugo_vazhno: val("drugo_vazhno"),
+      docs_viber: document.getElementById("docs_viber").checked
     };
   }
 
