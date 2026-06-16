@@ -300,8 +300,14 @@
         <label><input type="checkbox" value="Ластици"> Ластици</label>
         <label><input type="checkbox" value="Лост за набиране"> Лост за набиране</label>
         <label><input type="checkbox" value="Фитнес площадка (лостове/успоредки)"> Фитнес площадка (лостове, успоредки, катерушки)</label>
+        <label><input type="checkbox" value="Кардио уреди"> Кардио уреди (пътека, велоергометър, гребен, степер)</label>
         <label><input type="checkbox" value="Само собствено тегло"> Само собствено тегло</label>
       </div>
+
+      <label class="q">Друго оборудване или уточнения (по желание)
+        <span class="hint">Всяка зала е различна — изброй каквото има значение: конкретни машини, скрипец, TRX, шейна (sled), стълба-катерачка, специфични уреди и т.н.</span>
+      </label>
+      <textarea id="oborudvane_drugo"></textarea>
     </fieldset>
 
     <fieldset>
@@ -439,6 +445,7 @@
     L.push("[КЪДЕ И С КАКВО]");
     L.push(line("Място", radio("kade")));
     L.push(line("Оборудване", checks("oborudvane").join(", ")));
+    L.push(line("Оборудване (уточнения)", val("oborudvane_drugo")));
     L.push("");
     L.push("[ЧЕСТОТА И ВРЕМЕ]");
     L.push(line("Дни седмично", radio("dni_sedmica")));
@@ -465,7 +472,7 @@
       staj: radio("staj"), dvizhenia: checks("dvizhenia"),
       s_programa: radio("s_programa"), s_programa_opis: val("s_programa_opis"),
       cel_programa: radio("cel_programa"), cel_programa_opis: val("cel_programa_opis"),
-      kade: radio("kade"), oborudvane: checks("oborudvane"),
+      kade: radio("kade"), oborudvane: checks("oborudvane"), oborudvane_drugo: val("oborudvane_drugo"),
       dni_sedmica: radio("dni_sedmica"), minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
       klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
       stil: radio("stil"), lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
