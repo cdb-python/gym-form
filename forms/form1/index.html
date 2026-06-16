@@ -413,9 +413,26 @@
 
     <!-- 5 -->
     <fieldset>
-      <legend>5. Цел и посока</legend>
+      <legend>5. Какво търсиш и каква е целта</legend>
 
-      <label class="q">Каква е целта ти?</label>
+      <label class="q">Какво искаш да получиш?
+        <span class="hint">Това е УСЛУГАТА, която търсиш от съвместната работа. То е различно от „целта" по-долу:
+        изходът е КАКВО ще получиш, а целта е КАКВО искаш да постигнеш. Пример: целта може да е
+        „сваляне на килограми", а да искаш едновременно и хранителен режим, и тренировъчна програма.
+        Може да избереш повече от едно.</span>
+      </label>
+      <div class="opts" data-check="izhod" id="izhodGroup">
+        <label><input type="checkbox" value="Хранителен режим"> Хранителен режим</label>
+        <label><input type="checkbox" value="Тренировъчна програма"> Тренировъчна програма</label>
+        <label><input type="checkbox" value="Препоръка за добавки"> Препоръка за добавки</label>
+        <label><input type="checkbox" value="Цялостен подход"> Цялостен подход (всичко по-горе)</label>
+        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — преценете вие</label>
+      </div>
+      <div class="gate" id="izhodNote"></div>
+
+      <label class="q">Каква е целта ти?
+        <span class="hint">Какво искаш да ПОСТИГНЕШ (различно от горното — то е какво ще получиш).</span>
+      </label>
       <div class="opts" data-radio="cel">
         <label><input type="radio" name="cel" value="Сваляне на килограми"> Сваляне на килограми</label>
         <label><input type="radio" name="cel" value="Форма и тонус"> Форма и тонус</label>
@@ -573,6 +590,39 @@
   });
   document.getElementById("drugo_sastoyanie").addEventListener("input", updateGate);
 
+  // --- Желан изход (рутер) + мек страж за разминаване цел↔изход ---
+  var izhodGroup = document.getElementById("izhodGroup");
+  var izhodNote = document.getElementById("izhodNote");
+  function izhodSel() { return checks("izhod"); }
+  function wantsAll() { return izhodSel().indexOf("Цялостен подход") > -1; }
+  function wantsNutrition() { return wantsAll() || izhodSel().indexOf("Хранителен режим") > -1; }
+  function wantsTraining() { return wantsAll() || izhodSel().indexOf("Тренировъчна програма") > -1; }
+  function wantsSupps() { return wantsAll() || izhodSel().indexOf("Препоръка за добавки") > -1; }
+  function needsForm2() { return hasFlag() || wantsSupps(); }
+  function nextForms() {
+    var f = [];
+    if (needsForm2()) f.push("Форма 2 (здраве/лекарства/добавки)");
+    if (wantsNutrition()) f.push("Форма 3 (хранене)");
+    if (wantsTraining()) f.push("Форма 4 (тренировки)");
+    return f;
+  }
+  function updateIzhodNote() {
+    var c = radio("cel");
+    var nutritionGoal = (c === "Сваляне на килограми" || c === "Качване на мускулна маса" || c === "Изчистване (рекомпозиция)");
+    if (nutritionGoal && izhodSel().length && izhodSel().indexOf("Не съм сигурен") === -1 && !wantsNutrition()) {
+      izhodNote.textContent = "За избраната цел храненето обикновено е водещо. " +
+        "Ако искаш по-сигурен резултат, добре е да добавиш и хранителен режим. " +
+        "Това е само подсказка, не е задължително.";
+      izhodNote.classList.add("show");
+    } else {
+      izhodNote.classList.remove("show");
+    }
+  }
+  izhodGroup.addEventListener("change", updateIzhodNote);
+  document.querySelectorAll('input[name="cel"]').forEach(function (el) {
+    el.addEventListener("change", updateIzhodNote);
+  });
+
   // --- NEAT: точното число бие кофата + мек страж за противоречия ---
   var krachkiNote = document.getElementById("krachkiNote");
   var neatNote = document.getElementById("neatNote");
@@ -654,6 +704,7 @@
     L.push(line("Пулс в покой", val("puls_pokoy")));
     L.push("");
     L.push("[ЦЕЛ И ПОСОКА]");
+    L.push(line("Желан изход", izhodSel().join(", ")));
     L.push(line("Цел", radio("cel")));
     L.push(line("Цел/срок (свободно)", val("motivaciya")));
     L.push(line("Минал опит", val("minal_opit")));
@@ -667,7 +718,12 @@
     L.push("[ЗДРАВЕ — НА ЕДРО]");
     L.push(line("Отбелязани области", flaggedAreas().join(", ")));
     L.push(line("Друго състояние", val("drugo_sastoyanie")));
-    L.push("=> Изисква Форма 2: " + (hasFlag() ? "ДА" : "НЕ"));
+    L.push("");
+    L.push("[МАРШРУТ — за треньора]");
+    L.push(line("Желан изход", izhodSel().join(", ")));
+    L.push(line("Здравен флаг", hasFlag() ? "ДА" : "НЕ"));
+    var nf = nextForms();
+    L.push("=> Следващи форми: " + (nf.length ? nf.join(" · ") : "по преценка (нищо автоматично)"));
     L.push("");
     L.push("=== КРАЙ ===");
     return L.join("\n");
@@ -689,7 +745,9 @@
       pushene: radio("pushene"), alkohol: radio("alkohol"),
       gazirani: radio("gazirani"), kafe: radio("kafe"),
       zdrave: flaggedAreas(), drugo_sastoyanie: val("drugo_sastoyanie"),
-      iziskva_forma2: hasFlag()
+      zhelan_izhod: izhodSel(),
+      iziskva_forma2: needsForm2(),
+      forms_needed: nextForms()
     };
   }
 
