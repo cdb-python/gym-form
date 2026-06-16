@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Форма 4 — Тренировки</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #eef4f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 22px 18px 18px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 21px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  fieldset {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 14px 16px 18px;
+  }
+  legend {
+    float: left;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-dark);
+  }
+  fieldset > legend + * { clear: both; }
+  label.q {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+  .hint {
+    display: block;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--hint);
+    margin-top: 2px;
+  }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: flex-end; }
+  .row2 > div { flex: 1; }
+  .reveal {
+    display: none;
+    margin: 4px 0 10px;
+    padding: 4px 0 8px 12px;
+    border-left: 3px solid var(--soft);
+  }
+  .reveal.show { display: block; }
+  .reqnote {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #fff4e5;
+    border: 1px solid #f0c891;
+    border-radius: 10px;
+    color: #8a5a00;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .reqnote.show { display: block; }
+  .note {
+    margin: 10px 0 0;
+    padding: 11px 13px;
+    background: var(--soft);
+    border: 1px solid #cbe0d5;
+    border-radius: 10px;
+    font-size: 13.5px;
+    color: var(--accent-dark);
+  }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 8px 0 4px;
+    padding: 11px 13px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-weight: 400;
+  }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .actions {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #e6f4ec;
+    border: 1px solid #b7dcc6;
+    border-radius: 10px;
+    color: var(--accent-dark);
+    font-size: 15px;
+    text-align: center;
+  }
+  .ok.show { display: block; }
+  #outBox {
+    display: none;
+    margin-top: 12px;
+    width: 100%;
+    min-height: 170px;
+    font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+  #outBox.show { display: block; }
+  .intro {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Форма 4 — Тренировки</h1>
+    <p>За да е програмата по мярка, безопасна и изпълнима</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    Тук се описва тренировъчният ти опит, какво имаш на разположение и какво искаш от програмата.
+    Целта е тренировка, която върви с нивото ти, пази ставите и реално се спазва — не „универсална"
+    програма от интернет. Няма правилни и грешни отговори. Попълва се около 5 минути. Накрая —
+    бутонът <b>„Изпрати"</b>.
+  </div>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>Кой попълва</legend>
+      <label class="q">Име
+        <span class="hint">Същото име, което попълни в Форма 1 — за да се свържат.</span>
+      </label>
+      <input type="text" id="ime">
+      <div class="reqnote" id="imeReq">Нужно е името, за да се свърже с останалите данни. Попълни го, моля.</div>
+
+      <label class="q">Година на раждане (по желание)
+        <span class="hint">Само годината, напр. 1968.</span>
+      </label>
+      <input type="number" id="godina_razhdane" inputmode="numeric">
+    </fieldset>
+
+    <fieldset>
+      <legend>1. Тренировъчен опит</legend>
+
+      <label class="q">От колко време тренираш с тежести/съпротивление?
+        <span class="hint">Това определя колко натоварване е разумно в началото — за начинаещ се тръгва внимателно.</span>
+      </label>
+      <div class="opts" data-radio="staj">
+        <label><input type="radio" name="staj" value="Не съм тренирал досега"> Не съм тренирал(а) досега</label>
+        <label><input type="radio" name="staj" value="Под 6 месеца"> Под 6 месеца</label>
+        <label><input type="radio" name="staj" value="6 месеца – 2 години"> 6 месеца – 2 години</label>
+        <label><input type="radio" name="staj" value="2 – 5 години"> 2 – 5 години</label>
+        <label><input type="radio" name="staj" value="Над 5 години"> Над 5 години</label>
+      </div>
+
+      <label class="q">Кои движения познаваш и изпълняваш уверено?
+        <span class="hint">Отбележи това, което вече правиш с правилна техника. Ако никое — последното.</span>
+      </label>
+      <div class="opts" data-check="dvizhenia">
+        <label><input type="checkbox" value="Клякане"> Клякане (клек)</label>
+        <label><input type="checkbox" value="Напади"> Напади</label>
+        <label><input type="checkbox" value="Преса от лег"> Преса от лег (лежанка)</label>
+        <label><input type="checkbox" value="Набиране/издърпване"> Набиране / издърпване</label>
+        <label><input type="checkbox" value="Мъртва тяга"> Мъртва тяга</label>
+        <label><input type="checkbox" value="Раменна преса"> Раменна преса (над глава)</label>
+        <label><input type="checkbox" value="Нищо от изброеното"> Нищо от изброеното</label>
+      </div>
+
+      <label class="q">Тренирал(а) ли си по програма досега?</label>
+      <div class="opts" data-radio="s_programa" id="programaGroup">
+        <label><input type="radio" name="s_programa" value="Да"> Да</label>
+        <label><input type="radio" name="s_programa" value="Не"> Не</label>
+      </div>
+      <div class="reveal" id="programaReveal">
+        <label class="q">Каква и как мина?
+          <span class="hint">Накратко — какъв тип, колко време, какво се получи и какво не.</span>
+        </label>
+        <input type="text" id="s_programa_opis">
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Цел на програмата</legend>
+
+      <label class="q">Какво искаш да постигне програмата?
+        <span class="hint">Различно от общата цел — тук е за самата тренировка.</span>
+      </label>
+      <div class="opts" data-radio="cel_programa">
+        <label><input type="radio" name="cel_programa" value="Мускулна маса"> Мускулна маса (по-обемни мускули)</label>
+        <label><input type="radio" name="cel_programa" value="Сила"> Сила (по-силен/а)</label>
+        <label><input type="radio" name="cel_programa" value="Издръжливост и кондиция"> Издръжливост и кондиция</label>
+        <label><input type="radio" name="cel_programa" value="Обща форма и тонус"> Обща форма и тонус</label>
+        <label><input type="radio" name="cel_programa" value="Подвижност и функция"> Подвижност и функция (без болки, по-добро движение)</label>
+        <label><input type="radio" name="cel_programa" value="Спортно-специфично"> Спортно-специфично</label>
+        <label><input type="radio" name="cel_programa" value="Друго"> Друго</label>
+      </div>
+
+      <label class="q">С две думи — нещо конкретно? (по желание)
+        <span class="hint">Напр. „да вдигам по-тежко", „да изправя стойката", „за плажа".</span>
+      </label>
+      <input type="text" id="cel_programa_opis">
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Къде и с какво тренираш</legend>
+
+      <label class="q">Къде ще тренираш предимно?</label>
+      <div class="opts" data-radio="kade">
+        <label><input type="radio" name="kade" value="Във фитнес зала"> Във фитнес зала</label>
+        <label><input type="radio" name="kade" value="Вкъщи"> Вкъщи</label>
+        <label><input type="radio" name="kade" value="Смесено"> Смесено</label>
+      </div>
+
+      <label class="q">Какво оборудване имаш на разположение?
+        <span class="hint">Отбележи всичко налично — програмата ще ползва само това, което имаш.</span>
+      </label>
+      <div class="opts" data-check="oborudvane">
+        <label><input type="checkbox" value="Пълна фитнес зала"> Пълна фитнес зала (машини + свободни тежести)</label>
+        <label><input type="checkbox" value="Щанга и дискове"> Щанга и дискове</label>
+        <label><input type="checkbox" value="Дъмбели/гири"> Дъмбели / гири</label>
+        <label><input type="checkbox" value="Кетълбели"> Кетълбели</label>
+        <label><input type="checkbox" value="Ластици"> Ластици</label>
+        <label><input type="checkbox" value="Лост за набиране"> Лост за набиране</label>
+        <label><input type="checkbox" value="Само собствено тегло"> Само собствено тегло</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Колко често и колко време</legend>
+
+      <label class="q">Колко дни седмично реално можеш да тренираш?
+        <span class="hint">Реалистично спрямо живота ти — по-добре по-малко, но редовно.</span>
+      </label>
+      <div class="opts" data-radio="dni_sedmica">
+        <label><input type="radio" name="dni_sedmica" value="2"> 2 дни</label>
+        <label><input type="radio" name="dni_sedmica" value="3"> 3 дни</label>
+        <label><input type="radio" name="dni_sedmica" value="4"> 4 дни</label>
+        <label><input type="radio" name="dni_sedmica" value="5+"> 5 или повече</label>
+      </div>
+
+      <label class="q">Колко време на тренировка?</label>
+      <div class="opts" data-radio="minuti">
+        <label><input type="radio" name="minuti" value="~30 мин"> Около 30 минути</label>
+        <label><input type="radio" name="minuti" value="~45 мин"> Около 45 минути</label>
+        <label><input type="radio" name="minuti" value="~60 мин"> Около 60 минути</label>
+        <label><input type="radio" name="minuti" value="75+ мин"> 75 минути или повече</label>
+      </div>
+
+      <label class="q">Предпочитани дни и часове (по желание)
+        <span class="hint">Напр. „понеделник, сряда, петък вечер".</span>
+      </label>
+      <input type="text" id="chasove_dni">
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Движение и тяло</legend>
+      <span class="hint">Кратка проверка на движението — за да са упражненията безопасни за теб.</span>
+
+      <label class="q">Можеш ли да клекнеш дълбоко без болка или дискомфорт?</label>
+      <div class="opts" data-radio="klek_ok">
+        <label><input type="radio" name="klek_ok" value="Да, свободно"> Да, свободно</label>
+        <label><input type="radio" name="klek_ok" value="С известен дискомфорт"> С известен дискомфорт</label>
+        <label><input type="radio" name="klek_ok" value="Не, трудно ми е"> Не, трудно ми е</label>
+      </div>
+
+      <label class="q">Можеш ли да вдигнеш ръце над глава свободно (без болка в рамото)?</label>
+      <div class="opts" data-radio="ruce_glava">
+        <label><input type="radio" name="ruce_glava" value="Да, свободно"> Да, свободно</label>
+        <label><input type="radio" name="ruce_glava" value="С известен дискомфорт"> С известен дискомфорт</label>
+        <label><input type="radio" name="ruce_glava" value="Не"> Не</label>
+      </div>
+
+      <label class="q">Има ли движения, които те затрудняват или избягваш?
+        <span class="hint">Напр. навеждане, скачане, изправяне от пода. Ако няма — остави празно.</span>
+      </label>
+      <input type="text" id="zatrudnenia">
+
+      <div class="note">Ако имаш контузии, болки или заболявания — те се описват във <b>Форма 2</b> (там е по-подробно).
+      Тук е само за движението при тренировка.</div>
+    </fieldset>
+
+    <fieldset>
+      <legend>6. Предпочитания</legend>
+
+      <label class="q">Какъв стил на тренировка предпочиташ?</label>
+      <div class="opts" data-radio="stil">
+        <label><input type="radio" name="stil" value="Свободни тежести"> Свободни тежести (щанга, дъмбели)</label>
+        <label><input type="radio" name="stil" value="Машини"> Машини</label>
+        <label><input type="radio" name="stil" value="Функционално"> Функционално (телесно тегло, гири)</label>
+        <label><input type="radio" name="stil" value="Смесено"> Смесено</label>
+        <label><input type="radio" name="stil" value="Нямам предпочитание"> Нямам предпочитание</label>
+      </div>
+
+      <label class="q">Любими или нелюбими упражнения?
+        <span class="hint">Каквото обичаш да правиш и каквото мразиш — програмата може да се съобрази, за да я спазваш.</span>
+      </label>
+      <input type="text" id="lyubimi_nelyubimi">
+
+      <label class="q">Нещо друго важно за тренировките?</label>
+      <textarea id="drugo_tren"></textarea>
+    </fieldset>
+
+    <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="sendBtn">Изпрати</button>
+  <div class="ok" id="okMsg">Отговорите бяха изпратени. Въз основа на тях ще бъде изготвена тренировъчната програма.</div>
+  <div class="reqnote" id="sendErr"></div>
+  <textarea id="outBox" readonly></textarea>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+  function radio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; });
+  }
+  function line(label, value) {
+    return label + ": " + (value || "—");
+  }
+
+  document.getElementById("programaGroup").addEventListener("change", function () {
+    document.getElementById("programaReveal").classList.toggle("show", radio("s_programa") === "Да");
+  });
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / Форма 4 (Тренировки) ===");
+    L.push("Дата: " + date);
+    L.push(line("Име", val("ime")));
+    L.push(line("Година на раждане", val("godina_razhdane")));
+    L.push("");
+    L.push("[ОПИТ]");
+    L.push(line("Тренировъчен стаж", radio("staj")));
+    L.push(line("Познати движения", checks("dvizhenia").join(", ")));
+    L.push(line("Тренирал по програма", radio("s_programa")));
+    if (val("s_programa_opis")) L.push(line("  Каква/как мина", val("s_programa_opis")));
+    L.push("");
+    L.push("[ЦЕЛ НА ПРОГРАМАТА]");
+    L.push(line("Цел", radio("cel_programa")));
+    L.push(line("Конкретно", val("cel_programa_opis")));
+    L.push("");
+    L.push("[КЪДЕ И С КАКВО]");
+    L.push(line("Място", radio("kade")));
+    L.push(line("Оборудване", checks("oborudvane").join(", ")));
+    L.push("");
+    L.push("[ЧЕСТОТА И ВРЕМЕ]");
+    L.push(line("Дни седмично", radio("dni_sedmica")));
+    L.push(line("Минути на тренировка", radio("minuti")));
+    L.push(line("Предпочитани дни/часове", val("chasove_dni")));
+    L.push("");
+    L.push("[ДВИЖЕНИЕ]");
+    L.push(line("Дълбок клек", radio("klek_ok")));
+    L.push(line("Ръце над глава", radio("ruce_glava")));
+    L.push(line("Затрудняващи движения", val("zatrudnenia")));
+    L.push("");
+    L.push("[ПРЕДПОЧИТАНИЯ]");
+    L.push(line("Стил", radio("stil")));
+    L.push(line("Любими/нелюбими", val("lyubimi_nelyubimi")));
+    L.push(line("Друго", val("drugo_tren")));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function gatherData() {
+    return {
+      ime: val("ime"), godina_razhdane: val("godina_razhdane"),
+      staj: radio("staj"), dvizhenia: checks("dvizhenia"),
+      s_programa: radio("s_programa"), s_programa_opis: val("s_programa_opis"),
+      cel_programa: radio("cel_programa"), cel_programa_opis: val("cel_programa_opis"),
+      kade: radio("kade"), oborudvane: checks("oborudvane"),
+      dni_sedmica: radio("dni_sedmica"), minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
+      klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
+      stil: radio("stil"), lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
+    };
+  }
+
+  var imeEl = document.getElementById("ime");
+  var imeReqNote = document.getElementById("imeReq");
+  imeEl.addEventListener("input", function () {
+    if (this.value.trim() !== "") imeReqNote.classList.remove("show");
+  });
+
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var okMsg = document.getElementById("okMsg");
+  var sendErr = document.getElementById("sendErr");
+  var outBox = document.getElementById("outBox");
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (val("ime") === "") {
+      imeReqNote.classList.add("show");
+      imeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      imeEl.focus();
+      return;
+    }
+    var consent = document.getElementById("consent");
+    if (!consent.checked) {
+      sendErr.textContent = "За да продължиш, отбележи съгласието по-горе.";
+      sendErr.classList.add("show");
+      consent.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    sendErr.classList.remove("show");
+
+    var data = gatherData();
+    var text = build();
+    btn.disabled = true;
+    btn.textContent = "Изпращане…";
+
+    sb.from("submissions").insert({ form_type: "form4", payload: data, raw_block: text })
+      .then(function (res) {
+        if (res.error) { throw res.error; }
+        okMsg.classList.add("show");
+        okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        btn.textContent = "Изпратено ✓";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Изпрати";
+        sendErr.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+        sendErr.classList.add("show");
+        outBox.value = text;
+        outBox.classList.add("show");
+        outBox.focus();
+        outBox.setSelectionRange(0, text.length);
+      });
+  });
+})();
+</script>
+</body>
+</html>
