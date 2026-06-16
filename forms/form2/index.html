@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Форма 2 — Здраве в дълбочина</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #eef4f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 22px 18px 18px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 21px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  fieldset {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 14px 16px 18px;
+  }
+  legend {
+    float: left;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-dark);
+  }
+  fieldset > legend + * { clear: both; }
+  label.q {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+  .hint {
+    display: block;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--hint);
+    margin-top: 2px;
+  }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: flex-end; }
+  .row2 > div { flex: 1; }
+  .reveal {
+    display: none;
+    margin: 4px 0 10px;
+    padding: 4px 0 8px 12px;
+    border-left: 3px solid var(--soft);
+  }
+  .reveal.show { display: block; }
+  .reqnote {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #fff4e5;
+    border: 1px solid #f0c891;
+    border-radius: 10px;
+    color: #8a5a00;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .reqnote.show { display: block; }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 8px 0 4px;
+    padding: 11px 13px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-weight: 400;
+  }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .actions {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #e6f4ec;
+    border: 1px solid #b7dcc6;
+    border-radius: 10px;
+    color: var(--accent-dark);
+    font-size: 15px;
+    text-align: center;
+  }
+  .ok.show { display: block; }
+  #outBox {
+    display: none;
+    margin-top: 12px;
+    width: 100%;
+    min-height: 170px;
+    font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+  #outBox.show { display: block; }
+  .intro {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Форма 2 — Здраве в дълбочина</h1>
+    <p>Подробности за отбелязаното в Форма 1</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    Това е следващата стъпка след Форма 1. В нея се отбелязаха на едро някои области; тук се иска
+    малко повече подробност само за тях — за да е планът безопасен и наистина съобразен с теб.
+    Отбележи областите, които те засягат, и под всяка ще се появят няколко въпроса. Попълва се само
+    каквото важи за теб; където не знаеш отговор, остави празно или напиши „не знам". Накрая се
+    натиска <b>„Изпрати"</b> — данните се записват сигурно и поверително.
+  </div>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>Кой попълва</legend>
+      <label class="q">Име
+        <span class="hint">За да се свърже тази форма с Форма 1. Същото име, което попълни там.</span>
+      </label>
+      <input type="text" id="ime">
+      <div class="reqnote" id="imeReq">Нужно е името, за да се свържат двете форми. Попълни го, моля.</div>
+
+      <label class="q">Година на раждане
+        <span class="hint">Само годината, напр. 1968.</span>
+      </label>
+      <input type="number" id="godina_razhdane" inputmode="numeric">
+    </fieldset>
+
+    <fieldset>
+      <legend>Области, които те засягат</legend>
+      <label class="q">Отбележи това, което важи за теб
+        <span class="hint">Под всяка отметка ще се появят няколко въпроса. Ако нещо не те засяга — просто не го отмятай.</span>
+      </label>
+      <div id="areasBox"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Лекарства и добавки</legend>
+      <label class="q">Какви лекарства приемаш в момента?
+        <span class="hint">Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин"). Това е важно, за да няма
+        нежелани взаимодействия с предложеното. Ако не приемаш — напиши „няма".</span>
+      </label>
+      <textarea id="lekarstva"></textarea>
+
+      <label class="q">Какви добавки или витамини пиеш в момента?
+        <span class="hint">Изброй каквото пиеш сега (напр. „витамин D, магнезий, омега-3"). Ако нищо — „няма".</span>
+      </label>
+      <textarea id="dobavki"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Нещо друго важно</legend>
+      <label class="q">Има ли още нещо за здравето ти, което е добре да се знае?
+        <span class="hint">Каквото прецениш — минали проблеми, бременност/кърмене, нещо, което те притеснява. Ако няма — остави празно.</span>
+      </label>
+      <textarea id="drugo_vazhno"></textarea>
+    </fieldset>
+
+    <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="sendBtn">Изпрати</button>
+  <div class="ok" id="okMsg">Отговорите бяха изпратени. Благодаря — това помага планът да е точен и безопасен.</div>
+  <div class="reqnote" id="sendErr"></div>
+  <textarea id="outBox" readonly></textarea>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+  function radio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+  function line(label, value) {
+    return label + ": " + (value || "—");
+  }
+
+  // --- Областите (огледало на здравните флагове от Форма 1) ---
+  var AREAS = [
+    { key: "kryst", label: "Кръст / гръб" },
+    { key: "kolene", label: "Колене" },
+    { key: "ramene", label: "Рамене / врат" },
+    { key: "stavi", label: "Други стави (глезени, бедра, лакти)" },
+    { key: "sarce", label: "Сърце / кръвно налягане", bp: true },
+    { key: "obmyana", label: "Обмяна (щитовидна, диабет, кръвна захар)", labs: true },
+    { key: "hranosmilane", label: "Храносмилане" },
+    { key: "alergia", label: "Тежка / сериозна алергия", named: true },
+    { key: "operacia", label: "Минала операция или сериозна контузия", named: true }
+  ];
+
+  // Дълбок шаблон за всяка област
+  function areaBlock(a) {
+    var k = a.key, h = "";
+    if (a.named) {
+      h += '<label class="q">Какво точно?<span class="hint">Назови го с няколко думи.</span></label>'
+        + '<input type="text" id="' + k + '_ime">';
+    }
+    h += '<label class="q">Откога е?</label><input type="text" id="' + k + '_otkoga">';
+    h += '<label class="q">Колко често и колко силно?</label><input type="text" id="' + k + '_chestota">';
+    h += '<label class="q">Поставена ли е диагноза от лекар? Коя?<span class="hint">Ако няма — напиши „няма".</span></label>'
+      + '<input type="text" id="' + k + '_diagnoza">';
+    h += '<label class="q">Лечение или лекарства за това?</label><input type="text" id="' + k + '_lechenie">';
+    h += '<label class="q">Правени ли са изследвания (рентген, ехограф, кръвни)? Какво показаха?</label>'
+      + '<textarea id="' + k + '_izsledvania"></textarea>';
+    if (a.bp) {
+      h += '<label class="q">Знаеш ли стойностите на кръвното налягане?<span class="hint">Напр. 130/85. Ако мериш редовно — средно.</span></label>'
+        + '<input type="text" id="' + k + '_bp">';
+    }
+    if (a.labs) {
+      h += '<label class="q">Знаеш ли стойности (кръвна захар, щитовидна) или имаш скорошни изследвания?</label>'
+        + '<input type="text" id="' + k + '_stoynosti">';
+    }
+    h += '<label class="q">Ограничава ли движение или ежедневие?</label>'
+      + '<div class="opts" data-radio="' + k + '_ogr">'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Не"> Не</label>'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Малко"> Малко</label>'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Значително"> Значително</label></div>';
+    h += '<label class="q">Какво го влошава и какво облекчава?</label><input type="text" id="' + k + '_vlosh">';
+    return h;
+  }
+
+  var areasBox = document.getElementById("areasBox");
+  var ahtml = "";
+  AREAS.forEach(function (a) {
+    ahtml += '<div class="opts"><label><input type="checkbox" data-area="' + a.key + '"> ' + a.label + '</label></div>';
+    ahtml += '<div class="reveal" id="rev_' + a.key + '">' + areaBlock(a) + '</div>';
+  });
+  areasBox.innerHTML = ahtml;
+
+  areasBox.addEventListener("change", function (e) {
+    var cb = e.target.closest('input[data-area]');
+    if (!cb) return;
+    var rev = document.getElementById("rev_" + cb.getAttribute("data-area"));
+    if (cb.checked) rev.classList.add("show");
+    else rev.classList.remove("show");
+  });
+
+  function isChecked(key) {
+    var cb = document.querySelector('input[data-area="' + key + '"]');
+    return !!(cb && cb.checked);
+  }
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / Форма 2 (Здраве в дълбочина) ===");
+    L.push("Дата: " + date);
+    L.push(line("Име", val("ime")));
+    L.push(line("Година на раждане", val("godina_razhdane")));
+    L.push("");
+    L.push("[ОБЛАСТИ]");
+    var any = false;
+    AREAS.forEach(function (a) {
+      if (!isChecked(a.key)) return;
+      any = true;
+      var k = a.key;
+      L.push("");
+      L.push("[" + a.label + "]");
+      if (a.named) L.push("  " + line("Какво точно", val(k + "_ime")));
+      L.push("  " + line("Откога", val(k + "_otkoga")));
+      L.push("  " + line("Често/силно", val(k + "_chestota")));
+      L.push("  " + line("Диагноза", val(k + "_diagnoza")));
+      L.push("  " + line("Лечение/лекарства", val(k + "_lechenie")));
+      L.push("  " + line("Изследвания", val(k + "_izsledvania")));
+      if (a.bp) L.push("  " + line("Кръвно", val(k + "_bp")));
+      if (a.labs) L.push("  " + line("Стойности/изследвания", val(k + "_stoynosti")));
+      L.push("  " + line("Ограничава ежедневие", radio(k + "_ogr")));
+      L.push("  " + line("Влошава/облекчава", val(k + "_vlosh")));
+    });
+    if (!any) L.push("(няма отбелязани области)");
+    L.push("");
+    L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
+    L.push(line("Лекарства сега", val("lekarstva")));
+    L.push(line("Текущи добавки/витамини", val("dobavki")));
+    L.push("");
+    L.push("[ДРУГО ВАЖНО]");
+    L.push(val("drugo_vazhno") || "—");
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function gatherData() {
+    var oblasti = [];
+    AREAS.forEach(function (a) {
+      if (!isChecked(a.key)) return;
+      var k = a.key;
+      var o = {
+        key: k, label: a.label,
+        otkoga: val(k + "_otkoga"), chestota: val(k + "_chestota"),
+        diagnoza: val(k + "_diagnoza"), lechenie: val(k + "_lechenie"),
+        izsledvania: val(k + "_izsledvania"),
+        ogranichava: radio(k + "_ogr"), vlosh: val(k + "_vlosh")
+      };
+      if (a.named) o.ime = val(k + "_ime");
+      if (a.bp) o.bp = val(k + "_bp");
+      if (a.labs) o.stoynosti = val(k + "_stoynosti");
+      oblasti.push(o);
+    });
+    return {
+      ime: val("ime"), godina_razhdane: val("godina_razhdane"),
+      oblasti: oblasti,
+      lekarstva: val("lekarstva"), dobavki: val("dobavki"),
+      drugo_vazhno: val("drugo_vazhno")
+    };
+  }
+
+  var imeReq = document.getElementById("ime");
+  var imeReqNote = document.getElementById("imeReq");
+  imeReq.addEventListener("input", function () {
+    if (this.value.trim() !== "") imeReqNote.classList.remove("show");
+  });
+
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var okMsg = document.getElementById("okMsg");
+  var sendErr = document.getElementById("sendErr");
+  var outBox = document.getElementById("outBox");
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (val("ime") === "") {
+      imeReqNote.classList.add("show");
+      imeReq.scrollIntoView({ behavior: "smooth", block: "center" });
+      imeReq.focus();
+      return;
+    }
+    var consent = document.getElementById("consent");
+    if (!consent.checked) {
+      sendErr.textContent = "За да продължиш, отбележи съгласието по-горе.";
+      sendErr.classList.add("show");
+      consent.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    sendErr.classList.remove("show");
+
+    var data = gatherData();
+    var text = build();
+    btn.disabled = true;
+    btn.textContent = "Изпращане…";
+
+    sb.from("submissions").insert({ form_type: "form2", payload: data, raw_block: text })
+      .then(function (res) {
+        if (res.error) { throw res.error; }
+        okMsg.classList.add("show");
+        okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        btn.textContent = "Изпратено ✓";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Изпрати";
+        sendErr.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+        sendErr.classList.add("show");
+        outBox.value = text;
+        outBox.classList.add("show");
+        outBox.focus();
+        outBox.setSelectionRange(0, text.length);
+      });
+  });
+})();
+</script>
+</body>
+</html>
