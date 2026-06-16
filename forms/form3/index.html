@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Форма 3 — Хранене</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #eef4f1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.5;
+    padding: 0 0 40px;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 22px 18px 18px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 21px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  fieldset {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin: 16px 0;
+    padding: 14px 16px 18px;
+  }
+  legend {
+    float: left;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--accent-dark);
+  }
+  fieldset > legend + * { clear: both; }
+  label.q {
+    display: block;
+    margin: 14px 0 6px;
+    font-weight: 600;
+  }
+  .hint {
+    display: block;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--hint);
+    margin-top: 2px;
+  }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 16px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 4px;
+    font-weight: 400;
+    cursor: pointer;
+  }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: flex-end; }
+  .row2 > div { flex: 1; }
+  .reveal {
+    display: none;
+    margin: 4px 0 10px;
+    padding: 4px 0 8px 12px;
+    border-left: 3px solid var(--soft);
+  }
+  .reveal.show { display: block; }
+  .reqnote {
+    display: none;
+    margin-top: 10px;
+    padding: 12px 14px;
+    background: #fff4e5;
+    border: 1px solid #f0c891;
+    border-radius: 10px;
+    color: #8a5a00;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+  .reqnote.show { display: block; }
+  .consent {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--ink);
+    margin: 8px 0 4px;
+    padding: 11px 13px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-weight: 400;
+  }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .actions {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 14px;
+    background: #e6f4ec;
+    border: 1px solid #b7dcc6;
+    border-radius: 10px;
+    color: var(--accent-dark);
+    font-size: 15px;
+    text-align: center;
+  }
+  .ok.show { display: block; }
+  #outBox {
+    display: none;
+    margin-top: 12px;
+    width: 100%;
+    min-height: 170px;
+    font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    white-space: pre;
+  }
+  #outBox.show { display: block; }
+  .intro {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 15px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Форма 3 — Хранене</h1>
+    <p>За да е режимът съобразен с теб и изпълним</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    Тук се описва как се храниш сега и какво предпочиташ — за да бъде режимът реалистичен,
+    вкусен и съобразен с теб, а не общ списък. Няма правилни и грешни отговори; колкото по-честно,
+    толкова по-добре стои планът. Попълва се около 5 минути. Накрая се натиска <b>„Изпрати"</b>.
+  </div>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>Кой попълва</legend>
+      <label class="q">Име
+        <span class="hint">Същото име, което попълни в Форма 1 — за да се свържат.</span>
+      </label>
+      <input type="text" id="ime">
+      <div class="reqnote" id="imeReq">Нужно е името, за да се свърже с останалите данни. Попълни го, моля.</div>
+
+      <label class="q">Година на раждане (по желание)
+        <span class="hint">Само годината, напр. 1968.</span>
+      </label>
+      <input type="number" id="godina_razhdane" inputmode="numeric">
+    </fieldset>
+
+    <fieldset>
+      <legend>1. Хранителен профил</legend>
+
+      <label class="q">Как се храниш?</label>
+      <div class="opts" data-radio="tip_hranene" id="tipGroup">
+        <label><input type="radio" name="tip_hranene" value="Всеяден"> Всеяден (всичко)</label>
+        <label><input type="radio" name="tip_hranene" value="Вегетарианец"> Вегетарианец (без месо/риба)</label>
+        <label><input type="radio" name="tip_hranene" value="Веган"> Веган (само растително)</label>
+        <label><input type="radio" name="tip_hranene" value="Пескетарианец"> Пескетарианец (риба, без месо)</label>
+        <label><input type="radio" name="tip_hranene" value="Смесено по дни"> Смесено по дни</label>
+        <label><input type="radio" name="tip_hranene" value="Друго"> Друго</label>
+      </div>
+      <div class="reveal" id="tipReveal">
+        <label class="q">Опиши накратко
+          <span class="hint">Напр. „веган 2 дни в седмицата (ср/пт), останалите дни с животински продукти".</span>
+        </label>
+        <input type="text" id="tip_opis">
+      </div>
+
+      <label class="q">Храни, които НЕ ядеш или избягваш
+        <span class="hint">По вкус, принцип или непоносимост. (Сериозните алергии се описват във Форма 2.) Ако няма — „няма".</span>
+      </label>
+      <textarea id="izklyucheni"></textarea>
+
+      <label class="q">Кои източници на протеин харесваш?
+        <span class="hint">Отбележи каквото ядеш с удоволствие.</span>
+      </label>
+      <div class="opts" data-check="proteini">
+        <label><input type="checkbox" value="Пилешко/пуешко"> Пилешко / пуешко</label>
+        <label><input type="checkbox" value="Червено месо"> Червено месо</label>
+        <label><input type="checkbox" value="Риба/морски"> Риба / морски дарове</label>
+        <label><input type="checkbox" value="Яйца"> Яйца</label>
+        <label><input type="checkbox" value="Млечни"> Млечни (извара, скир, сирене)</label>
+        <label><input type="checkbox" value="Растителни (бобови, тофу)"> Растителни (бобови, тофу, темпе)</label>
+        <label><input type="checkbox" value="Протеин на прах"> Протеин на прах / шейкове</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. Текущ режим на хранене</legend>
+
+      <label class="q">Колко пъти на ден се храниш?</label>
+      <div class="opts" data-radio="hranenia_broy">
+        <label><input type="radio" name="hranenia_broy" value="1–2"> 1–2 пъти</label>
+        <label><input type="radio" name="hranenia_broy" value="3"> 3 пъти</label>
+        <label><input type="radio" name="hranenia_broy" value="4–5"> 4–5 пъти</label>
+        <label><input type="radio" name="hranenia_broy" value="Без режим"> Без режим (когато се случи)</label>
+      </div>
+
+      <label class="q">Закусваш ли?</label>
+      <div class="opts" data-radio="zakuska">
+        <label><input type="radio" name="zakuska" value="Да"> Да</label>
+        <label><input type="radio" name="zakuska" value="Не"> Не</label>
+        <label><input type="radio" name="zakuska" value="Понякога"> Понякога</label>
+      </div>
+
+      <label class="q">В кои часове се храниш обикновено?
+        <span class="hint">Напр. „8:00, 13:00, 20:00".</span>
+      </label>
+      <input type="text" id="chasove">
+
+      <label class="q">Прескачаш ли хранения или имаш дълги паузи без храна?</label>
+      <div class="opts" data-radio="preskacha" id="preskachaGroup">
+        <label><input type="radio" name="preskacha" value="Да"> Да</label>
+        <label><input type="radio" name="preskacha" value="Не"> Не</label>
+      </div>
+      <div class="reveal" id="preskachaReveal">
+        <label class="q">Кога и защо?
+          <span class="hint">Напр. „сутрин нямам време" или „на работа не успявам да обядвам".</span>
+        </label>
+        <input type="text" id="preskacha_opis">
+      </div>
+
+      <label class="q">Какво хапваш между храненията?
+        <span class="hint">Снакове, плодове, ядки, сладко… Ако нищо — остави празно.</span>
+      </label>
+      <input type="text" id="snaks">
+    </fieldset>
+
+    <fieldset>
+      <legend>3. Типичен ден — какво ядеш обикновено</legend>
+      <span class="hint">Накратко, с твои думи. Това показва откъде тръгваме.</span>
+
+      <label class="q">Закуска</label>
+      <input type="text" id="den_zakuska">
+      <label class="q">Обяд</label>
+      <input type="text" id="den_obyad">
+      <label class="q">Вечеря</label>
+      <input type="text" id="den_vecherya">
+      <label class="q">Между / друго през деня</label>
+      <input type="text" id="den_mezhdu">
+    </fieldset>
+
+    <fieldset>
+      <legend>4. Готвене и начин на живот</legend>
+
+      <label class="q">Кой готви / откъде е храната?</label>
+      <div class="opts" data-radio="gotvene">
+        <label><input type="radio" name="gotvene" value="Готвя си сам"> Готвя си сам/сама</label>
+        <label><input type="radio" name="gotvene" value="Вкъщи готвят"> Вкъщи готвят</label>
+        <label><input type="radio" name="gotvene" value="Външна/готова храна"> Външна / готова храна</label>
+        <label><input type="radio" name="gotvene" value="Смесено"> Смесено</label>
+      </div>
+
+      <label class="q">Колко време имаш за готвене?</label>
+      <div class="opts" data-radio="vreme_gotvene">
+        <label><input type="radio" name="vreme_gotvene" value="Малко"> Малко (бързи неща)</label>
+        <label><input type="radio" name="vreme_gotvene" value="Средно"> Средно</label>
+        <label><input type="radio" name="vreme_gotvene" value="Имам време"> Имам време</label>
+      </div>
+
+      <label class="q">Разнообразие в храната?
+        <span class="hint">Някои хора предпочитат едно и също всеки ден (по-лесно за спазване), други искат разнообразие.</span>
+      </label>
+      <div class="opts" data-radio="raznoobrazie">
+        <label><input type="radio" name="raznoobrazie" value="Може едно и също всеки ден"> Може едно и също всеки ден</label>
+        <label><input type="radio" name="raznoobrazie" value="Искам разнообразие"> Искам разнообразие</label>
+        <label><input type="radio" name="raznoobrazie" value="Без значение"> Без значение</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>5. Апетит, глад и желания</legend>
+
+      <label class="q">Какъв е гладът ти през деня?</label>
+      <div class="opts" data-radio="glad">
+        <label><input type="radio" name="glad" value="Слаб"> Слаб (ям без особен апетит)</label>
+        <label><input type="radio" name="glad" value="Нормален"> Нормален</label>
+        <label><input type="radio" name="glad" value="Силен/постоянен"> Силен / постоянен</label>
+      </div>
+
+      <label class="q">Кога гладът е най-силен?
+        <span class="hint">Напр. „вечер", „следобед". Ако няма — остави празно.</span>
+      </label>
+      <input type="text" id="glad_koga">
+
+      <label class="q">Желание за сладко?</label>
+      <div class="opts" data-radio="sladko">
+        <label><input type="radio" name="sladko" value="Не"> Почти не</label>
+        <label><input type="radio" name="sladko" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="sladko" value="Силно/редовно"> Силно / редовно</label>
+      </div>
+
+      <label class="q">Хапване вечер или през нощта?</label>
+      <div class="opts" data-radio="vecher_hapvane">
+        <label><input type="radio" name="vecher_hapvane" value="Не"> Не</label>
+        <label><input type="radio" name="vecher_hapvane" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="vecher_hapvane" value="Често"> Често</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>6. Вода и желания за плана</legend>
+
+      <label class="q">Колко вода пиеш на ден?
+        <span class="hint">Приблизително — чиста вода (не кафе/чай).</span>
+      </label>
+      <div class="opts" data-radio="voda">
+        <label><input type="radio" name="voda" value="Под 1 л"> Под 1 литър</label>
+        <label><input type="radio" name="voda" value="1–2 л"> 1–2 литра</label>
+        <label><input type="radio" name="voda" value="2–3 л"> 2–3 литра</label>
+        <label><input type="radio" name="voda" value="Над 3 л"> Над 3 литра</label>
+      </div>
+
+      <label class="q">Има ли храни, които задължително искаш да присъстват?
+        <span class="hint">Любими неща, без които трудно ще спазваш режима. Ако няма — остави празно.</span>
+      </label>
+      <input type="text" id="zadalzhitelni">
+
+      <label class="q">Нещо друго за храненето ти?
+        <span class="hint">Каквото прецениш — работен график, пътувания, семейни хранения и т.н.</span>
+      </label>
+      <textarea id="drugo_hrana"></textarea>
+    </fieldset>
+
+    <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="sendBtn">Изпрати</button>
+  <div class="ok" id="okMsg">Отговорите бяха изпратени. Въз основа на тях ще бъде изготвен хранителният режим.</div>
+  <div class="reqnote" id="sendErr"></div>
+  <textarea id="outBox" readonly></textarea>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  function val(id) {
+    var el = document.getElementById(id);
+    return el ? el.value.trim() : "";
+  }
+  function radio(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : "";
+  }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; });
+  }
+  function line(label, value) {
+    return label + ": " + (value || "—");
+  }
+
+  // --- Reveal-и ---
+  document.getElementById("tipGroup").addEventListener("change", function () {
+    var v = radio("tip_hranene");
+    var show = (v === "Смесено по дни" || v === "Друго");
+    document.getElementById("tipReveal").classList.toggle("show", show);
+  });
+  document.getElementById("preskachaGroup").addEventListener("change", function () {
+    document.getElementById("preskachaReveal").classList.toggle("show", radio("preskacha") === "Да");
+  });
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-"
+      + String(d.getMonth() + 1).padStart(2, "0") + "-"
+      + String(d.getDate()).padStart(2, "0");
+
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / Форма 3 (Хранене) ===");
+    L.push("Дата: " + date);
+    L.push(line("Име", val("ime")));
+    L.push(line("Година на раждане", val("godina_razhdane")));
+    L.push("");
+    L.push("[ХРАНИТЕЛЕН ПРОФИЛ]");
+    L.push(line("Тип хранене", radio("tip_hranene")));
+    if (val("tip_opis")) L.push(line("  Описание", val("tip_opis")));
+    L.push(line("Изключени/нежелани храни", val("izklyucheni")));
+    L.push(line("Любими протеини", checks("proteini").join(", ")));
+    L.push("");
+    L.push("[ТЕКУЩ РЕЖИМ]");
+    L.push(line("Хранения на ден", radio("hranenia_broy")));
+    L.push(line("Закусва", radio("zakuska")));
+    L.push(line("Часове на хранене", val("chasove")));
+    L.push(line("Прескача хранения", radio("preskacha")));
+    if (val("preskacha_opis")) L.push(line("  Кога/защо", val("preskacha_opis")));
+    L.push(line("Между храненията", val("snaks")));
+    L.push("");
+    L.push("[ТИПИЧЕН ДЕН]");
+    L.push(line("Закуска", val("den_zakuska")));
+    L.push(line("Обяд", val("den_obyad")));
+    L.push(line("Вечеря", val("den_vecherya")));
+    L.push(line("Между/друго", val("den_mezhdu")));
+    L.push("");
+    L.push("[ГОТВЕНЕ И НАЧИН]");
+    L.push(line("Кой готви/откъде", radio("gotvene")));
+    L.push(line("Време за готвене", radio("vreme_gotvene")));
+    L.push(line("Разнообразие", radio("raznoobrazie")));
+    L.push("");
+    L.push("[АПЕТИТ И ЖЕЛАНИЯ]");
+    L.push(line("Глад през деня", radio("glad")));
+    L.push(line("Най-силен глад", val("glad_koga")));
+    L.push(line("Желание за сладко", radio("sladko")));
+    L.push(line("Хапване вечер/нощем", radio("vecher_hapvane")));
+    L.push("");
+    L.push("[ВОДА И ЖЕЛАНИЯ]");
+    L.push(line("Вода на ден", radio("voda")));
+    L.push(line("Задължителни храни", val("zadalzhitelni")));
+    L.push(line("Друго за храненето", val("drugo_hrana")));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function gatherData() {
+    return {
+      ime: val("ime"), godina_razhdane: val("godina_razhdane"),
+      tip_hranene: radio("tip_hranene"), tip_opis: val("tip_opis"),
+      izklyucheni: val("izklyucheni"), proteini: checks("proteini"),
+      hranenia_broy: radio("hranenia_broy"), zakuska: radio("zakuska"),
+      chasove: val("chasove"), preskacha: radio("preskacha"), preskacha_opis: val("preskacha_opis"),
+      snaks: val("snaks"),
+      den_zakuska: val("den_zakuska"), den_obyad: val("den_obyad"),
+      den_vecherya: val("den_vecherya"), den_mezhdu: val("den_mezhdu"),
+      gotvene: radio("gotvene"), vreme_gotvene: radio("vreme_gotvene"), raznoobrazie: radio("raznoobrazie"),
+      glad: radio("glad"), glad_koga: val("glad_koga"), sladko: radio("sladko"),
+      vecher_hapvane: radio("vecher_hapvane"),
+      voda: radio("voda"), zadalzhitelni: val("zadalzhitelni"), drugo_hrana: val("drugo_hrana")
+    };
+  }
+
+  var imeEl = document.getElementById("ime");
+  var imeReqNote = document.getElementById("imeReq");
+  imeEl.addEventListener("input", function () {
+    if (this.value.trim() !== "") imeReqNote.classList.remove("show");
+  });
+
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var okMsg = document.getElementById("okMsg");
+  var sendErr = document.getElementById("sendErr");
+  var outBox = document.getElementById("outBox");
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (val("ime") === "") {
+      imeReqNote.classList.add("show");
+      imeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      imeEl.focus();
+      return;
+    }
+    var consent = document.getElementById("consent");
+    if (!consent.checked) {
+      sendErr.textContent = "За да продължиш, отбележи съгласието по-горе.";
+      sendErr.classList.add("show");
+      consent.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    sendErr.classList.remove("show");
+
+    var data = gatherData();
+    var text = build();
+    btn.disabled = true;
+    btn.textContent = "Изпращане…";
+
+    sb.from("submissions").insert({ form_type: "form3", payload: data, raw_block: text })
+      .then(function (res) {
+        if (res.error) { throw res.error; }
+        okMsg.classList.add("show");
+        okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        btn.textContent = "Изпратено ✓";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Изпрати";
+        sendErr.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+        sendErr.classList.add("show");
+        outBox.value = text;
+        outBox.classList.add("show");
+        outBox.focus();
+        outBox.setSelectionRange(0, text.length);
+      });
+  });
+})();
+</script>
+</body>
+</html>
