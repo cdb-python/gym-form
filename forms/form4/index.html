@@ -222,12 +222,18 @@
       <label class="q">От колко време тренираш с тежести/съпротивление?
         <span class="hint">Това определя колко натоварване е разумно в началото — за начинаещ се тръгва внимателно.</span>
       </label>
-      <div class="opts" data-radio="staj">
+      <div class="opts" data-radio="staj" id="stajGroup">
         <label><input type="radio" name="staj" value="Не съм тренирал досега"> Не съм тренирал(а) досега</label>
         <label><input type="radio" name="staj" value="Под 6 месеца"> Под 6 месеца</label>
         <label><input type="radio" name="staj" value="6 месеца – 2 години"> 6 месеца – 2 години</label>
         <label><input type="radio" name="staj" value="2 – 5 години"> 2 – 5 години</label>
         <label><input type="radio" name="staj" value="Над 5 години"> Над 5 години</label>
+      </div>
+      <div class="reveal" id="stajReveal">
+        <label class="q">Как изглежда тренировката ти сега?
+          <span class="hint">Сплит (кои дни какво), приблизително серии на мускулна група седмично, методи. За да продължим от реалното ти ниво, а не от нулата.</span>
+        </label>
+        <textarea id="staj_sega"></textarea>
       </div>
 
       <label class="q">Кои движения познаваш и изпълняваш уверено?
@@ -262,7 +268,7 @@
       <label class="q">Какво искаш да постигне програмата?
         <span class="hint">Различно от общата цел — тук е за самата тренировка.</span>
       </label>
-      <div class="opts" data-radio="cel_programa">
+      <div class="opts" data-radio="cel_programa" id="celGroup">
         <label><input type="radio" name="cel_programa" value="Мускулна маса"> Мускулна маса (по-обемни мускули)</label>
         <label><input type="radio" name="cel_programa" value="Сила"> Сила (по-силен/а)</label>
         <label><input type="radio" name="cel_programa" value="Издръжливост и кондиция"> Издръжливост и кондиция</label>
@@ -270,6 +276,18 @@
         <label><input type="radio" name="cel_programa" value="Подвижност и функция"> Подвижност и функция (без болки, по-добро движение)</label>
         <label><input type="radio" name="cel_programa" value="Спортно-специфично"> Спортно-специфично</label>
         <label><input type="radio" name="cel_programa" value="Друго"> Друго</label>
+      </div>
+      <div class="reveal" id="silaReveal">
+        <label class="q">Ориентир на силата (по желание)
+          <span class="hint">Ако знаеш — колко вдигаш на основните движения (напр. клек/лежанка/тяга), или с колко повторения. Нужно за точно дозиране на натоварването.</span>
+        </label>
+        <input type="text" id="sila_orientir">
+      </div>
+      <div class="reveal" id="sportReveal">
+        <label class="q">Кой спорт, на какво ниво и в кой сезон си?
+          <span class="hint">Напр. „футбол, аматьорска лига, предсезон". Програмата се съобразява със спорта и периода.</span>
+        </label>
+        <input type="text" id="sport_detail">
       </div>
 
       <label class="q">С две думи — нещо конкретно? (по желание)
@@ -376,6 +394,29 @@
         <label><input type="radio" name="stil" value="Нямам предпочитание"> Нямам предпочитание</label>
       </div>
 
+      <label class="q">Кое ти допада повече при тренировка?
+        <span class="hint">Помага да напаснем стила към теб — няма грешен отговор.</span>
+      </label>
+      <div class="opts" data-radio="nt_intensitet">
+        <label><input type="radio" name="nt_intensitet" value="Тежко, малко повторения"> Тежко, малко повторения</label>
+        <label><input type="radio" name="nt_intensitet" value="Леко, много повторения с усещане"> Леко, много повторения с усещане за мускула</label>
+        <label><input type="radio" name="nt_intensitet" value="И двете"> И двете ми харесват</label>
+      </div>
+
+      <label class="q">Предпочиташ ли разнообразие?</label>
+      <div class="opts" data-radio="nt_raznoobrazie">
+        <label><input type="radio" name="nt_raznoobrazie" value="Разнообразие"> Обичам разнообразие</label>
+        <label><input type="radio" name="nt_raznoobrazie" value="Същото докато го усвоя"> Предпочитам същото, докато го усвоя</label>
+        <label><input type="radio" name="nt_raznoobrazie" value="Без значение"> Без значение</label>
+      </div>
+
+      <label class="q">Как тренираш по-добре?</label>
+      <div class="opts" data-radio="nt_plan">
+        <label><input type="radio" name="nt_plan" value="По ясен план"> По ясен план</label>
+        <label><input type="radio" name="nt_plan" value="По усет в момента"> По усет в момента</label>
+        <label><input type="radio" name="nt_plan" value="Смесено"> Смесено</label>
+      </div>
+
       <label class="q">Любими или нелюбими упражнения?
         <span class="hint">Каквото обичаш да правиш и каквото мразиш — програмата може да се съобрази, за да я спазваш.</span>
       </label>
@@ -419,6 +460,15 @@
   document.getElementById("programaGroup").addEventListener("change", function () {
     document.getElementById("programaReveal").classList.toggle("show", radio("s_programa") === "Да");
   });
+  document.getElementById("stajGroup").addEventListener("change", function () {
+    var v = radio("staj");
+    document.getElementById("stajReveal").classList.toggle("show", v === "2 – 5 години" || v === "Над 5 години");
+  });
+  document.getElementById("celGroup").addEventListener("change", function () {
+    var v = radio("cel_programa");
+    document.getElementById("silaReveal").classList.toggle("show", v === "Сила" || v === "Мускулна маса");
+    document.getElementById("sportReveal").classList.toggle("show", v === "Спортно-специфично");
+  });
 
   function build() {
     var d = new Date();
@@ -437,9 +487,12 @@
     L.push(line("Познати движения", checks("dvizhenia").join(", ")));
     L.push(line("Тренирал по програма", radio("s_programa")));
     if (val("s_programa_opis")) L.push(line("  Каква/как мина", val("s_programa_opis")));
+    if (val("staj_sega")) L.push(line("  Сегашна тренировка", val("staj_sega")));
     L.push("");
     L.push("[ЦЕЛ НА ПРОГРАМАТА]");
     L.push(line("Цел", radio("cel_programa")));
+    if (val("sila_orientir")) L.push(line("  Ориентир сила", val("sila_orientir")));
+    if (val("sport_detail")) L.push(line("  Спорт/ниво/сезон", val("sport_detail")));
     L.push(line("Конкретно", val("cel_programa_opis")));
     L.push("");
     L.push("[КЪДЕ И С КАКВО]");
@@ -459,6 +512,9 @@
     L.push("");
     L.push("[ПРЕДПОЧИТАНИЯ]");
     L.push(line("Стил", radio("stil")));
+    L.push(line("Наклон: интензитет", radio("nt_intensitet")));
+    L.push(line("Наклон: разнообразие", radio("nt_raznoobrazie")));
+    L.push(line("Наклон: план/усет", radio("nt_plan")));
     L.push(line("Любими/нелюбими", val("lyubimi_nelyubimi")));
     L.push(line("Друго", val("drugo_tren")));
     L.push("");
@@ -469,13 +525,16 @@
   function gatherData() {
     return {
       ime: val("ime"), godina_razhdane: val("godina_razhdane"),
-      staj: radio("staj"), dvizhenia: checks("dvizhenia"),
+      staj: radio("staj"), staj_sega: val("staj_sega"), dvizhenia: checks("dvizhenia"),
       s_programa: radio("s_programa"), s_programa_opis: val("s_programa_opis"),
       cel_programa: radio("cel_programa"), cel_programa_opis: val("cel_programa_opis"),
+      sila_orientir: val("sila_orientir"), sport_detail: val("sport_detail"),
       kade: radio("kade"), oborudvane: checks("oborudvane"), oborudvane_drugo: val("oborudvane_drugo"),
       dni_sedmica: radio("dni_sedmica"), minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
       klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
-      stil: radio("stil"), lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
+      stil: radio("stil"),
+      nt_intensitet: radio("nt_intensitet"), nt_raznoobrazie: radio("nt_raznoobrazie"), nt_plan: radio("nt_plan"),
+      lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
     };
   }
 
