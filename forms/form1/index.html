@@ -209,7 +209,48 @@
 
     <!-- 1 -->
     <fieldset>
-      <legend>1. Основни данни</legend>
+      <legend>1. Какво искаш да получиш и каква е целта</legend>
+
+      <label class="q">Какво искаш да получиш?
+        <span class="hint">Това е УСЛУГАТА, която търсиш от съвместната работа. То е различно от „целта" по-долу:
+        изходът е КАКВО ще получиш, а целта е КАКВО искаш да постигнеш. Пример: целта може да е
+        „сваляне на килограми", а да искаш едновременно и хранителен режим, и тренировъчна програма.
+        Може да избереш повече от едно.</span>
+      </label>
+      <div class="opts" data-check="izhod" id="izhodGroup">
+        <label><input type="checkbox" value="Хранителен режим"> Хранителен режим</label>
+        <label><input type="checkbox" value="Тренировъчна програма"> Тренировъчна програма</label>
+        <label><input type="checkbox" value="Препоръка за добавки"> Препоръка за добавки</label>
+        <label><input type="checkbox" value="Цялостен подход"> Цялостен подход (всичко по-горе)</label>
+        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — преценете вие</label>
+      </div>
+      <div class="gate" id="izhodNote"></div>
+
+      <label class="q">Каква е целта ти?
+        <span class="hint">Какво искаш да ПОСТИГНЕШ (различно от горното — то е какво ще получиш).</span>
+      </label>
+      <div class="opts" data-radio="cel">
+        <label><input type="radio" name="cel" value="Сваляне на килограми"> Сваляне на килограми</label>
+        <label><input type="radio" name="cel" value="Форма и тонус"> Форма и тонус</label>
+        <label><input type="radio" name="cel" value="Качване на мускулна маса"> Качване на мускулна маса</label>
+        <label><input type="radio" name="cel" value="Изчистване (рекомпозиция)"> Изчистване (рекомпозиция)</label>
+        <label><input type="radio" name="cel" value="Повече сила"> Повече сила</label>
+        <label><input type="radio" name="cel" value="Здраве и енергия"> Здраве и енергия</label>
+        <label><input type="radio" name="cel" value="Друго"> Друго</label>
+      </div>
+
+      <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
+      <textarea id="motivaciya"></textarea>
+
+      <label class="q">Пробвала ли си нещо преди, което не сработи?
+        <span class="hint">Ако не — напиши „не".</span>
+      </label>
+      <textarea id="minal_opit"></textarea>
+    </fieldset>
+
+    <!-- 2 -->
+    <fieldset>
+      <legend>2. Основни данни</legend>
 
       <label class="q">Име</label>
       <input type="text" id="ime">
@@ -265,7 +306,7 @@
 
     <!-- 2 -->
     <fieldset>
-      <legend>2. Ежедневие и активност</legend>
+      <legend>3. Ежедневие и активност</legend>
 
       <label class="q">Как изглежда работата/ежедневието ти?
         <span class="hint">Колкото повече се движи тялото през деня извън тренировка, толкова повече енергия гори — това прави плана точен.</span>
@@ -313,7 +354,7 @@
 
     <!-- 3 -->
     <fieldset>
-      <legend>3. Тренировки сега</legend>
+      <legend>4. Тренировки сега</legend>
 
       <label class="q">В момента тренираш ли?</label>
       <div class="opts" data-radio="trenira" id="treniraGroup">
@@ -359,7 +400,7 @@
 
     <!-- 4 -->
     <fieldset>
-      <legend>4. Сън и стрес</legend>
+      <legend>5. Сън и стрес</legend>
 
       <label class="q">В колко часа обикновено си лягаш?
         <span class="hint">Приблизителен час, например „23:00".</span>
@@ -409,47 +450,6 @@
           <input type="number" id="puls_pokoy" inputmode="numeric">
         </div>
       </div>
-    </fieldset>
-
-    <!-- 5 -->
-    <fieldset>
-      <legend>5. Какво търсиш и каква е целта</legend>
-
-      <label class="q">Какво искаш да получиш?
-        <span class="hint">Това е УСЛУГАТА, която търсиш от съвместната работа. То е различно от „целта" по-долу:
-        изходът е КАКВО ще получиш, а целта е КАКВО искаш да постигнеш. Пример: целта може да е
-        „сваляне на килограми", а да искаш едновременно и хранителен режим, и тренировъчна програма.
-        Може да избереш повече от едно.</span>
-      </label>
-      <div class="opts" data-check="izhod" id="izhodGroup">
-        <label><input type="checkbox" value="Хранителен режим"> Хранителен режим</label>
-        <label><input type="checkbox" value="Тренировъчна програма"> Тренировъчна програма</label>
-        <label><input type="checkbox" value="Препоръка за добавки"> Препоръка за добавки</label>
-        <label><input type="checkbox" value="Цялостен подход"> Цялостен подход (всичко по-горе)</label>
-        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — преценете вие</label>
-      </div>
-      <div class="gate" id="izhodNote"></div>
-
-      <label class="q">Каква е целта ти?
-        <span class="hint">Какво искаш да ПОСТИГНЕШ (различно от горното — то е какво ще получиш).</span>
-      </label>
-      <div class="opts" data-radio="cel">
-        <label><input type="radio" name="cel" value="Сваляне на килограми"> Сваляне на килограми</label>
-        <label><input type="radio" name="cel" value="Форма и тонус"> Форма и тонус</label>
-        <label><input type="radio" name="cel" value="Качване на мускулна маса"> Качване на мускулна маса</label>
-        <label><input type="radio" name="cel" value="Изчистване (рекомпозиция)"> Изчистване (рекомпозиция)</label>
-        <label><input type="radio" name="cel" value="Повече сила"> Повече сила</label>
-        <label><input type="radio" name="cel" value="Здраве и енергия"> Здраве и енергия</label>
-        <label><input type="radio" name="cel" value="Друго"> Друго</label>
-      </div>
-
-      <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
-      <textarea id="motivaciya"></textarea>
-
-      <label class="q">Пробвала ли си нещо преди, което не сработи?
-        <span class="hint">Ако не — напиши „не".</span>
-      </label>
-      <textarea id="minal_opit"></textarea>
     </fieldset>
 
     <!-- 6 -->
