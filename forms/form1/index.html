@@ -246,6 +246,16 @@
         <span class="hint">Ако не — напиши „не".</span>
       </label>
       <textarea id="minal_opit"></textarea>
+
+      <label class="q">Колко стриктно реално очакваш да спазваш? (1–10)
+        <span class="hint">Честно — помага планът да е реалистичен. 1 = трудно ще е, 10 = много стриктно.</span>
+      </label>
+      <input type="number" id="adherence" inputmode="numeric" min="1" max="10">
+
+      <label class="q">Какво ти е пречело преди да спазваш режим? (по желание)
+        <span class="hint">Напр. време, работа/смени, глад, мотивация, пътувания, семейство.</span>
+      </label>
+      <input type="text" id="barieri">
     </fieldset>
 
     <!-- 2 -->
@@ -302,6 +312,20 @@
           <input type="number" id="hansh" inputmode="numeric">
         </div>
       </div>
+
+      <label class="q">Теглото ти напоследък?
+        <span class="hint">Накъде върви в последните месеци — помага да се разбере какво се случва.</span>
+      </label>
+      <div class="opts" data-radio="teglo_trend">
+        <label><input type="radio" name="teglo_trend" value="Качва"> Качва се</label>
+        <label><input type="radio" name="teglo_trend" value="Пада"> Пада</label>
+        <label><input type="radio" name="teglo_trend" value="Стабилно"> Стабилно</label>
+      </div>
+
+      <label class="q">Откога и какво се промени тогава? (по желание)
+        <span class="hint">Напр. „от година — нови лекарства" · „след раждане" · „смяна на работа/смени" · „стрес" · „нищо особено".</span>
+      </label>
+      <input type="text" id="teglo_promyana">
     </fieldset>
 
     <!-- 2 -->
@@ -316,6 +340,24 @@
         <label><input type="radio" name="rabota" value="На крак, в движение"> На крак, в движение</label>
         <label><input type="radio" name="rabota" value="Тежък физически труд"> Тежък физически труд</label>
         <label><input type="radio" name="rabota" value="Смесено"> Смесено</label>
+      </div>
+
+      <label class="q">Работиш ли на смени или нестандартен/променлив график?
+        <span class="hint">Например 12-часови смени, ротация ден/нощ, дежурства. Това мести храненето, тренировките и съня — важно е за плана.</span>
+      </label>
+      <div class="opts" data-radio="smeni" id="smeniGroup">
+        <label><input type="radio" name="smeni" value="Не"> Не — горе-долу еднакво всеки ден</label>
+        <label><input type="radio" name="smeni" value="Да"> Да — на смени / променливо</label>
+      </div>
+      <div class="reveal" id="smeniDetails">
+        <label class="q">Какви смени и как се редуват?
+          <span class="hint">Напр. „12ч: ден 08–20, после нощ 20–08, после 2 почивки".</span>
+        </label>
+        <input type="text" id="smeni_cikyl">
+        <label class="q">Кога спиш и кога можеш да тренираш на всеки тип ден?
+          <span class="hint">Накратко по тип ден — будене, сън, кога би тренирал(а). Това прави режима гъвкав и точен за теб.</span>
+        </label>
+        <textarea id="smeni_ritym"></textarea>
       </div>
 
       <label class="q">Колко часа на ден прекарваш на крак / в движение?
@@ -348,6 +390,15 @@
         <span class="hint">Например разходки, колоездене, градина, грижа за деца, домакинска работа. Ако няма — остави празно.</span>
       </label>
       <textarea id="druga_aktivnost"></textarea>
+
+      <label class="q">Колко често прекъсваш режима/тренировките?
+        <span class="hint">Заради пътувания, семейни ангажименти, непредвидена работа. Помага планът да е гъвкав, а не крехък.</span>
+      </label>
+      <div class="opts" data-radio="prekysvaniya">
+        <label><input type="radio" name="prekysvaniya" value="Рядко"> Рядко</label>
+        <label><input type="radio" name="prekysvaniya" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="prekysvaniya" value="Често"> Често</label>
+      </div>
 
       <div class="gate" id="neatNote"></div>
     </fieldset>
@@ -401,6 +452,14 @@
     <!-- 4 -->
     <fieldset>
       <legend>5. Сън и стрес</legend>
+
+      <label class="q">Сънят ти еднакъв ли е всеки ден, или варира?
+        <span class="hint">При смени/нощни смени сънят често се мести — отбележи, ако е така. (Подробностите по тип ден са в секция „Ежедневие".)</span>
+      </label>
+      <div class="opts" data-radio="syn_promenliv">
+        <label><input type="radio" name="syn_promenliv" value="Горе-долу еднакъв"> Горе-долу еднакъв</label>
+        <label><input type="radio" name="syn_promenliv" value="Варира"> Варира (смени/други)</label>
+      </div>
 
       <label class="q">В колко часа обикновено си лягаш?
         <span class="hint">Приблизителен час, например „23:00".</span>
@@ -557,6 +616,14 @@
     else treniraDetails.classList.remove("show");
   });
 
+  // --- Криеща се секция: детайли за смени само при "Да" ---
+  var smeniGroup = document.getElementById("smeniGroup");
+  var smeniDetails = document.getElementById("smeniDetails");
+  smeniGroup.addEventListener("change", function () {
+    if (radio("smeni") === "Да") smeniDetails.classList.add("show");
+    else smeniDetails.classList.remove("show");
+  });
+
   // --- Здравен скрийн: "Нямам нищо" се самоизключва с останалите + врата ---
   var zdraveGroup = document.getElementById("zdraveGroup");
   var gate = document.getElementById("gate");
@@ -676,14 +743,22 @@
     L.push(line("Желано тегло (кг)", val("zhelano_teglo")));
     L.push(line("Талия (см)", val("taliya")));
     L.push(line("Ханш (см)", val("hansh")));
+    L.push(line("Тегло — тренд напоследък", radio("teglo_trend")));
+    L.push(line("Тегло — откога/какво се промени", val("teglo_promyana")));
     L.push("");
     L.push("[ЕЖЕДНЕВИЕ И АКТИВНОСТ]");
     var krTochno = val("krachki_tochno");
     L.push(line("Работа/ежедневие", radio("rabota")));
+    L.push(line("На смени/променлив график", radio("smeni")));
+    if (radio("smeni") === "Да") {
+      L.push(line("Смени — цикъл/редуване", val("smeni_cikyl")));
+      L.push(line("Смени — сън/тренировка по тип ден", val("smeni_ritym")));
+    }
     L.push(line("Часове на крак на ден", radio("na_krak")));
     L.push(line("Движение на ден", radio("dvizhenie") + (krTochno ? " (ориентир)" : "")));
     L.push(line("Точен брой крачки", krTochno ? krTochno + " (меродавно)" : ""));
     L.push(line("Друга активност", val("druga_aktivnost")));
+    L.push(line("Прекъсвания на режима", radio("prekysvaniya")));
     L.push("");
     L.push("[ТРЕНИРОВКИ СЕГА]");
     L.push(line("Тренира сега", radio("trenira")));
@@ -695,6 +770,7 @@
     }
     L.push("");
     L.push("[СЪН И СТРЕС]");
+    L.push(line("Сън — еднакъв/варира", radio("syn_promenliv")));
     L.push(line("Час на лягане", val("chas_lyagane")));
     L.push(line("Сън (часове)", radio("syn_chasove")));
     L.push(line("Качество на съня", radio("syn_kachestvo")));
@@ -708,6 +784,8 @@
     L.push(line("Цел", radio("cel")));
     L.push(line("Цел/срок (свободно)", val("motivaciya")));
     L.push(line("Минал опит", val("minal_opit")));
+    L.push(line("Очаквана стриктност (1-10)", val("adherence")));
+    L.push(line("Какво е пречело преди", val("barieri")));
     L.push("");
     L.push("[НАВИЦИ]");
     L.push(line("Пушене", radio("pushene")));
@@ -734,14 +812,19 @@
       ime: val("ime"), pol: radio("pol"), godina_razhdane: val("godina_razhdane"),
       visochina: val("visochina"), teglo: val("teglo"), zhelano_teglo: val("zhelano_teglo"),
       taliya: val("taliya"), hansh: val("hansh"),
+      teglo_trend: radio("teglo_trend"), teglo_promyana: val("teglo_promyana"),
       rabota: radio("rabota"), na_krak: radio("na_krak"), dvizhenie: radio("dvizhenie"),
       krachki_tochno: val("krachki_tochno"), druga_aktivnost: val("druga_aktivnost"),
+      smeni: radio("smeni"), smeni_cikyl: val("smeni_cikyl"), smeni_ritym: val("smeni_ritym"),
+      prekysvaniya: radio("prekysvaniya"),
       trenira: radio("trenira"), dni: checks("dni"), vreme_min: val("vreme_min"),
       chas: val("chas"), kade_kakvo: val("kade_kakvo"),
+      syn_promenliv: radio("syn_promenliv"),
       chas_lyagane: val("chas_lyagane"), syn_chasove: radio("syn_chasove"),
       syn_kachestvo: radio("syn_kachestvo"), stres: radio("stres"), energiya: radio("energiya"),
       syn_tochno: val("syn_tochno"), puls_pokoy: val("puls_pokoy"),
       cel: radio("cel"), motivaciya: val("motivaciya"), minal_opit: val("minal_opit"),
+      adherence: val("adherence"), barieri: val("barieri"),
       pushene: radio("pushene"), alkohol: radio("alkohol"),
       gazirani: radio("gazirani"), kafe: radio("kafe"),
       zdrave: flaggedAreas(), drugo_sastoyanie: val("drugo_sastoyanie"),
