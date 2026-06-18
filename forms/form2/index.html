@@ -220,6 +220,27 @@
 
     <fieldset>
       <legend>Лекарства и добавки</legend>
+
+      <label class="q">Приемаш ли нещо от изброеното? (отметни)
+        <span class="hint">За да не се пропусне нещо важно — лекарствата често влияят на теглото, апетита и енергията. Отметни класовете, после опиши имената отдолу.</span>
+      </label>
+      <div class="opts" data-check="lek_klas" id="lekKlasGroup">
+        <label><input type="checkbox" value="Психиатрични / за нерви"> Психиатрични / за нерви (антидепресанти, успокоителни)</label>
+        <label><input type="checkbox" value="Щитовидна жлеза"> За щитовидната жлеза</label>
+        <label><input type="checkbox" value="Кръвно / сърце"> За кръвно / сърце</label>
+        <label><input type="checkbox" value="Хормонални / контрацепция"> Хормонални / противозачатъчни</label>
+        <label><input type="checkbox" value="Кортикостероиди"> Кортикостероиди (кортизон)</label>
+        <label><input type="checkbox" value="За холестерол (статини)"> За холестерол (статини)</label>
+        <label><input type="checkbox" value="За захар / диабет"> За захар / диабет</label>
+        <label><input type="checkbox" value="Стомашно"> Стомашно (за киселини и др.)</label>
+        <label><input type="checkbox" value="Друго"> Друго</label>
+      </div>
+
+      <label class="q">Влияе ли някое лекарство на теглото, апетита или енергията ти?
+        <span class="hint">Ако си забелязал(а) такова — напиши кое и как. Ако не — остави празно.</span>
+      </label>
+      <input type="text" id="lek_vliyanie">
+
       <label class="q">Какви лекарства приемаш в момента?
         <span class="hint">Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин"). Това е важно, за да няма
         нежелани взаимодействия с предложеното. Ако не приемаш — напиши „няма".</span>
@@ -234,6 +255,12 @@
 
     <fieldset>
       <legend>Нещо друго важно</legend>
+
+      <label class="q">Работата ти натоварва ли тялото по специфичен начин?
+        <span class="hint">Повтарящи движения, дълго стоене/седене в една поза, вдигане на тежко, вибрации. Това често стои зад болки в гърба/раменете.</span>
+      </label>
+      <input type="text" id="prof_natovarvane">
+
       <label class="q">Има ли още нещо за здравето ти, което е добре да се знае?
         <span class="hint">Каквото прецениш — минали проблеми, бременност/кърмене, нещо, което те притеснява. Ако няма — остави празно.</span>
       </label>
@@ -271,6 +298,10 @@
   function radio(name) {
     var el = document.querySelector('input[name="' + name + '"]:checked');
     return el ? el.value : "";
+  }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; });
   }
   function line(label, value) {
     return label + ": " + (value || "—");
@@ -376,8 +407,12 @@
     if (!any) L.push("(няма отбелязани области)");
     L.push("");
     L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
+    L.push(line("Класове лекарства (отметнати)", checks("lek_klas").join(", ")));
+    L.push(line("Лекарство влияе на тегло/апетит/енергия", val("lek_vliyanie")));
     L.push(line("Лекарства сега", val("lekarstva")));
     L.push(line("Текущи добавки/витамини", val("dobavki")));
+    L.push("");
+    L.push(line("Професионално натоварване", val("prof_natovarvane")));
     L.push("");
     L.push("[ДРУГО ВАЖНО]");
     L.push(val("drugo_vazhno") || "—");
@@ -408,7 +443,9 @@
     return {
       ime: val("ime"), godina_razhdane: val("godina_razhdane"),
       oblasti: oblasti,
+      lek_klas: checks("lek_klas"), lek_vliyanie: val("lek_vliyanie"),
       lekarstva: val("lekarstva"), dobavki: val("dobavki"),
+      prof_natovarvane: val("prof_natovarvane"),
       drugo_vazhno: val("drugo_vazhno"),
       docs_viber: document.getElementById("docs_viber").checked
     };
