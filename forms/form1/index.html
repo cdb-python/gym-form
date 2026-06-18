@@ -266,9 +266,42 @@
       <input type="text" id="ime">
 
       <label class="q">Пол</label>
-      <div class="opts" data-radio="pol">
+      <div class="opts" data-radio="pol" id="polGroup">
         <label><input type="radio" name="pol" value="Жена"> Жена</label>
         <label><input type="radio" name="pol" value="Мъж"> Мъж</label>
+      </div>
+
+      <div class="reveal" id="zheniBlok">
+        <label class="q">Цикъл (мензис)?
+          <span class="hint">Хормоните влияят силно на теглото и енергията — затова е важно за точния план.</span>
+        </label>
+        <div class="opts" data-radio="cikyl">
+          <label><input type="radio" name="cikyl" value="Редовен"> Редовен</label>
+          <label><input type="radio" name="cikyl" value="Нередовен"> Нередовен</label>
+          <label><input type="radio" name="cikyl" value="Спрял (менопауза)"> Спрял (менопауза)</label>
+          <label><input type="radio" name="cikyl" value="Не съм сигурна"> Не съм сигурна</label>
+        </div>
+        <label class="q">Симптоми на перименопауза/менопауза?
+          <span class="hint">Напр. горещи вълни, нощно изпотяване, промени в настроението/съня.</span>
+        </label>
+        <div class="opts" data-radio="menopauza">
+          <label><input type="radio" name="menopauza" value="Да"> Да</label>
+          <label><input type="radio" name="menopauza" value="Не"> Не</label>
+          <label><input type="radio" name="menopauza" value="Не знам"> Не знам</label>
+        </div>
+        <label class="q">Бременна си, кърмиш или планираш бременност?
+          <span class="hint">Важно за безопасността на режима и добавките.</span>
+        </label>
+        <div class="opts" data-radio="bremennost">
+          <label><input type="radio" name="bremennost" value="Не"> Не</label>
+          <label><input type="radio" name="bremennost" value="Бременна"> Бременна</label>
+          <label><input type="radio" name="bremennost" value="Кърмя"> Кърмя</label>
+          <label><input type="radio" name="bremennost" value="Планирам"> Планирам</label>
+        </div>
+        <label class="q">Хормонална терапия или контрацепция? (по желание)
+          <span class="hint">Кои — напр. противозачатъчни, хормонозаместителна терапия. Ако няма — остави празно.</span>
+        </label>
+        <input type="text" id="hormonalna">
       </div>
 
       <div class="row2">
@@ -624,6 +657,14 @@
     else smeniDetails.classList.remove("show");
   });
 
+  // --- Криеща се секция: хормонален блок само при пол=Жена ---
+  var polGroup = document.getElementById("polGroup");
+  var zheniBlok = document.getElementById("zheniBlok");
+  polGroup.addEventListener("change", function () {
+    if (radio("pol") === "Жена") zheniBlok.classList.add("show");
+    else zheniBlok.classList.remove("show");
+  });
+
   // --- Здравен скрийн: "Нямам нищо" се самоизключва с останалите + врата ---
   var zdraveGroup = document.getElementById("zdraveGroup");
   var gate = document.getElementById("gate");
@@ -745,6 +786,14 @@
     L.push(line("Ханш (см)", val("hansh")));
     L.push(line("Тегло — тренд напоследък", radio("teglo_trend")));
     L.push(line("Тегло — откога/какво се промени", val("teglo_promyana")));
+    if (radio("pol") === "Жена") {
+      L.push("");
+      L.push("[ХОРМОНАЛНО (жени)]");
+      L.push(line("Цикъл", radio("cikyl")));
+      L.push(line("Перименопауза/менопауза симптоми", radio("menopauza")));
+      L.push(line("Бременност/кърмене/планира", radio("bremennost")));
+      L.push(line("Хормонална терапия/контрацепция", val("hormonalna")));
+    }
     L.push("");
     L.push("[ЕЖЕДНЕВИЕ И АКТИВНОСТ]");
     var krTochno = val("krachki_tochno");
@@ -810,6 +859,7 @@
   function gatherData() {
     return {
       ime: val("ime"), pol: radio("pol"), godina_razhdane: val("godina_razhdane"),
+      cikyl: radio("cikyl"), menopauza: radio("menopauza"), bremennost: radio("bremennost"), hormonalna: val("hormonalna"),
       visochina: val("visochina"), teglo: val("teglo"), zhelano_teglo: val("zhelano_teglo"),
       taliya: val("taliya"), hansh: val("hansh"),
       teglo_trend: radio("teglo_trend"), teglo_promyana: val("teglo_promyana"),
