@@ -230,6 +230,15 @@
       </label>
       <textarea id="izklyucheni"></textarea>
 
+      <label class="q">Имаш ли хранителна непоносимост?
+        <span class="hint">Различно от алергия — напр. подуване/дискомфорт от определени храни.</span>
+      </label>
+      <div class="opts" data-check="neponosimost">
+        <label><input type="checkbox" value="Лактоза (млечно)"> Лактоза (млечно)</label>
+        <label><input type="checkbox" value="Глутен (пшеница)"> Глутен (пшеница)</label>
+        <label><input type="checkbox" value="Друго"> Друго</label>
+      </div>
+
       <label class="q">Кои източници на протеин харесваш?
         <span class="hint">Отбележи каквото ядеш с удоволствие.</span>
       </label>
@@ -266,6 +275,20 @@
         <span class="hint">Напр. „8:00, 13:00, 20:00".</span>
       </label>
       <input type="text" id="chasove">
+
+      <label class="q">Храненето ти различно ли е на различни дни?
+        <span class="hint">Напр. при смени, тренировъчни и почивни дни. Ако да — режимът ще се направи по тип ден.</span>
+      </label>
+      <div class="opts" data-radio="hr_po_dni" id="hrPoDniGroup">
+        <label><input type="radio" name="hr_po_dni" value="Горе-долу еднакво"> Горе-долу еднакво всеки ден</label>
+        <label><input type="radio" name="hr_po_dni" value="Различно"> Различно (смени/трен/почивка)</label>
+      </div>
+      <div class="reveal" id="hrPoDniReveal">
+        <label class="q">Опиши накратко по тип ден
+          <span class="hint">Напр. „дневна смяна — ям 11 и 18; нощна — само кисело мляко и плод; почивен — 3 хранения".</span>
+        </label>
+        <textarea id="hr_po_dni_opis"></textarea>
+      </div>
 
       <label class="q">Прескачаш ли хранения или имаш дълги паузи без храна?</label>
       <div class="opts" data-radio="preskacha" id="preskachaGroup">
@@ -355,6 +378,15 @@
         <label><input type="radio" name="vecher_hapvane" value="Понякога"> Понякога</label>
         <label><input type="radio" name="vecher_hapvane" value="Често"> Често</label>
       </div>
+
+      <label class="q">Ядеш ли при стрес, скука или емоция?
+        <span class="hint">Честно — помага да се предвидят трудните моменти (напр. дълги/скучни смени).</span>
+      </label>
+      <div class="opts" data-radio="emo_hapvane">
+        <label><input type="radio" name="emo_hapvane" value="Не"> Не</label>
+        <label><input type="radio" name="emo_hapvane" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="emo_hapvane" value="Често"> Често</label>
+      </div>
     </fieldset>
 
     <fieldset>
@@ -421,6 +453,9 @@
   document.getElementById("preskachaGroup").addEventListener("change", function () {
     document.getElementById("preskachaReveal").classList.toggle("show", radio("preskacha") === "Да");
   });
+  document.getElementById("hrPoDniGroup").addEventListener("change", function () {
+    document.getElementById("hrPoDniReveal").classList.toggle("show", radio("hr_po_dni") === "Различно");
+  });
 
   function build() {
     var d = new Date();
@@ -439,11 +474,14 @@
     if (val("tip_opis")) L.push(line("  Описание", val("tip_opis")));
     L.push(line("Изключени/нежелани храни", val("izklyucheni")));
     L.push(line("Любими протеини", checks("proteini").join(", ")));
+    L.push(line("Непоносимости", checks("neponosimost").join(", ")));
     L.push("");
     L.push("[ТЕКУЩ РЕЖИМ]");
     L.push(line("Хранения на ден", radio("hranenia_broy")));
     L.push(line("Закусва", radio("zakuska")));
     L.push(line("Часове на хранене", val("chasove")));
+    L.push(line("Храненето различно по дни", radio("hr_po_dni")));
+    if (val("hr_po_dni_opis")) L.push(line("  По тип ден", val("hr_po_dni_opis")));
     L.push(line("Прескача хранения", radio("preskacha")));
     if (val("preskacha_opis")) L.push(line("  Кога/защо", val("preskacha_opis")));
     L.push(line("Между храненията", val("snaks")));
@@ -464,6 +502,7 @@
     L.push(line("Най-силен глад", val("glad_koga")));
     L.push(line("Желание за сладко", radio("sladko")));
     L.push(line("Хапване вечер/нощем", radio("vecher_hapvane")));
+    L.push(line("Хапване при стрес/скука/емоция", radio("emo_hapvane")));
     L.push("");
     L.push("[ВОДА И ЖЕЛАНИЯ]");
     L.push(line("Вода на ден", radio("voda")));
@@ -478,15 +517,16 @@
     return {
       ime: val("ime"), godina_razhdane: val("godina_razhdane"),
       tip_hranene: radio("tip_hranene"), tip_opis: val("tip_opis"),
-      izklyucheni: val("izklyucheni"), proteini: checks("proteini"),
+      izklyucheni: val("izklyucheni"), neponosimost: checks("neponosimost"), proteini: checks("proteini"),
       hranenia_broy: radio("hranenia_broy"), zakuska: radio("zakuska"),
-      chasove: val("chasove"), preskacha: radio("preskacha"), preskacha_opis: val("preskacha_opis"),
+      chasove: val("chasove"), hr_po_dni: radio("hr_po_dni"), hr_po_dni_opis: val("hr_po_dni_opis"),
+      preskacha: radio("preskacha"), preskacha_opis: val("preskacha_opis"),
       snaks: val("snaks"),
       den_zakuska: val("den_zakuska"), den_obyad: val("den_obyad"),
       den_vecherya: val("den_vecherya"), den_mezhdu: val("den_mezhdu"),
       gotvene: radio("gotvene"), vreme_gotvene: radio("vreme_gotvene"), raznoobrazie: radio("raznoobrazie"),
       glad: radio("glad"), glad_koga: val("glad_koga"), sladko: radio("sladko"),
-      vecher_hapvane: radio("vecher_hapvane"),
+      vecher_hapvane: radio("vecher_hapvane"), emo_hapvane: radio("emo_hapvane"),
       voda: radio("voda"), zadalzhitelni: val("zadalzhitelni"), drugo_hrana: val("drugo_hrana")
     };
   }
