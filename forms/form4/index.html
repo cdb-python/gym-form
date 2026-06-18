@@ -234,6 +234,10 @@
           <span class="hint">Сплит (кои дни какво), приблизително серии на мускулна група седмично, методи. За да продължим от реалното ти ниво, а не от нулата.</span>
         </label>
         <textarea id="staj_sega"></textarea>
+        <label class="q">Текущи ориентири на основните движения? (по желание)
+          <span class="hint">Колко вдигаш горе-долу (напр. клек/лежанка/тяга) или с колко повторения. За точно дозиране на натоварването.</span>
+        </label>
+        <input type="text" id="staj_orientiri">
       </div>
 
       <label class="q">Кои движения познаваш и изпълняваш уверено?
@@ -341,6 +345,20 @@
         <label><input type="radio" name="dni_sedmica" value="5+"> 5 или повече</label>
       </div>
 
+      <label class="q">Графикът ти позволява ли редовни дни, или варира?
+        <span class="hint">При смени/нощни смени дните се местят — програмата ще е гъвкава, ако е така.</span>
+      </label>
+      <div class="opts" data-radio="grafik" id="grafikGroup">
+        <label><input type="radio" name="grafik" value="Редовни дни"> Горе-долу редовни дни</label>
+        <label><input type="radio" name="grafik" value="Варира (смени)"> Варира (смени/непредвидено)</label>
+      </div>
+      <div class="reveal" id="grafikReveal">
+        <label class="q">Опиши кога реално можеш да тренираш
+          <span class="hint">Напр. „в почивните дни и след нощна смяна следобед".</span>
+        </label>
+        <input type="text" id="grafik_opis">
+      </div>
+
       <label class="q">Колко време на тренировка?</label>
       <div class="opts" data-radio="minuti">
         <label><input type="radio" name="minuti" value="~30 мин"> Около 30 минути</label>
@@ -377,6 +395,15 @@
         <span class="hint">Напр. навеждане, скачане, изправяне от пода. Ако няма — остави празно.</span>
       </label>
       <input type="text" id="zatrudnenia">
+
+      <label class="q">Възстановяваш ли се добре между тренировки?
+        <span class="hint">Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а).</span>
+      </label>
+      <div class="opts" data-radio="vyzstanovyavane">
+        <label><input type="radio" name="vyzstanovyavane" value="Добре"> Добре</label>
+        <label><input type="radio" name="vyzstanovyavane" value="Средно"> Средно</label>
+        <label><input type="radio" name="vyzstanovyavane" value="Бавно/често уморен"> Бавно — често преуморен(а)</label>
+      </div>
 
       <div class="note">Ако имаш контузии, болки или заболявания — те се описват във <b>Форма 2</b> (там е по-подробно).
       Тук е само за движението при тренировка.</div>
@@ -462,7 +489,10 @@
   });
   document.getElementById("stajGroup").addEventListener("change", function () {
     var v = radio("staj");
-    document.getElementById("stajReveal").classList.toggle("show", v === "2 – 5 години" || v === "Над 5 години");
+    document.getElementById("stajReveal").classList.toggle("show", v === "6 месеца – 2 години" || v === "2 – 5 години" || v === "Над 5 години");
+  });
+  document.getElementById("grafikGroup").addEventListener("change", function () {
+    document.getElementById("grafikReveal").classList.toggle("show", radio("grafik") === "Варира (смени)");
   });
   document.getElementById("celGroup").addEventListener("change", function () {
     var v = radio("cel_programa");
@@ -488,6 +518,7 @@
     L.push(line("Тренирал по програма", radio("s_programa")));
     if (val("s_programa_opis")) L.push(line("  Каква/как мина", val("s_programa_opis")));
     if (val("staj_sega")) L.push(line("  Сегашна тренировка", val("staj_sega")));
+    if (val("staj_orientiri")) L.push(line("  Текущи ориентири", val("staj_orientiri")));
     L.push("");
     L.push("[ЦЕЛ НА ПРОГРАМАТА]");
     L.push(line("Цел", radio("cel_programa")));
@@ -502,6 +533,8 @@
     L.push("");
     L.push("[ЧЕСТОТА И ВРЕМЕ]");
     L.push(line("Дни седмично", radio("dni_sedmica")));
+    L.push(line("График — редовен/варира", radio("grafik")));
+    if (val("grafik_opis")) L.push(line("  Кога може да тренира", val("grafik_opis")));
     L.push(line("Минути на тренировка", radio("minuti")));
     L.push(line("Предпочитани дни/часове", val("chasove_dni")));
     L.push("");
@@ -509,6 +542,7 @@
     L.push(line("Дълбок клек", radio("klek_ok")));
     L.push(line("Ръце над глава", radio("ruce_glava")));
     L.push(line("Затрудняващи движения", val("zatrudnenia")));
+    L.push(line("Възстановяване между тренировки", radio("vyzstanovyavane")));
     L.push("");
     L.push("[ПРЕДПОЧИТАНИЯ]");
     L.push(line("Стил", radio("stil")));
@@ -525,13 +559,15 @@
   function gatherData() {
     return {
       ime: val("ime"), godina_razhdane: val("godina_razhdane"),
-      staj: radio("staj"), staj_sega: val("staj_sega"), dvizhenia: checks("dvizhenia"),
+      staj: radio("staj"), staj_sega: val("staj_sega"), staj_orientiri: val("staj_orientiri"), dvizhenia: checks("dvizhenia"),
       s_programa: radio("s_programa"), s_programa_opis: val("s_programa_opis"),
       cel_programa: radio("cel_programa"), cel_programa_opis: val("cel_programa_opis"),
       sila_orientir: val("sila_orientir"), sport_detail: val("sport_detail"),
       kade: radio("kade"), oborudvane: checks("oborudvane"), oborudvane_drugo: val("oborudvane_drugo"),
-      dni_sedmica: radio("dni_sedmica"), minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
+      dni_sedmica: radio("dni_sedmica"), grafik: radio("grafik"), grafik_opis: val("grafik_opis"),
+      minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
       klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
+      vyzstanovyavane: radio("vyzstanovyavane"),
       stil: radio("stil"),
       nt_intensitet: radio("nt_intensitet"), nt_raznoobrazie: radio("nt_raznoobrazie"), nt_plan: radio("nt_plan"),
       lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
