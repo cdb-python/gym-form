@@ -197,6 +197,13 @@
       } else {
         body = '<span class="m">Само мерки — без бележка.</span>';
       }
+      var reply = e.reply ? String(e.reply) : "";
+      if (reply) {
+        var rwhen = fmtDate(e.reply_at) + (fmtTime(e.reply_at) ? ", " + fmtTime(e.reply_at) : "");
+        body += '<div style="margin-top:10px;padding:8px 11px;border-left:3px solid #2f6f4f;background:#eef4f0;border-radius:6px">'
+          + '<div style="color:#2f6f4f;font-weight:600;font-size:13px;margin-bottom:3px">Отговор от Chris' + (rwhen ? " · " + esc(rwhen) : "") + "</div>"
+          + '<div style="font-size:14px">' + esc(reply).replace(/\n/g, "<br>") + "</div></div>";
+      }
       var key = "log_" + (e.created_at || ("i" + idx));
       return '<div class="card logcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(key) + '">'
         + '<div class="date">' + esc(when) + "</div>"
