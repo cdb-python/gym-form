@@ -342,8 +342,10 @@
         <label><input type="radio" name="dni_sedmica" value="2"> 2 дни</label>
         <label><input type="radio" name="dni_sedmica" value="3"> 3 дни</label>
         <label><input type="radio" name="dni_sedmica" value="4"> 4 дни</label>
-        <label><input type="radio" name="dni_sedmica" value="5+"> 5 или повече</label>
+        <label><input type="radio" name="dni_sedmica" value="5"> 5 дни</label>
+        <label><input type="radio" name="dni_sedmica" value="6"> 6 дни</label>
       </div>
+      <span class="hint">6 дни е разумно само при опит и добро възстановяване; 7 дни не се препоръчва (тялото расте при почивка).</span>
 
       <label class="q">Графикът ти позволява ли редовни дни, или варира?
         <span class="hint">При смени/нощни смени дните се местят — програмата ще е гъвкава, ако е така.</span>
@@ -395,6 +397,15 @@
         <span class="hint">Напр. навеждане, скачане, изправяне от пода. Ако няма — остави празно.</span>
       </label>
       <input type="text" id="zatrudnenia">
+
+      <label class="q">Колко натоварено/стресово е ежедневието ти извън залата?
+        <span class="hint">Работа, сън, грижи. Високият стрес намалява възстановяването — затова влияе на колко дни и обем е разумно.</span>
+      </label>
+      <div class="opts" data-radio="stres">
+        <label><input type="radio" name="stres" value="Ниско"> Ниско — спокойно ежедневие</label>
+        <label><input type="radio" name="stres" value="Средно"> Средно</label>
+        <label><input type="radio" name="stres" value="Високо"> Високо — натоварен/стресов период</label>
+      </div>
 
       <label class="q">Възстановяваш ли се добре между тренировки?
         <span class="hint">Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а).</span>
@@ -542,6 +553,7 @@
     L.push(line("Дълбок клек", radio("klek_ok")));
     L.push(line("Ръце над глава", radio("ruce_glava")));
     L.push(line("Затрудняващи движения", val("zatrudnenia")));
+    L.push(line("Ежедневен стрес/натовареност", radio("stres")));
     L.push(line("Възстановяване между тренировки", radio("vyzstanovyavane")));
     L.push("");
     L.push("[ПРЕДПОЧИТАНИЯ]");
@@ -567,7 +579,7 @@
       dni_sedmica: radio("dni_sedmica"), grafik: radio("grafik"), grafik_opis: val("grafik_opis"),
       minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
       klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
-      vyzstanovyavane: radio("vyzstanovyavane"),
+      stres: radio("stres"), vyzstanovyavane: radio("vyzstanovyavane"),
       stil: radio("stil"),
       nt_intensitet: radio("nt_intensitet"), nt_raznoobrazie: radio("nt_raznoobrazie"), nt_plan: radio("nt_plan"),
       lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren")
