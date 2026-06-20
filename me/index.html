@@ -88,6 +88,9 @@
   .logitem .d { font-weight: 700; }
   .logitem .m { color: #6b7886; }
   .card.coachcard { border-left: 3px solid var(--accent); background: var(--soft); }
+  .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
+  .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
+  .lf details.meas summary::-webkit-details-marker { display: none; }
 </style>
 </head>
 <body>
@@ -178,9 +181,15 @@
     });
     function logSummary(e) {
       var bits = [];
-      if (e.weight != null && e.weight !== "") bits.push("тегло " + e.weight + " кг");
-      if (e.waist != null && e.waist !== "") bits.push("талия " + e.waist + " см");
-      if (e.hip != null && e.hip !== "") bits.push("ханш " + e.hip + " см");
+      function add(v, label, unit) { if (v != null && v !== "") bits.push(label + " " + v + unit); }
+      add(e.weight, "тегло", " кг");
+      add(e.neck, "врат", " см");
+      add(e.chest, "гръд", " см");
+      add(e.arm, "ръка", " см");
+      add(e.waist, "талия", " см");
+      add(e.hip, "ханш", " см");
+      add(e.thigh, "бедро", " см");
+      add(e.calf, "прасец", " см");
       return bits.join(" · ");
     }
     function notePreview(t) {
@@ -225,11 +234,18 @@
     }
     var logHtml = '<div class="sec"><h2>Моят прогрес</h2>'
       + '<div class="card open" data-key="log_form"><div class="t">Впиши днешното</div><div class="body lf">'
-      + '<p style="color:#6b7886;font-size:13px;margin:0 0 6px">По желание — попълни каквото следиш.</p>'
-      + '<div class="row2"><div><label>Дата</label><input type="date" id="lg_date"></div>'
-      + '<div><label>Тегло (кг)</label><input type="number" id="lg_weight" inputmode="decimal"></div></div>'
-      + '<div class="row2"><div><label>Талия (см)</label><input type="number" id="lg_waist" inputmode="numeric"></div>'
-      + '<div><label>Ханш (см)</label><input type="number" id="lg_hip" inputmode="numeric"></div></div>'
+      + '<p style="color:#6b7886;font-size:13px;margin:0 0 6px">По желание — попълни каквото следиш. Датата се добавя автоматично.</p>'
+      + '<label>Тегло (кг)</label><input type="number" id="lg_weight" inputmode="decimal">'
+      + '<details class="meas"><summary>+ Обиколки (см) — по желание</summary>'
+      + '<div class="row2"><div><label>Врат</label><input type="number" id="lg_neck" inputmode="decimal"></div>'
+      + '<div><label>Гръд</label><input type="number" id="lg_chest" inputmode="decimal"></div></div>'
+      + '<div class="row2"><div><label>Ръка (бицепс)</label><input type="number" id="lg_arm" inputmode="decimal"></div>'
+      + '<div><label>Талия</label><input type="number" id="lg_waist" inputmode="decimal"></div></div>'
+      + '<div class="row2"><div><label>Ханш</label><input type="number" id="lg_hip" inputmode="decimal"></div>'
+      + '<div><label>Бедро</label><input type="number" id="lg_thigh" inputmode="decimal"></div></div>'
+      + '<div class="row2"><div><label>Прасец</label><input type="number" id="lg_calf" inputmode="decimal"></div>'
+      + '<div></div></div>'
+      + '</details>'
       + '<label>Бележка — как се чувстваш или въпрос</label><textarea id="lg_note"></textarea>'
       + '<button type="button" id="lgBtn">Запиши</button>'
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
@@ -237,26 +253,29 @@
       + renderLogList(data.log || []) + "</div></div>";
     content.innerHTML = html + logHtml;
 
-    var ldate = document.getElementById("lg_date");
-    if (ldate) { try { ldate.value = new Date().toISOString().slice(0, 10); } catch (e) {} }
     var lgBtn = document.getElementById("lgBtn");
     if (lgBtn) lgBtn.addEventListener("click", function () {
-      var w = document.getElementById("lg_weight").value.trim();
-      var wa = document.getElementById("lg_waist").value.trim();
-      var hp = document.getElementById("lg_hip").value.trim();
-      var nt = document.getElementById("lg_note").value.trim();
-      var dt = document.getElementById("lg_date").value || null;
+      function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+      function num(id) { var v = val(id); return v ? parseFloat(v) : null; }
+      var fields = { weight: "lg_weight", waist: "lg_waist", hip: "lg_hip", neck: "lg_neck", chest: "lg_chest", arm: "lg_arm", thigh: "lg_thigh", calf: "lg_calf" };
+      var nt = val("lg_note");
       var ok = document.getElementById("lgOk");
-      if (!w && !wa && !hp && !nt) { ok.textContent = "Попълни поне едно поле."; ok.classList.add("show"); return; }
+      var rec = { note: nt || null };
+      var any = !!nt, k;
+      for (k in fields) { var n = num(fields[k]); rec[k] = n; if (n != null) any = true; }
+      if (!any) { ok.textContent = "Попълни поне едно поле."; ok.classList.add("show"); return; }
       lgBtn.disabled = true; lgBtn.textContent = "Записване…";
-      sb.rpc("add_log_entry", { p_token: token, p_weight: w ? parseFloat(w) : null, p_waist: wa ? parseFloat(wa) : null, p_hip: hp ? parseFloat(hp) : null, p_note: nt || null, p_date: dt })
+      sb.rpc("add_log_entry", { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_note: rec.note, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf })
         .then(function (res) {
           if (res.error || res.data === false) throw (res.error || new Error("fail"));
           ok.textContent = "Записано. Благодаря!"; ok.classList.add("show");
           var list = document.getElementById("logList");
           if (!list.querySelector(".logcard")) list.innerHTML = "";
-          list.insertAdjacentHTML("afterbegin", renderLogCard({ entry_date: dt || new Date().toISOString().slice(0, 10), created_at: new Date().toISOString(), weight: w || null, waist: wa || null, hip: hp || null, note: nt || null }, 0));
-          document.getElementById("lg_weight").value = ""; document.getElementById("lg_waist").value = ""; document.getElementById("lg_hip").value = ""; document.getElementById("lg_note").value = "";
+          rec.entry_date = new Date().toISOString().slice(0, 10);
+          rec.created_at = new Date().toISOString();
+          list.insertAdjacentHTML("afterbegin", renderLogCard(rec, 0));
+          for (k in fields) { var el = document.getElementById(fields[k]); if (el) el.value = ""; }
+          document.getElementById("lg_note").value = "";
           lgBtn.disabled = false; lgBtn.textContent = "Запиши";
         })
         .catch(function () { lgBtn.disabled = false; lgBtn.textContent = "Запиши"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
