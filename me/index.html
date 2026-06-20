@@ -88,6 +88,8 @@
   .logitem .d { font-weight: 700; }
   .logitem .m { color: #6b7886; }
   .card.coachcard { border-left: 3px solid var(--accent); background: var(--soft); }
+  .msgbanner { background: var(--accent); color: #fff; border-radius: 12px; padding: 12px 14px; margin: 14px 0 2px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 1px 4px rgba(46,125,91,0.3); }
+  .msgbanner b { font-size: 17px; }
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
   .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
@@ -251,7 +253,28 @@
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
       + '<div class="sec"><h2>Минали записи</h2><div id="logList">'
       + renderLogList(data.log || []) + "</div></div>";
-    content.innerHTML = html + logHtml;
+    var coachMsgs = (data.log || []).filter(function (e) { return e.kind === "coach"; });
+    var SEEN_KEY = "diary_seen_coach_" + token;
+    var seenTs = null; try { seenTs = localStorage.getItem(SEEN_KEY); } catch (e) {}
+    var unread = coachMsgs.filter(function (m) { return m.created_at && (!seenTs || m.created_at > seenTs); });
+    var bannerHtml = "";
+    if (unread.length) {
+      var nb = unread.length;
+      bannerHtml = '<div class="msgbanner" id="msgBanner">✉ Имате <b>' + nb + '</b> '
+        + (nb === 1 ? "ново съобщение" : "нови съобщения") + ' от Chris — прочети най-долу ↓</div>';
+    }
+    content.innerHTML = bannerHtml + html + logHtml;
+
+    var msgBanner = document.getElementById("msgBanner");
+    if (msgBanner) {
+      var newestCoach = coachMsgs.reduce(function (a, m) { return (m.created_at && (!a || m.created_at > a)) ? m.created_at : a; }, null);
+      msgBanner.addEventListener("click", function () {
+        try { localStorage.setItem(SEEN_KEY, newestCoach); } catch (e) {}
+        msgBanner.style.display = "none";
+        var ll = document.getElementById("logList");
+        if (ll) ll.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
 
     var lgBtn = document.getElementById("lgBtn");
     if (lgBtn) lgBtn.addEventListener("click", function () {
