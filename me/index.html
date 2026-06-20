@@ -87,6 +87,7 @@
   .logitem:last-child { border-bottom: none; }
   .logitem .d { font-weight: 700; }
   .logitem .m { color: #6b7886; }
+  .card.coachcard { border-left: 3px solid var(--accent); background: var(--soft); }
 </style>
 </head>
 <body>
@@ -187,6 +188,14 @@
       return t.length > 50 ? t.slice(0, 50) + "…" : t;
     }
     function renderLogCard(e, idx) {
+      if (e.kind === "coach") {
+        var cwhen = fmtDate(e.entry_date) + (fmtTime(e.created_at) ? ", " + fmtTime(e.created_at) : "");
+        var ckey = "log_" + (e.created_at || ("i" + idx));
+        return '<div class="card logcard coachcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(ckey) + '">'
+          + '<div class="date">' + esc(cwhen) + "</div>"
+          + '<div class="t" style="color:#2f6f4f">Съобщение от Chris</div>'
+          + '<div class="body">' + esc(e.note || "").replace(/\n/g, "<br>") + "</div></div>";
+      }
       var meas = logSummary(e);
       var note = e.note ? String(e.note) : "";
       var title = note ? notePreview(note) : (meas || "Запис");
