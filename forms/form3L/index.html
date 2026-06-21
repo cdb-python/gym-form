@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Хранителен дневник — 15 дни</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --soft: #eef4f1;
+    --gold: #b8862f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    padding: 0 0 40px;
+    overflow-x: hidden;
+  }
+  header {
+    background: var(--accent);
+    color: #fff;
+    padding: 22px 18px 18px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; font-size: 15px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  .sec { margin: 20px 0 6px; }
+  .sec h2 {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--accent-dark);
+    margin: 0 0 8px;
+    padding-left: 2px;
+  }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 0 0 12px;
+  }
+  .card .t { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .card .t::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
+  .card.open .t::after { content: "▾"; }
+  .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
+  .card .body { font-size: 15.5px; margin-top: 8px; display: none; }
+  .card.open .body { display: block; }
+  .card .body p { margin: 0 0 8px; }
+  .card .body p:last-child { margin-bottom: 0; }
+  .card .body ul { margin: 6px 0; padding-left: 20px; }
+  .card .body li { margin: 0 0 5px; }
+
+  /* Прогрес + награда */
+  .progress {
+    background: var(--accent-dark); color: #fff; border-radius: 12px;
+    padding: 14px 16px; margin: 18px 0 12px; text-align: center;
+  }
+  .progress .big { font-size: 22px; font-weight: 800; }
+  .progress .sub { font-size: 13.5px; opacity: 0.9; margin-top: 2px; }
+  .progress .bar { height: 7px; background: rgba(255,255,255,0.25); border-radius: 4px; margin: 10px 0 0; overflow: hidden; }
+  .progress .bar > i { display: block; height: 100%; background: #fff; border-radius: 4px; }
+  .reward {
+    background: #fff8ec; border: 1px solid #ecd9af; border-radius: 12px;
+    padding: 13px 15px; margin: 0 0 12px; font-size: 14.5px; color: #6a531f;
+  }
+  .reward b { color: var(--gold); }
+  .drip { color: var(--muted); font-size: 13px; text-align: center; margin: 2px 0 0; }
+
+  /* Лог форма */
+  .lf label { display: block; font-weight: 600; font-size: 14px; margin: 12px 0 4px; }
+  .lf textarea, .lf input {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
+    border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff;
+  }
+  .lf textarea { min-height: 70px; resize: vertical; }
+  .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+  .lf button {
+    width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
+    color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer;
+  }
+  .lf button:active { background: var(--accent-dark); }
+  .lf button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
+  .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .lf .ok.show { display: block; }
+  .lf .err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
+
+  /* Потвърждение */
+  .confirm { display: none; margin-top: 12px; padding: 13px 14px; background: var(--soft); border: 1px solid #bcd9c9; border-radius: 10px; }
+  .confirm.show { display: block; }
+  .confirm .q { font-weight: 700; color: var(--accent-dark); margin: 0 0 8px; }
+  .confirm .what { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 15px; margin: 0 0 10px; word-break: break-word; }
+  .confirm .what .w { color: var(--accent-dark); font-weight: 600; }
+  .confirm .row2 { display: flex; gap: 10px; }
+  .confirm .row2 button { margin-top: 0; flex: 1; }
+
+  /* История по ден */
+  .logitem { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .logitem:last-child { border-bottom: none; }
+  .logitem .tm { color: var(--muted); font-size: 13px; margin-right: 6px; }
+  .logitem .wt { color: var(--accent-dark); font-weight: 600; }
+  .daycount { color: var(--muted); font-weight: 600; font-size: 13px; }
+
+  .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
+  .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Хранителен дневник — 15 дни</h1>
+    <p id="who">&nbsp;</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="loading" id="loading">Зарежда…</div>
+  <div id="content"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+  var WINDOW_DAYS = 15;
+
+  var loading = document.getElementById("loading");
+  var content = document.getElementById("content");
+  var who = document.getElementById("who");
+
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+  function fmtDate(s) {
+    if (!s) return "";
+    var p = String(s).split("-");
+    return p.length === 3 ? (p[2] + "." + p[1] + "." + p[0]) : s;
+  }
+  function fmtTime(s) {
+    if (!s) return "";
+    try {
+      return new Date(s).toLocaleTimeString("bg-BG", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sofia" });
+    } catch (e) { return ""; }
+  }
+  function todayStr() {
+    try {
+      var p = new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" });
+      return p; // YYYY-MM-DD
+    } catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  function dayDiff(a, b) {
+    var da = new Date(a + "T00:00:00"), db = new Date(b + "T00:00:00");
+    return Math.round((db - da) / 86400000);
+  }
+  function showState(msg) {
+    loading.style.display = "none";
+    content.innerHTML = '<div class="state">' + esc(msg) + "</div>";
+  }
+
+  function entryLine(e) {
+    var tm = fmtTime(e.created_at);
+    var parts = [];
+    if (e.text) parts.push(esc(e.text));
+    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
+    return '<div class="logitem"><span class="tm">' + esc(tm) + "</span>" + parts.join(" · ") + "</div>";
+  }
+
+  function dayLabel(dStr, today) {
+    var d = dayDiff(dStr, today);
+    if (d === 0) return "Днес";
+    if (d === 1) return "Вчера";
+    return fmtDate(dStr);
+  }
+
+  function renderHistory(entries, today) {
+    if (!entries.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи. Първото, което хапнеш или пиеш днес — впиши го горе.</p>';
+    // групиране по ден (entries вече са created_at desc → дните идват най-нови първи)
+    var order = [], groups = {};
+    entries.forEach(function (e) {
+      var k = e.entry_date || "—";
+      if (!groups[k]) { groups[k] = []; order.push(k); }
+      groups[k].push(e);
+    });
+    var html = "";
+    order.forEach(function (k, i) {
+      var arr = groups[k];
+      var lbl = dayLabel(k, today);
+      html += '<div class="card' + (i === 0 ? " open" : "") + '" data-key="day_' + esc(k) + '">'
+        + '<div class="t">' + esc(lbl) + ' <span class="daycount">' + arr.length + (arr.length === 1 ? " запис" : " записа") + "</span></div>"
+        + '<div class="body">' + arr.map(entryLine).join("") + "</div></div>";
+    });
+    return html;
+  }
+
+  function render(data) {
+    loading.style.display = "none";
+    if (data.name) who.textContent = data.name;
+    var entries = data.entries || [];
+    var today = todayStr();
+
+    // прогрес
+    var dates = entries.map(function (e) { return e.entry_date; }).filter(Boolean).sort();
+    var start = dates.length ? dates[0] : today;
+    var dayNum = Math.min(dayDiff(start, today) + 1, WINDOW_DAYS);
+    var distinctDays = {};
+    dates.forEach(function (d) { distinctDays[d] = 1; });
+    var nDays = Object.keys(distinctDays).length;
+    var done = dayDiff(start, today) + 1 > WINDOW_DAYS && entries.length;
+    var pct = Math.min(100, Math.round((dayNum / WINDOW_DAYS) * 100));
+
+    var progressHtml;
+    if (!entries.length) {
+      progressHtml = '<div class="progress"><div class="big">Ден 1 от 15</div>'
+        + '<div class="sub">Започни сега — впиши първото, което хапнеш или пиеш.</div>'
+        + '<div class="bar"><i style="width:0%"></i></div></div>';
+    } else if (done) {
+      progressHtml = '<div class="progress"><div class="big">15-те дни завършиха ✓</div>'
+        + '<div class="sub">' + entries.length + ' записа за ' + nDays + ' дни. Картината ти е готова за анализ.</div>'
+        + '<div class="bar"><i style="width:100%"></i></div></div>';
+    } else {
+      progressHtml = '<div class="progress"><div class="big">Ден ' + dayNum + ' от 15</div>'
+        + '<div class="sub">' + entries.length + (entries.length === 1 ? " запис" : " записа") + " · логнати " + nDays + (nDays === 1 ? " ден" : " дни") + "</div>"
+        + '<div class="bar"><i style="width:' + pct + '%"></i></div></div>';
+    }
+
+    var rewardHtml = '<div class="reward">На <b>15-ия ден</b> получаваш безплатно: точните си калории и макроси, '
+      + "къде губиш, любимите ти храни и <b>първите промени</b> — изготвени лично от твоя лог. "
+      + "Колкото по-честно пишеш, толкова по-точна е картината.</div>"
+      + '<p class="drip">Повечето хора подценяват приема си с 20-30% — затова тук се пише всичко.</p>';
+
+    var formHtml = '<div class="sec"><h2>Впиши какво яде или пи</h2>'
+      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none">Нов запис</div>'
+      + '<div class="body" style="display:block">'
+      + '<label>Какво яде или пи?</label>'
+      + '<textarea id="f_text" placeholder="напр.: 2 филии с масло и сирене · кафе с 2 захарчета · пържола с пържени в кръчмата · шепа ядки · чаша вино"></textarea>'
+      + '<p class="hint">Не е нужна везна — описвай на око/на части. Пиши и дребното: сос, захар в кафето, хапка от детето.</p>'
+      + '<label>Тегло (кг) — по желание</label>'
+      + '<input type="number" id="f_weight" inputmode="decimal" step="0.1" placeholder="напр. 84.2">'
+      + '<p class="hint">Сутрин на гладно, след тоалетна. Препоръка всеки ден, минимум през ден.</p>'
+      + '<button type="button" id="saveBtn">Запиши</button>'
+      + '<div class="confirm" id="confirm"><p class="q">Верни ли са храните и количествата?</p>'
+      + '<div class="what" id="confirmWhat"></div>'
+      + '<div class="row2"><button type="button" class="ghost" id="editBtn">Поправи</button>'
+      + '<button type="button" id="confirmBtn">Потвърди</button></div></div>'
+      + '<div class="ok" id="okMsg"></div>'
+      + '</div></div></div>';
+
+    var guideHtml = '<div class="sec"><h2>Как се логва</h2>'
+      + '<div class="card" data-key="guide"><div class="t">Кратко ръководство — отвори</div><div class="body">'
+      + "<p><b>1. Логвай всичко.</b> Всяка хапка, глътка, сос, кафе със захар, алкохол. Забравените неща променят картината.</p>"
+      + "<p><b>2. Описвай порции на всекидневен език:</b></p>"
+      + "<ul><li>„половин домат“ · „1/3 кофичка скир“</li>"
+      + "<li>„пържола с пържени за гарнитура (ресторант)“</li>"
+      + "<li>„2 филии хляб с масло“ · „шепа ядки“ · „чаша вино“</li></ul>"
+      + "<p>Не ти трябва везна — ние знаем стандартните порции и марки.</p>"
+      + "<p><b>3. Тегло:</b> сутрин на гладно, едно число. Може и всеки ден (дори 2 пъти) — колкото повече, толкова по-точно.</p>"
+      + "<p><b>4. Пиши честно — тук няма грешно.</b> Реалната картина зависи изцяло от това.</p>"
+      + "</div></div></div>";
+
+    var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
+      + renderHistory(entries, today) + "</div></div>";
+
+    content.innerHTML = progressHtml + rewardHtml + formHtml + guideHtml + histHtml;
+
+    wireForm(data, today);
+    wireAccordion();
+  }
+
+  function wireForm(data, today) {
+    var textEl = document.getElementById("f_text");
+    var wEl = document.getElementById("f_weight");
+    var saveBtn = document.getElementById("saveBtn");
+    var confirm = document.getElementById("confirm");
+    var confirmWhat = document.getElementById("confirmWhat");
+    var editBtn = document.getElementById("editBtn");
+    var confirmBtn = document.getElementById("confirmBtn");
+    var okMsg = document.getElementById("okMsg");
+
+    function msg(t, isErr) {
+      okMsg.textContent = t;
+      okMsg.className = "ok show" + (isErr ? " err" : "");
+    }
+    function clearMsg() { okMsg.className = "ok"; }
+
+    saveBtn.addEventListener("click", function () {
+      var t = textEl.value.trim();
+      var w = wEl.value.trim();
+      if (!t && !w) { msg("Впиши храна или тегло.", true); return; }
+      clearMsg();
+      var bits = [];
+      if (t) bits.push(esc(t));
+      if (w) bits.push('<span class="w">⚖ ' + esc(w) + " кг</span>");
+      confirmWhat.innerHTML = bits.join("<br>");
+      confirm.classList.add("show");
+      saveBtn.style.display = "none";
+    });
+
+    editBtn.addEventListener("click", function () {
+      confirm.classList.remove("show");
+      saveBtn.style.display = "";
+      textEl.focus();
+    });
+
+    confirmBtn.addEventListener("click", function () {
+      var t = textEl.value.trim();
+      var w = wEl.value.trim();
+      var weight = w ? parseFloat(w) : null;
+      confirmBtn.disabled = true; confirmBtn.textContent = "Записване…";
+      sb.rpc("add_food_entry", { p_token: token, p_text: t || null, p_weight: weight })
+        .then(function (res) {
+          if (res.error || res.data === false) throw (res.error || new Error("fail"));
+          // оптимистично добавяне в списъка
+          var rec = { text: t || null, weight: weight, entry_date: today, created_at: new Date().toISOString() };
+          var list = document.getElementById("histList");
+          var firstDay = list.querySelector('.card[data-key="day_' + today + '"]');
+          if (firstDay) {
+            var body = firstDay.querySelector(".body");
+            body.insertAdjacentHTML("afterbegin", entryLine(rec));
+            var dc = firstDay.querySelector(".daycount");
+            var n = body.querySelectorAll(".logitem").length;
+            if (dc) dc.textContent = n + (n === 1 ? " запис" : " записа");
+          } else {
+            if (!list.querySelector(".card")) list.innerHTML = "";
+            list.insertAdjacentHTML("afterbegin",
+              '<div class="card open" data-key="day_' + esc(today) + '"><div class="t">Днес <span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
+          }
+          textEl.value = ""; wEl.value = "";
+          confirm.classList.remove("show");
+          saveBtn.style.display = "";
+          confirmBtn.disabled = false; confirmBtn.textContent = "Потвърди";
+          msg("Записано ✓ Продължавай така.");
+        })
+        .catch(function () {
+          confirmBtn.disabled = false; confirmBtn.textContent = "Потвърди";
+          msg("Неуспешно. Опитай пак.", true);
+        });
+    });
+  }
+
+  function wireAccordion() {
+    content.addEventListener("click", function (e) {
+      if (e.target.closest(".body")) return;
+      if (e.target.closest(".lf")) return;
+      var card = e.target.closest(".card");
+      if (card && !card.classList.contains("lf")) card.classList.toggle("open");
+    });
+  }
+
+  var token = new URLSearchParams(location.search).get("t");
+  if (!token) { showState("Липсва код в линка. Отвори линка, който получи."); return; }
+
+  sb.rpc("get_food_log", { p_token: token }).then(function (res) {
+    if (res.error) { showState("Възникна грешка при зареждането. Опитай по-късно."); return; }
+    if (!res.data) { showState("Линкът е невалиден или вече не е активен."); return; }
+    render(res.data);
+  }, function () {
+    showState("Няма връзка. Провери интернета и опитай пак.");
+  });
+})();
+</script>
+</body>
+</html>
