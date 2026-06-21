@@ -108,6 +108,12 @@
   .lf .ok.show { display: block; }
   .lf .err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
 
+  .endday { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; text-align: center; }
+  .endday.done { background: var(--soft); border-color: #bcd9c9; color: var(--accent-dark); font-weight: 600; }
+  .endday button { width: 100%; padding: 12px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
+  .endday button:disabled { background: #b9c4cc; cursor: default; }
+  .endday .hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+
   /* Потвърждение */
   .confirm { display: none; margin-top: 12px; padding: 13px 14px; background: var(--soft); border: 1px solid #bcd9c9; border-radius: 10px; }
   .confirm.show { display: block; }
@@ -189,7 +195,7 @@
     var parts = [];
     if (e.text) parts.push(esc(e.text));
     if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
-    return '<div class="logitem"><span class="tm">' + esc(tm) + "</span>" + parts.join(" · ") + "</div>";
+    return '<div class="logitem' + (e.text ? " food" : "") + '"><span class="tm">' + esc(tm) + "</span>" + parts.join(" · ") + "</div>";
   }
 
   function dayLabel(dStr, today) {
@@ -199,7 +205,8 @@
     return fmtDate(dStr);
   }
 
-  function renderHistory(entries, today) {
+  function renderHistory(entries, today, completeSet) {
+    completeSet = completeSet || {};
     if (!entries.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи. Първото, което хапнеш или пиеш днес — впиши го горе.</p>';
     // групиране по ден (entries вече са created_at desc → дните идват най-нови първи)
     var order = [], groups = {};
@@ -212,8 +219,9 @@
     order.forEach(function (k, i) {
       var arr = groups[k];
       var lbl = dayLabel(k, today);
+      var status = completeSet[k] ? " · ✓ пълен" : "";
       html += '<div class="card' + (i === 0 ? " open" : "") + '" data-key="day_' + esc(k) + '">'
-        + '<div class="t">' + esc(lbl) + ' <span class="daycount">' + arr.length + (arr.length === 1 ? " запис" : " записа") + "</span></div>"
+        + '<div class="t">' + esc(lbl) + ' <span class="daycount">' + arr.length + (arr.length === 1 ? " запис" : " записа") + status + "</span></div>"
         + '<div class="body">' + arr.map(entryLine).join("") + "</div></div>";
     });
     return html;
@@ -225,28 +233,26 @@
     var entries = data.entries || [];
     var today = todayStr();
 
-    // прогрес
-    var dates = entries.map(function (e) { return e.entry_date; }).filter(Boolean).sort();
-    var start = dates.length ? dates[0] : today;
-    var dayNum = Math.min(dayDiff(start, today) + 1, WINDOW_DAYS);
-    var distinctDays = {};
-    dates.forEach(function (d) { distinctDays[d] = 1; });
-    var nDays = Object.keys(distinctDays).length;
-    var done = dayDiff(start, today) + 1 > WINDOW_DAYS && entries.length;
-    var pct = Math.min(100, Math.round((dayNum / WINDOW_DAYS) * 100));
+    // прогрес = ПЪЛНИ дни (потвърдени с „Готово за деня")
+    var completeDays = data.complete_days || [];
+    var completeSet = {};
+    completeDays.forEach(function (d) { completeSet[d] = 1; });
+    var completeCount = completeDays.length;
+    var todayComplete = !!completeSet[today];
+    var todayFood = entries.filter(function (e) { return e.entry_date === today && e.text; }).length;
+    var done = completeCount >= WINDOW_DAYS;
+    var pct = Math.min(100, Math.round((completeCount / WINDOW_DAYS) * 100));
 
     var progressHtml;
-    if (!entries.length) {
-      progressHtml = '<div class="progress"><div class="big">Ден 1 от 15</div>'
-        + '<div class="sub">Започни сега — впиши първото, което хапнеш или пиеш.</div>'
-        + '<div class="bar"><i style="width:0%"></i></div></div>';
-    } else if (done) {
-      progressHtml = '<div class="progress"><div class="big">15-те дни завършиха ✓</div>'
-        + '<div class="sub">' + entries.length + ' записа за ' + nDays + ' дни. Картината ти е готова за анализ.</div>'
+    if (done) {
+      progressHtml = '<div class="progress"><div class="big">15 пълни дни ✓</div>'
+        + '<div class="sub">Картината ти е готова — анализът идва скоро.</div>'
         + '<div class="bar"><i style="width:100%"></i></div></div>';
     } else {
-      progressHtml = '<div class="progress"><div class="big">Ден ' + dayNum + ' от 15</div>'
-        + '<div class="sub">' + entries.length + (entries.length === 1 ? " запис" : " записа") + " · логнати " + nDays + (nDays === 1 ? " ден" : " дни") + "</div>"
+      progressHtml = '<div class="progress"><div class="big">Пълни дни: ' + completeCount + ' от 15</div>'
+        + '<div class="sub">' + (completeCount === 0
+            ? "Записвай през деня, после натисни „Готово за деня“."
+            : ("Остават " + (WINDOW_DAYS - completeCount) + " — пропуснат ден не се брои.")) + "</div>"
         + '<div class="bar"><i style="width:' + pct + '%"></i></div></div>';
     }
 
@@ -267,7 +273,7 @@
       + "<p>Затова при много хора формулата греши и не дава точните калории за деня. Налага се период на следене и корекции, докато се стигне до калориите, при които тялото ти стои стабилно.</p>"
       + "<h4>Как работи методът?</h4>"
       + "<p>Най-точният начин да разбереш <b>поддръжката</b> си (калориите, при които теглото остава стабилно) е наблюдение:</p>"
-      + "<ul><li>записваш всичко, което ядеш и пиеш, 15 дни (делник + уикенд);</li>"
+      + "<ul><li>записваш всичко, което ядеш и пиеш, докато събереш 15 <b>пълни</b> дни (делник + уикенд); пропуснат ден не се брои;</li>"
       + "<li>следиш теглото при еднакви условия (сутрин, след тоалетна, преди храна);</li>"
       + "<li>накрая данните се анализират — средни калории и макроси и как теглото е реагирало.</li></ul>"
       + "<p>Това дава <b>измерена, а не пресметната</b> стойност за тялото ти. Логът хваща реалните порции, сосовете, „малките хапки“, напитките и разликите между дните — нещата, които формулите и еднодневните записи пропускат.</p>"
@@ -313,16 +319,28 @@
       + "<li>„чаша вино“ · „шепа бадеми“ · „кафе + 2 бучки захар“</li></ul>"
       + "<p>Мери с <b>домакински мерки</b>: лъжица, чаша, кофичка, шепа, длан, на части (половин/четвърт). Везна не трябва. Кажеш ли марката или % масленост — сметката е по-точна.</p>"
       + "<p><b>3. Тегло:</b> сутрин на гладно, едно число. Всеки ден (или поне през ден) — колкото повече, толкова по-точно.</p>"
-      + "<p><b>4. Поправка.</b> Преди всеки запис излиза проверка „потвърди / поправи“ — там оправяш. След запис не се трие (за честна картина); сбъркаш ли все пак, добави нов ред „поправка: …“.</p>"
-      + "<p><b>5. Пиши честно — тук няма грешно.</b> Реалната картина зависи изцяло от това.</p>"
+      + "<p><b>4. Затваряй деня.</b> Щом си логнал всичко за деня, натисни „Готово за деня“ — само така денят се брои към 15-те. Пропуснеш ли да го натиснеш, денят не се брои (нужни са 15 пълни дни).</p>"
+      + "<p><b>5. Поправка.</b> Преди всеки запис излиза проверка „потвърди / поправи“ — там оправяш. След запис не се трие (за честна картина); сбъркаш ли все пак, добави нов ред „поправка: …“.</p>"
+      + "<p><b>6. Пиши честно — тук няма грешно.</b> Реалната картина зависи изцяло от това.</p>"
       + "</div></div></div>";
 
-    var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
-      + renderHistory(entries, today) + "</div></div>";
+    var endDayHtml;
+    if (todayComplete) {
+      endDayHtml = '<div class="endday done" id="endDay">Днешният ден е затворен ✓ — продължавай утре.</div>';
+    } else {
+      var dis = todayFood < 2;
+      endDayHtml = '<div class="endday" id="endDay">'
+        + '<button type="button" id="endDayBtn"' + (dis ? " disabled" : "") + '>Готово за деня ✓</button>'
+        + '<p class="hint" id="endDayHint">' + (dis ? "Логни поне храненията си, после затвори деня." : "Затвори деня, за да се брои към 15-те.") + "</p></div>";
+    }
 
-    content.innerHTML = progressHtml + rewardHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
+    var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
+      + renderHistory(entries, today, completeSet) + "</div></div>";
+
+    content.innerHTML = progressHtml + rewardHtml + formHtml + endDayHtml + teaserHtml + infoHtml + guideHtml + histHtml;
 
     wireForm(data, today);
+    wireEndDay(today, todayComplete, completeCount);
     wireAccordion();
   }
 
@@ -378,11 +396,23 @@
             body.insertAdjacentHTML("afterbegin", entryLine(rec));
             var dc = firstDay.querySelector(".daycount");
             var n = body.querySelectorAll(".logitem").length;
-            if (dc) dc.textContent = n + (n === 1 ? " запис" : " записа");
+            var had = dc && dc.textContent.indexOf("пълен") > -1;
+            if (dc) dc.textContent = n + (n === 1 ? " запис" : " записа") + (had ? " · ✓ пълен" : "");
           } else {
             if (!list.querySelector(".card")) list.innerHTML = "";
             list.insertAdjacentHTML("afterbegin",
               '<div class="card open" data-key="day_' + esc(today) + '"><div class="t">Днес <span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
+          }
+          // отключи „Готово за деня" при ≥2 храна-записа днес
+          var endBtn = document.getElementById("endDayBtn");
+          if (endBtn && endBtn.disabled) {
+            var tcard = list.querySelector('.card[data-key="day_' + today + '"]');
+            var fc = tcard ? tcard.querySelectorAll(".logitem.food").length : 0;
+            if (fc >= 2) {
+              endBtn.disabled = false;
+              var eh = document.getElementById("endDayHint");
+              if (eh) eh.textContent = "Затвори деня, за да се брои към 15-те.";
+            }
           }
           textEl.value = ""; wEl.value = "";
           confirm.classList.remove("show");
@@ -401,8 +431,47 @@
     content.addEventListener("click", function (e) {
       if (e.target.closest(".body")) return;
       if (e.target.closest(".lf")) return;
+      if (e.target.closest(".endday")) return;
       var card = e.target.closest(".card");
       if (card && !card.classList.contains("lf")) card.classList.toggle("open");
+    });
+  }
+
+  function updateProgress(count) {
+    var prog = content.querySelector(".progress");
+    if (!prog) return;
+    var pct = Math.min(100, Math.round((count / WINDOW_DAYS) * 100));
+    var big = prog.querySelector(".big"), sub = prog.querySelector(".sub"), bar = prog.querySelector(".bar > i");
+    if (count >= WINDOW_DAYS) {
+      if (big) big.textContent = "15 пълни дни ✓";
+      if (sub) sub.textContent = "Картината ти е готова — анализът идва скоро.";
+    } else {
+      if (big) big.textContent = "Пълни дни: " + count + " от 15";
+      if (sub) sub.textContent = "Остават " + (WINDOW_DAYS - count) + " — пропуснат ден не се брои.";
+    }
+    if (bar) bar.style.width = pct + "%";
+  }
+
+  function wireEndDay(today, alreadyComplete, completeCount) {
+    if (alreadyComplete) return;
+    var btn = document.getElementById("endDayBtn");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      if (btn.disabled) return;
+      btn.disabled = true; btn.textContent = "Затваряне…";
+      sb.rpc("complete_food_day", { p_token: token, p_day: today }).then(function (res) {
+        if (res.error || res.data === false) throw (res.error || new Error("fail"));
+        completeCount++;
+        var endDay = document.getElementById("endDay");
+        if (endDay) { endDay.className = "endday done"; endDay.innerHTML = "Днешният ден е затворен ✓ — продължавай утре."; }
+        updateProgress(completeCount);
+        var dc = content.querySelector('#histList .card[data-key="day_' + today + '"] .daycount');
+        if (dc && dc.textContent.indexOf("пълен") === -1) dc.textContent += " · ✓ пълен";
+      }).catch(function () {
+        btn.disabled = false; btn.textContent = "Готово за деня ✓";
+        var eh = document.getElementById("endDayHint");
+        if (eh) eh.textContent = "Неуспешно. Опитай пак.";
+      });
     });
   }
 
