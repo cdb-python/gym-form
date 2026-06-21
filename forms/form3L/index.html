@@ -248,6 +248,9 @@
         + '<div class="bar"><i style="width:' + pct + '%"></i></div></div>';
     }
 
+    var rewardHtml = '<div class="reward">🎁 На <b>15-ия ден</b> получаваш безплатно: точните си калории и макроси, '
+      + "къде губиш и <b>първите конкретни промени</b> — на твоите храни. Колкото по-честно пишеш, толкова по-точно.</div>";
+
     var teaserHtml = '<p class="drip" style="margin:0 0 14px">Имаш въпроси какво е това и защо? Виж пълното обяснение по-долу ▾</p>';
 
     var infoHtml = '<div class="sec"><h2>За дневника</h2>'
@@ -296,7 +299,7 @@
     var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
       + renderHistory(entries, today) + "</div></div>";
 
-    content.innerHTML = progressHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
+    content.innerHTML = progressHtml + rewardHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
 
     wireForm(data, today);
     wireAccordion();
