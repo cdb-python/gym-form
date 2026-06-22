@@ -56,6 +56,9 @@
   .card .t { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .card .t::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
   .card.open .t::after { content: "▾"; }
+  /* обединен хедър: зелен етикет (ляво) + черен тайтъл (дясно) на един ред */
+  .card .t .lbl { color: var(--accent-dark); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; flex: none; }
+  .card .t .ttl { color: var(--ink); font-size: 13.5px; font-weight: 700; flex: 1; text-align: right; }
   .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
   .card .body { font-size: 15.5px; margin-top: 8px; display: none; }
   .card.open .body { display: block; }
@@ -225,8 +228,13 @@
     order.forEach(function (k, i) {
       var arr = groups[k];
       var lbl = dayLabel(k, today);
+      var dc = '<span class="daycount">' + arr.length + (arr.length === 1 ? " запис" : " записа") + "</span>";
+      // зеленият етикет „Моят лог" влиза САМО в първата (най-нова) дневна карта
+      var head = (i === 0)
+        ? '<span class="lbl">Моят лог</span><span class="ttl">' + esc(lbl) + "</span>" + dc
+        : esc(lbl) + " " + dc;
       html += '<div class="card' + (i === 0 ? " open" : "") + '" data-key="day_' + esc(k) + '">'
-        + '<div class="t">' + esc(lbl) + ' <span class="daycount">' + arr.length + (arr.length === 1 ? " запис" : " записа") + "</span></div>"
+        + '<div class="t">' + head + "</div>"
         + '<div class="body">' + arr.map(entryLine).join("") + "</div></div>";
     });
     return html;
@@ -277,10 +285,8 @@
     var rewardHtml = '<div class="reward">🎁 След <b>15 записани дни</b> получаваш писмен анализ — картината и първата посока. '
       + "Оттам ти решаваш: <b>пълен режим</b> върху твоите храни или <b>еднократна корекция</b> — каквото ти трябва.</div>";
 
-    var teaserHtml = '<p class="drip" style="margin:0 0 14px">Какво е това и защо работи — по-долу ▾</p>';
-
-    var infoHtml = '<div class="sec"><h2>За лога</h2>'
-      + '<div class="card" data-key="info"><div class="t">Какво е това и защо работи — пълно обяснение</div><div class="body">'
+    var infoHtml = '<div class="sec">'
+      + '<div class="card" data-key="info"><div class="t"><span class="lbl">За лога</span><span class="ttl">Какво е това и защо работи</span></div><div class="body">'
       + "<p>Този лог е инструмент за <b>точно измерване</b> на реалните ти калории и макроси (белтъци, въглехидрати, мазнини) — на база как се храниш в истинския живот. Без общи формули и предположения; тук се мери <b>реалността</b>.</p>"
       + "<h4>Защо е нужно точно измерване?</h4>"
       + "<p>Формулите за калории (Harris-Benedict, Mifflin-St Jeor и др.) дават ориентировъчна стойност. Те описват <b>среден човек</b> и не отчитат важни индивидуални разлики:</p>"
@@ -310,8 +316,8 @@
       + '<p class="cta"><b>Готов ли си да видиш какво всъщност се случва в храненето ти?</b></p>'
       + "</div></div></div>";
 
-    var formHtml = '<div class="sec"><h2>Впиши какво ядеш и пиеш</h2>'
-      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none">Нов запис</div>'
+    var formHtml = '<div class="sec">'
+      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none"><span class="lbl">Впиши какво ядеш и пиеш</span><span class="ttl">Нов запис</span></div>'
       + '<div class="body" style="display:block">'
       + '<label>Какво ядеш или пиеш?</label>'
       + '<textarea id="f_text" placeholder="напр.: половин кофичка кисело мляко 4% + 2 лъжици мед · 1 филия с масло · пържола колкото длан + порция пържени · кафе с 2 бучки захар"></textarea>'
@@ -327,8 +333,8 @@
       + '<div class="ok" id="okMsg"></div>'
       + '</div></div></div>';
 
-    var guideHtml = '<div class="sec"><h2>Как се логва</h2>'
-      + '<div class="card" data-key="guide"><div class="t">Подробно ръководство — отвори</div><div class="body">'
+    var guideHtml = '<div class="sec">'
+      + '<div class="card" data-key="guide"><div class="t"><span class="lbl">Как се логва</span><span class="ttl">Подробно ръководство</span></div><div class="body">'
       + "<p><b>1. Логвай всичко.</b> Всяка хапка, глътка, сос, захар в кафето, олио в готвенето, алкохол. Забравените неща изкривяват картината.</p>"
       + "<p><b>2. Пиши с количество + вид</b> — колкото можеш да прецениш:</p>"
       + "<ul><li>„половин кофичка кисело мляко 4%“ — не само „кисело мляко“</li>"
@@ -342,7 +348,7 @@
       + "<p><b>6. Нужни са 15 записани дни.</b> За да се извади анализът — реалните ти калории, макроси и хранителни навици — трябват поне 15 дни с лог на храна.</p>"
       + "</div></div></div>";
 
-    var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
+    var histHtml = '<div class="sec"><div id="histList">'
       + renderHistory(entries, today) + "</div></div>";
 
     // съобщения от Chris + банер за непрочетено (localStorage per токен)
@@ -359,7 +365,7 @@
     }
 
     // банерът е горе (стики); самите съобщения са НАЙ-ДОЛУ — банерът скролва до тях
-    content.innerHTML = bannerHtml + progressHtml + rewardHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml + coachHtml;
+    content.innerHTML = bannerHtml + progressHtml + rewardHtml + formHtml + infoHtml + guideHtml + histHtml + coachHtml;
 
     wireForm(data, today);
     wireAccordion();
@@ -432,8 +438,11 @@
             if (dc) dc.textContent = n + (n === 1 ? " запис" : " записа");
           } else {
             if (!list.querySelector(".card")) list.innerHTML = "";
+            // новата дневна карта става първа → взима зеления етикет „Моят лог" от старата първа
+            var prevLbl = list.querySelector(".card .t .lbl");
+            if (prevLbl) prevLbl.remove();
             list.insertAdjacentHTML("afterbegin",
-              '<div class="card open" data-key="day_' + esc(today) + '"><div class="t">Днес <span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
+              '<div class="card open" data-key="day_' + esc(today) + '"><div class="t"><span class="lbl">Моят лог</span><span class="ttl">Днес</span><span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
           }
           textEl.value = ""; wEl.value = "";
           confirm.classList.remove("show");
