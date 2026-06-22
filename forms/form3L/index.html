@@ -479,6 +479,25 @@
   }, function () {
     showState("Няма връзка. Провери интернета и опитай пак.");
   });
+
+  // тихо презареждане при връщане на страницата на фокус (нови съобщения изскачат без ръчен рефреш).
+  // защита: НЕ презарежда ако потребителят пише или има отворено потвърждение (да не трие въведеното).
+  var reloadBusy = false;
+  function maybeReload() {
+    if (document.visibilityState === "hidden") return;
+    var t = document.getElementById("f_text"), w = document.getElementById("f_weight"), conf = document.getElementById("confirm");
+    if (t && t.value.trim()) return;
+    if (w && w.value.trim()) return;
+    if (conf && conf.classList.contains("show")) return;
+    if (reloadBusy) return;
+    reloadBusy = true;
+    sb.rpc("get_food_log", { p_token: token }).then(function (res) {
+      reloadBusy = false;
+      if (res && !res.error && res.data) render(res.data);
+    }, function () { reloadBusy = false; });
+  }
+  document.addEventListener("visibilitychange", maybeReload);
+  window.addEventListener("focus", maybeReload);
 })();
 </script>
 </body>
