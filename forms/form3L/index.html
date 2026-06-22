@@ -99,7 +99,7 @@
     width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
     border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff;
   }
-  .lf textarea { min-height: 70px; resize: vertical; }
+  .lf textarea { min-height: 170px; resize: vertical; }
   .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
   .lf button {
     width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
@@ -315,7 +315,7 @@
       + "</div></div></div>";
 
     var formHtml = '<div class="sec">'
-      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none"><span class="lbl">Впиши какво ядеш и пиеш</span><span class="ttl">Нов запис</span></div>'
+      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none"><span class="lbl">Впиши какво ядеш и пиеш</span></div>'
       + '<div class="body" style="display:block">'
       + '<label>Какво ядеш или пиеш?</label>'
       + '<textarea id="f_text" placeholder="напр.: половин кофичка кисело мляко 4% + 2 лъжици мед · 1 филия с масло · пържола колкото длан + порция пържени · кафе с 2 бучки захар"></textarea>'
@@ -390,6 +390,11 @@
     var editBtn = document.getElementById("editBtn");
     var confirmBtn = document.getElementById("confirmBtn");
     var okMsg = document.getElementById("okMsg");
+
+    // примерният текст изчезва веднага при фокус/клик; връща се ако полето остане празно
+    var textPH = textEl.getAttribute("placeholder");
+    textEl.addEventListener("focus", function () { textEl.setAttribute("placeholder", ""); });
+    textEl.addEventListener("blur", function () { if (!textEl.value) textEl.setAttribute("placeholder", textPH); });
 
     function msg(t, isErr) {
       okMsg.textContent = t;
