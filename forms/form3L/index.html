@@ -358,7 +358,8 @@
       }
     }
 
-    content.innerHTML = bannerHtml + progressHtml + rewardHtml + coachHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
+    // банерът е горе (стики); самите съобщения са НАЙ-ДОЛУ — банерът скролва до тях
+    content.innerHTML = bannerHtml + progressHtml + rewardHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml + coachHtml;
 
     wireForm(data, today);
     wireAccordion();
