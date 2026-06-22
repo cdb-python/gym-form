@@ -127,6 +127,18 @@
 
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+
+  /* Банер за ново съобщение (стики горе) */
+  .cbanner {
+    position: sticky; top: 0; z-index: 6;
+    background: var(--accent-dark); color: #fff; text-align: center;
+    padding: 11px 14px; font-size: 14.5px; font-weight: 700; cursor: pointer;
+    border-radius: 0 0 10px 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  }
+  /* Карта „Съобщение от Chris" (зелен ляв акцент, винаги отворена) */
+  .card.coachmsg { border-left: 4px solid var(--accent); background: var(--soft); }
+  .card.coachmsg .t { cursor: default; }
+  .card.coachmsg .t::after { content: ""; }
 </style>
 </head>
 <body>
@@ -220,13 +232,29 @@
     return html;
   }
 
+  function renderCoach(msgs) {
+    var sorted = msgs.slice().sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
+    var cards = sorted.map(function (m) {
+      var dStr = m.entry_date || (m.created_at ? String(m.created_at).slice(0, 10) : "");
+      var body = esc(m.text).replace(/\n/g, "<br>");
+      return '<div class="card open coachmsg">'
+        + '<div class="t">Съобщение от Chris</div>'
+        + '<div class="date">' + esc(fmtDate(dStr)) + '</div>'
+        + '<div class="body" style="display:block"><p>' + body + '</p></div>'
+        + "</div>";
+    }).join("");
+    return '<div class="sec" id="coachSec"><h2>Съобщения от Chris</h2>' + cards + "</div>";
+  }
+
   function render(data) {
     loading.style.display = "none";
     if (data.name) who.textContent = data.name;
-    var entries = data.entries || [];
+    var allEntries = data.entries || [];
+    var coachMsgs = allEntries.filter(function (e) { return e.kind === "coach"; });
+    var entries = allEntries.filter(function (e) { return e.kind !== "coach"; }); // само храна-записи
     var today = todayStr();
 
-    // прогрес = записани дни (различни дати с поне един запис)
+    // прогрес = записани дни (различни дати с поне един храна-запис)
     var distinct = {};
     entries.forEach(function (e) { if (e.entry_date) distinct[e.entry_date] = 1; });
     var loggedDays = Object.keys(distinct).length;
@@ -317,10 +345,35 @@
     var histHtml = '<div class="sec"><h2>Моят лог</h2><div id="histList">'
       + renderHistory(entries, today) + "</div></div>";
 
-    content.innerHTML = progressHtml + rewardHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
+    // съобщения от Chris + банер за непрочетено (localStorage per токен)
+    var latestCoachAt = "";
+    coachMsgs.forEach(function (m) { var c = String(m.created_at || ""); if (c > latestCoachAt) latestCoachAt = c; });
+    var bannerHtml = "", coachHtml = "";
+    if (coachMsgs.length) {
+      coachHtml = renderCoach(coachMsgs);
+      var seen = "";
+      try { seen = localStorage.getItem("f3l_seen_coach_" + token) || ""; } catch (e) {}
+      if (!seen || seen < latestCoachAt) {
+        bannerHtml = '<div class="cbanner" id="cbanner">✉ Имате ново съобщение — докосни да прочетеш</div>';
+      }
+    }
+
+    content.innerHTML = bannerHtml + progressHtml + rewardHtml + coachHtml + formHtml + teaserHtml + infoHtml + guideHtml + histHtml;
 
     wireForm(data, today);
     wireAccordion();
+    wireCoach(latestCoachAt);
+  }
+
+  function wireCoach(latestAt) {
+    var banner = document.getElementById("cbanner");
+    if (!banner) return;
+    banner.addEventListener("click", function () {
+      var sec = document.getElementById("coachSec");
+      if (sec) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+      try { localStorage.setItem("f3l_seen_coach_" + token, latestAt); } catch (e) {}
+      banner.style.display = "none";
+    });
   }
 
   function wireForm(data, today) {
@@ -399,7 +452,7 @@
       if (e.target.closest(".body")) return;
       if (e.target.closest(".lf")) return;
       var card = e.target.closest(".card");
-      if (card && !card.classList.contains("lf")) card.classList.toggle("open");
+      if (card && !card.classList.contains("lf") && !card.classList.contains("coachmsg")) card.classList.toggle("open");
     });
   }
 
