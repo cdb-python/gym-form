@@ -138,10 +138,8 @@
     padding: 11px 14px; font-size: 14.5px; font-weight: 700; cursor: pointer;
     border-radius: 0 0 10px 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.18);
   }
-  /* Карта „Съобщение от Chris" (зелен ляв акцент, винаги отворена) */
+  /* Карта „Съобщение от Chris" (зелен ляв акцент; сгъваема — най-новата отворена) */
   .card.coachmsg { border-left: 4px solid var(--accent); background: var(--soft); }
-  .card.coachmsg .t { cursor: default; }
-  .card.coachmsg .t::after { content: ""; }
 </style>
 </head>
 <body>
@@ -242,16 +240,16 @@
 
   function renderCoach(msgs) {
     var sorted = msgs.slice().sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
-    var cards = sorted.map(function (m) {
+    var cards = sorted.map(function (m, i) {
       var dStr = m.entry_date || (m.created_at ? String(m.created_at).slice(0, 10) : "");
       var body = esc(m.text).replace(/\n/g, "<br>");
-      return '<div class="card open coachmsg">'
-        + '<div class="t">Съобщение от Chris</div>'
-        + '<div class="date">' + esc(fmtDate(dStr)) + '</div>'
-        + '<div class="body" style="display:block"><p>' + body + '</p></div>'
+      // само най-новото (i===0) е отворено; старите са затворени отдолу
+      return '<div class="card coachmsg' + (i === 0 ? " open" : "") + '">'
+        + '<div class="t"><span class="lbl">Съобщение от Chris</span><span class="ttl">' + esc(fmtDate(dStr)) + "</span></div>"
+        + '<div class="body"><p>' + body + "</p></div>"
         + "</div>";
     }).join("");
-    return '<div class="sec" id="coachSec"><h2>Съобщения от Chris</h2>' + cards + "</div>";
+    return '<div class="sec" id="coachSec">' + cards + "</div>";
   }
 
   function render(data) {
@@ -462,7 +460,7 @@
       if (e.target.closest(".body")) return;
       if (e.target.closest(".lf")) return;
       var card = e.target.closest(".card");
-      if (card && !card.classList.contains("lf") && !card.classList.contains("coachmsg")) card.classList.toggle("open");
+      if (card && !card.classList.contains("lf")) card.classList.toggle("open");
     });
   }
 
