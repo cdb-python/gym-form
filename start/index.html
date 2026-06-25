@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Какво получаваш — храна, тренировки, проследяване</title>
+<meta name="description" content="Цялата картина зад услугата: какво получаваш, как протича, колко струва. Персонален режим и проследяване по реални числа, с отчитане на здравето ти.">
+<style>
+  :root {
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --ink: #16202b;
+    --muted: #66727e;
+    --navy: #0f1b2d;
+    --navy2: #16324c;
+    --accent: #1597ad;
+    --accent-dark: #0f6e7e;
+    --accent-bright: #19c3d8;
+    --border: #d6dde4;
+    --soft: #e4f5f8;
+    --gold: #b8862f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55; padding: 0 0 30px; overflow-x: hidden;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+
+  header.hero {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    color: #fff; padding: 40px 20px 34px; text-align: center;
+  }
+  header.hero .hero-inner {
+    max-width: 560px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header.hero .brand-title {
+    font-size: 40px; font-weight: 800; letter-spacing: 0.01em;
+    color: #fff; margin: 0 0 6px; text-align: center;
+  }
+  header.hero .brand-sub {
+    font-size: 15px; text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--accent-bright); margin: 0; font-weight: 700; text-align: center;
+  }
+
+  .sec { margin: 26px 0 6px; }
+  .sec > h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--accent-dark); margin: 0 0 12px; padding-left: 2px;
+  }
+  .lead-in { font-size: 14.5px; color: #3a4753; margin: 0 0 12px; padding-left: 2px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; margin: 0 0 12px;
+  }
+  .card p { margin: 0 0 8px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  .rows .row { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+  .rows .row:last-child { margin-bottom: 0; }
+  .rows .ic {
+    flex: none; width: 38px; height: 38px; border-radius: 10px;
+    background: var(--soft); color: var(--accent-dark);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
+  }
+  .rows .tx b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .rows .tx span { font-size: 14.5px; color: var(--muted); }
+
+  .plans { display: flex; flex-direction: column; gap: 12px; }
+  .plan {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .plan.feature { border: 2px solid var(--accent); position: relative; }
+  .plan.feature .tag {
+    position: absolute; top: -10px; left: 16px; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .plan .name { font-weight: 700; font-size: 16px; }
+  .plan .name small { display: block; font-weight: 500; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .plan .price { text-align: right; flex: none; }
+  .plan .price b { font-size: 19px; color: var(--accent-dark); }
+  .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
+
+  .bonus { background: var(--soft); border: 1px solid #b9e3ea; border-radius: 12px; padding: 16px 18px; }
+  .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
+  .bonus .item:last-child { margin-bottom: 0; }
+  .bonus .item .e { flex: none; font-size: 18px; }
+  .bonus .item b { font-size: 15px; }
+  .bonus .item p { margin: 2px 0 0; font-size: 14px; color: #3a4753; }
+
+  .step { display: flex; gap: 12px; margin: 0 0 12px; }
+  .step .n {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff;
+    font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .step .c b { font-size: 15.5px; }
+  .step .c p { margin: 3px 0 0; font-size: 14.5px; color: #3a4753; }
+  .free-pill {
+    display: inline-block; background: #fff8ec; border: 1px solid #ecd9af; color: #6a531f;
+    font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; margin-left: 6px;
+  }
+
+  details.faq {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0; margin: 0 0 10px; overflow: hidden;
+  }
+  details.faq summary {
+    list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 15.5px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
+  details.faq[open] summary::after { content: "–"; }
+  details.faq .a { padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq .a p { margin: 0 0 8px; }
+  details.faq .a p:last-child { margin-bottom: 0; }
+
+  .cta-box {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%); color: #fff;
+    border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
+  }
+  .cta-box h2 { margin: 0 0 8px; font-size: 20px; }
+  .cta-box p { margin: 0 0 18px; font-size: 15px; opacity: 0.95; }
+  .cta-btn {
+    display: block; background: #fff; color: var(--navy); text-decoration: none;
+    font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 12px; margin: 0 0 10px;
+  }
+  .cta-btn:last-child { margin-bottom: 0; }
+
+  footer { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 22px; padding: 0 14px; }
+  .editnote {
+    background: #fff3f3; border: 1px dashed #e0a3a3; color: #8a3b3b;
+    border-radius: 10px; padding: 10px 13px; margin: 14px 0; font-size: 13px;
+  }
+  .intro {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #3a4753; line-height: 1.5;
+  }
+  .intro p { margin: 0; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="brand-title">cdb-Gym</p>
+    <p class="brand-sub">персонален коучинг<br>· храна · тренировки · здраве ·</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p>Тук е цялата картина зад услугата: <b>какво получаваш</b>, как протича и колко струва. Подходът е за човек, който иска да разбере реалното си състояние и механизма зад него — не готова рецепта от интернет.</p>
+  </div>
+
+  <!-- С КАКВО Е РАЗЛИЧНО -->
+  <div class="sec">
+    <h2>С какво е различно</h2>
+    <div class="card rows">
+      <div class="row">
+        <div class="ic">🎯</div>
+        <div class="tx"><b>Персонално, по реални числа</b><span>Планът се смята за твоето тегло, цел и ежедневие — в грамове, не по общи калорийни таблици. И се коригира според това как реагира тялото ти, не по сляпо броене.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🔬</div>
+        <div class="tx"><b>По наука, не по мода</b><span>Всяко решение — от протеина до добавката — се сверява с научни публикации, не с модна тенденция или едно мнение.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🩺</div>
+        <div class="tx"><b>Отчита цялото ти здраве</b><span>Кръвни, лекарства, стари контузии — режимът и тренировката се правят около тях, не въпреки тях. Точно това липсва на всяка диета от интернет.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">📊</div>
+        <div class="tx"><b>Жив план с треньор, не PDF</b><span>Планът се проследява и коригира всеки месец, а през целия път имаш връзка с треньора.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАК ПРОТИЧА -->
+  <div class="sec">
+    <h2>Как протича — стъпка по стъпка</h2>
+    <div class="card">
+      <div class="step">
+        <div class="n">1</div>
+        <div class="c"><b>Попълваш кратките форми</b>
+          <p>Отнема 15–20 минути. Първата е обща и сама показва кои следващи форми са нужни за теб — не всички, само твоите.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">2</div>
+        <div class="c"><b>Отговорите се разглеждат лично</b>
+          <p>Не от програма. Сглобява се режим или програма по реални числа и твоите храни — съобразени със здравето, графика и целта ти.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <div class="c"><b>Получаваш личен дневник</b>
+          <p>Един линк само за теб — без регистрация и пароли. Там е целият план, на едно място, винаги в телефона.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">4</div>
+        <div class="c"><b>Проследяване и месечни корекции</b>
+          <p>Записваш тегло и обиколки; планът се настройва според това как реагираш. Затова е жив, не еднократен.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ДВАТА НАЧИНА -->
+  <div class="sec">
+    <h2>Двата начина да тръгнеш с храненето</h2>
+    <div class="card">
+      <p style="margin-bottom:14px;color:#3a4753;font-size:15px;">Едно и също качество — разликата е само дали първо виждаш реалността безплатно, или тръгваш директно с готов план.</p>
+      <div class="step">
+        <div class="n">А</div>
+        <div class="c"><b>Започни безплатно — виж реалността първо <span class="free-pill">препоръчано</span></b>
+          <p>15 дни записваш какво ядеш — с домакински мерки, не везна. Безплатно, без задължение. Накрая виждаш реалната си картина: калории, макроси, протеин, навици — и къде се губи. Решиш ли да продължиш, получаваш пълния режим.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">Б</div>
+        <div class="c"><b>Директно режим — готов план веднага</b>
+          <p>Вече си наясно? Кратък въпросник за храненето ти → персонален режим. Плащаш от старта.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">🏋</div>
+        <div class="c"><b>Само тренировки</b>
+          <p>Кратък въпросник (опит, цел, състояние, контузии) → програма за теб + проследяване в дневника. Плащаш от старта.</p></div>
+      </div>
+      <p style="margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border);font-size:14.5px;color:var(--accent-dark);">
+        Първо стойност, после решение. Безплатният вход не те задължава с нищо.
+      </p>
+    </div>
+  </div>
+
+  <!-- БОНУСИ -->
+  <div class="sec">
+    <h2>Във всеки пакет — без доплащане</h2>
+    <p class="lead-in">Тези три неща влизат във всеки пакет. Другаде всяко от тях е отделна платена консултация.</p>
+    <div class="bonus">
+      <div class="item">
+        <span class="e">🔬</span>
+        <div><b>Протокол за добавки</b><p>Какво реално помага за теб — според нуждите и кръвните ти, в правилната доза, подбрано да не се бие с лекарствата ти. По нужда, не сляп стек: добавката коригира липса, не прави чудо.</p></div>
+      </div>
+      <div class="item">
+        <span class="e">🩸</span>
+        <div><b>Разчитане на кръвните + здравни насоки</b><p>Какво значат числата ти и как се отразяват на режима — обяснено докрай, на разбираем език. Разчитане и насока, не диагноза; диагнозата остава на лекаря.</p></div>
+      </div>
+      <div class="item">
+        <span class="e">🍎</span>
+        <div><b>Анализ на реалното ти хранене</b><p>През 15-дневен личен лог виждаш точните си калории, макроси, протеин и навици — реална картина, не предположение.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПАКЕТИ -->
+  <div class="sec">
+    <h2>Какво избираш</h2>
+    <div class="plans">
+      <div class="plan">
+        <div class="name">Хранителен режим<small>само хранене</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+      </div>
+      <div class="plan">
+        <div class="name">Тренировъчна програма<small>само тренировки</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+      </div>
+      <div class="plan feature">
+        <span class="tag">Най-пълно</span>
+        <div class="name">Двете заедно<small>хранене + тренировки</small></div>
+        <div class="price"><b>90€</b><small>/месец · 3€ на ден</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАК РАБОТИ -->
+  <div class="sec">
+    <h2>Как работи на практика</h2>
+    <div class="card">
+      <p>🔒 <b>Личен дневник.</b> Целият план, проследяването и връзката с треньора — на личен линк само за теб. Данните ти са видими само за теб.</p>
+      <p>💳 <b>Предплащаш всеки месец</b> (60€ или 90€). Без договори, без неустойки.</p>
+      <p>✋ <b>Отказваш когато искаш</b> — спреш ли да плащаш, просто спира.</p>
+      <p>⏳ <b>Дай си поне 2 месеца</b> за реален резултат — под това тялото няма как да покаже промяна.</p>
+    </div>
+  </div>
+
+  <!-- ЧЕСТНО ЗА ГРАНИЦИТЕ -->
+  <div class="sec">
+    <h2>Честно за границите</h2>
+    <p class="lead-in">Каквото получаваш е реално — затова е честно и докъде стига.</p>
+    <div class="card rows">
+      <div class="row">
+        <div class="ic">📏</div>
+        <div class="tx"><b>Числата са насока, не догма</b><span>Реалната храна се усвоява различно от етикета. Затова водещото е тялото — тегло, обиколки, енергия — а не съвършеното броене до грам.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🩺</div>
+        <div class="tx"><b>Разчитането на кръвни е насока, не диагноза</b><span>Диагнозата и лекарствата остават на лекаря; режимът се прави около тях.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">💊</div>
+        <div class="tx"><b>Добавката коригира липса, не лекува болест</b><span>Затова се дава по нужда и кръвни, не като сляп стек.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">⏳</div>
+        <div class="tx"><b>Резултатът иска време</b><span>Поне 2 месеца — честен срок, не обещание за бързо чудо.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЦЕНИ НАКРАТКО -->
+  <div class="sec">
+    <h2>Цени накратко</h2>
+    <div class="card">
+      <p>💶 <b>1 раздел</b> (хранене <b>или</b> тренировки): 60€/месец (2€ на ден)</p>
+      <p>💶 <b>2 раздела</b> (хранене <b>и</b> тренировки): 90€/месец (3€ на ден)</p>
+      <p>🎁 Добавки + разчитане на кръвни + здравни насоки: <b>включени навсякъде</b></p>
+      <p>🆓 Първите 15 дни (безплатният вход при хранене): <b>безплатно</b></p>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec">
+    <h2>Често задавани въпроси</h2>
+
+    <details class="faq">
+      <summary>Безплатното има ли уловка?</summary>
+      <div class="a"><p>Не. 15 дни записваш какво ядеш и накрая получаваш реалния анализ даром. Нищо не дължиш и нищо не се активира само. Плащаш само ако решиш да продължиш с пълен режим.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>С какво е различно от безплатна диета в интернет?</summary>
+      <div class="a"><p>Диетата в нета е една рецепта за всички. Тук планът се смята за твоето тяло, цел, график и здраве, с реални числа и твоите храни. И най-важното — проследява се и се коригира всеки месец според това как реагираш.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Отчита ли се здравето и лекарствата ми?</summary>
+      <div class="a"><p>Да — това е в основата. Кръвни резултати, лекарства и стари контузии се вземат предвид, за да не се бие нищо едно с друго. Добавките се подбират да не се сблъскват с лекарствата ти.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Трябва ли да идвам някъде?</summary>
+      <div class="a"><p>Не. Всичко е онлайн, в личния ти дневник, достъпен от телефона.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Лични ли са данните ми?</summary>
+      <div class="a"><p>Да. Дневникът ти се отваря само с твой таен личен линк — без публичен профил, без име и фамилия отвън. Виждаш го само ти.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Мога ли само хранене или само тренировки?</summary>
+      <div class="a"><p>Да. Всеки раздел поотделно е 60€/месец. Двата заедно — 90€/месец.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Кога ще видя резултат?</summary>
+      <div class="a"><p>Дай си поне 2 месеца. Под това тялото няма как да покаже истинска промяна — затова и препоръката е минимум толкова, не защото има договор.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Мога ли да спра?</summary>
+      <div class="a"><p>По всяко време. Плаща се предварително за месец; спреш ли да плащаш, просто спира. Без договори и неустойки.</p></div>
+    </details>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h2>Остана въпрос?</h2>
+    <p>Ако нещо не е ясно или си готов/а да започнеш.</p>
+    <a class="cta-btn" href="viber://chat?number=%2B359877779555">Пиши във Viber</a>
+  </div>
+
+  <footer>
+    cdb-Gym · персонален коучинг · храна · тренировки · добавки · здравно проследяване
+  </footer>
+
+</div>
+</body>
+</html>
