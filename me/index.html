@@ -256,7 +256,10 @@
     var coachMsgs = (data.log || []).filter(function (e) { return e.kind === "coach"; });
     var SEEN_KEY = "diary_seen_coach_" + token;
     var seenTs = null; try { seenTs = localStorage.getItem(SEEN_KEY); } catch (e) {}
-    var unread = coachMsgs.filter(function (m) { return m.created_at && (!seenTs || m.created_at > seenTs); });
+    // последна КЛИЕНТСКА активност — ако е писала СЛЕД съобщението, видяла го е (robust кросс-устройство)
+    var lastClientAt = "";
+    (data.log || []).forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
+    var unread = coachMsgs.filter(function (m) { return m.created_at && m.created_at > lastClientAt && (!seenTs || m.created_at > seenTs); });
     var bannerHtml = "";
     if (unread.length) {
       var nb = unread.length;
