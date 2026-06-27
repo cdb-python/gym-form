@@ -349,15 +349,19 @@
     var histHtml = '<div class="sec"><div id="histList">'
       + renderHistory(entries, today) + "</div></div>";
 
-    // съобщения от Chris + банер за непрочетено (localStorage per токен)
+    // съобщения от Chris + банер за непрочетено
     var latestCoachAt = "";
     coachMsgs.forEach(function (m) { var c = String(m.created_at || ""); if (c > latestCoachAt) latestCoachAt = c; });
+    // последна КЛИЕНТСКА активност (храна/тегло) — ако е писала СЛЕД съобщението, видяла го е
+    var lastClientAt = "";
+    entries.forEach(function (e) { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; });
     var bannerHtml = "", coachHtml = "";
     if (coachMsgs.length) {
       coachHtml = renderCoach(coachMsgs);
       var seen = "";
       try { seen = localStorage.getItem("f3l_seen_coach_" + token) || ""; } catch (e) {}
-      if (!seen || seen < latestCoachAt) {
+      // банер само ако съобщението е по-ново от последната ѝ активност И не е видяно на това устройство
+      if (latestCoachAt > lastClientAt && latestCoachAt > seen) {
         bannerHtml = '<div class="cbanner" id="cbanner">✉ Имате ново съобщение — докосни да прочетеш</div>';
       }
     }
