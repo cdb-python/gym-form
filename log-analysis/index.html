@@ -138,7 +138,7 @@
       content.innerHTML = '<div class="state">Анализът ти още се подготвя. Скоро тук ще има съдържание.</div>';
       return;
     }
-    var html = '<p class="intro">Докосни всяка карта, за да я отвориш.</p>';
+    var html = '';
     cards.forEach(function (r) {
       var key = "a_" + r.sort;
       html += '<div class="card" data-key="' + esc(key) + '">';
