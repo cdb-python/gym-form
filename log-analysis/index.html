@@ -74,17 +74,17 @@
   .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; font-weight: 700; white-space: nowrap; }
   .cert-pop {
     display: none; position: fixed; z-index: 100;
-    width: max-content; max-width: min(290px, calc(100vw - 24px));
-    background: #0f1b2d; color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
-    text-align: left; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--accent);
-    box-shadow: 0 8px 22px rgba(0,0,0,.35);
+    width: max-content; max-width: min(320px, calc(100vw - 20px));
+    background: var(--accent-dark); color: #fff; font-weight: 400; font-size: 12.5px; line-height: 1.5;
+    text-align: left; white-space: normal; padding: 10px 13px; border-radius: 9px; border: 1px solid var(--accent);
+    box-shadow: 0 8px 22px rgba(0,0,0,.30);
   }
   .cert-pop::before {
     content: ""; position: absolute; bottom: 100%; left: calc(50% + var(--arrow-shift, 0px));
-    transform: translateX(-50%); border: 6px solid transparent; border-bottom-color: #0f1b2d;
+    transform: translateX(-50%); border: 6px solid transparent; border-bottom-color: var(--accent-dark);
   }
   .cert.open .cert-pop { display: block; }
-  .cert-pop b { color: var(--gold); }
+  .cert-pop b { color: #ffd98a; }
 </style>
 </head>
 <body>
