@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cdb-Gym — личен треньор и диетолог</title>
+<meta name="description" content="Твоят личен, сертифициран треньор и диетолог — здраве, храна, тренировки и възстановяване, подредени по една ясна пирамида, в джоба ти.">
+<meta property="og:title" content="cdb-Gym — личен треньор и диетолог">
+<meta property="og:description" content="Здраве, храна, тренировки и възстановяване — по реалните ти числа, подредени по важност, на едно място в джоба ти.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://cdb-python.github.io/gym-form/start-pyramid/">
+<meta property="og:site_name" content="cdb-Gym">
+<style>
+  :root {
+    --bg: #eef2f6;
+    --card: #ffffff;
+    --ink: #16202b;
+    --muted: #66727e;
+    --navy: #0f1b2d;
+    --navy2: #16324c;
+    --accent: #1597ad;
+    --accent-dark: #0f6e7e;
+    --accent-bright: #19c3d8;
+    --border: #d6dde4;
+    --soft: #e4f5f8;
+    --gold: #b8862f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55; padding: 0 0 30px; overflow-x: hidden;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+
+  header.hero {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    color: #fff; padding: 40px 20px 34px; text-align: center;
+  }
+  header.hero .hero-inner {
+    max-width: 560px; margin: 0 auto;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  header.hero .brand-title {
+    font-size: 40px; font-weight: 800; letter-spacing: 0.01em;
+    color: #fff; margin: 0 0 6px; text-align: center;
+  }
+  header.hero .brand-sub {
+    font-size: 15px; text-transform: uppercase; letter-spacing: 0.10em;
+    color: var(--accent-bright); margin: 0; font-weight: 700; text-align: center;
+  }
+
+  .sec { margin: 26px 0 6px; }
+  .sec > h2 {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--accent-dark); margin: 0 0 12px; padding-left: 2px;
+  }
+  .lead-in { font-size: 14.5px; color: #3a4753; margin: 0 0 12px; padding-left: 2px; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px; margin: 0 0 12px;
+  }
+  .card p { margin: 0 0 8px; }
+  .card p:last-child { margin-bottom: 0; }
+
+  /* ПИРАМИДА (визуал) */
+  .pyr { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 4px 0 12px; }
+  .pyr .lvl {
+    color: #fff; border-radius: 9px; padding: 11px 12px; text-align: center; line-height: 1.22;
+    box-shadow: 0 2px 6px rgba(0,0,0,.10);
+  }
+  .pyr .lvl b { display: block; font-size: 14px; font-weight: 800; letter-spacing: 0.02em; }
+  .pyr .lvl span { font-size: 11px; opacity: 0.82; text-transform: uppercase; letter-spacing: 0.06em; }
+  .pyr .l4 { width: 60%; background: var(--accent); }
+  .pyr .l3 { width: 74%; background: var(--accent-dark); }
+  .pyr .l2 { width: 87%; background: var(--navy2); }
+  .pyr .l1 { width: 100%; background: var(--navy); }
+  .pyr-note {
+    font-size: 13.5px; color: #3a4753; text-align: center; margin: 2px 0 14px;
+    padding: 0 4px; line-height: 1.5;
+  }
+  .pyr-note b { color: var(--accent-dark); }
+
+  .rows .row { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+  .rows .row:last-child { margin-bottom: 0; }
+  .rows .ic {
+    flex: none; width: 38px; height: 38px; border-radius: 10px;
+    background: var(--soft); color: var(--accent-dark);
+    display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
+  }
+  .rows .tx b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .rows .tx span { font-size: 14.5px; color: var(--muted); }
+  .rows .tx .step-n { color: var(--accent-dark); font-weight: 800; }
+  .in-pill {
+    display: inline-block; background: #fff8ec; border: 1px solid #ecd9af; color: #6a531f;
+    font-size: 11.5px; font-weight: 700; padding: 0 7px; border-radius: 20px; margin-left: 6px;
+    text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle;
+  }
+
+  .plans { display: flex; flex-direction: column; gap: 12px; }
+  .plan {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  }
+  .plan.feature { border: 2px solid var(--accent); position: relative; }
+  .plan.feature .tag {
+    position: absolute; top: -10px; left: 16px; background: var(--accent); color: #fff;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    padding: 2px 9px; border-radius: 20px;
+  }
+  .plan .name { font-weight: 700; font-size: 16px; }
+  .plan .name small { display: block; font-weight: 500; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .plan .price { text-align: right; flex: none; }
+  .plan .price b { font-size: 19px; color: var(--accent-dark); }
+  .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
+
+  .bonus { background: var(--soft); border: 1px solid #b9e3ea; border-radius: 12px; padding: 16px 18px; }
+  .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
+  .bonus .item:last-child { margin-bottom: 0; }
+  .bonus .item .e { flex: none; font-size: 18px; }
+  .bonus .item b { font-size: 15px; }
+  .bonus .item p { margin: 2px 0 0; font-size: 14px; color: #3a4753; }
+
+  .step { display: flex; gap: 12px; margin: 0 0 12px; }
+  .step .n {
+    flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff;
+    font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center;
+  }
+  .step .c b { font-size: 15.5px; }
+  .step .c p { margin: 3px 0 0; font-size: 14.5px; color: #3a4753; }
+
+  details.faq {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0; margin: 0 0 10px; overflow: hidden;
+  }
+  details.faq summary {
+    list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 15.5px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  details.faq summary::-webkit-details-marker { display: none; }
+  details.faq summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
+  details.faq[open] summary::after { content: "–"; }
+  details.faq .a { padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq .a p { margin: 0 0 8px; }
+  details.faq .a p:last-child { margin-bottom: 0; }
+
+  .cta-box {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%); color: #fff;
+    border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
+  }
+  .cta-box h2 { margin: 0 0 8px; font-size: 20px; color: #fff; }
+  .cta-box p { margin: 0 0 18px; font-size: 15px; color: #fff; opacity: 0.95; }
+  .cta-btn {
+    display: block; background: var(--accent-bright); color: var(--navy); text-decoration: none;
+    font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 12px; margin: 0 0 10px;
+  }
+  .cta-btn:last-child { margin-bottom: 0; }
+
+  footer { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 22px; padding: 0 14px; }
+  .intro {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #3a4753; line-height: 1.5;
+  }
+  .intro p { margin: 0; }
+  .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
+  .cert-pop {
+    display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 155%; z-index: 30;
+    width: max-content; max-width: min(290px, calc(100vw - 24px));
+    background: var(--navy); color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
+    text-align: left; white-space: normal; padding: 9px 12px; border-radius: 8px;
+    border: 1px solid var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  }
+  .cert-pop::before { content: ""; position: absolute; left: calc(50% + var(--arrow-shift, 0px)); transform: translateX(-50%); bottom: 100%;
+    border: 6px solid transparent; border-bottom-color: var(--accent); }
+  .cert:hover .cert-pop, .cert:focus .cert-pop, .cert.open .cert-pop { display: block; }
+  .cert-pop b { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <p class="brand-title">cdb-Gym</p>
+    <p class="brand-sub">личен треньор и диетолог<br>· здраве · храна · тренировки · възстановяване ·</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    <p><b>Твоят личен, сертифициран <span class="cert" tabindex="0">треньор<span class="cert-pop"><b>Треньор</b><br>• Personal Trainer — C.O.R.F.I.T. (межд. организация) №0443 · 2018<br>• Functional Training — BFS Academy (МОН Гърция №2101163) · 2019</span></span> и <span class="cert" tabindex="0">диетолог<span class="cert-pop"><b>Диетология / хранене</b><br>• Консултант клетъчно хранене (диетолог) — Белчо Христов #0083 · 18.10.2018<br>• Performance Nutrition — C.O.R.F.I.T. (межд. организация) №0443 · 2018</span></span> — в джоба ти, на един клик.</b> Здраве, хранене, добавки, тренировки и възстановяване, събрани на едно място и водени лично — подредени по една ясна пирамида на важност. По-долу е разяснено как се гради, какво включва и колко струва.</p>
+  </div>
+
+  <!-- ПОДХОДЪТ: ПИРАМИДАТА -->
+  <div class="sec">
+    <h2>Подходът: гледаме цялото</h2>
+    <p class="lead-in">Да си здрав, силен и във форма не зависи от едно нещо, а от няколко — подредени по важност. Това е картата:</p>
+
+    <div class="card">
+      <div class="pyr">
+        <div class="lvl l4"><b>😴 Възстановяване и сън</b><span>връх · фина настройка</span></div>
+        <div class="lvl l3"><b>🏋 Тренировки</b><span>сигналът за промяна</span></div>
+        <div class="lvl l2"><b>🍎 Хранене</b><span>горивото и материалът</span></div>
+        <div class="lvl l1"><b>🩺 Здраве и изследвания</b><span>основата на всичко</span></div>
+      </div>
+      <p class="pyr-note">Колкото по-надолу е етажът, толкова повече тежи за резултата. Правилото е едно: <b>не се качва на горен етаж, докато долният не е стабилен.</b> Затова всичко започва от здравето ти — а не от поредната добавка или модна диета.</p>
+    </div>
+
+    <div class="card rows">
+      <div class="row">
+        <div class="ic">🩺</div>
+        <div class="tx"><b><span class="step-n">Етаж 1 · основата</span> — Здраве и изследвания</b><span>Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🍎</div>
+        <div class="tx"><b><span class="step-n">Етаж 2</span> — Хранене</b><span>По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🏋</div>
+        <div class="tx"><b><span class="step-n">Етаж 3</span> — Тренировки</b><span>Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">😴</div>
+        <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="in-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ОСВЕН ТОВА -->
+  <div class="sec">
+    <h2>Освен това — как се работи на всеки етаж</h2>
+    <div class="card rows">
+      <div class="row">
+        <div class="ic">🎯</div>
+        <div class="tx"><b>По твоите числа, от твоето ежедневие</b><span>Всичко тръгва от реалните ти данни — тегло, хранене, начин на живот — в грамове, цифри и калории за теб; и се коригира според това как реагираш.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🔬</div>
+        <div class="tx"><b>По съвременна наука</b><span>Всяко решение — от протеина и добавката до точната тежест и нужния маркер — стъпва на актуални изследвания и водещите имена в здравето и дълголетието.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">📊</div>
+        <div class="tx"><b>Жив план и връзка с треньора</b><span>Процесът не е статичен — следи се и се коригира когато трябва. А по целия път имаш връзка с треньора, когато ти е нужна.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАК ЗАПОЧВАШ -->
+  <div class="sec">
+    <h2>Как започваш</h2>
+    <div class="card">
+      <p style="margin-bottom:16px;color:#3a4753;font-size:15px;">Храна, тренировки или двете. Съдържанието е различно за всеки; еднакво е само <b>как работи</b>: всичко живее в платформата — личен дневник, проследяване и връзка с треньора онлайн.</p>
+
+      <div class="step">
+        <div class="n">1</div>
+        <div class="c"><b>Избираш от какво имаш нужда</b>
+          <p>Безплатният 15-дневен лог вече го направи — оттук се тръгва директно:</p></div>
+      </div>
+      <div style="margin: 2px 0 16px 40px; display: flex; flex-direction: column; gap: 12px;">
+        <div>
+          <b style="font-size:15px;">🍎 Режим по твоя лог</b>
+          <p style="margin:3px 0 0;font-size:14.5px;color:#3a4753;">Идваш от анализа — храненето ти вече е разчетено. Затова режимът се гради <b>максимално близо до теб</b>: твоите часове и брой хранения, снаксовете и любимите ти храни остават; добавят се само <b>здравните норми</b> и корекциите според целта ти (кратък въпросник). Минимум промяна, максимум твое. Плащаш от старта.</p>
+        </div>
+        <div>
+          <b style="font-size:15px;">🏋 Само тренировки</b>
+          <p style="margin:3px 0 0;font-size:14.5px;color:#3a4753;">Кратък въпросник (опит, цел, състояние, контузии) → програма за теб. Плащаш от старта.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="n">2</div>
+        <div class="c"><b>Получаваш личния си план в дневник</b>
+          <p>Режим или програма по твоите реални числа, сглобени лично — не от програма. На личен линк само за теб, без регистрация и пароли; целият план на едно място, винаги в телефона.</p></div>
+      </div>
+      <div class="step">
+        <div class="n">3</div>
+        <div class="c"><b>Проследяване и корекции</b>
+          <p>Записваш тегло и обиколки; планът се настройва според това как реагираш и се представяш. Връзка с треньора по целия път — онлайн, в платформата. Затова е жив, не еднократен.</p></div>
+      </div>
+
+      <p style="margin:16px 0 0;padding-top:14px;border-top:1px solid var(--border);font-size:14.5px;color:var(--accent-dark);">
+        Планът се сглобява лично за теб — по реалните ти числа, и се коригира по пътя.
+      </p>
+    </div>
+  </div>
+
+  <!-- БОНУСИ -->
+  <div class="sec">
+    <h2>Във всеки пакет — без доплащане</h2>
+    <p class="lead-in">Тези неща влизат във всеки пакет — покриват и четирите етажа на пирамидата. Другаде всяко от тях е отделна платена консултация.</p>
+    <div class="bonus">
+      <div class="item">
+        <span class="e">🩸</span>
+        <div><b>Разчитане на кръвните + здравни насоки</b><p>Етаж 1. Какво значат числата ти и как се отразяват на режима — обяснено докрай, на разбираем език. Разчитане и насока, не диагноза; диагнозата остава на лекаря.</p></div>
+      </div>
+      <div class="item">
+        <span class="e">🍎</span>
+        <div><b>Анализ на реалното ти хранене ✓</b><p>Етаж 2. Вече го направи — точните ти калории, макроси, протеин и навици. В програмата продължава да се следи и обновява.</p></div>
+      </div>
+      <div class="item">
+        <span class="e">🔬</span>
+        <div><b>Протокол за добавки</b><p>Какво реално помага за теб — според нуждите и кръвните ти, в правилната доза, подбрано да не се бие с лекарствата ти. По нужда, не сляп стек.</p></div>
+      </div>
+      <div class="item">
+        <span class="e">😴</span>
+        <div><b>Насоки за сън и възстановяване</b><p>Етаж 4. Хигиена на съня, почивка и таргетиран стак по нужда — там, където тялото всъщност се променя. Новото перо, включено навсякъде.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ПАКЕТИ -->
+  <div class="sec">
+    <h2>Какво избираш</h2>
+    <div class="plans">
+      <div class="plan">
+        <div class="name">Хранителен режим<small>само хранене</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+      </div>
+      <div class="plan">
+        <div class="name">Тренировъчна програма<small>само тренировки</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+      </div>
+      <div class="plan feature">
+        <span class="tag">Най-пълно</span>
+        <div class="name">Двете заедно<small>хранене + тренировки</small></div>
+        <div class="price"><b>90€</b><small>/месец · 3€ на ден</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- КАК РАБОТИ -->
+  <div class="sec">
+    <h2>Как работи на практика</h2>
+    <div class="card">
+      <p>🔒 <b>Личен дневник.</b> Целият план, проследяването и връзката с треньора — на личен линк само за теб. Данните ти са видими само за теб.</p>
+      <p>💳 <b>Предплащаш всеки месец</b> (60€ или 90€). Без договори, без неустойки.</p>
+      <p>✋ <b>Отказваш когато искаш</b> — спреш ли да плащаш, просто спира.</p>
+      <p>⏳ <b>Дай си поне 2 месеца</b> за реален резултат — под това тялото няма как да покаже промяна.</p>
+    </div>
+  </div>
+
+  <!-- ЧЕСТНО ЗА ГРАНИЦИТЕ -->
+  <div class="sec">
+    <h2>Честно за границите</h2>
+    <p class="lead-in">Каквото получаваш е реално — затова е честно и докъде стига.</p>
+    <div class="card rows">
+      <div class="row">
+        <div class="ic">📏</div>
+        <div class="tx"><b>Числата са насока, не догма</b><span>Реалната храна се усвоява различно от етикета. Затова водещото е тялото — тегло, обиколки, енергия — а не съвършеното броене до грам.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">🩺</div>
+        <div class="tx"><b>Разчитането на кръвни е насока, не диагноза</b><span>Диагнозата и лекарствата остават на лекаря; режимът се прави около тях.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">💊</div>
+        <div class="tx"><b>Добавката коригира липса, не лекува болест</b><span>Затова се дава по нужда и кръвни, не като сляп стек.</span></div>
+      </div>
+      <div class="row">
+        <div class="ic">⏳</div>
+        <div class="tx"><b>Резултатът иска време</b><span>Поне 2 месеца — честен срок, не обещание за бързо чудо.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ЦЕНИ НАКРАТКО -->
+  <div class="sec">
+    <h2>Цени накратко</h2>
+    <div class="card">
+      <p>💶 <b>1 раздел</b> (хранене <b>или</b> тренировки): 60€/месец (2€ на ден)</p>
+      <p>💶 <b>2 раздела</b> (хранене <b>и</b> тренировки): 90€/месец (3€ на ден)</p>
+      <p>🎁 Разчитане на кръвни + добавки + насоки за сън/възстановяване: <b>включени навсякъде</b></p>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="sec">
+    <h2>Често задавани въпроси</h2>
+
+    <details class="faq">
+      <summary>Защо подреждате нещата по пирамида?</summary>
+      <div class="a"><p>Защото не всичко тежи еднакво. Количеството храна решава повече от тайминга; здравето решава повече от добавката. Пирамидата подрежда усилието по важност — оправяш първо това, което тежи най-много, и не губиш време по детайли, докато основата не е стабилна.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Отчита ли се здравето и лекарствата ми?</summary>
+      <div class="a"><p>Да — това е самата основа на пирамидата (етаж 1). Кръвни резултати, лекарства и стари контузии се вземат предвид, за да не се бие нищо едно с друго. Добавките се подбират да не се сблъскват с лекарствата ти.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Влиза ли сън и възстановяване?</summary>
+      <div class="a"><p>Да, без доплащане. Това е етаж 4 — там тялото всъщност се променя. Получаваш насоки за хигиена на съня, почивка и таргетиран стак по нужда (например магнезий, глицин и др., подбрани за теб и да не се бият с лекарствата ти).</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>С какво е различно от безплатна диета в интернет?</summary>
+      <div class="a"><p>Диетата в нета е една рецепта за всички и покрива само един етаж. Тук планът се смята за твоето тяло, цел, график и здраве, по цялата пирамида, с реални числа. И най-важното — проследява се и се коригира всеки месец според това как реагираш.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Трябва ли да идвам някъде?</summary>
+      <div class="a"><p>Не. Всичко е онлайн, в личния ти дневник, достъпен от телефона.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Лични ли са данните ми?</summary>
+      <div class="a"><p>Да. Дневникът ти се отваря само с твой таен личен линк — без публичен профил, без име и фамилия отвън. Виждаш го само ти.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Мога ли само хранене или само тренировки?</summary>
+      <div class="a"><p>Да. Всеки раздел поотделно е 60€/месец. Двата заедно — 90€/месец. Бонусите (кръвни, добавки, сън) влизат и в двата.</p></div>
+    </details>
+
+    <details class="faq">
+      <summary>Мога ли да спра?</summary>
+      <div class="a"><p>По всяко време. Плаща се предварително за месец; спреш ли да плащаш, просто спира. Без договори и неустойки.</p></div>
+    </details>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-box">
+    <h2>Остана въпрос?</h2>
+    <p>Ако нещо не е ясно или си готов/а да започнеш.</p>
+    <a class="cta-btn" href="viber://chat?number=%2B359877779555">Пиши във Viber</a>
+  </div>
+
+  <footer>
+    cdb-Gym · сертифициран треньор и диетолог · здраве · храна · тренировки · възстановяване
+  </footer>
+
+</div>
+<script>
+  (function(){
+    var certs = Array.prototype.slice.call(document.querySelectorAll('.cert'));
+    function place(el){
+      var pop = el.querySelector('.cert-pop');
+      pop.style.transform = 'translateX(-50%)';
+      pop.style.setProperty('--arrow-shift', '0px');
+      var r = pop.getBoundingClientRect(), pad = 8, vw = document.documentElement.clientWidth, shift = 0;
+      if (r.left < pad) shift = pad - r.left;
+      else if (r.right > vw - pad) shift = (vw - pad) - r.right;
+      if (shift) {
+        pop.style.transform = 'translateX(calc(-50% + ' + shift + 'px))';
+        pop.style.setProperty('--arrow-shift', (-shift) + 'px');
+      }
+    }
+    certs.forEach(function(el){
+      el.addEventListener('mouseenter', function(){ place(el); });
+      el.addEventListener('click', function(e){
+        e.stopPropagation();
+        var open = el.classList.contains('open');
+        certs.forEach(function(o){ o.classList.remove('open'); });
+        if (!open) { el.classList.add('open'); place(el); }
+      });
+    });
+    document.addEventListener('click', function(){
+      certs.forEach(function(o){ o.classList.remove('open'); });
+    });
+  })();
+</script>
+</body>
+</html>
