@@ -71,6 +71,16 @@
   }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
   footer { text-align: center; color: var(--muted); font-size: 13px; margin: 22px 0 0; }
+  .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; font-weight: 700; white-space: nowrap; }
+  .cert-pop {
+    display: none; position: fixed; z-index: 100;
+    width: max-content; max-width: min(290px, calc(100vw - 24px));
+    background: var(--ink); color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
+    text-align: left; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--accent);
+    box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  }
+  .cert.open .cert-pop { display: block; }
+  .cert-pop b { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -143,10 +153,34 @@
     if (!hasSaved) saveOpen();
 
     content.addEventListener("click", function (e) {
+      if (e.target.closest(".cert")) return;
       if (e.target.closest(".body")) return;
       var card = e.target.closest(".card");
       if (card) { card.classList.toggle("open"); saveOpen(); }
     });
+
+    function placeCert(cert) {
+      var pop = cert.querySelector(".cert-pop");
+      if (!pop) return;
+      var cr = cert.getBoundingClientRect(), pr = pop.getBoundingClientRect();
+      var pad = 8, vw = document.documentElement.clientWidth;
+      var left = cr.left + cr.width / 2 - pr.width / 2;
+      if (left < pad) left = pad;
+      if (left + pr.width > vw - pad) left = vw - pad - pr.width;
+      pop.style.left = left + "px";
+      pop.style.top = (cr.bottom + 6) + "px";
+    }
+    var certs = [].slice.call(content.querySelectorAll(".cert"));
+    certs.forEach(function (cert) {
+      cert.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var wasOpen = cert.classList.contains("open");
+        certs.forEach(function (o) { o.classList.remove("open"); });
+        if (!wasOpen) { cert.classList.add("open"); placeCert(cert); }
+      });
+    });
+    document.addEventListener("click", function () { certs.forEach(function (o) { o.classList.remove("open"); }); });
+    window.addEventListener("scroll", function () { certs.forEach(function (o) { o.classList.remove("open"); }); }, true);
   }
 
   sb.rpc("get_analysis", { p_token: token }).then(function (res) {
