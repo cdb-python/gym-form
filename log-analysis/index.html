@@ -75,9 +75,13 @@
   .cert-pop {
     display: none; position: fixed; z-index: 100;
     width: max-content; max-width: min(290px, calc(100vw - 24px));
-    background: var(--ink); color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
+    background: #0f1b2d; color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
     text-align: left; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--accent);
-    box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    box-shadow: 0 8px 22px rgba(0,0,0,.35);
+  }
+  .cert-pop::before {
+    content: ""; position: absolute; bottom: 100%; left: calc(50% + var(--arrow-shift, 0px));
+    transform: translateX(-50%); border: 6px solid transparent; border-bottom-color: #0f1b2d;
   }
   .cert.open .cert-pop { display: block; }
   .cert-pop b { color: var(--gold); }
@@ -164,23 +168,28 @@
       if (!pop) return;
       var cr = cert.getBoundingClientRect(), pr = pop.getBoundingClientRect();
       var pad = 8, vw = document.documentElement.clientWidth;
-      var left = cr.left + cr.width / 2 - pr.width / 2;
+      var center = cr.left + cr.width / 2;
+      var left = center - pr.width / 2;
       if (left < pad) left = pad;
       if (left + pr.width > vw - pad) left = vw - pad - pr.width;
       pop.style.left = left + "px";
-      pop.style.top = (cr.bottom + 6) + "px";
+      pop.style.top = (cr.bottom + 8) + "px";
+      pop.style.setProperty("--arrow-shift", (center - (left + pr.width / 2)) + "px");
     }
     var certs = [].slice.call(content.querySelectorAll(".cert"));
+    function closeCerts(except) { certs.forEach(function (o) { if (o !== except) o.classList.remove("open"); }); }
     certs.forEach(function (cert) {
+      cert.addEventListener("mouseenter", function () { closeCerts(cert); cert.classList.add("open"); placeCert(cert); });
+      cert.addEventListener("mouseleave", function () { cert.classList.remove("open"); });
       cert.addEventListener("click", function (e) {
         e.stopPropagation();
         var wasOpen = cert.classList.contains("open");
-        certs.forEach(function (o) { o.classList.remove("open"); });
-        if (!wasOpen) { cert.classList.add("open"); placeCert(cert); }
+        closeCerts(cert);
+        if (!wasOpen) { cert.classList.add("open"); placeCert(cert); } else { cert.classList.remove("open"); }
       });
     });
-    document.addEventListener("click", function () { certs.forEach(function (o) { o.classList.remove("open"); }); });
-    window.addEventListener("scroll", function () { certs.forEach(function (o) { o.classList.remove("open"); }); }, true);
+    document.addEventListener("click", function () { closeCerts(null); });
+    window.addEventListener("scroll", function () { closeCerts(null); }, true);
   }
 
   sb.rpc("get_analysis", { p_token: token }).then(function (res) {
