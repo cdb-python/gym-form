@@ -163,9 +163,17 @@
   details.faq summary::-webkit-details-marker { display: none; }
   details.faq summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
   details.faq[open] summary::after { content: "–"; }
-  details.faq .a { padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq .a { display: none; padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq[open] .a { display: block; }
   details.faq .a p { margin: 0 0 8px; }
   details.faq .a p:last-child { margin-bottom: 0; }
+  details.faq-outer { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 0 0 10px; }
+  details.faq-outer > summary { list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16.5px; color: #16324c; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  details.faq-outer > summary::-webkit-details-marker { display: none; }
+  details.faq-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
+  details.faq-outer[open] > summary::after { content: "\2212"; }
+  details.faq-outer .faq-outer-body { display: none; padding: 4px 12px 12px; }
+  details.faq-outer[open] .faq-outer-body { display: block; }
 
   .cta-box {
     background: #34376f; color: #fff;
@@ -372,7 +380,9 @@
 
   <!-- FAQ -->
   <div class="sec">
-    <h2>Често задавани въпроси</h2>
+    <details class="faq-outer">
+      <summary>Често задавани въпроси</summary>
+      <div class="faq-outer-body">
 
     <details class="faq">
       <summary>Безплатното има ли уловка?</summary>
@@ -417,6 +427,9 @@
     <details class="faq">
       <summary>Мога ли да спра?</summary>
       <div class="a"><p>По всяко време. Плаща се предварително за месец; спреш ли да плащаш, просто спира. Без договори и неустойки.</p></div>
+    </details>
+
+      </div>
     </details>
   </div>
 
