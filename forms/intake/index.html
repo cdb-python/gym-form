@@ -251,12 +251,13 @@
           <input type="number" id="teglo" inputmode="decimal">
         </div>
         <div>
-          <label class="q">Желано тегло (кг)
-            <span class="hint">Килограмите, които искаш да бъдеш. Дори да е същото — пак е отправна точка. Нужно при хранителен режим.</span>
+          <label class="q">Желано тегло (кг) <span style="color:var(--accent-dark);font-weight:700;">— нужно</span>
+            <span class="hint">Килограмите, които искаш да бъдеш. Това е отправната точка за всичко по-нататък.</span>
           </label>
           <input type="number" id="zhelano_teglo" inputmode="decimal">
         </div>
       </div>
+      <div class="reqnote" id="ztReq">Без цел няма посока. Дори да искаш да останеш на същите килограми — това пак е цел; отправна точка, по която се мери напредъкът и се крепи мотивацията. Попълни желаното тегло — без него нищо от това, което искаш да постигнеш тук, не може да започне.</div>
 
       <div class="row2">
         <div>
@@ -1266,6 +1267,9 @@
   var imeReqNote = document.getElementById("imeReq");
   imeEl.addEventListener("input", function () { if (this.value.trim() !== "") imeReqNote.classList.remove("show"); });
 
+  var ztReq = document.getElementById("ztReq");
+  document.getElementById("zhelano_teglo").addEventListener("input", function () { if (this.value.trim() !== "") ztReq.classList.remove("show"); });
+
   var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
   var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
   var sb = window.supabase.createClient(SB_URL, SB_KEY);
@@ -1280,6 +1284,13 @@
       imeReqNote.classList.add("show");
       imeEl.scrollIntoView({ behavior: "smooth", block: "center" });
       imeEl.focus();
+      return;
+    }
+    var zt = document.getElementById("zhelano_teglo");
+    if (zt.value.trim() === "") {
+      ztReq.classList.add("show");
+      zt.scrollIntoView({ behavior: "smooth", block: "center" });
+      zt.focus();
       return;
     }
     var consent = document.getElementById("consent");
