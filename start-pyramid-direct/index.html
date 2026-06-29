@@ -12,18 +12,22 @@
 <meta property="og:site_name" content="cdb-Gym">
 <style>
   :root {
-    --bg: #eef2f6;
+    --bg: #f4f6f8;
     --card: #ffffff;
-    --ink: #16202b;
-    --muted: #66727e;
-    --navy: #0f1b2d;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --navy: #16324c;
     --navy2: #16324c;
-    --accent: #1597ad;
-    --accent-dark: #0f6e7e;
-    --accent-bright: #19c3d8;
-    --border: #d6dde4;
-    --soft: #e4f5f8;
-    --gold: #b8862f;
+    --accent: #16324c;
+    --accent-dark: #16324c;
+    --accent-bright: #c4a845;
+    --border: #d8dee5;
+    --soft: #eef4f1;
+    --gold: #c4a845;
+    --c-health: #c43d3d;
+    --c-nutrition: #34376f;
+    --c-training: #245fb0;
+    --c-sleep: #129e90;
   }
   * { box-sizing: border-box; }
   body {
@@ -34,7 +38,7 @@
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
 
   header.hero {
-    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    background: #245fb0;
     color: #fff; padding: 40px 20px 34px; text-align: center;
   }
   header.hero .hero-inner {
@@ -47,13 +51,13 @@
   }
   header.hero .brand-sub {
     font-size: 15px; text-transform: uppercase; letter-spacing: 0.10em;
-    color: var(--accent-bright); margin: 0; font-weight: 700; text-align: center;
+    color: #fff; margin: 0; font-weight: 700; text-align: center;
   }
 
   .sec { margin: 26px 0 6px; }
   .sec > h2 {
     font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--accent-dark); margin: 0 0 12px; padding-left: 2px;
+    color: #245fb0; margin: 0 0 12px; padding-left: 2px;
   }
   .lead-in { font-size: 14.5px; color: #3a4753; margin: 0 0 12px; padding-left: 2px; }
   .card {
@@ -62,39 +66,55 @@
   }
   .card p { margin: 0 0 8px; }
   .card p:last-child { margin-bottom: 0; }
+  .card.gold { background: #f9f3e0; border-left: 5px solid #245fb0; }
+  .card.gold p { color: #8a5a00; }
+  .card.gold b { color: #5c4814; }
+  .card, .plan:not(.feature) { border-left: 5px solid #245fb0; }
 
   /* ПИРАМИДА (визуал) */
-  .pyr { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 4px 0 12px; }
+  .pyr { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 8px 0 14px; }
   .pyr .lvl {
-    color: #fff; border-radius: 9px; padding: 11px 12px; text-align: center; line-height: 1.22;
-    box-shadow: 0 2px 6px rgba(0,0,0,.10);
+    color: #fff; border-radius: 11px; overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,.14);
   }
-  .pyr .lvl b { display: block; font-size: 13.5px; font-weight: 800; letter-spacing: 0.02em; }
-  .pyr .lvl span { font-size: 11px; opacity: 0.82; text-transform: uppercase; letter-spacing: 0.06em; }
-  .pyr .l4 { width: 78%; background: var(--accent); }
-  .pyr .l3 { width: 85%; background: var(--accent-dark); }
-  .pyr .l2 { width: 92%; background: var(--navy2); }
-  .pyr .l1 { width: 100%; background: var(--navy); }
+  .pyr .lvl > summary {
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px; line-height: 1.22;
+  }
+  .pyr .lvl > summary::-webkit-details-marker { display: none; }
+  .pyr .lvl > summary .emo { font-size: 19px; flex: none; }
+  .pyr .lvl > summary .ttl { display: flex; flex-direction: column; }
+  .pyr .lvl > summary b { font-size: 16.5px; font-weight: 700; }
+  .pyr .lvl > summary .sub { font-size: 12.5px; font-weight: 400; opacity: 0.92; margin-top: 1px; }
+  .pyr .lvl > summary::after { content: "+"; margin-left: auto; font-size: 22px; font-weight: 700; flex: none; }
+  .pyr .lvl[open] > summary::after { content: "\2212"; }
+  .pyr .lvl .lvl-body { display: none; padding: 0 16px 16px; text-align: left; font-size: 14.5px; line-height: 1.5; }
+  .pyr .lvl[open] .lvl-body { display: block; }
+  .pyr .l4 { width: 100%; background: var(--c-sleep); }
+  .pyr .l3 { width: 100%; background: var(--c-training); }
+  .pyr .l2 { width: 100%; background: var(--c-nutrition); }
+  .pyr .l1 { width: 100%; background: var(--c-health); }
   .pyr-note {
     font-size: 13.5px; color: #3a4753; text-align: center; margin: 2px 0 14px;
     padding: 0 4px; line-height: 1.5;
   }
   .pyr-note b { color: var(--accent-dark); }
 
-  .rows .row { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+  .rows .row { display: block; overflow: hidden; margin: 0 0 14px; }
   .rows .row:last-child { margin-bottom: 0; }
   .rows .ic {
-    flex: none; width: 38px; height: 38px; border-radius: 10px;
+    float: left; width: 38px; height: 38px; border-radius: 10px; margin: 0 12px 0 0;
     background: var(--soft); color: var(--accent-dark);
     display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
   }
-  .rows .tx b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .rows .tx b { display: flex; align-items: flex-end; flex-wrap: wrap; min-height: 38px; font-size: 15.5px; margin-bottom: 2px; }
   .rows .tx span { font-size: 14.5px; color: var(--muted); }
   .rows .tx .step-n { color: var(--accent-dark); font-weight: 800; }
   .in-pill {
-    display: inline-block; background: #fff8ec; border: 1px solid #ecd9af; color: #6a531f;
-    font-size: 11.5px; font-weight: 700; padding: 0 7px; border-radius: 20px; margin-left: 6px;
-    text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle;
+    display: inline-block; background: #f9f3e0; border: 1px solid #d8dee5; color: #5c4814;
+    font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; margin-left: 6px;
+    vertical-align: middle;
   }
 
   .plans { display: flex; flex-direction: column; gap: 12px; }
@@ -102,9 +122,9 @@
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; gap: 12px;
   }
-  .plan.feature { border: 2px solid var(--accent); position: relative; }
+  .plan.feature { border: 2px solid #245fb0; position: relative; }
   .plan.feature .tag {
-    position: absolute; top: -10px; left: 16px; background: var(--accent); color: #fff;
+    position: absolute; top: -10px; left: 16px; background: #245fb0; color: #fff;
     font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
     padding: 2px 9px; border-radius: 20px;
   }
@@ -114,20 +134,27 @@
   .plan .price b { font-size: 19px; color: var(--accent-dark); }
   .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
 
-  .bonus { background: var(--soft); border: 1px solid #b9e3ea; border-radius: 12px; padding: 16px 18px; }
+  .bonus { background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #245fb0; border-radius: 12px; padding: 16px 18px; }
   .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
   .bonus .item:last-child { margin-bottom: 0; }
   .bonus .item .e { flex: none; font-size: 18px; }
-  .bonus .item b { font-size: 15px; }
-  .bonus .item p { margin: 2px 0 0; font-size: 14px; color: #3a4753; }
+  .bonus .item b { font-size: 15px; color: #5c4814; }
+  .bonus .item p { margin: 2px 0 0; font-size: 14px; color: #8a5a00; }
 
-  .step { display: flex; gap: 12px; margin: 0 0 12px; }
+  .step { display: block; overflow: hidden; margin: 0 0 12px; }
   .step .n {
-    flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff;
+    float: left; width: 28px; height: 28px; border-radius: 50%; margin: 0 12px 0 0; background: #245fb0; color: #fff;
     font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center;
   }
-  .step .c b { font-size: 15.5px; }
+  .step .c b { display: flex; align-items: flex-end; flex-wrap: wrap; min-height: 28px; font-size: 15.5px; }
   .step .c p { margin: 3px 0 0; font-size: 14.5px; color: #3a4753; }
+  .free-pill {
+    display: inline-block; background: #f9f3e0; border: 1px solid #d8dee5;
+    color: #5c4814 !important;
+    font: 700 12.5px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    text-transform: none !important; letter-spacing: normal !important;
+    padding: 1px 8px; border-radius: 20px; margin-left: 6px; vertical-align: middle;
+  }
 
   details.faq {
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
@@ -140,38 +167,47 @@
   details.faq summary::-webkit-details-marker { display: none; }
   details.faq summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
   details.faq[open] summary::after { content: "–"; }
-  details.faq .a { padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq .a { display: none; padding: 0 16px 15px; font-size: 14.5px; color: #3a4753; }
+  details.faq[open] .a { display: block; }
   details.faq .a p { margin: 0 0 8px; }
   details.faq .a p:last-child { margin-bottom: 0; }
+  details.faq-outer { background: var(--card); border: 1px solid var(--border); border-left: 5px solid #245fb0; border-radius: 12px; overflow: hidden; margin: 0 0 10px; }
+  details.faq-outer > summary { list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16.5px; color: #16324c; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  details.faq-outer > summary::-webkit-details-marker { display: none; }
+  details.faq-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
+  details.faq-outer[open] > summary::after { content: "\2212"; }
+  details.faq-outer .faq-outer-body { display: none; padding: 4px 12px 12px; }
+  details.faq-outer[open] .faq-outer-body { display: block; }
 
   .cta-box {
-    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%); color: #fff;
+    background: #245fb0; color: #fff;
     border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
   }
   .cta-box h2 { margin: 0 0 8px; font-size: 20px; color: #fff; }
   .cta-box p { margin: 0 0 18px; font-size: 15px; color: #fff; opacity: 0.95; }
   .cta-btn {
-    display: block; background: var(--accent-bright); color: var(--navy); text-decoration: none;
+    display: block; background: #129e90; color: #fff; text-decoration: none;
     font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 12px; margin: 0 0 10px;
   }
   .cta-btn:last-child { margin-bottom: 0; }
 
   footer { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 22px; padding: 0 14px; }
   .intro {
-    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
-    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #3a4753; line-height: 1.5;
+    background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #245fb0;
+    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #8a5a00; line-height: 1.5;
   }
   .intro p { margin: 0; }
-  .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
+  .intro b { color: #5c4814; }
+  .cert { color: #245fb0; border-bottom: 1px dotted #245fb0; cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
   .cert-pop {
     display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 155%; z-index: 30;
     width: max-content; max-width: min(290px, calc(100vw - 24px));
-    background: var(--navy); color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
+    background: #245fb0; color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
     text-align: left; white-space: normal; padding: 9px 12px; border-radius: 8px;
-    border: 1px solid var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    border: 1px solid #245fb0; box-shadow: 0 6px 18px rgba(0,0,0,.28);
   }
   .cert-pop::before { content: ""; position: absolute; left: calc(50% + var(--arrow-shift, 0px)); transform: translateX(-50%); bottom: 100%;
-    border: 6px solid transparent; border-bottom-color: var(--accent); }
+    border: 6px solid transparent; border-bottom-color: #245fb0; }
   .cert:hover .cert-pop, .cert:focus .cert-pop, .cert.open .cert-pop { display: block; }
   .cert-pop b { color: var(--gold); }
 </style>
@@ -196,34 +232,26 @@
     <h2>Подходът: гледаме цялото</h2>
     <p class="lead-in">Да си здрав, силен и във форма не зависи от едно нещо, а от няколко — подредени по важност. Това е картата:</p>
 
-    <div class="card">
-      <div class="pyr">
-        <div class="lvl l4"><b>😴 Възстановяване и сън</b><span>връх · фина настройка</span></div>
-        <div class="lvl l3"><b>🏋 Тренировки</b><span>сигналът за промяна</span></div>
-        <div class="lvl l2"><b>🍎 Хранене</b><span>горивото и материалът</span></div>
-        <div class="lvl l1"><b>🩺 Здраве и изследвания</b><span>основата на всичко</span></div>
-      </div>
-      <p class="pyr-note">Колкото по-надолу е етажът, толкова повече тежи за резултата. Правилото е едно: <b>не се качва на горен етаж, докато долният не е стабилен.</b> Затова всичко започва от здравето ти — а не от поредната добавка или модна диета.</p>
+    <div class="pyr">
+      <details class="lvl l4">
+        <summary><span class="emo">😴</span><span class="ttl"><b>Възстановяване и сън</b><span class="sub">връх · фина настройка</span></span></summary>
+        <div class="lvl-body">Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане. <span class="free-pill">включено</span></div>
+      </details>
+      <details class="lvl l3">
+        <summary><span class="emo">🏋</span><span class="ttl"><b>Тренировки</b><span class="sub">сигналът за промяна</span></span></summary>
+        <div class="lvl-body">Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</div>
+      </details>
+      <details class="lvl l2">
+        <summary><span class="emo">🍎</span><span class="ttl"><b>Хранене</b><span class="sub">горивото и материалът</span></span></summary>
+        <div class="lvl-body">По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</div>
+      </details>
+      <details class="lvl l1">
+        <summary><span class="emo">🩺</span><span class="ttl"><b>Здраве и изследвания</b><span class="sub">основата на всичко</span></span></summary>
+        <div class="lvl-body">Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</div>
+      </details>
     </div>
+    <p class="pyr-note">Колкото по-надолу е етажът, толкова повече тежи за резултата. Правилото е едно: <b>не се качва на горен етаж, докато долният не е стабилен.</b> Затова всичко започва от здравето ти — а не от поредната добавка или модна диета.</p>
 
-    <div class="card rows">
-      <div class="row">
-        <div class="ic">🩺</div>
-        <div class="tx"><b><span class="step-n">Етаж 1 · основата</span> — Здраве и изследвания</b><span>Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">🍎</div>
-        <div class="tx"><b><span class="step-n">Етаж 2</span> — Хранене</b><span>По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">🏋</div>
-        <div class="tx"><b><span class="step-n">Етаж 3</span> — Тренировки</b><span>Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">😴</div>
-        <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="in-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
-      </div>
-    </div>
   </div>
 
   <!-- ОСВЕН ТОВА -->
@@ -295,7 +323,7 @@
       </div>
       <div class="item">
         <span class="e">🍎</span>
-        <div><b>Анализ на реалното ти хранене ✓</b><p>Етаж 2. Вече го направи — точните ти калории, макроси, протеин и навици. В програмата продължава да се следи и обновява.</p></div>
+        <div><b>Анализ на реалното ти хранене</b><p>Етаж 2. През 15-дневен личен лог виждаш точните си калории, макроси, протеин и навици — реална картина, не предположение.</p></div>
       </div>
       <div class="item">
         <span class="e">🔬</span>
@@ -331,7 +359,7 @@
   <!-- КАК РАБОТИ -->
   <div class="sec">
     <h2>Как работи на практика</h2>
-    <div class="card">
+    <div class="card gold">
       <p>🔒 <b>Личен дневник.</b> Целият план, проследяването и връзката с треньора — на личен линк само за теб. Данните ти са видими само за теб.</p>
       <p>💳 <b>Предплащаш всеки месец</b> (60€ или 90€). Без договори, без неустойки.</p>
       <p>✋ <b>Отказваш когато искаш</b> — спреш ли да плащаш, просто спира.</p>
@@ -342,7 +370,7 @@
   <!-- ЦЕНИ НАКРАТКО -->
   <div class="sec">
     <h2>Цени накратко</h2>
-    <div class="card">
+    <div class="card gold">
       <p>💶 <b>1 раздел</b> (хранене <b>или</b> тренировки): 60€/месец (2€ на ден)</p>
       <p>💶 <b>2 раздела</b> (хранене <b>и</b> тренировки): 90€/месец (3€ на ден)</p>
       <p>🎁 Разчитане на кръвни + добавки + насоки за сън/възстановяване: <b>включени навсякъде</b></p>
@@ -351,9 +379,11 @@
 
   <!-- FAQ -->
   <div class="sec">
-    <h2>Често задавани въпроси</h2>
+    <details class="faq-outer">
+      <summary>Често задавани въпроси</summary>
+      <div class="faq-outer-body">
 
-    <details class="faq">
+<details class="faq">
       <summary>Защо подреждате нещата по пирамида?</summary>
       <div class="a"><p>Защото не всичко тежи еднакво. Количеството храна решава повече от тайминга; здравето решава повече от добавката. Пирамидата подрежда усилието по важност — оправяш първо това, което тежи най-много, и не губиш време по детайли, докато основата не е стабилна.</p></div>
     </details>
@@ -391,6 +421,9 @@
     <details class="faq">
       <summary>Мога ли да спра?</summary>
       <div class="a"><p>По всяко време. Плаща се предварително за месец; спреш ли да плащаш, просто спира. Без договори и неустойки.</p></div>
+    </details>
+
+      </div>
     </details>
   </div>
 
