@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>cdb-Gym — Въпросник</title>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --border: #d8dee5;
+    --hint: #8a96a3;
+    --soft: #eef4f1;
+    --c-health: #16324c;
+    --c-nutrition: #2e7d5b;
+    --c-training: #0f6e7e;
+    --c-sleep: #1597ad;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.5; padding: 0 0 40px;
+  }
+  header {
+    background: linear-gradient(160deg, #16324c 0%, #0f6e7e 100%);
+    color: #fff; padding: 24px 18px 20px; text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  fieldset {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; margin: 16px 0; padding: 14px 16px 18px;
+  }
+  legend {
+    float: left; width: 100%; margin: 0 0 12px; padding: 0;
+    font-weight: 700; font-size: 16px; color: var(--accent-dark);
+  }
+  fieldset > legend + * { clear: both; }
+  label.q { display: block; margin: 14px 0 6px; font-weight: 600; }
+  .hint { display: block; font-weight: 400; font-size: 13px; color: var(--hint); margin-top: 2px; }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%; padding: 11px 12px; font-size: 16px;
+    border: 1px solid var(--border); border-radius: 9px; background: #fff; color: var(--ink); font-family: inherit;
+  }
+  textarea { min-height: 60px; resize: vertical; }
+  .opts { margin-top: 6px; }
+  .opts label { display: flex; align-items: center; gap: 10px; padding: 9px 4px; font-weight: 400; cursor: pointer; }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: flex-end; }
+  .row2 > div { flex: 1; }
+  .reveal { display: none; margin: 4px 0 10px; padding: 4px 0 8px 12px; border-left: 3px solid var(--soft); }
+  .reveal.show { display: block; }
+  .reqnote {
+    display: none; margin-top: 10px; padding: 12px 14px; background: #fff4e5;
+    border: 1px solid #f0c891; border-radius: 10px; color: #8a5a00; font-size: 14px; line-height: 1.45;
+  }
+  .reqnote.show { display: block; }
+  .note { margin: 10px 0 0; padding: 11px 13px; background: var(--soft); border: 1px solid #cbe0d5; border-radius: 10px; font-size: 13.5px; color: var(--accent-dark); }
+
+  /* --- Акордеон секции (по пирамидата) --- */
+  details.sec { border: 1px solid var(--border); border-radius: 12px; margin: 14px 0; overflow: hidden; background: #fff; }
+  details.sec > summary {
+    list-style: none; cursor: pointer; padding: 15px 16px; color: #fff;
+    display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16.5px;
+  }
+  details.sec > summary::-webkit-details-marker { display: none; }
+  details.sec > summary .emo { font-size: 19px; flex: none; }
+  details.sec > summary .ttl { display: flex; flex-direction: column; }
+  details.sec > summary .ttl .sub { font-weight: 400; font-size: 12.5px; opacity: 0.92; margin-top: 1px; }
+  details.sec > summary .done {
+    margin-left: auto; font-size: 12.5px; font-weight: 700; background: rgba(255,255,255,.25);
+    border-radius: 20px; padding: 2px 9px; display: none;
+  }
+  details.sec.filled > summary .done { display: inline-block; }
+  details.sec > summary .chev { font-size: 22px; font-weight: 700; flex: none; }
+  details.sec:not(.filled) > summary .chev { margin-left: auto; }
+  details.sec[open] > summary .chev::after { content: "–"; }
+  details.sec:not([open]) > summary .chev::after { content: "+"; }
+  .sec.health > summary { background: var(--c-health); }
+  .sec.nutrition > summary { background: var(--c-nutrition); }
+  .sec.training > summary { background: var(--c-training); }
+  .sec.sleep > summary { background: var(--c-sleep); }
+  details.sec .sec-body { padding: 6px 16px 16px; }
+  details.sec .sec-body .first { margin-top: 8px; }
+
+  .consent {
+    display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--ink);
+    margin: 16px 0 4px; padding: 11px 13px; background: #fff; border: 1px solid var(--border); border-radius: 10px; font-weight: 400;
+  }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .actions {
+    position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 22%);
+    padding: 18px 14px 8px; max-width: 640px; margin: 0 auto;
+  }
+  button {
+    width: 100%; padding: 16px; font-size: 18px; font-weight: 700; color: #fff;
+    background: var(--accent); border: none; border-radius: 12px; cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  .ok {
+    display: none; margin-top: 12px; padding: 12px 14px; background: #e6f4ec;
+    border: 1px solid #b7dcc6; border-radius: 10px; color: var(--accent-dark); font-size: 15px; text-align: center;
+  }
+  .ok.show { display: block; }
+  #outBox {
+    display: none; margin-top: 12px; width: 100%; min-height: 170px; font-size: 13px;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; white-space: pre;
+  }
+  #outBox.show { display: block; }
+  .intro {
+    background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 14px 16px; margin: 16px 0; font-size: 15px; color: var(--muted);
+  }
+  .intro b { color: var(--ink); }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>cdb-Gym — Въпросник</h1>
+    <p>Една форма · попълваш каквото те засяга</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="intro">
+    Това е всичко на едно място — няма втора форма, няма връщане. Отгоре са <b>основните данни</b> (попълва ги всеки),
+    а отдолу има <b>четири секции по избор</b>: здраве, хранене, тренировки, сън. <b>Отваряш и попълваш само това, което те засяга</b> —
+    другото го прескачаш. Колкото по-точно, толкова по-точен е планът; където не знаеш — остави празно.
+    Накрая се натиска <b>„Изпрати"</b>; може и непълно — каквото си попълнил(а) се записва сигурно.
+    <br><br>Снимки на епикризи и изследвания се изпращат <b>по Viber на треньора</b> — тук само се описват накратко.
+  </div>
+
+  <form id="form">
+
+    <!-- ================= ЯДРО ================= -->
+    <fieldset>
+      <legend>Какво търсиш и каква е целта</legend>
+
+      <label class="q">Какво искаш да получиш?
+        <span class="hint">Услугата, която търсиш. Може повече от едно. Това отваря подходящите секции по-долу (но всичко остава достъпно).</span>
+      </label>
+      <div class="opts" data-check="izhod" id="izhodGroup">
+        <label><input type="checkbox" value="Хранителен режим"> Хранителен режим</label>
+        <label><input type="checkbox" value="Тренировъчна програма"> Тренировъчна програма</label>
+        <label><input type="checkbox" value="Препоръка за добавки"> Препоръка за добавки</label>
+        <label><input type="checkbox" value="Цялостен подход"> Цялостен подход (всичко)</label>
+        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — преценете вие</label>
+      </div>
+
+      <label class="q">Каква е целта ти?</label>
+      <div class="opts" data-radio="cel">
+        <label><input type="radio" name="cel" value="Сваляне на килограми"> Сваляне на килограми</label>
+        <label><input type="radio" name="cel" value="Форма и тонус"> Форма и тонус</label>
+        <label><input type="radio" name="cel" value="Качване на мускулна маса"> Качване на мускулна маса</label>
+        <label><input type="radio" name="cel" value="Изчистване (рекомпозиция)"> Изчистване (рекомпозиция)</label>
+        <label><input type="radio" name="cel" value="Повече сила"> Повече сила</label>
+        <label><input type="radio" name="cel" value="Здраве и енергия"> Здраве и енергия</label>
+        <label><input type="radio" name="cel" value="Друго"> Друго</label>
+      </div>
+
+      <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
+      <textarea id="motivaciya"></textarea>
+
+      <label class="q">Пробвала ли си нещо преди, което не сработи? (по желание)
+        <span class="hint">Ако не — напиши „не".</span>
+      </label>
+      <textarea id="minal_opit"></textarea>
+
+      <label class="q">Колко стриктно реално очакваш да спазваш? (1–10) (по желание)
+        <span class="hint">Честно — помага планът да е реалистичен. 1 = трудно ще е, 10 = много стриктно.</span>
+      </label>
+      <input type="number" id="adherence" inputmode="numeric" min="1" max="10">
+
+      <label class="q">Какво ти е пречело преди да спазваш режим? (по желание)
+        <span class="hint">Напр. време, работа/смени, глад, мотивация, пътувания, семейство.</span>
+      </label>
+      <input type="text" id="barieri">
+    </fieldset>
+
+    <fieldset>
+      <legend>Основни данни</legend>
+
+      <label class="q">Име <span style="color:var(--accent-dark);font-weight:700;">— нужно</span>
+        <span class="hint">За да се свържат данните ти.</span>
+      </label>
+      <input type="text" id="ime">
+      <div class="reqnote" id="imeReq">Нужно е името, за да се свържат данните. Попълни го, моля.</div>
+
+      <label class="q">Пол</label>
+      <div class="opts" data-radio="pol" id="polGroup">
+        <label><input type="radio" name="pol" value="Жена"> Жена</label>
+        <label><input type="radio" name="pol" value="Мъж"> Мъж</label>
+      </div>
+
+      <div class="reveal" id="zheniBlok">
+        <label class="q">Цикъл (мензис)?
+          <span class="hint">Хормоните влияят силно на теглото и енергията — затова е важно за точния план.</span>
+        </label>
+        <div class="opts" data-radio="cikyl">
+          <label><input type="radio" name="cikyl" value="Редовен"> Редовен</label>
+          <label><input type="radio" name="cikyl" value="Нередовен"> Нередовен</label>
+          <label><input type="radio" name="cikyl" value="Спрял (менопауза)"> Спрял (менопауза)</label>
+          <label><input type="radio" name="cikyl" value="Не съм сигурна"> Не съм сигурна</label>
+        </div>
+        <label class="q">Симптоми на перименопауза/менопауза?
+          <span class="hint">Напр. горещи вълни, нощно изпотяване, промени в настроението/съня.</span>
+        </label>
+        <div class="opts" data-radio="menopauza">
+          <label><input type="radio" name="menopauza" value="Да"> Да</label>
+          <label><input type="radio" name="menopauza" value="Не"> Не</label>
+          <label><input type="radio" name="menopauza" value="Не знам"> Не знам</label>
+        </div>
+        <label class="q">Бременна си, кърмиш или планираш бременност?
+          <span class="hint">Важно за безопасността на режима и добавките.</span>
+        </label>
+        <div class="opts" data-radio="bremennost">
+          <label><input type="radio" name="bremennost" value="Не"> Не</label>
+          <label><input type="radio" name="bremennost" value="Бременна"> Бременна</label>
+          <label><input type="radio" name="bremennost" value="Кърмя"> Кърмя</label>
+          <label><input type="radio" name="bremennost" value="Планирам"> Планирам</label>
+        </div>
+        <label class="q">Хормонална терапия или контрацепция? (по желание)
+          <span class="hint">Кои — напр. противозачатъчни, хормонозаместителна терапия. Ако няма — остави празно.</span>
+        </label>
+        <input type="text" id="hormonalna">
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="q">Година на раждане <span class="hint">Само годината, напр. 1968.</span></label>
+          <input type="number" id="godina_razhdane" inputmode="numeric">
+        </div>
+        <div>
+          <label class="q">Височина (см)</label>
+          <input type="number" id="visochina" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="q">Тегло сега (кг)</label>
+          <input type="number" id="teglo" inputmode="decimal">
+        </div>
+        <div>
+          <label class="q">Желано тегло (кг)
+            <span class="hint">Килограмите, които искаш да бъдеш. Дори да е същото — пак е отправна точка. Нужно при хранителен режим.</span>
+          </label>
+          <input type="number" id="zhelano_teglo" inputmode="decimal">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label class="q">Талия (см) <span class="hint">На най-тясното, около пъпа.</span></label>
+          <input type="number" id="taliya" inputmode="numeric">
+        </div>
+        <div>
+          <label class="q">Ханш (см) <span class="hint">На най-широкото на седалището.</span></label>
+          <input type="number" id="hansh" inputmode="numeric">
+        </div>
+      </div>
+
+      <label class="q">Теглото ти напоследък?</label>
+      <div class="opts" data-radio="teglo_trend">
+        <label><input type="radio" name="teglo_trend" value="Качва"> Качва се</label>
+        <label><input type="radio" name="teglo_trend" value="Пада"> Пада</label>
+        <label><input type="radio" name="teglo_trend" value="Стабилно"> Стабилно</label>
+      </div>
+
+      <label class="q">Откога и какво се промени тогава? (по желание)
+        <span class="hint">Напр. „от година — нови лекарства" · „след раждане" · „смяна на работа/смени" · „стрес".</span>
+      </label>
+      <input type="text" id="teglo_promyana">
+    </fieldset>
+
+    <fieldset>
+      <legend>Ежедневие и активност</legend>
+
+      <label class="q">Как изглежда работата/ежедневието ти?
+        <span class="hint">Колкото повече се движи тялото през деня извън тренировка, толкова повече енергия гори.</span>
+      </label>
+      <div class="opts" data-radio="rabota">
+        <label><input type="radio" name="rabota" value="Предимно седящо"> Предимно седящо (бюро, шофиране)</label>
+        <label><input type="radio" name="rabota" value="На крак, в движение"> На крак, в движение</label>
+        <label><input type="radio" name="rabota" value="Тежък физически труд"> Тежък физически труд</label>
+        <label><input type="radio" name="rabota" value="Смесено"> Смесено</label>
+      </div>
+
+      <label class="q">Работиш ли на смени или променлив график?
+        <span class="hint">Напр. 12-часови смени, ротация ден/нощ. Това мести храненето, тренировките и съня.</span>
+      </label>
+      <div class="opts" data-radio="smeni" id="smeniGroup">
+        <label><input type="radio" name="smeni" value="Не"> Не — горе-долу еднакво всеки ден</label>
+        <label><input type="radio" name="smeni" value="Да"> Да — на смени / променливо</label>
+      </div>
+      <div class="reveal" id="smeniDetails">
+        <label class="q">Какви смени и как се редуват?
+          <span class="hint">Напр. „12ч: ден 08–20, после нощ 20–08, после 2 почивки".</span>
+        </label>
+        <input type="text" id="smeni_cikyl">
+        <label class="q">Кога спиш и кога можеш да тренираш на всеки тип ден?
+          <span class="hint">Накратко по тип ден — будене, сън, кога би тренирал(а).</span>
+        </label>
+        <textarea id="smeni_ritym"></textarea>
+      </div>
+
+      <label class="q">Колко часа на ден прекарваш на крак / в движение?
+        <span class="hint">Включи работа, домакинство, разходки — всичко извън седене и лежане.</span>
+      </label>
+      <div class="opts" data-radio="na_krak">
+        <label><input type="radio" name="na_krak" value="Под 2 часа"> Под 2 часа</label>
+        <label><input type="radio" name="na_krak" value="2–5 часа"> 2–5 часа</label>
+        <label><input type="radio" name="na_krak" value="5–8 часа"> 5–8 часа</label>
+        <label><input type="radio" name="na_krak" value="Над 8 часа"> Над 8 часа</label>
+      </div>
+
+      <label class="q">Колко се движиш през деня (крачки)?
+        <span class="hint">Приблизително. Ако имаш точно число — попълни го отдолу.</span>
+      </label>
+      <div class="opts" data-radio="dvizhenie">
+        <label><input type="radio" name="dvizhenie" value="Малко (под 4000 крачки)"> Малко (под 4000 крачки)</label>
+        <label><input type="radio" name="dvizhenie" value="Средно (4000–8000)"> Средно (4000–8000)</label>
+        <label><input type="radio" name="dvizhenie" value="Много (8000–12000)"> Много (8000–12000)</label>
+        <label><input type="radio" name="dvizhenie" value="Много високо (над 12000)"> Много високо (над 12000)</label>
+      </div>
+
+      <label class="q">Точен брой крачки на ден (по желание)
+        <span class="hint">Ако имаш смарт часовник/гривна или приложение за здраве — виж средната стойност и я напиши.</span>
+      </label>
+      <input type="number" id="krachki_tochno" inputmode="numeric">
+
+      <label class="q">Друга редовна физическа активност извън залата? (по желание)
+        <span class="hint">Разходки, колоездене, градина, грижа за деца. Ако няма — остави празно.</span>
+      </label>
+      <textarea id="druga_aktivnost"></textarea>
+
+      <label class="q">Колко често прекъсваш режима/тренировките?
+        <span class="hint">Заради пътувания, семейство, работа. Помага планът да е гъвкав.</span>
+      </label>
+      <div class="opts" data-radio="prekysvaniya">
+        <label><input type="radio" name="prekysvaniya" value="Рядко"> Рядко</label>
+        <label><input type="radio" name="prekysvaniya" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="prekysvaniya" value="Често"> Често</label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Навици</legend>
+      <label class="q">Пушиш ли?</label>
+      <div class="opts" data-radio="pushene">
+        <label><input type="radio" name="pushene" value="Не"> Не</label>
+        <label><input type="radio" name="pushene" value="Понякога"> Понякога</label>
+        <label><input type="radio" name="pushene" value="Редовно"> Редовно</label>
+      </div>
+      <label class="q">Алкохол?</label>
+      <div class="opts" data-radio="alkohol">
+        <label><input type="radio" name="alkohol" value="Не"> Не</label>
+        <label><input type="radio" name="alkohol" value="Рядко (по празници)"> Рядко (по празници)</label>
+        <label><input type="radio" name="alkohol" value="Седмично"> Седмично</label>
+        <label><input type="radio" name="alkohol" value="Често"> Често</label>
+      </div>
+      <label class="q">Газирани или сладки напитки?</label>
+      <div class="opts" data-radio="gazirani">
+        <label><input type="radio" name="gazirani" value="Не"> Не</label>
+        <label><input type="radio" name="gazirani" value="Рядко"> Рядко</label>
+        <label><input type="radio" name="gazirani" value="Няколко пъти седмично"> Няколко пъти седмично</label>
+        <label><input type="radio" name="gazirani" value="Всеки ден"> Всеки ден</label>
+      </div>
+      <label class="q">Кафе?</label>
+      <div class="opts" data-radio="kafe">
+        <label><input type="radio" name="kafe" value="Не"> Не</label>
+        <label><input type="radio" name="kafe" value="1–2 на ден"> 1–2 на ден</label>
+        <label><input type="radio" name="kafe" value="3 или повече"> 3 или повече</label>
+      </div>
+    </fieldset>
+
+    <p class="hint" style="margin:22px 2px 6px;font-size:14px;color:var(--accent-dark);font-weight:700;">
+      Отвори и попълни секциите, които те засягат ↓
+    </p>
+
+    <!-- ================= 🩺 ЗДРАВЕ ================= -->
+    <details class="sec health" data-sec="health">
+      <summary><span class="emo">🩺</span><span class="ttl">Здраве<span class="sub">кръвни, лекарства, контузии — основата</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+      <div class="sec-body">
+        <p class="hint first">Отбележи областите, които те засягат — под всяка ще се появят няколко въпроса. Попълва се само каквото важи.</p>
+        <div id="areasBox"></div>
+
+        <label class="q">Друго състояние или заболяване, което не е в списъка? (по желание)
+          <span class="hint">Само го назови. Ако няма — остави празно.</span>
+        </label>
+        <input type="text" id="drugo_sastoyanie">
+
+        <label class="q">Приемаш ли нещо от изброеното? (отметни класовете)
+          <span class="hint">Лекарствата често влияят на теглото, апетита и енергията. Отметни класовете, после опиши имената отдолу.</span>
+        </label>
+        <div class="opts" data-check="lek_klas">
+          <label><input type="checkbox" value="Психиатрични / за нерви"> Психиатрични / за нерви</label>
+          <label><input type="checkbox" value="Щитовидна жлеза"> За щитовидната жлеза</label>
+          <label><input type="checkbox" value="Кръвно / сърце"> За кръвно / сърце</label>
+          <label><input type="checkbox" value="Хормонални / контрацепция"> Хормонални / противозачатъчни</label>
+          <label><input type="checkbox" value="Кортикостероиди"> Кортикостероиди (кортизон)</label>
+          <label><input type="checkbox" value="За холестерол (статини)"> За холестерол (статини)</label>
+          <label><input type="checkbox" value="За захар / диабет"> За захар / диабет</label>
+          <label><input type="checkbox" value="Стомашно"> Стомашно (киселини и др.)</label>
+          <label><input type="checkbox" value="Друго"> Друго</label>
+        </div>
+
+        <label class="q">Влияе ли някое лекарство на теглото, апетита или енергията ти? (по желание)</label>
+        <input type="text" id="lek_vliyanie">
+
+        <label class="q">Какви лекарства приемаш в момента?
+          <span class="hint">Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин"). Ако няма — „няма".</span>
+        </label>
+        <textarea id="lekarstva"></textarea>
+
+        <label class="q">Какви добавки или витамини пиеш в момента?
+          <span class="hint">Напр. „витамин D, магнезий, омега-3". Ако нищо — „няма".</span>
+        </label>
+        <textarea id="dobavki"></textarea>
+
+        <label class="q">Работата ти натоварва ли тялото по специфичен начин? (по желание)
+          <span class="hint">Повтарящи движения, дълго стоене в една поза, вдигане на тежко, вибрации.</span>
+        </label>
+        <input type="text" id="prof_natovarvane">
+
+        <label class="q">Има ли още нещо за здравето ти, което е добре да се знае? (по желание)</label>
+        <textarea id="drugo_vazhno"></textarea>
+
+        <label class="q" style="margin-top:16px;">Документи (епикризи, изследвания)</label>
+        <p class="hint" style="margin:0 0 4px">Изпрати ги като снимки <b>по Viber на треньора</b> — не се качват тук (остават поверителни).</p>
+        <div class="opts">
+          <label><input type="checkbox" id="docs_viber"> Ще изпратя епикризи/изследвания по Viber</label>
+        </div>
+      </div>
+    </details>
+
+    <!-- ================= 🍎 ХРАНЕНЕ ================= -->
+    <details class="sec nutrition" data-sec="nutrition">
+      <summary><span class="emo">🍎</span><span class="ttl">Хранене<span class="sub">как се храниш сега и какво предпочиташ</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+      <div class="sec-body">
+
+        <label class="q first">Как се храниш?</label>
+        <div class="opts" data-radio="tip_hranene" id="tipGroup">
+          <label><input type="radio" name="tip_hranene" value="Всеяден"> Всеяден (всичко)</label>
+          <label><input type="radio" name="tip_hranene" value="Вегетарианец"> Вегетарианец (без месо/риба)</label>
+          <label><input type="radio" name="tip_hranene" value="Веган"> Веган (само растително)</label>
+          <label><input type="radio" name="tip_hranene" value="Пескетарианец"> Пескетарианец (риба, без месо)</label>
+          <label><input type="radio" name="tip_hranene" value="Смесено по дни"> Смесено по дни</label>
+          <label><input type="radio" name="tip_hranene" value="Друго"> Друго</label>
+        </div>
+        <div class="reveal" id="tipReveal">
+          <label class="q">Опиши накратко
+            <span class="hint">Напр. „веган 2 дни (ср/пт), останалите с животински продукти".</span>
+          </label>
+          <input type="text" id="tip_opis">
+        </div>
+
+        <label class="q">Храни, които НЕ ядеш или избягваш
+          <span class="hint">По вкус, принцип или непоносимост. (Сериозните алергии — в секция Здраве.) Ако няма — „няма".</span>
+        </label>
+        <textarea id="izklyucheni"></textarea>
+
+        <label class="q">Имаш ли хранителна непоносимост?
+          <span class="hint">Различно от алергия — напр. подуване от определени храни.</span>
+        </label>
+        <div class="opts" data-check="neponosimost">
+          <label><input type="checkbox" value="Лактоза (млечно)"> Лактоза (млечно)</label>
+          <label><input type="checkbox" value="Глутен (пшеница)"> Глутен (пшеница)</label>
+          <label><input type="checkbox" value="Друго"> Друго</label>
+        </div>
+
+        <label class="q">Кои източници на протеин харесваш?</label>
+        <div class="opts" data-check="proteini">
+          <label><input type="checkbox" value="Пилешко/пуешко"> Пилешко / пуешко</label>
+          <label><input type="checkbox" value="Червено месо"> Червено месо</label>
+          <label><input type="checkbox" value="Риба/морски"> Риба / морски дарове</label>
+          <label><input type="checkbox" value="Яйца"> Яйца</label>
+          <label><input type="checkbox" value="Млечни"> Млечни (извара, скир, сирене)</label>
+          <label><input type="checkbox" value="Растителни (бобови, тофу)"> Растителни (бобови, тофу, темпе)</label>
+          <label><input type="checkbox" value="Протеин на прах"> Протеин на прах / шейкове</label>
+        </div>
+
+        <label class="q">Колко пъти на ден се храниш?</label>
+        <div class="opts" data-radio="hranenia_broy">
+          <label><input type="radio" name="hranenia_broy" value="1–2"> 1–2 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="3"> 3 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="4–5"> 4–5 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="Без режим"> Без режим (когато се случи)</label>
+        </div>
+
+        <label class="q">Закусваш ли?</label>
+        <div class="opts" data-radio="zakuska">
+          <label><input type="radio" name="zakuska" value="Да"> Да</label>
+          <label><input type="radio" name="zakuska" value="Не"> Не</label>
+          <label><input type="radio" name="zakuska" value="Понякога"> Понякога</label>
+        </div>
+
+        <label class="q">В кои часове се храниш обикновено?
+          <span class="hint">Напр. „8:00, 13:00, 20:00".</span>
+        </label>
+        <input type="text" id="chasove">
+
+        <label class="q">Храненето ти различно ли е на различни дни?
+          <span class="hint">При смени, тренировъчни и почивни дни. Ако да — режимът ще е по тип ден.</span>
+        </label>
+        <div class="opts" data-radio="hr_po_dni" id="hrPoDniGroup">
+          <label><input type="radio" name="hr_po_dni" value="Горе-долу еднакво"> Горе-долу еднакво всеки ден</label>
+          <label><input type="radio" name="hr_po_dni" value="Различно"> Различно (смени/трен/почивка)</label>
+        </div>
+        <div class="reveal" id="hrPoDniReveal">
+          <label class="q">Опиши накратко по тип ден</label>
+          <textarea id="hr_po_dni_opis"></textarea>
+        </div>
+
+        <label class="q">Прескачаш ли хранения или имаш дълги паузи без храна?</label>
+        <div class="opts" data-radio="preskacha" id="preskachaGroup">
+          <label><input type="radio" name="preskacha" value="Да"> Да</label>
+          <label><input type="radio" name="preskacha" value="Не"> Не</label>
+        </div>
+        <div class="reveal" id="preskachaReveal">
+          <label class="q">Кога и защо?</label>
+          <input type="text" id="preskacha_opis">
+        </div>
+
+        <label class="q">Какво хапваш между храненията? (по желание)
+          <span class="hint">Снакове, плодове, ядки, сладко… Ако нищо — остави празно.</span>
+        </label>
+        <input type="text" id="snaks">
+
+        <label class="q" style="margin-top:16px;">Типичен ден — какво ядеш обикновено
+          <span class="hint">Накратко, с твои думи. Показва откъде тръгваме.</span>
+        </label>
+        <label class="q">Закуска</label>
+        <input type="text" id="den_zakuska">
+        <label class="q">Обяд</label>
+        <input type="text" id="den_obyad">
+        <label class="q">Вечеря</label>
+        <input type="text" id="den_vecherya">
+        <label class="q">Между / друго през деня</label>
+        <input type="text" id="den_mezhdu">
+
+        <label class="q" style="margin-top:16px;">Кой готви / откъде е храната?</label>
+        <div class="opts" data-radio="gotvene">
+          <label><input type="radio" name="gotvene" value="Готвя си сам"> Готвя си сам/сама</label>
+          <label><input type="radio" name="gotvene" value="Вкъщи готвят"> Вкъщи готвят</label>
+          <label><input type="radio" name="gotvene" value="Външна/готова храна"> Външна / готова храна</label>
+          <label><input type="radio" name="gotvene" value="Смесено"> Смесено</label>
+        </div>
+
+        <label class="q">Колко време имаш за готвене?</label>
+        <div class="opts" data-radio="vreme_gotvene">
+          <label><input type="radio" name="vreme_gotvene" value="Малко"> Малко (бързи неща)</label>
+          <label><input type="radio" name="vreme_gotvene" value="Средно"> Средно</label>
+          <label><input type="radio" name="vreme_gotvene" value="Имам време"> Имам време</label>
+        </div>
+
+        <label class="q">Разнообразие в храната?
+          <span class="hint">Едно и също всеки ден (по-лесно за спазване) или разнообразие?</span>
+        </label>
+        <div class="opts" data-radio="raznoobrazie">
+          <label><input type="radio" name="raznoobrazie" value="Може едно и също всеки ден"> Може едно и също всеки ден</label>
+          <label><input type="radio" name="raznoobrazie" value="Искам разнообразие"> Искам разнообразие</label>
+          <label><input type="radio" name="raznoobrazie" value="Без значение"> Без значение</label>
+        </div>
+
+        <label class="q" style="margin-top:16px;">Какъв е гладът ти през деня?</label>
+        <div class="opts" data-radio="glad">
+          <label><input type="radio" name="glad" value="Слаб"> Слаб (ям без особен апетит)</label>
+          <label><input type="radio" name="glad" value="Нормален"> Нормален</label>
+          <label><input type="radio" name="glad" value="Силен/постоянен"> Силен / постоянен</label>
+        </div>
+        <label class="q">Кога гладът е най-силен? (по желание)
+          <span class="hint">Напр. „вечер", „следобед".</span>
+        </label>
+        <input type="text" id="glad_koga">
+        <label class="q">Желание за сладко?</label>
+        <div class="opts" data-radio="sladko">
+          <label><input type="radio" name="sladko" value="Не"> Почти не</label>
+          <label><input type="radio" name="sladko" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="sladko" value="Силно/редовно"> Силно / редовно</label>
+        </div>
+        <label class="q">Хапване вечер или през нощта?</label>
+        <div class="opts" data-radio="vecher_hapvane">
+          <label><input type="radio" name="vecher_hapvane" value="Не"> Не</label>
+          <label><input type="radio" name="vecher_hapvane" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="vecher_hapvane" value="Често"> Често</label>
+        </div>
+        <label class="q">Ядеш ли при стрес, скука или емоция?</label>
+        <div class="opts" data-radio="emo_hapvane">
+          <label><input type="radio" name="emo_hapvane" value="Не"> Не</label>
+          <label><input type="radio" name="emo_hapvane" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="emo_hapvane" value="Често"> Често</label>
+        </div>
+
+        <label class="q" style="margin-top:16px;">Колко вода пиеш на ден?
+          <span class="hint">Приблизително — чиста вода (не кафе/чай).</span>
+        </label>
+        <div class="opts" data-radio="voda">
+          <label><input type="radio" name="voda" value="Под 1 л"> Под 1 литър</label>
+          <label><input type="radio" name="voda" value="1–2 л"> 1–2 литра</label>
+          <label><input type="radio" name="voda" value="2–3 л"> 2–3 литра</label>
+          <label><input type="radio" name="voda" value="Над 3 л"> Над 3 литра</label>
+        </div>
+        <label class="q">Има ли храни, които задължително искаш да присъстват? (по желание)</label>
+        <input type="text" id="zadalzhitelni">
+        <label class="q">Нещо друго за храненето ти? (по желание)</label>
+        <textarea id="drugo_hrana"></textarea>
+      </div>
+    </details>
+
+    <!-- ================= 🏋 ТРЕНИРОВКИ ================= -->
+    <details class="sec training" data-sec="training">
+      <summary><span class="emo">🏋</span><span class="ttl">Тренировки<span class="sub">опит, оборудване, какво искаш от програмата</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+      <div class="sec-body">
+
+        <label class="q first">В момента тренираш ли?</label>
+        <div class="opts" data-radio="trenira" id="treniraGroup">
+          <label><input type="radio" name="trenira" value="Да"> Да</label>
+          <label><input type="radio" name="trenira" value="Не"> Не</label>
+        </div>
+        <div class="reveal" id="treniraDetails">
+          <label class="q">Кои дни тренираш сега?</label>
+          <div class="opts" data-check="dni">
+            <label><input type="checkbox" value="Пн"> Понеделник</label>
+            <label><input type="checkbox" value="Вт"> Вторник</label>
+            <label><input type="checkbox" value="Ср"> Сряда</label>
+            <label><input type="checkbox" value="Чт"> Четвъртък</label>
+            <label><input type="checkbox" value="Пт"> Петък</label>
+            <label><input type="checkbox" value="Сб"> Събота</label>
+            <label><input type="checkbox" value="Нд"> Неделя</label>
+          </div>
+          <div class="row2">
+            <div><label class="q">Минути <span class="hint">Напр. 60.</span></label><input type="number" id="vreme_min" inputmode="numeric"></div>
+            <div><label class="q">В колко часа? <span class="hint">Напр. 18.</span></label><input type="number" id="chas" inputmode="numeric"></div>
+          </div>
+          <label class="q">Къде и какво?
+            <span class="hint">Напр. „в зала, машини" или „вкъщи, със собствено тегло".</span>
+          </label>
+          <input type="text" id="kade_kakvo">
+        </div>
+
+        <label class="q">От колко време тренираш с тежести/съпротивление?</label>
+        <div class="opts" data-radio="staj" id="stajGroup">
+          <label><input type="radio" name="staj" value="Не съм тренирал досега"> Не съм тренирал(а) досега</label>
+          <label><input type="radio" name="staj" value="Под 6 месеца"> Под 6 месеца</label>
+          <label><input type="radio" name="staj" value="6 месеца – 2 години"> 6 месеца – 2 години</label>
+          <label><input type="radio" name="staj" value="2 – 5 години"> 2 – 5 години</label>
+          <label><input type="radio" name="staj" value="Над 5 години"> Над 5 години</label>
+        </div>
+        <div class="reveal" id="stajReveal">
+          <label class="q">Как изглежда тренировката ти сега?
+            <span class="hint">Сплит, серии на мускул седмично, методи. За да продължим от реалното ти ниво.</span>
+          </label>
+          <textarea id="staj_sega"></textarea>
+          <label class="q">Текущи ориентири на основните движения? (по желание)
+            <span class="hint">Колко вдигаш (клек/лежанка/тяга) или с колко повторения.</span>
+          </label>
+          <input type="text" id="staj_orientiri">
+        </div>
+
+        <label class="q">Кои движения познаваш и изпълняваш уверено?</label>
+        <div class="opts" data-check="dvizhenia">
+          <label><input type="checkbox" value="Клякане"> Клякане (клек)</label>
+          <label><input type="checkbox" value="Напади"> Напади</label>
+          <label><input type="checkbox" value="Преса от лег"> Преса от лег (лежанка)</label>
+          <label><input type="checkbox" value="Набиране/издърпване"> Набиране / издърпване</label>
+          <label><input type="checkbox" value="Мъртва тяга"> Мъртва тяга</label>
+          <label><input type="checkbox" value="Раменна преса"> Раменна преса (над глава)</label>
+          <label><input type="checkbox" value="Нищо от изброеното"> Нищо от изброеното</label>
+        </div>
+
+        <label class="q">Тренирал(а) ли си по програма досега?</label>
+        <div class="opts" data-radio="s_programa" id="programaGroup">
+          <label><input type="radio" name="s_programa" value="Да"> Да</label>
+          <label><input type="radio" name="s_programa" value="Не"> Не</label>
+        </div>
+        <div class="reveal" id="programaReveal">
+          <label class="q">Каква и как мина?</label>
+          <input type="text" id="s_programa_opis">
+        </div>
+
+        <label class="q" style="margin-top:16px;">Какво искаш да постигне програмата?</label>
+        <div class="opts" data-radio="cel_programa" id="celGroup">
+          <label><input type="radio" name="cel_programa" value="Мускулна маса"> Мускулна маса</label>
+          <label><input type="radio" name="cel_programa" value="Сила"> Сила</label>
+          <label><input type="radio" name="cel_programa" value="Издръжливост и кондиция"> Издръжливост и кондиция</label>
+          <label><input type="radio" name="cel_programa" value="Обща форма и тонус"> Обща форма и тонус</label>
+          <label><input type="radio" name="cel_programa" value="Подвижност и функция"> Подвижност и функция (без болки)</label>
+          <label><input type="radio" name="cel_programa" value="Спортно-специфично"> Спортно-специфично</label>
+          <label><input type="radio" name="cel_programa" value="Друго"> Друго</label>
+        </div>
+        <div class="reveal" id="silaReveal">
+          <label class="q">Ориентир на силата (по желание)
+            <span class="hint">Колко вдигаш на основните движения, или с колко повторения.</span>
+          </label>
+          <input type="text" id="sila_orientir">
+        </div>
+        <div class="reveal" id="sportReveal">
+          <label class="q">Кой спорт, на какво ниво и в кой сезон си?
+            <span class="hint">Напр. „футбол, аматьорска лига, предсезон".</span>
+          </label>
+          <input type="text" id="sport_detail">
+        </div>
+        <label class="q">С две думи — нещо конкретно? (по желание)
+          <span class="hint">Напр. „да вдигам по-тежко", „да изправя стойката", „за плажа".</span>
+        </label>
+        <input type="text" id="cel_programa_opis">
+
+        <label class="q" style="margin-top:16px;">Къде ще тренираш предимно?</label>
+        <div class="opts" data-radio="kade">
+          <label><input type="radio" name="kade" value="Във фитнес зала"> Във фитнес зала</label>
+          <label><input type="radio" name="kade" value="Вкъщи"> Вкъщи</label>
+          <label><input type="radio" name="kade" value="Фитнес площадка (парк/улица)"> Фитнес площадка (парк/улица)</label>
+          <label><input type="radio" name="kade" value="Смесено"> Смесено</label>
+        </div>
+        <label class="q">Какво оборудване имаш на разположение?</label>
+        <div class="opts" data-check="oborudvane">
+          <label><input type="checkbox" value="Пълна фитнес зала"> Пълна фитнес зала</label>
+          <label><input type="checkbox" value="Щанга и дискове"> Щанга и дискове</label>
+          <label><input type="checkbox" value="Дъмбели/гири"> Дъмбели / гири</label>
+          <label><input type="checkbox" value="Кетълбели"> Кетълбели</label>
+          <label><input type="checkbox" value="Ластици"> Ластици</label>
+          <label><input type="checkbox" value="Лост за набиране"> Лост за набиране</label>
+          <label><input type="checkbox" value="Фитнес площадка (лостове/успоредки)"> Фитнес площадка (лостове, успоредки)</label>
+          <label><input type="checkbox" value="Кардио уреди"> Кардио уреди (пътека, велоергометър и др.)</label>
+          <label><input type="checkbox" value="Само собствено тегло"> Само собствено тегло</label>
+        </div>
+        <label class="q">Друго оборудване или уточнения? (по желание)
+          <span class="hint">Конкретни машини, скрипец, TRX, шейна и т.н.</span>
+        </label>
+        <textarea id="oborudvane_drugo"></textarea>
+
+        <label class="q" style="margin-top:16px;">Колко дни седмично реално можеш да тренираш?
+          <span class="hint">По-добре по-малко, но редовно.</span>
+        </label>
+        <div class="opts" data-radio="dni_sedmica">
+          <label><input type="radio" name="dni_sedmica" value="2"> 2 дни</label>
+          <label><input type="radio" name="dni_sedmica" value="3"> 3 дни</label>
+          <label><input type="radio" name="dni_sedmica" value="4"> 4 дни</label>
+          <label><input type="radio" name="dni_sedmica" value="5"> 5 дни</label>
+          <label><input type="radio" name="dni_sedmica" value="6"> 6 дни</label>
+        </div>
+        <label class="q">Графикът позволява ли редовни дни, или варира?</label>
+        <div class="opts" data-radio="grafik" id="grafikGroup">
+          <label><input type="radio" name="grafik" value="Редовни дни"> Горе-долу редовни дни</label>
+          <label><input type="radio" name="grafik" value="Варира (смени)"> Варира (смени/непредвидено)</label>
+        </div>
+        <div class="reveal" id="grafikReveal">
+          <label class="q">Кога реално можеш да тренираш?
+            <span class="hint">Напр. „в почивните дни и след нощна смяна следобед".</span>
+          </label>
+          <input type="text" id="grafik_opis">
+        </div>
+        <label class="q">Колко време на тренировка?</label>
+        <div class="opts" data-radio="minuti">
+          <label><input type="radio" name="minuti" value="~30 мин"> Около 30 минути</label>
+          <label><input type="radio" name="minuti" value="~45 мин"> Около 45 минути</label>
+          <label><input type="radio" name="minuti" value="~60 мин"> Около 60 минути</label>
+          <label><input type="radio" name="minuti" value="75+ мин"> 75 минути или повече</label>
+        </div>
+        <label class="q">Предпочитани дни и часове (по желание)</label>
+        <input type="text" id="chasove_dni">
+
+        <label class="q" style="margin-top:16px;">Можеш ли да клекнеш дълбоко без болка?</label>
+        <div class="opts" data-radio="klek_ok">
+          <label><input type="radio" name="klek_ok" value="Да, свободно"> Да, свободно</label>
+          <label><input type="radio" name="klek_ok" value="С известен дискомфорт"> С известен дискомфорт</label>
+          <label><input type="radio" name="klek_ok" value="Не, трудно ми е"> Не, трудно ми е</label>
+        </div>
+        <label class="q">Можеш ли да вдигнеш ръце над глава свободно?</label>
+        <div class="opts" data-radio="ruce_glava">
+          <label><input type="radio" name="ruce_glava" value="Да, свободно"> Да, свободно</label>
+          <label><input type="radio" name="ruce_glava" value="С известен дискомфорт"> С известен дискомфорт</label>
+          <label><input type="radio" name="ruce_glava" value="Не"> Не</label>
+        </div>
+        <label class="q">Има ли движения, които те затрудняват или избягваш? (по желание)
+          <span class="hint">Навеждане, скачане, изправяне от пода. Ако няма — остави празно.</span>
+        </label>
+        <input type="text" id="zatrudnenia">
+
+        <label class="q" style="margin-top:16px;">Какъв стил на тренировка предпочиташ?</label>
+        <div class="opts" data-radio="stil">
+          <label><input type="radio" name="stil" value="Свободни тежести"> Свободни тежести (щанга, дъмбели)</label>
+          <label><input type="radio" name="stil" value="Машини"> Машини</label>
+          <label><input type="radio" name="stil" value="Функционално"> Функционално (телесно тегло, гири)</label>
+          <label><input type="radio" name="stil" value="Смесено"> Смесено</label>
+          <label><input type="radio" name="stil" value="Нямам предпочитание"> Нямам предпочитание</label>
+        </div>
+        <label class="q">Кое ти допада повече?</label>
+        <div class="opts" data-radio="nt_intensitet">
+          <label><input type="radio" name="nt_intensitet" value="Тежко, малко повторения"> Тежко, малко повторения</label>
+          <label><input type="radio" name="nt_intensitet" value="Леко, много повторения с усещане"> Леко, много повторения с усещане</label>
+          <label><input type="radio" name="nt_intensitet" value="И двете"> И двете ми харесват</label>
+        </div>
+        <label class="q">Предпочиташ ли разнообразие?</label>
+        <div class="opts" data-radio="nt_raznoobrazie">
+          <label><input type="radio" name="nt_raznoobrazie" value="Разнообразие"> Обичам разнообразие</label>
+          <label><input type="radio" name="nt_raznoobrazie" value="Същото докато го усвоя"> Същото, докато го усвоя</label>
+          <label><input type="radio" name="nt_raznoobrazie" value="Без значение"> Без значение</label>
+        </div>
+        <label class="q">Как тренираш по-добре?</label>
+        <div class="opts" data-radio="nt_plan">
+          <label><input type="radio" name="nt_plan" value="По ясен план"> По ясен план</label>
+          <label><input type="radio" name="nt_plan" value="По усет в момента"> По усет в момента</label>
+          <label><input type="radio" name="nt_plan" value="Смесено"> Смесено</label>
+        </div>
+        <label class="q">Любими или нелюбими упражнения? (по желание)</label>
+        <input type="text" id="lyubimi_nelyubimi">
+        <label class="q">Нещо друго важно за тренировките? (по желание)</label>
+        <textarea id="drugo_tren"></textarea>
+      </div>
+    </details>
+
+    <!-- ================= 😴 СЪН / ВЪЗСТАНОВЯВАНЕ ================= -->
+    <details class="sec sleep" data-sec="sleep">
+      <summary><span class="emo">😴</span><span class="ttl">Сън и възстановяване<span class="sub">сън, стрес, енергия — там тялото се променя</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+      <div class="sec-body">
+        <label class="q first">Сънят ти еднакъв ли е всеки ден, или варира?
+          <span class="hint">При смени сънят често се мести — отбележи, ако е така.</span>
+        </label>
+        <div class="opts" data-radio="syn_promenliv">
+          <label><input type="radio" name="syn_promenliv" value="Горе-долу еднакъв"> Горе-долу еднакъв</label>
+          <label><input type="radio" name="syn_promenliv" value="Варира"> Варира (смени/други)</label>
+        </div>
+        <label class="q">В колко часа обикновено си лягаш?
+          <span class="hint">Приблизително, напр. „23:00".</span>
+        </label>
+        <input type="text" id="chas_lyagane">
+        <label class="q">Колко часа спиш на нощ?</label>
+        <div class="opts" data-radio="syn_chasove">
+          <label><input type="radio" name="syn_chasove" value="Под 6"> Под 6</label>
+          <label><input type="radio" name="syn_chasove" value="6–7"> 6–7</label>
+          <label><input type="radio" name="syn_chasove" value="7–8"> 7–8</label>
+          <label><input type="radio" name="syn_chasove" value="Над 8"> Над 8</label>
+        </div>
+        <label class="q">Как е сънят?</label>
+        <div class="opts" data-radio="syn_kachestvo">
+          <label><input type="radio" name="syn_kachestvo" value="Спокоен"> Спокоен</label>
+          <label><input type="radio" name="syn_kachestvo" value="Будене през нощта"> Будя се през нощта</label>
+          <label><input type="radio" name="syn_kachestvo" value="Трудно заспиване"> Трудно заспивам</label>
+        </div>
+        <label class="q">Ниво на стрес в момента?</label>
+        <div class="opts" data-radio="stres">
+          <label><input type="radio" name="stres" value="Ниско"> Ниско</label>
+          <label><input type="radio" name="stres" value="Средно"> Средно</label>
+          <label><input type="radio" name="stres" value="Високо"> Високо</label>
+        </div>
+        <label class="q">Енергия през деня?</label>
+        <div class="opts" data-radio="energiya">
+          <label><input type="radio" name="energiya" value="Добра"> Добра</label>
+          <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
+          <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+        </div>
+        <label class="q">Възстановяваш ли се добре между натоварвания?
+          <span class="hint">Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а).</span>
+        </label>
+        <div class="opts" data-radio="vyzstanovyavane">
+          <label><input type="radio" name="vyzstanovyavane" value="Добре"> Добре</label>
+          <label><input type="radio" name="vyzstanovyavane" value="Средно"> Средно</label>
+          <label><input type="radio" name="vyzstanovyavane" value="Бавно/често уморен"> Бавно — често преуморен(а)</label>
+        </div>
+        <div class="row2">
+          <div>
+            <label class="q">Среден сън — точно (по желание)
+              <span class="hint">От часовник/приложение, напр. 6.5 ч.</span>
+            </label>
+            <input type="text" id="syn_tochno">
+          </div>
+          <div>
+            <label class="q">Пулс в покой (по желание)
+              <span class="hint">Ако часовникът го показва, сутрин.</span>
+            </label>
+            <input type="number" id="puls_pokoy" inputmode="numeric">
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <label class="consent"><input type="checkbox" id="consent"> Давам съгласие въведените данни (включително за здравето ми) да се съхраняват и използват само за изготвяне и проследяване на личния ми план. Мога да поискам изтриването им по всяко време.</label>
+
+  </form>
+</div>
+
+<div class="actions">
+  <button type="button" id="sendBtn">Изпрати</button>
+  <div class="ok" id="okMsg">Отговорите бяха изпратени. Въз основа на тях ще бъде изготвен личен план; ще получиш линк към личния си дневник.</div>
+  <div class="reqnote" id="sendErr"></div>
+  <textarea id="outBox" readonly></textarea>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
+  function radio(name) { var el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : ""; }
+  function checks(scope) {
+    var nodes = document.querySelectorAll('[data-check="' + scope + '"] input:checked');
+    return Array.prototype.map.call(nodes, function (n) { return n.value; });
+  }
+  function line(label, value) { return label + ": " + (value || "—"); }
+
+  // ---- Reveals ----
+  function rev(id, on) { document.getElementById(id).classList.toggle("show", on); }
+  document.getElementById("polGroup").addEventListener("change", function () { rev("zheniBlok", radio("pol") === "Жена"); });
+  document.getElementById("smeniGroup").addEventListener("change", function () { rev("smeniDetails", radio("smeni") === "Да"); });
+  document.getElementById("treniraGroup").addEventListener("change", function () { rev("treniraDetails", radio("trenira") === "Да"); });
+  document.getElementById("stajGroup").addEventListener("change", function () {
+    var v = radio("staj"); rev("stajReveal", v === "6 месеца – 2 години" || v === "2 – 5 години" || v === "Над 5 години");
+  });
+  document.getElementById("programaGroup").addEventListener("change", function () { rev("programaReveal", radio("s_programa") === "Да"); });
+  document.getElementById("grafikGroup").addEventListener("change", function () { rev("grafikReveal", radio("grafik") === "Варира (смени)"); });
+  document.getElementById("celGroup").addEventListener("change", function () {
+    var v = radio("cel_programa");
+    rev("silaReveal", v === "Сила" || v === "Мускулна маса");
+    rev("sportReveal", v === "Спортно-специфично");
+  });
+  document.getElementById("tipGroup").addEventListener("change", function () {
+    var v = radio("tip_hranene"); rev("tipReveal", v === "Смесено по дни" || v === "Друго");
+  });
+  document.getElementById("preskachaGroup").addEventListener("change", function () { rev("preskachaReveal", radio("preskacha") === "Да"); });
+  document.getElementById("hrPoDniGroup").addEventListener("change", function () { rev("hrPoDniReveal", radio("hr_po_dni") === "Различно"); });
+
+  // ---- Здравни области (двигател от Форма 2) ----
+  var AREAS = [
+    { key: "kryst", label: "Кръст / гръб" },
+    { key: "kolene", label: "Колене" },
+    { key: "ramene", label: "Рамене / врат" },
+    { key: "stavi", label: "Други стави (глезени, бедра, лакти)" },
+    { key: "sarce", label: "Сърце / кръвно налягане", bp: true },
+    { key: "obmyana", label: "Обмяна (щитовидна, диабет, кръвна захар)", labs: true },
+    { key: "hranosmilane", label: "Храносмилане" },
+    { key: "alergia", label: "Тежка / сериозна алергия", named: true },
+    { key: "operacia", label: "Минала операция или сериозна контузия", named: true }
+  ];
+  function areaBlock(a) {
+    var k = a.key, h = "";
+    if (a.named) h += '<label class="q">Какво точно?<span class="hint">Назови го с няколко думи.</span></label><input type="text" id="' + k + '_ime">';
+    h += '<label class="q">Откога е?</label><input type="text" id="' + k + '_otkoga">';
+    h += '<label class="q">Колко често и колко силно?</label><input type="text" id="' + k + '_chestota">';
+    h += '<label class="q">Поставена ли е диагноза от лекар? Коя?<span class="hint">Ако няма — „няма".</span></label><input type="text" id="' + k + '_diagnoza">';
+    h += '<label class="q">Лечение или лекарства за това?</label><input type="text" id="' + k + '_lechenie">';
+    h += '<label class="q">Правени ли са изследвания? Какво показаха?<span class="hint">Накратко. Снимките/епикризите — по Viber.</span></label><textarea id="' + k + '_izsledvania"></textarea>';
+    if (a.bp) h += '<label class="q">Знаеш ли стойностите на кръвното?<span class="hint">Напр. 130/85.</span></label><input type="text" id="' + k + '_bp">';
+    if (a.labs) h += '<label class="q">Знаеш ли стойности (кръвна захар, щитовидна) или скорошни изследвания?</label><input type="text" id="' + k + '_stoynosti">';
+    h += '<label class="q">Ограничава ли движение или ежедневие?</label><div class="opts" data-radio="' + k + '_ogr">'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Не"> Не</label>'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Малко"> Малко</label>'
+      + '<label><input type="radio" name="' + k + '_ogr" value="Значително"> Значително</label></div>';
+    h += '<label class="q">Какво го влошава и какво облекчава?</label><input type="text" id="' + k + '_vlosh">';
+    return h;
+  }
+  var areasBox = document.getElementById("areasBox");
+  var ahtml = "";
+  AREAS.forEach(function (a) {
+    ahtml += '<div class="opts"><label><input type="checkbox" data-area="' + a.key + '"> ' + a.label + '</label></div>';
+    ahtml += '<div class="reveal" id="rev_' + a.key + '">' + areaBlock(a) + '</div>';
+  });
+  areasBox.innerHTML = ahtml;
+  areasBox.addEventListener("change", function (e) {
+    var cb = e.target.closest('input[data-area]');
+    if (!cb) return;
+    document.getElementById("rev_" + cb.getAttribute("data-area")).classList.toggle("show", cb.checked);
+  });
+  function isArea(key) { var cb = document.querySelector('input[data-area="' + key + '"]'); return !!(cb && cb.checked); }
+
+  // ---- Изборът отваря секции ----
+  function openSec(name) { var d = document.querySelector('details.sec[data-sec="' + name + '"]'); if (d) d.open = true; }
+  document.getElementById("izhodGroup").addEventListener("change", function () {
+    var s = checks("izhod"), all = s.indexOf("Цялостен подход") > -1;
+    if (all || s.indexOf("Хранителен режим") > -1) openSec("nutrition");
+    if (all || s.indexOf("Тренировъчна програма") > -1) openSec("training");
+    if (all || s.indexOf("Препоръка за добавки") > -1) openSec("health");
+  });
+
+  // ---- „Попълнено ✓" badge на секциите ----
+  function sectionFilled(d) {
+    var nodes = d.querySelectorAll('input, textarea, select');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.type === "checkbox" || n.type === "radio") { if (n.checked) return true; }
+      else if (n.value && n.value.trim() !== "") return true;
+    }
+    return false;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('details.sec'), function (d) {
+    d.addEventListener("change", function () { d.classList.toggle("filled", sectionFilled(d)); });
+    d.addEventListener("input", function () { d.classList.toggle("filled", sectionFilled(d)); });
+  });
+
+  // ---- Маршрут (за треньора) ----
+  function izhodSel() { return checks("izhod"); }
+  function wantsAll() { return izhodSel().indexOf("Цялостен подход") > -1; }
+  function nextForms() {
+    var f = [], s = izhodSel(), all = wantsAll();
+    var anyArea = AREAS.some(function (a) { return isArea(a.key); });
+    if (anyArea || all || s.indexOf("Препоръка за добавки") > -1 || val("drugo_sastoyanie")) f.push("Здраве");
+    if (all || s.indexOf("Хранителен режим") > -1) f.push("Хранене");
+    if (all || s.indexOf("Тренировъчна програма") > -1) f.push("Тренировки");
+    return f;
+  }
+
+  function build() {
+    var d = new Date();
+    var date = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / ОБЩА ФОРМА (intake) ===");
+    L.push("Дата: " + date);
+    L.push("");
+    L.push("[ЦЕЛ И ПОСОКА]");
+    L.push(line("Желан изход", izhodSel().join(", ")));
+    L.push(line("Цел", radio("cel")));
+    L.push(line("Цел/срок", val("motivaciya")));
+    L.push(line("Минал опит", val("minal_opit")));
+    L.push(line("Очаквана стриктност (1-10)", val("adherence")));
+    L.push(line("Какво е пречело преди", val("barieri")));
+    L.push("");
+    L.push("[ОСНОВНИ ДАННИ]");
+    L.push(line("Име", val("ime")));
+    L.push(line("Пол", radio("pol")));
+    L.push(line("Година на раждане", val("godina_razhdane")));
+    L.push(line("Височина (см)", val("visochina")));
+    L.push(line("Тегло (кг)", val("teglo")));
+    L.push(line("Желано тегло (кг)", val("zhelano_teglo")));
+    L.push(line("Талия (см)", val("taliya")));
+    L.push(line("Ханш (см)", val("hansh")));
+    L.push(line("Тегло — тренд", radio("teglo_trend")));
+    L.push(line("Тегло — откога/какво", val("teglo_promyana")));
+    if (radio("pol") === "Жена") {
+      L.push("");
+      L.push("[ХОРМОНАЛНО (жени)]");
+      L.push(line("Цикъл", radio("cikyl")));
+      L.push(line("Перименопауза/менопауза", radio("menopauza")));
+      L.push(line("Бременност/кърмене/планира", radio("bremennost")));
+      L.push(line("Хормонална терапия/контрацепция", val("hormonalna")));
+    }
+    L.push("");
+    L.push("[ЕЖЕДНЕВИЕ И АКТИВНОСТ]");
+    var krTochno = val("krachki_tochno");
+    L.push(line("Работа/ежедневие", radio("rabota")));
+    L.push(line("На смени/променлив график", radio("smeni")));
+    if (radio("smeni") === "Да") {
+      L.push(line("Смени — цикъл/редуване", val("smeni_cikyl")));
+      L.push(line("Смени — сън/тренировка по тип ден", val("smeni_ritym")));
+    }
+    L.push(line("Часове на крак", radio("na_krak")));
+    L.push(line("Движение", radio("dvizhenie") + (krTochno ? " (ориентир)" : "")));
+    L.push(line("Точен брой крачки", krTochno ? krTochno + " (меродавно)" : ""));
+    L.push(line("Друга активност", val("druga_aktivnost")));
+    L.push(line("Прекъсвания на режима", radio("prekysvaniya")));
+    L.push("");
+    L.push("[НАВИЦИ]");
+    L.push(line("Пушене", radio("pushene")));
+    L.push(line("Алкохол", radio("alkohol")));
+    L.push(line("Газирани/сладки напитки", radio("gazirani")));
+    L.push(line("Кафе", radio("kafe")));
+
+    // --- ЗДРАВЕ ---
+    var anyArea = AREAS.some(function (a) { return isArea(a.key); });
+    if (anyArea || checks("lek_klas").length || val("lekarstva") || val("dobavki") || val("drugo_sastoyanie") || val("prof_natovarvane") || val("drugo_vazhno")) {
+      L.push("");
+      L.push("===== ЗДРАВЕ =====");
+      AREAS.forEach(function (a) {
+        if (!isArea(a.key)) return;
+        var k = a.key;
+        L.push("");
+        L.push("[" + a.label + "]");
+        if (a.named) L.push("  " + line("Какво точно", val(k + "_ime")));
+        L.push("  " + line("Откога", val(k + "_otkoga")));
+        L.push("  " + line("Често/силно", val(k + "_chestota")));
+        L.push("  " + line("Диагноза", val(k + "_diagnoza")));
+        L.push("  " + line("Лечение/лекарства", val(k + "_lechenie")));
+        L.push("  " + line("Изследвания", val(k + "_izsledvania")));
+        if (a.bp) L.push("  " + line("Кръвно", val(k + "_bp")));
+        if (a.labs) L.push("  " + line("Стойности/изследвания", val(k + "_stoynosti")));
+        L.push("  " + line("Ограничава ежедневие", radio(k + "_ogr")));
+        L.push("  " + line("Влошава/облекчава", val(k + "_vlosh")));
+      });
+      L.push("");
+      L.push(line("Друго състояние (не в списъка)", val("drugo_sastoyanie")));
+      L.push(line("Класове лекарства", checks("lek_klas").join(", ")));
+      L.push(line("Лекарство влияе на тегло/апетит/енергия", val("lek_vliyanie")));
+      L.push(line("Лекарства сега", val("lekarstva")));
+      L.push(line("Текущи добавки/витамини", val("dobavki")));
+      L.push(line("Професионално натоварване", val("prof_natovarvane")));
+      L.push(line("Друго важно за здравето", val("drugo_vazhno")));
+      L.push(line("Ще прати документи по Viber", document.getElementById("docs_viber").checked ? "ДА" : "не"));
+    }
+
+    // --- ХРАНЕНЕ ---
+    if (radio("tip_hranene") || radio("hranenia_broy") || val("den_zakuska") || radio("glad") || radio("voda") || checks("proteini").length) {
+      L.push("");
+      L.push("===== ХРАНЕНЕ =====");
+      L.push(line("Тип хранене", radio("tip_hranene")));
+      if (val("tip_opis")) L.push("  " + line("Описание", val("tip_opis")));
+      L.push(line("Изключени/нежелани храни", val("izklyucheni")));
+      L.push(line("Непоносимости", checks("neponosimost").join(", ")));
+      L.push(line("Любими протеини", checks("proteini").join(", ")));
+      L.push(line("Хранения на ден", radio("hranenia_broy")));
+      L.push(line("Закусва", radio("zakuska")));
+      L.push(line("Часове на хранене", val("chasove")));
+      L.push(line("Различно по дни", radio("hr_po_dni")));
+      if (val("hr_po_dni_opis")) L.push("  " + line("По тип ден", val("hr_po_dni_opis")));
+      L.push(line("Прескача хранения", radio("preskacha")));
+      if (val("preskacha_opis")) L.push("  " + line("Кога/защо", val("preskacha_opis")));
+      L.push(line("Между храненията", val("snaks")));
+      L.push(line("Типичен ден — закуска", val("den_zakuska")));
+      L.push(line("Типичен ден — обяд", val("den_obyad")));
+      L.push(line("Типичен ден — вечеря", val("den_vecherya")));
+      L.push(line("Типичен ден — между/друго", val("den_mezhdu")));
+      L.push(line("Кой готви/откъде", radio("gotvene")));
+      L.push(line("Време за готвене", radio("vreme_gotvene")));
+      L.push(line("Разнообразие", radio("raznoobrazie")));
+      L.push(line("Глад през деня", radio("glad")));
+      L.push(line("Най-силен глад", val("glad_koga")));
+      L.push(line("Желание за сладко", radio("sladko")));
+      L.push(line("Хапване вечер/нощем", radio("vecher_hapvane")));
+      L.push(line("Хапване при стрес/емоция", radio("emo_hapvane")));
+      L.push(line("Вода на ден", radio("voda")));
+      L.push(line("Задължителни храни", val("zadalzhitelni")));
+      L.push(line("Друго за храненето", val("drugo_hrana")));
+    }
+
+    // --- ТРЕНИРОВКИ ---
+    if (radio("trenira") || radio("staj") || radio("cel_programa") || radio("kade") || checks("dvizhenia").length || checks("oborudvane").length) {
+      L.push("");
+      L.push("===== ТРЕНИРОВКИ =====");
+      L.push(line("Тренира сега", radio("trenira")));
+      if (radio("trenira") === "Да") {
+        L.push("  " + line("Дни сега", checks("dni").join(", ")));
+        L.push("  " + line("Минути", val("vreme_min")));
+        L.push("  " + line("Час", val("chas")));
+        L.push("  " + line("Къде/какво", val("kade_kakvo")));
+      }
+      L.push(line("Тренировъчен стаж", radio("staj")));
+      if (val("staj_sega")) L.push("  " + line("Сегашна тренировка", val("staj_sega")));
+      if (val("staj_orientiri")) L.push("  " + line("Текущи ориентири", val("staj_orientiri")));
+      L.push(line("Познати движения", checks("dvizhenia").join(", ")));
+      L.push(line("Тренирал по програма", radio("s_programa")));
+      if (val("s_programa_opis")) L.push("  " + line("Каква/как мина", val("s_programa_opis")));
+      L.push(line("Цел на програмата", radio("cel_programa")));
+      if (val("sila_orientir")) L.push("  " + line("Ориентир сила", val("sila_orientir")));
+      if (val("sport_detail")) L.push("  " + line("Спорт/ниво/сезон", val("sport_detail")));
+      L.push(line("Конкретно за програмата", val("cel_programa_opis")));
+      L.push(line("Място", radio("kade")));
+      L.push(line("Оборудване", checks("oborudvane").join(", ")));
+      L.push(line("Оборудване (уточнения)", val("oborudvane_drugo")));
+      L.push(line("Дни седмично", radio("dni_sedmica")));
+      L.push(line("График — редовен/варира", radio("grafik")));
+      if (val("grafik_opis")) L.push("  " + line("Кога може", val("grafik_opis")));
+      L.push(line("Минути на тренировка", radio("minuti")));
+      L.push(line("Предпочитани дни/часове", val("chasove_dni")));
+      L.push(line("Дълбок клек", radio("klek_ok")));
+      L.push(line("Ръце над глава", radio("ruce_glava")));
+      L.push(line("Затрудняващи движения", val("zatrudnenia")));
+      L.push(line("Стил", radio("stil")));
+      L.push(line("Наклон: интензитет", radio("nt_intensitet")));
+      L.push(line("Наклон: разнообразие", radio("nt_raznoobrazie")));
+      L.push(line("Наклон: план/усет", radio("nt_plan")));
+      L.push(line("Любими/нелюбими", val("lyubimi_nelyubimi")));
+      L.push(line("Друго за тренировките", val("drugo_tren")));
+    }
+
+    // --- СЪН ---
+    if (radio("syn_chasove") || radio("syn_kachestvo") || radio("stres") || radio("energiya") || radio("vyzstanovyavane") || val("chas_lyagane")) {
+      L.push("");
+      L.push("===== СЪН И ВЪЗСТАНОВЯВАНЕ =====");
+      L.push(line("Сън — еднакъв/варира", radio("syn_promenliv")));
+      L.push(line("Час на лягане", val("chas_lyagane")));
+      L.push(line("Сън (часове)", radio("syn_chasove")));
+      L.push(line("Качество на съня", radio("syn_kachestvo")));
+      L.push(line("Стрес", radio("stres")));
+      L.push(line("Енергия", radio("energiya")));
+      L.push(line("Възстановяване между натоварвания", radio("vyzstanovyavane")));
+      L.push(line("Среден сън (точно)", val("syn_tochno")));
+      L.push(line("Пулс в покой", val("puls_pokoy")));
+    }
+
+    L.push("");
+    L.push("[МАРШРУТ — за треньора]");
+    L.push("=> Секции с данни: " + (nextForms().length ? nextForms().join(" · ") : "(само ядро)"));
+    L.push("");
+    L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  function gatherData() {
+    var oblasti = [];
+    AREAS.forEach(function (a) {
+      if (!isArea(a.key)) return;
+      var k = a.key;
+      var o = {
+        key: k, label: a.label,
+        otkoga: val(k + "_otkoga"), chestota: val(k + "_chestota"),
+        diagnoza: val(k + "_diagnoza"), lechenie: val(k + "_lechenie"),
+        izsledvania: val(k + "_izsledvania"),
+        ogranichava: radio(k + "_ogr"), vlosh: val(k + "_vlosh")
+      };
+      if (a.named) o.ime = val(k + "_ime");
+      if (a.bp) o.bp = val(k + "_bp");
+      if (a.labs) o.stoynosti = val(k + "_stoynosti");
+      oblasti.push(o);
+    });
+    return {
+      // цел/посока
+      zhelan_izhod: izhodSel(), cel: radio("cel"), motivaciya: val("motivaciya"),
+      minal_opit: val("minal_opit"), adherence: val("adherence"), barieri: val("barieri"),
+      // основни
+      ime: val("ime"), pol: radio("pol"), godina_razhdane: val("godina_razhdane"),
+      cikyl: radio("cikyl"), menopauza: radio("menopauza"), bremennost: radio("bremennost"), hormonalna: val("hormonalna"),
+      visochina: val("visochina"), teglo: val("teglo"), zhelano_teglo: val("zhelano_teglo"),
+      taliya: val("taliya"), hansh: val("hansh"), teglo_trend: radio("teglo_trend"), teglo_promyana: val("teglo_promyana"),
+      // ежедневие
+      rabota: radio("rabota"), smeni: radio("smeni"), smeni_cikyl: val("smeni_cikyl"), smeni_ritym: val("smeni_ritym"),
+      na_krak: radio("na_krak"), dvizhenie: radio("dvizhenie"), krachki_tochno: val("krachki_tochno"),
+      druga_aktivnost: val("druga_aktivnost"), prekysvaniya: radio("prekysvaniya"),
+      // навици
+      pushene: radio("pushene"), alkohol: radio("alkohol"), gazirani: radio("gazirani"), kafe: radio("kafe"),
+      // здраве
+      oblasti: oblasti, drugo_sastoyanie: val("drugo_sastoyanie"),
+      lek_klas: checks("lek_klas"), lek_vliyanie: val("lek_vliyanie"),
+      lekarstva: val("lekarstva"), dobavki: val("dobavki"),
+      prof_natovarvane: val("prof_natovarvane"), drugo_vazhno: val("drugo_vazhno"),
+      docs_viber: document.getElementById("docs_viber").checked,
+      // хранене
+      tip_hranene: radio("tip_hranene"), tip_opis: val("tip_opis"), izklyucheni: val("izklyucheni"),
+      neponosimost: checks("neponosimost"), proteini: checks("proteini"),
+      hranenia_broy: radio("hranenia_broy"), zakuska: radio("zakuska"), chasove: val("chasove"),
+      hr_po_dni: radio("hr_po_dni"), hr_po_dni_opis: val("hr_po_dni_opis"),
+      preskacha: radio("preskacha"), preskacha_opis: val("preskacha_opis"), snaks: val("snaks"),
+      den_zakuska: val("den_zakuska"), den_obyad: val("den_obyad"), den_vecherya: val("den_vecherya"), den_mezhdu: val("den_mezhdu"),
+      gotvene: radio("gotvene"), vreme_gotvene: radio("vreme_gotvene"), raznoobrazie: radio("raznoobrazie"),
+      glad: radio("glad"), glad_koga: val("glad_koga"), sladko: radio("sladko"),
+      vecher_hapvane: radio("vecher_hapvane"), emo_hapvane: radio("emo_hapvane"),
+      voda: radio("voda"), zadalzhitelni: val("zadalzhitelni"), drugo_hrana: val("drugo_hrana"),
+      // тренировки
+      trenira: radio("trenira"), dni: checks("dni"), vreme_min: val("vreme_min"), chas: val("chas"), kade_kakvo: val("kade_kakvo"),
+      staj: radio("staj"), staj_sega: val("staj_sega"), staj_orientiri: val("staj_orientiri"), dvizhenia: checks("dvizhenia"),
+      s_programa: radio("s_programa"), s_programa_opis: val("s_programa_opis"),
+      cel_programa: radio("cel_programa"), cel_programa_opis: val("cel_programa_opis"),
+      sila_orientir: val("sila_orientir"), sport_detail: val("sport_detail"),
+      kade: radio("kade"), oborudvane: checks("oborudvane"), oborudvane_drugo: val("oborudvane_drugo"),
+      dni_sedmica: radio("dni_sedmica"), grafik: radio("grafik"), grafik_opis: val("grafik_opis"),
+      minuti: radio("minuti"), chasove_dni: val("chasove_dni"),
+      klek_ok: radio("klek_ok"), ruce_glava: radio("ruce_glava"), zatrudnenia: val("zatrudnenia"),
+      stil: radio("stil"), nt_intensitet: radio("nt_intensitet"), nt_raznoobrazie: radio("nt_raznoobrazie"), nt_plan: radio("nt_plan"),
+      lyubimi_nelyubimi: val("lyubimi_nelyubimi"), drugo_tren: val("drugo_tren"),
+      // сън
+      syn_promenliv: radio("syn_promenliv"), chas_lyagane: val("chas_lyagane"), syn_chasove: radio("syn_chasove"),
+      syn_kachestvo: radio("syn_kachestvo"), stres: radio("stres"), energiya: radio("energiya"),
+      vyzstanovyavane: radio("vyzstanovyavane"), syn_tochno: val("syn_tochno"), puls_pokoy: val("puls_pokoy"),
+      // маршрут
+      forms_needed: nextForms()
+    };
+  }
+
+  var imeEl = document.getElementById("ime");
+  var imeReqNote = document.getElementById("imeReq");
+  imeEl.addEventListener("input", function () { if (this.value.trim() !== "") imeReqNote.classList.remove("show"); });
+
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var okMsg = document.getElementById("okMsg");
+  var sendErr = document.getElementById("sendErr");
+  var outBox = document.getElementById("outBox");
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (val("ime") === "") {
+      imeReqNote.classList.add("show");
+      imeEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      imeEl.focus();
+      return;
+    }
+    var consent = document.getElementById("consent");
+    if (!consent.checked) {
+      sendErr.textContent = "За да продължиш, отбележи съгласието по-горе.";
+      sendErr.classList.add("show");
+      consent.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    sendErr.classList.remove("show");
+
+    var data = gatherData();
+    var text = build();
+    btn.disabled = true;
+    btn.textContent = "Изпращане…";
+
+    sb.from("submissions").insert({ form_type: "intake", payload: data, raw_block: text })
+      .then(function (res) {
+        if (res.error) { throw res.error; }
+        okMsg.classList.add("show");
+        okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        btn.textContent = "Изпратено ✓";
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = "Изпрати";
+        sendErr.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+        sendErr.classList.add("show");
+        outBox.value = text;
+        outBox.classList.add("show");
+        outBox.focus();
+        outBox.setSelectionRange(0, text.length);
+      });
+  });
+})();
+</script>
+</body>
+</html>
