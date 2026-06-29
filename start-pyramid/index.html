@@ -69,6 +69,7 @@
   .card.gold { background: #f9f3e0; border-left: 5px solid #34376f; }
   .card.gold p { color: #8a5a00; }
   .card.gold b { color: #5c4814; }
+  .card, .plan:not(.feature) { border-left: 5px solid #34376f; }
 
   /* ПИРАМИДА (визуал) */
   .pyr { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 8px 0 14px; }
@@ -167,7 +168,7 @@
   details.faq[open] .a { display: block; }
   details.faq .a p { margin: 0 0 8px; }
   details.faq .a p:last-child { margin-bottom: 0; }
-  details.faq-outer { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin: 0 0 10px; }
+  details.faq-outer { background: var(--card); border: 1px solid var(--border); border-left: 5px solid #34376f; border-radius: 12px; overflow: hidden; margin: 0 0 10px; }
   details.faq-outer > summary { list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16.5px; color: #16324c; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   details.faq-outer > summary::-webkit-details-marker { display: none; }
   details.faq-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
