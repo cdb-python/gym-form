@@ -28,7 +28,7 @@
     font-size: 17px; line-height: 1.5; padding: 0 0 40px;
   }
   header {
-    background: linear-gradient(160deg, #16324c 0%, #0f6e7e 100%);
+    background: #16324c;
     color: #fff; padding: 24px 18px 20px; text-align: center;
   }
   header h1 { margin: 0 0 6px; font-size: 22px; }
@@ -83,10 +83,10 @@
   details.sec:not(.filled) > summary .chev { margin-left: auto; }
   details.sec[open] > summary .chev::after { content: "–"; }
   details.sec:not([open]) > summary .chev::after { content: "+"; }
-  .sec.health > summary { background: var(--c-health); border-bottom: 4px solid var(--c-health-sh); }
-  .sec.nutrition > summary { background: var(--c-nutrition); border-bottom: 4px solid var(--c-nutrition-sh); }
-  .sec.training > summary { background: var(--c-training); border-bottom: 4px solid var(--c-training-sh); }
-  .sec.sleep > summary { background: var(--c-sleep); border-bottom: 4px solid var(--c-sleep-sh); }
+  .sec.health > summary { background: var(--c-health); }
+  .sec.nutrition > summary { background: var(--c-nutrition); }
+  .sec.training > summary { background: var(--c-training); }
+  .sec.sleep > summary { background: var(--c-sleep); }
   details.sec .sec-body { padding: 6px 16px 16px; }
   details.sec .sec-body .first { margin-top: 8px; }
 
@@ -101,9 +101,9 @@
   }
   button {
     width: 100%; padding: 16px; font-size: 18px; font-weight: 700; color: #fff;
-    background: var(--accent); border: none; border-radius: 12px; cursor: pointer;
+    background: #16324c; border: none; border-radius: 12px; cursor: pointer;
   }
-  button:active { background: var(--accent-dark); }
+  button:active { background: #0e2030; }
   .ok {
     display: none; margin-top: 12px; padding: 12px 14px; background: #e6f4ec;
     border: 1px solid #b7dcc6; border-radius: 10px; color: var(--accent-dark); font-size: 15px; text-align: center;
