@@ -198,16 +198,16 @@
   }
   .intro p { margin: 0; }
   .intro b { color: #5c4814; }
-  .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
+  .cert { color: #245fb0; border-bottom: 1px dotted #245fb0; cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
   .cert-pop {
     display: none; position: absolute; left: 50%; transform: translateX(-50%); top: 155%; z-index: 30;
     width: max-content; max-width: min(290px, calc(100vw - 24px));
-    background: var(--navy); color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
+    background: #245fb0; color: #fff; font-weight: 400; font-size: 12px; line-height: 1.55;
     text-align: left; white-space: normal; padding: 9px 12px; border-radius: 8px;
-    border: 1px solid var(--accent); box-shadow: 0 6px 18px rgba(0,0,0,.28);
+    border: 1px solid #245fb0; box-shadow: 0 6px 18px rgba(0,0,0,.28);
   }
   .cert-pop::before { content: ""; position: absolute; left: calc(50% + var(--arrow-shift, 0px)); transform: translateX(-50%); bottom: 100%;
-    border: 6px solid transparent; border-bottom-color: var(--accent); }
+    border: 6px solid transparent; border-bottom-color: #245fb0; }
   .cert:hover .cert-pop, .cert:focus .cert-pop, .cert.open .cert-pop { display: block; }
   .cert-pop b { color: var(--gold); }
 </style>
