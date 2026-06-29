@@ -73,11 +73,20 @@
   /* ПИРАМИДА (визуал) */
   .pyr { display: flex; flex-direction: column; align-items: center; gap: 7px; margin: 8px 0 14px; }
   .pyr .lvl {
-    color: #fff; border-radius: 11px; padding: 16px 14px; text-align: center; line-height: 1.22;
+    color: #fff; border-radius: 11px; overflow: hidden;
     box-shadow: 0 3px 10px rgba(0,0,0,.14);
   }
-  .pyr .lvl b { display: block; font-size: 16.5px; font-weight: 700; }
-  .pyr .lvl span { font-size: 12.5px; font-weight: 400; opacity: 0.92; }
+  .pyr .lvl > summary {
+    list-style: none; cursor: pointer; position: relative;
+    padding: 16px 36px; text-align: center; line-height: 1.22;
+  }
+  .pyr .lvl > summary::-webkit-details-marker { display: none; }
+  .pyr .lvl > summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; font-weight: 700; }
+  .pyr .lvl[open] > summary::after { content: "\2212"; }
+  .pyr .lvl > summary b { display: block; font-size: 16.5px; font-weight: 700; }
+  .pyr .lvl > summary > span { font-size: 12.5px; font-weight: 400; opacity: 0.92; }
+  .pyr .lvl .lvl-body { display: none; padding: 0 16px 16px; text-align: left; font-size: 14.5px; line-height: 1.5; }
+  .pyr .lvl[open] .lvl-body { display: block; }
   .pyr .l4 { width: 100%; background: var(--c-sleep); }
   .pyr .l3 { width: 100%; background: var(--c-training); }
   .pyr .l2 { width: 100%; background: var(--c-nutrition); }
@@ -212,31 +221,25 @@
     <p class="lead-in">Да си здрав, силен и във форма не зависи от едно нещо, а от няколко — подредени по важност. Това е картата:</p>
 
     <div class="pyr">
-      <div class="lvl l4"><b>😴 Възстановяване и сън</b><span>връх · фина настройка</span></div>
-      <div class="lvl l3"><b>🏋 Тренировки</b><span>сигналът за промяна</span></div>
-      <div class="lvl l2"><b>🍎 Хранене</b><span>горивото и материалът</span></div>
-      <div class="lvl l1"><b>🩺 Здраве и изследвания</b><span>основата на всичко</span></div>
+      <details class="lvl l4">
+        <summary><b>😴 Възстановяване и сън</b><span>връх · фина настройка</span></summary>
+        <div class="lvl-body">Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане. <span class="free-pill">включено</span></div>
+      </details>
+      <details class="lvl l3">
+        <summary><b>🏋 Тренировки</b><span>сигналът за промяна</span></summary>
+        <div class="lvl-body">Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</div>
+      </details>
+      <details class="lvl l2">
+        <summary><b>🍎 Хранене</b><span>горивото и материалът</span></summary>
+        <div class="lvl-body">По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</div>
+      </details>
+      <details class="lvl l1">
+        <summary><b>🩺 Здраве и изследвания</b><span>основата на всичко</span></summary>
+        <div class="lvl-body">Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</div>
+      </details>
     </div>
     <p class="pyr-note">Колкото по-надолу е етажът, толкова повече тежи за резултата. Правилото е едно: <b>не се качва на горен етаж, докато долният не е стабилен.</b> Затова всичко започва от здравето ти — а не от поредната добавка или модна диета.</p>
 
-    <div class="card rows">
-      <div class="row">
-        <div class="ic">🩺</div>
-        <div class="tx"><b><span class="step-n">Етаж 1 · основата</span> — Здраве и изследвания</b><span>Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">🍎</div>
-        <div class="tx"><b><span class="step-n">Етаж 2</span> — Хранене</b><span>По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">🏋</div>
-        <div class="tx"><b><span class="step-n">Етаж 3</span> — Тренировки</b><span>Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</span></div>
-      </div>
-      <div class="row">
-        <div class="ic">😴</div>
-        <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="free-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
-      </div>
-    </div>
   </div>
 
   <!-- ОСВЕН ТОВА -->
