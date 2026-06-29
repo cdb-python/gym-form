@@ -167,7 +167,7 @@
         <label><input type="radio" name="cel" value="Друго"> Друго</label>
       </div>
 
-      <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
+      <label class="q">Напиши в свободен текст каквото искаш друго.</label>
       <textarea id="motivaciya"></textarea>
     </fieldset>
 
@@ -1004,7 +1004,7 @@
     L.push("[ЦЕЛ И ПОСОКА]");
     L.push(line("Желан изход", izhodSel().join(", ")));
     L.push(line("Цел", radio("cel")));
-    L.push(line("Цел/срок", val("motivaciya")));
+    L.push(line("Свободен текст / друго", val("motivaciya")));
     L.push("");
     L.push("[ОСНОВНИ ДАННИ]");
     L.push(line("Име", val("ime")));
