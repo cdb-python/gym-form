@@ -169,21 +169,6 @@
 
       <label class="q">С две думи — какво искаш да постигнеш и докога?</label>
       <textarea id="motivaciya"></textarea>
-
-      <label class="q">Пробвала ли си нещо преди, което не сработи? (по желание)
-        <span class="hint">Ако не — напиши „не".</span>
-      </label>
-      <textarea id="minal_opit"></textarea>
-
-      <label class="q">Колко стриктно реално очакваш да спазваш? (1–10) (по желание)
-        <span class="hint">Честно — помага планът да е реалистичен. 1 = трудно ще е, 10 = много стриктно.</span>
-      </label>
-      <input type="number" id="adherence" inputmode="numeric" min="1" max="10">
-
-      <label class="q">Какво ти е пречело преди да спазваш режим? (по желание)
-        <span class="hint">Напр. време, работа/смени, глад, мотивация, пътувания, семейство.</span>
-      </label>
-      <input type="text" id="barieri">
     </fieldset>
 
     <fieldset>
@@ -1020,9 +1005,6 @@
     L.push(line("Желан изход", izhodSel().join(", ")));
     L.push(line("Цел", radio("cel")));
     L.push(line("Цел/срок", val("motivaciya")));
-    L.push(line("Минал опит", val("minal_opit")));
-    L.push(line("Очаквана стриктност (1-10)", val("adherence")));
-    L.push(line("Какво е пречело преди", val("barieri")));
     L.push("");
     L.push("[ОСНОВНИ ДАННИ]");
     L.push(line("Име", val("ime")));
@@ -1213,7 +1195,6 @@
     return {
       // цел/посока
       zhelan_izhod: izhodSel(), cel: radio("cel"), motivaciya: val("motivaciya"),
-      minal_opit: val("minal_opit"), adherence: val("adherence"), barieri: val("barieri"),
       // основни
       ime: val("ime"), pol: radio("pol"), godina_razhdane: val("godina_razhdane"),
       cikyl: radio("cikyl"), menopauza: radio("menopauza"), bremennost: radio("bremennost"), hormonalna: val("hormonalna"),
