@@ -38,7 +38,7 @@
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
 
   header.hero {
-    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%);
+    background: #34376f;
     color: #fff; padding: 40px 20px 34px; text-align: center;
   }
   header.hero .hero-inner {
@@ -66,6 +66,9 @@
   }
   .card p { margin: 0 0 8px; }
   .card p:last-child { margin-bottom: 0; }
+  .card.gold { background: #f9f3e0; border-left: 5px solid #34376f; }
+  .card.gold p { color: #8a5a00; }
+  .card.gold b { color: #5c4814; }
 
   /* ПИРАМИДА (визуал) */
   .pyr { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 4px 0 12px; }
@@ -85,20 +88,20 @@
   }
   .pyr-note b { color: var(--accent-dark); }
 
-  .rows .row { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 14px; }
+  .rows .row { display: block; overflow: hidden; margin: 0 0 14px; }
   .rows .row:last-child { margin-bottom: 0; }
   .rows .ic {
-    flex: none; width: 38px; height: 38px; border-radius: 10px;
+    float: left; width: 38px; height: 38px; border-radius: 10px; margin: 0 12px 0 0;
     background: var(--soft); color: var(--accent-dark);
     display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
   }
-  .rows .tx b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+  .rows .tx b { display: flex; align-items: flex-end; flex-wrap: wrap; min-height: 38px; font-size: 15.5px; margin-bottom: 2px; }
   .rows .tx span { font-size: 14.5px; color: var(--muted); }
   .rows .tx .step-n { color: var(--accent-dark); font-weight: 800; }
   .in-pill {
-    display: inline-block; background: #fff4e5; border: 1px solid #f0c891; color: #8a5a00;
-    font-size: 11.5px; font-weight: 700; padding: 0 7px; border-radius: 20px; margin-left: 6px;
-    text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle;
+    display: inline-block; background: #f9f3e0; border: 1px solid #d8dee5; color: #5c4814;
+    font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; margin-left: 6px;
+    vertical-align: middle;
   }
 
   .plans { display: flex; flex-direction: column; gap: 12px; }
@@ -118,23 +121,26 @@
   .plan .price b { font-size: 19px; color: var(--accent-dark); }
   .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
 
-  .bonus { background: #f9f3e0; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .bonus { background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #34376f; border-radius: 12px; padding: 16px 18px; }
   .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
   .bonus .item:last-child { margin-bottom: 0; }
   .bonus .item .e { flex: none; font-size: 18px; }
   .bonus .item b { font-size: 15px; color: #5c4814; }
   .bonus .item p { margin: 2px 0 0; font-size: 14px; color: #8a5a00; }
 
-  .step { display: flex; gap: 12px; margin: 0 0 12px; }
+  .step { display: block; overflow: hidden; margin: 0 0 12px; }
   .step .n {
-    flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: #fff;
+    float: left; width: 28px; height: 28px; border-radius: 50%; margin: 0 12px 0 0; background: var(--accent); color: #fff;
     font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center;
   }
-  .step .c b { font-size: 15.5px; }
+  .step .c b { display: flex; align-items: flex-end; flex-wrap: wrap; min-height: 28px; font-size: 15.5px; }
   .step .c p { margin: 3px 0 0; font-size: 14.5px; color: #3a4753; }
   .free-pill {
-    display: inline-block; background: #fff4e5; border: 1px solid #f0c891; color: #8a5a00;
-    font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; margin-left: 6px;
+    display: inline-block; background: #f9f3e0; border: 1px solid #d8dee5;
+    color: #5c4814 !important;
+    font: 700 12.5px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    text-transform: none !important; letter-spacing: normal !important;
+    padding: 1px 8px; border-radius: 20px; margin-left: 6px; vertical-align: middle;
   }
 
   details.faq {
@@ -153,7 +159,7 @@
   details.faq .a p:last-child { margin-bottom: 0; }
 
   .cta-box {
-    background: #16324c; color: #fff;
+    background: #34376f; color: #fff;
     border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
   }
   .cta-box h2 { margin: 0 0 8px; font-size: 20px; color: #fff; }
@@ -166,7 +172,7 @@
 
   footer { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 22px; padding: 0 14px; }
   .intro {
-    background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid var(--accent);
+    background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #34376f;
     border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #8a5a00; line-height: 1.5;
   }
   .intro p { margin: 0; }
@@ -230,7 +236,7 @@
       </div>
       <div class="row">
         <div class="ic">😴</div>
-        <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="in-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
+        <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="free-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
       </div>
     </div>
   </div>
@@ -344,7 +350,7 @@
   <!-- КАК РАБОТИ -->
   <div class="sec">
     <h2>Как работи на практика</h2>
-    <div class="card">
+    <div class="card gold">
       <p>🔒 <b>Личен дневник.</b> Целият план, проследяването и връзката с треньора — на личен линк само за теб. Данните ти са видими само за теб.</p>
       <p>💳 <b>Предплащаш всеки месец</b> (60€ или 90€). Без договори, без неустойки.</p>
       <p>✋ <b>Отказваш когато искаш</b> — спреш ли да плащаш, просто спира.</p>
@@ -355,7 +361,7 @@
   <!-- ЦЕНИ НАКРАТКО -->
   <div class="sec">
     <h2>Цени накратко</h2>
-    <div class="card">
+    <div class="card gold">
       <p>💶 <b>1 раздел</b> (хранене <b>или</b> тренировки): 60€/месец (2€ на ден)</p>
       <p>💶 <b>2 раздела</b> (хранене <b>и</b> тренировки): 90€/месец (3€ на ден)</p>
       <p>🎁 Разчитане на кръвни + добавки + насоки за сън/възстановяване: <b>включени навсякъде</b></p>
