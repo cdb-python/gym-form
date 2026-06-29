@@ -372,233 +372,68 @@
       Отвори и попълни секциите, които те засягат ↓
     </p>
 
-    <!-- ================= 🩺 ЗДРАВЕ ================= -->
-    <details class="sec health" data-sec="health">
-      <summary><span class="emo">🩺</span><span class="ttl">Здраве<span class="sub">кръвни, лекарства, контузии — основата</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+    <!-- ================= 😴 СЪН / ВЪЗСТАНОВЯВАНЕ ================= -->
+    <details class="sec sleep" data-sec="sleep">
+      <summary><span class="emo">😴</span><span class="ttl">Сън и възстановяване<span class="sub">сън, стрес, енергия — там тялото се променя</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
       <div class="sec-body">
-        <p class="hint first">Отбележи областите, които те засягат — под всяка ще се появят няколко въпроса. Попълва се само каквото важи.</p>
-        <div id="areasBox"></div>
-
-        <label class="q">Друго състояние или заболяване, което не е в списъка? (по желание)
-          <span class="hint">Само го назови. Ако няма — остави празно.</span>
+        <label class="q first">Сънят ти еднакъв ли е всеки ден, или варира?
+          <span class="hint">При смени сънят често се мести — отбележи, ако е така.</span>
         </label>
-        <input type="text" id="drugo_sastoyanie">
-
-        <label class="q">Приемаш ли нещо от изброеното? (отметни класовете)
-          <span class="hint">Лекарствата често влияят на теглото, апетита и енергията. Отметни класовете, после опиши имената отдолу.</span>
+        <div class="opts" data-radio="syn_promenliv">
+          <label><input type="radio" name="syn_promenliv" value="Горе-долу еднакъв"> Горе-долу еднакъв</label>
+          <label><input type="radio" name="syn_promenliv" value="Варира"> Варира (смени/други)</label>
+        </div>
+        <label class="q">В колко часа обикновено си лягаш?
+          <span class="hint">Приблизително, напр. „23:00".</span>
         </label>
-        <div class="opts" data-check="lek_klas">
-          <label><input type="checkbox" value="Психиатрични / за нерви"> Психиатрични / за нерви</label>
-          <label><input type="checkbox" value="Щитовидна жлеза"> За щитовидната жлеза</label>
-          <label><input type="checkbox" value="Кръвно / сърце"> За кръвно / сърце</label>
-          <label><input type="checkbox" value="Хормонални / контрацепция"> Хормонални / противозачатъчни</label>
-          <label><input type="checkbox" value="Кортикостероиди"> Кортикостероиди (кортизон)</label>
-          <label><input type="checkbox" value="За холестерол (статини)"> За холестерол (статини)</label>
-          <label><input type="checkbox" value="За захар / диабет"> За захар / диабет</label>
-          <label><input type="checkbox" value="Стомашно"> Стомашно (киселини и др.)</label>
-          <label><input type="checkbox" value="Друго"> Друго</label>
+        <input type="text" id="chas_lyagane">
+        <label class="q">Колко часа спиш на нощ?</label>
+        <div class="opts" data-radio="syn_chasove">
+          <label><input type="radio" name="syn_chasove" value="Под 6"> Под 6</label>
+          <label><input type="radio" name="syn_chasove" value="6–7"> 6–7</label>
+          <label><input type="radio" name="syn_chasove" value="7–8"> 7–8</label>
+          <label><input type="radio" name="syn_chasove" value="Над 8"> Над 8</label>
         </div>
-
-        <label class="q">Влияе ли някое лекарство на теглото, апетита или енергията ти? (по желание)</label>
-        <input type="text" id="lek_vliyanie">
-
-        <label class="q">Какви лекарства приемаш в момента?
-          <span class="hint">Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин"). Ако няма — „няма".</span>
+        <label class="q">Как е сънят?</label>
+        <div class="opts" data-radio="syn_kachestvo">
+          <label><input type="radio" name="syn_kachestvo" value="Спокоен"> Спокоен</label>
+          <label><input type="radio" name="syn_kachestvo" value="Будене през нощта"> Будя се през нощта</label>
+          <label><input type="radio" name="syn_kachestvo" value="Трудно заспиване"> Трудно заспивам</label>
+        </div>
+        <label class="q">Ниво на стрес в момента?</label>
+        <div class="opts" data-radio="stres">
+          <label><input type="radio" name="stres" value="Ниско"> Ниско</label>
+          <label><input type="radio" name="stres" value="Средно"> Средно</label>
+          <label><input type="radio" name="stres" value="Високо"> Високо</label>
+        </div>
+        <label class="q">Енергия през деня?</label>
+        <div class="opts" data-radio="energiya">
+          <label><input type="radio" name="energiya" value="Добра"> Добра</label>
+          <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
+          <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+        </div>
+        <label class="q">Възстановяваш ли се добре между натоварвания?
+          <span class="hint">Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а).</span>
         </label>
-        <textarea id="lekarstva"></textarea>
-
-        <label class="q">Работата ти натоварва ли тялото по специфичен начин? (по желание)
-          <span class="hint">Повтарящи движения, дълго стоене в една поза, вдигане на тежко, вибрации.</span>
-        </label>
-        <input type="text" id="prof_natovarvane">
-
-        <label class="q">Има ли още нещо за здравето ти, което е добре да се знае? (по желание)</label>
-        <textarea id="drugo_vazhno"></textarea>
-
-        <label class="q" style="margin-top:16px;">Документи (епикризи, изследвания)</label>
-        <p class="hint" style="margin:0 0 4px">Изпрати ги като снимки <b>по Viber на треньора</b> — не се качват тук (остават поверителни).</p>
-        <div class="opts">
-          <label><input type="checkbox" id="docs_viber"> Ще изпратя епикризи/изследвания по Viber</label>
+        <div class="opts" data-radio="vyzstanovyavane">
+          <label><input type="radio" name="vyzstanovyavane" value="Добре"> Добре</label>
+          <label><input type="radio" name="vyzstanovyavane" value="Средно"> Средно</label>
+          <label><input type="radio" name="vyzstanovyavane" value="Бавно/често уморен"> Бавно — често преуморен(а)</label>
         </div>
-      </div>
-    </details>
-
-    <!-- ================= 🍎 ХРАНЕНЕ ================= -->
-    <details class="sec nutrition" data-sec="nutrition">
-      <summary><span class="emo">🍎</span><span class="ttl">Хранене<span class="sub">как се храниш сега и какво предпочиташ</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
-      <div class="sec-body">
-
-        <label class="q first">Как се храниш?</label>
-        <div class="opts" data-radio="tip_hranene" id="tipGroup">
-          <label><input type="radio" name="tip_hranene" value="Всеяден"> Всеяден (всичко)</label>
-          <label><input type="radio" name="tip_hranene" value="Вегетарианец"> Вегетарианец (без месо/риба)</label>
-          <label><input type="radio" name="tip_hranene" value="Веган"> Веган (само растително)</label>
-          <label><input type="radio" name="tip_hranene" value="Пескетарианец"> Пескетарианец (риба, без месо)</label>
-          <label><input type="radio" name="tip_hranene" value="Смесено по дни"> Смесено по дни</label>
-          <label><input type="radio" name="tip_hranene" value="Друго"> Друго</label>
+        <div class="row2">
+          <div>
+            <label class="q">Среден сън — точно (по желание)
+              <span class="hint">От часовник/приложение, напр. 6.5 ч.</span>
+            </label>
+            <input type="text" id="syn_tochno">
+          </div>
+          <div>
+            <label class="q">Пулс в покой (по желание)
+              <span class="hint">Ако часовникът го показва, сутрин.</span>
+            </label>
+            <input type="number" id="puls_pokoy" inputmode="numeric">
+          </div>
         </div>
-        <div class="reveal" id="tipReveal">
-          <label class="q">Опиши накратко
-            <span class="hint">Напр. „веган 2 дни (ср/пт), останалите с животински продукти".</span>
-          </label>
-          <input type="text" id="tip_opis">
-        </div>
-
-        <label class="q">Храни, които НЕ ядеш или избягваш
-          <span class="hint">По вкус, принцип или непоносимост. (Сериозните алергии — в секция Здраве.) Ако няма — „няма".</span>
-        </label>
-        <textarea id="izklyucheni"></textarea>
-
-        <label class="q">Имаш ли хранителна непоносимост?
-          <span class="hint">Различно от алергия — напр. подуване от определени храни.</span>
-        </label>
-        <div class="opts" data-check="neponosimost">
-          <label><input type="checkbox" value="Лактоза (млечно)"> Лактоза (млечно)</label>
-          <label><input type="checkbox" value="Глутен (пшеница)"> Глутен (пшеница)</label>
-          <label><input type="checkbox" value="Друго"> Друго</label>
-        </div>
-
-        <label class="q">Кои източници на протеин харесваш?</label>
-        <div class="opts" data-check="proteini">
-          <label><input type="checkbox" value="Пилешко/пуешко"> Пилешко / пуешко</label>
-          <label><input type="checkbox" value="Червено месо"> Червено месо</label>
-          <label><input type="checkbox" value="Риба/морски"> Риба / морски дарове</label>
-          <label><input type="checkbox" value="Яйца"> Яйца</label>
-          <label><input type="checkbox" value="Млечни"> Млечни (извара, скир, сирене)</label>
-          <label><input type="checkbox" value="Растителни (бобови, тофу)"> Растителни (бобови, тофу, темпе)</label>
-          <label><input type="checkbox" value="Протеин на прах"> Протеин на прах / шейкове</label>
-        </div>
-
-        <label class="q">Колко пъти на ден се храниш?</label>
-        <div class="opts" data-radio="hranenia_broy">
-          <label><input type="radio" name="hranenia_broy" value="1–2"> 1–2 пъти</label>
-          <label><input type="radio" name="hranenia_broy" value="3"> 3 пъти</label>
-          <label><input type="radio" name="hranenia_broy" value="4–5"> 4–5 пъти</label>
-          <label><input type="radio" name="hranenia_broy" value="Без режим"> Без режим (когато се случи)</label>
-        </div>
-
-        <label class="q">Закусваш ли?</label>
-        <div class="opts" data-radio="zakuska">
-          <label><input type="radio" name="zakuska" value="Да"> Да</label>
-          <label><input type="radio" name="zakuska" value="Не"> Не</label>
-          <label><input type="radio" name="zakuska" value="Понякога"> Понякога</label>
-        </div>
-
-        <label class="q">В кои часове се храниш обикновено?
-          <span class="hint">Напр. „8:00, 13:00, 20:00".</span>
-        </label>
-        <input type="text" id="chasove">
-
-        <label class="q">Храненето ти различно ли е на различни дни?
-          <span class="hint">При смени, тренировъчни и почивни дни. Ако да — режимът ще е по тип ден.</span>
-        </label>
-        <div class="opts" data-radio="hr_po_dni" id="hrPoDniGroup">
-          <label><input type="radio" name="hr_po_dni" value="Горе-долу еднакво"> Горе-долу еднакво всеки ден</label>
-          <label><input type="radio" name="hr_po_dni" value="Различно"> Различно (смени/трен/почивка)</label>
-        </div>
-        <div class="reveal" id="hrPoDniReveal">
-          <label class="q">Опиши накратко по тип ден</label>
-          <textarea id="hr_po_dni_opis"></textarea>
-        </div>
-
-        <label class="q">Прескачаш ли хранения или имаш дълги паузи без храна?</label>
-        <div class="opts" data-radio="preskacha" id="preskachaGroup">
-          <label><input type="radio" name="preskacha" value="Да"> Да</label>
-          <label><input type="radio" name="preskacha" value="Не"> Не</label>
-        </div>
-        <div class="reveal" id="preskachaReveal">
-          <label class="q">Кога и защо?</label>
-          <input type="text" id="preskacha_opis">
-        </div>
-
-        <label class="q">Какво хапваш между храненията? (по желание)
-          <span class="hint">Снакове, плодове, ядки, сладко… Ако нищо — остави празно.</span>
-        </label>
-        <input type="text" id="snaks">
-
-        <label class="q" style="margin-top:16px;">Типичен ден — какво ядеш обикновено
-          <span class="hint">Накратко, с твои думи. Показва откъде тръгваме.</span>
-        </label>
-        <label class="q">Закуска</label>
-        <input type="text" id="den_zakuska">
-        <label class="q">Обяд</label>
-        <input type="text" id="den_obyad">
-        <label class="q">Вечеря</label>
-        <input type="text" id="den_vecherya">
-        <label class="q">Между / друго през деня</label>
-        <input type="text" id="den_mezhdu">
-
-        <label class="q" style="margin-top:16px;">Кой готви / откъде е храната?</label>
-        <div class="opts" data-radio="gotvene">
-          <label><input type="radio" name="gotvene" value="Готвя си сам"> Готвя си сам/сама</label>
-          <label><input type="radio" name="gotvene" value="Вкъщи готвят"> Вкъщи готвят</label>
-          <label><input type="radio" name="gotvene" value="Външна/готова храна"> Външна / готова храна</label>
-          <label><input type="radio" name="gotvene" value="Смесено"> Смесено</label>
-        </div>
-
-        <label class="q">Колко време имаш за готвене?</label>
-        <div class="opts" data-radio="vreme_gotvene">
-          <label><input type="radio" name="vreme_gotvene" value="Малко"> Малко (бързи неща)</label>
-          <label><input type="radio" name="vreme_gotvene" value="Средно"> Средно</label>
-          <label><input type="radio" name="vreme_gotvene" value="Имам време"> Имам време</label>
-        </div>
-
-        <label class="q">Разнообразие в храната?
-          <span class="hint">Едно и също всеки ден (по-лесно за спазване) или разнообразие?</span>
-        </label>
-        <div class="opts" data-radio="raznoobrazie">
-          <label><input type="radio" name="raznoobrazie" value="Може едно и също всеки ден"> Може едно и също всеки ден</label>
-          <label><input type="radio" name="raznoobrazie" value="Искам разнообразие"> Искам разнообразие</label>
-          <label><input type="radio" name="raznoobrazie" value="Без значение"> Без значение</label>
-        </div>
-
-        <label class="q" style="margin-top:16px;">Какъв е гладът ти през деня?</label>
-        <div class="opts" data-radio="glad">
-          <label><input type="radio" name="glad" value="Слаб"> Слаб (ям без особен апетит)</label>
-          <label><input type="radio" name="glad" value="Нормален"> Нормален</label>
-          <label><input type="radio" name="glad" value="Силен/постоянен"> Силен / постоянен</label>
-        </div>
-        <label class="q">Кога гладът е най-силен? (по желание)
-          <span class="hint">Напр. „вечер", „следобед".</span>
-        </label>
-        <input type="text" id="glad_koga">
-        <label class="q">Желание за сладко?</label>
-        <div class="opts" data-radio="sladko">
-          <label><input type="radio" name="sladko" value="Не"> Почти не</label>
-          <label><input type="radio" name="sladko" value="Понякога"> Понякога</label>
-          <label><input type="radio" name="sladko" value="Силно/редовно"> Силно / редовно</label>
-        </div>
-        <label class="q">Хапване вечер или през нощта?</label>
-        <div class="opts" data-radio="vecher_hapvane">
-          <label><input type="radio" name="vecher_hapvane" value="Не"> Не</label>
-          <label><input type="radio" name="vecher_hapvane" value="Понякога"> Понякога</label>
-          <label><input type="radio" name="vecher_hapvane" value="Често"> Често</label>
-        </div>
-        <label class="q">Ядеш ли при стрес, скука или емоция?</label>
-        <div class="opts" data-radio="emo_hapvane">
-          <label><input type="radio" name="emo_hapvane" value="Не"> Не</label>
-          <label><input type="radio" name="emo_hapvane" value="Понякога"> Понякога</label>
-          <label><input type="radio" name="emo_hapvane" value="Често"> Често</label>
-        </div>
-
-        <label class="q" style="margin-top:16px;">Колко вода пиеш на ден?
-          <span class="hint">Приблизително — чиста вода (не кафе/чай).</span>
-        </label>
-        <div class="opts" data-radio="voda">
-          <label><input type="radio" name="voda" value="Под 1 л"> Под 1 литър</label>
-          <label><input type="radio" name="voda" value="1–2 л"> 1–2 литра</label>
-          <label><input type="radio" name="voda" value="2–3 л"> 2–3 литра</label>
-          <label><input type="radio" name="voda" value="Над 3 л"> Над 3 литра</label>
-        </div>
-        <label class="q">Има ли храни, които задължително искаш да присъстват? (по желание)</label>
-        <input type="text" id="zadalzhitelni">
-        <label class="q">Нещо друго за храненето ти? (по желание)</label>
-        <textarea id="drugo_hrana"></textarea>
-
-        <label class="q" style="margin-top:16px;">Какви добавки или витамини пиеш в момента?
-          <span class="hint">Добавката е добавка към храната. Напр. „витамин D, магнезий, омега-3". Ако нищо — „няма".</span>
-        </label>
-        <textarea id="dobavki"></textarea>
       </div>
     </details>
 
@@ -805,67 +640,232 @@
       </div>
     </details>
 
-    <!-- ================= 😴 СЪН / ВЪЗСТАНОВЯВАНЕ ================= -->
-    <details class="sec sleep" data-sec="sleep">
-      <summary><span class="emo">😴</span><span class="ttl">Сън и възстановяване<span class="sub">сън, стрес, енергия — там тялото се променя</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+    <!-- ================= 🍎 ХРАНЕНЕ ================= -->
+    <details class="sec nutrition" data-sec="nutrition">
+      <summary><span class="emo">🍎</span><span class="ttl">Хранене<span class="sub">как се храниш сега и какво предпочиташ</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
       <div class="sec-body">
-        <label class="q first">Сънят ти еднакъв ли е всеки ден, или варира?
-          <span class="hint">При смени сънят често се мести — отбележи, ако е така.</span>
+
+        <label class="q first">Как се храниш?</label>
+        <div class="opts" data-radio="tip_hranene" id="tipGroup">
+          <label><input type="radio" name="tip_hranene" value="Всеяден"> Всеяден (всичко)</label>
+          <label><input type="radio" name="tip_hranene" value="Вегетарианец"> Вегетарианец (без месо/риба)</label>
+          <label><input type="radio" name="tip_hranene" value="Веган"> Веган (само растително)</label>
+          <label><input type="radio" name="tip_hranene" value="Пескетарианец"> Пескетарианец (риба, без месо)</label>
+          <label><input type="radio" name="tip_hranene" value="Смесено по дни"> Смесено по дни</label>
+          <label><input type="radio" name="tip_hranene" value="Друго"> Друго</label>
+        </div>
+        <div class="reveal" id="tipReveal">
+          <label class="q">Опиши накратко
+            <span class="hint">Напр. „веган 2 дни (ср/пт), останалите с животински продукти".</span>
+          </label>
+          <input type="text" id="tip_opis">
+        </div>
+
+        <label class="q">Храни, които НЕ ядеш или избягваш
+          <span class="hint">По вкус, принцип или непоносимост. (Сериозните алергии — в секция Здраве.) Ако няма — „няма".</span>
         </label>
-        <div class="opts" data-radio="syn_promenliv">
-          <label><input type="radio" name="syn_promenliv" value="Горе-долу еднакъв"> Горе-долу еднакъв</label>
-          <label><input type="radio" name="syn_promenliv" value="Варира"> Варира (смени/други)</label>
-        </div>
-        <label class="q">В колко часа обикновено си лягаш?
-          <span class="hint">Приблизително, напр. „23:00".</span>
+        <textarea id="izklyucheni"></textarea>
+
+        <label class="q">Имаш ли хранителна непоносимост?
+          <span class="hint">Различно от алергия — напр. подуване от определени храни.</span>
         </label>
-        <input type="text" id="chas_lyagane">
-        <label class="q">Колко часа спиш на нощ?</label>
-        <div class="opts" data-radio="syn_chasove">
-          <label><input type="radio" name="syn_chasove" value="Под 6"> Под 6</label>
-          <label><input type="radio" name="syn_chasove" value="6–7"> 6–7</label>
-          <label><input type="radio" name="syn_chasove" value="7–8"> 7–8</label>
-          <label><input type="radio" name="syn_chasove" value="Над 8"> Над 8</label>
+        <div class="opts" data-check="neponosimost">
+          <label><input type="checkbox" value="Лактоза (млечно)"> Лактоза (млечно)</label>
+          <label><input type="checkbox" value="Глутен (пшеница)"> Глутен (пшеница)</label>
+          <label><input type="checkbox" value="Друго"> Друго</label>
         </div>
-        <label class="q">Как е сънят?</label>
-        <div class="opts" data-radio="syn_kachestvo">
-          <label><input type="radio" name="syn_kachestvo" value="Спокоен"> Спокоен</label>
-          <label><input type="radio" name="syn_kachestvo" value="Будене през нощта"> Будя се през нощта</label>
-          <label><input type="radio" name="syn_kachestvo" value="Трудно заспиване"> Трудно заспивам</label>
+
+        <label class="q">Кои източници на протеин харесваш?</label>
+        <div class="opts" data-check="proteini">
+          <label><input type="checkbox" value="Пилешко/пуешко"> Пилешко / пуешко</label>
+          <label><input type="checkbox" value="Червено месо"> Червено месо</label>
+          <label><input type="checkbox" value="Риба/морски"> Риба / морски дарове</label>
+          <label><input type="checkbox" value="Яйца"> Яйца</label>
+          <label><input type="checkbox" value="Млечни"> Млечни (извара, скир, сирене)</label>
+          <label><input type="checkbox" value="Растителни (бобови, тофу)"> Растителни (бобови, тофу, темпе)</label>
+          <label><input type="checkbox" value="Протеин на прах"> Протеин на прах / шейкове</label>
         </div>
-        <label class="q">Ниво на стрес в момента?</label>
-        <div class="opts" data-radio="stres">
-          <label><input type="radio" name="stres" value="Ниско"> Ниско</label>
-          <label><input type="radio" name="stres" value="Средно"> Средно</label>
-          <label><input type="radio" name="stres" value="Високо"> Високо</label>
+
+        <label class="q">Колко пъти на ден се храниш?</label>
+        <div class="opts" data-radio="hranenia_broy">
+          <label><input type="radio" name="hranenia_broy" value="1–2"> 1–2 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="3"> 3 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="4–5"> 4–5 пъти</label>
+          <label><input type="radio" name="hranenia_broy" value="Без режим"> Без режим (когато се случи)</label>
         </div>
-        <label class="q">Енергия през деня?</label>
-        <div class="opts" data-radio="energiya">
-          <label><input type="radio" name="energiya" value="Добра"> Добра</label>
-          <label><input type="radio" name="energiya" value="Пада следобед"> Пада следобед</label>
-          <label><input type="radio" name="energiya" value="Ниска цял ден"> Ниска цял ден</label>
+
+        <label class="q">Закусваш ли?</label>
+        <div class="opts" data-radio="zakuska">
+          <label><input type="radio" name="zakuska" value="Да"> Да</label>
+          <label><input type="radio" name="zakuska" value="Не"> Не</label>
+          <label><input type="radio" name="zakuska" value="Понякога"> Понякога</label>
         </div>
-        <label class="q">Възстановяваш ли се добре между натоварвания?
-          <span class="hint">Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а).</span>
+
+        <label class="q">В кои часове се храниш обикновено?
+          <span class="hint">Напр. „8:00, 13:00, 20:00".</span>
         </label>
-        <div class="opts" data-radio="vyzstanovyavane">
-          <label><input type="radio" name="vyzstanovyavane" value="Добре"> Добре</label>
-          <label><input type="radio" name="vyzstanovyavane" value="Средно"> Средно</label>
-          <label><input type="radio" name="vyzstanovyavane" value="Бавно/често уморен"> Бавно — често преуморен(а)</label>
+        <input type="text" id="chasove">
+
+        <label class="q">Храненето ти различно ли е на различни дни?
+          <span class="hint">При смени, тренировъчни и почивни дни. Ако да — режимът ще е по тип ден.</span>
+        </label>
+        <div class="opts" data-radio="hr_po_dni" id="hrPoDniGroup">
+          <label><input type="radio" name="hr_po_dni" value="Горе-долу еднакво"> Горе-долу еднакво всеки ден</label>
+          <label><input type="radio" name="hr_po_dni" value="Различно"> Различно (смени/трен/почивка)</label>
         </div>
-        <div class="row2">
-          <div>
-            <label class="q">Среден сън — точно (по желание)
-              <span class="hint">От часовник/приложение, напр. 6.5 ч.</span>
-            </label>
-            <input type="text" id="syn_tochno">
-          </div>
-          <div>
-            <label class="q">Пулс в покой (по желание)
-              <span class="hint">Ако часовникът го показва, сутрин.</span>
-            </label>
-            <input type="number" id="puls_pokoy" inputmode="numeric">
-          </div>
+        <div class="reveal" id="hrPoDniReveal">
+          <label class="q">Опиши накратко по тип ден</label>
+          <textarea id="hr_po_dni_opis"></textarea>
+        </div>
+
+        <label class="q">Прескачаш ли хранения или имаш дълги паузи без храна?</label>
+        <div class="opts" data-radio="preskacha" id="preskachaGroup">
+          <label><input type="radio" name="preskacha" value="Да"> Да</label>
+          <label><input type="radio" name="preskacha" value="Не"> Не</label>
+        </div>
+        <div class="reveal" id="preskachaReveal">
+          <label class="q">Кога и защо?</label>
+          <input type="text" id="preskacha_opis">
+        </div>
+
+        <label class="q">Какво хапваш между храненията? (по желание)
+          <span class="hint">Снакове, плодове, ядки, сладко… Ако нищо — остави празно.</span>
+        </label>
+        <input type="text" id="snaks">
+
+        <label class="q" style="margin-top:16px;">Типичен ден — какво ядеш обикновено
+          <span class="hint">Накратко, с твои думи. Показва откъде тръгваме.</span>
+        </label>
+        <label class="q">Закуска</label>
+        <input type="text" id="den_zakuska">
+        <label class="q">Обяд</label>
+        <input type="text" id="den_obyad">
+        <label class="q">Вечеря</label>
+        <input type="text" id="den_vecherya">
+        <label class="q">Между / друго през деня</label>
+        <input type="text" id="den_mezhdu">
+
+        <label class="q" style="margin-top:16px;">Кой готви / откъде е храната?</label>
+        <div class="opts" data-radio="gotvene">
+          <label><input type="radio" name="gotvene" value="Готвя си сам"> Готвя си сам/сама</label>
+          <label><input type="radio" name="gotvene" value="Вкъщи готвят"> Вкъщи готвят</label>
+          <label><input type="radio" name="gotvene" value="Външна/готова храна"> Външна / готова храна</label>
+          <label><input type="radio" name="gotvene" value="Смесено"> Смесено</label>
+        </div>
+
+        <label class="q">Колко време имаш за готвене?</label>
+        <div class="opts" data-radio="vreme_gotvene">
+          <label><input type="radio" name="vreme_gotvene" value="Малко"> Малко (бързи неща)</label>
+          <label><input type="radio" name="vreme_gotvene" value="Средно"> Средно</label>
+          <label><input type="radio" name="vreme_gotvene" value="Имам време"> Имам време</label>
+        </div>
+
+        <label class="q">Разнообразие в храната?
+          <span class="hint">Едно и също всеки ден (по-лесно за спазване) или разнообразие?</span>
+        </label>
+        <div class="opts" data-radio="raznoobrazie">
+          <label><input type="radio" name="raznoobrazie" value="Може едно и също всеки ден"> Може едно и също всеки ден</label>
+          <label><input type="radio" name="raznoobrazie" value="Искам разнообразие"> Искам разнообразие</label>
+          <label><input type="radio" name="raznoobrazie" value="Без значение"> Без значение</label>
+        </div>
+
+        <label class="q" style="margin-top:16px;">Какъв е гладът ти през деня?</label>
+        <div class="opts" data-radio="glad">
+          <label><input type="radio" name="glad" value="Слаб"> Слаб (ям без особен апетит)</label>
+          <label><input type="radio" name="glad" value="Нормален"> Нормален</label>
+          <label><input type="radio" name="glad" value="Силен/постоянен"> Силен / постоянен</label>
+        </div>
+        <label class="q">Кога гладът е най-силен? (по желание)
+          <span class="hint">Напр. „вечер", „следобед".</span>
+        </label>
+        <input type="text" id="glad_koga">
+        <label class="q">Желание за сладко?</label>
+        <div class="opts" data-radio="sladko">
+          <label><input type="radio" name="sladko" value="Не"> Почти не</label>
+          <label><input type="radio" name="sladko" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="sladko" value="Силно/редовно"> Силно / редовно</label>
+        </div>
+        <label class="q">Хапване вечер или през нощта?</label>
+        <div class="opts" data-radio="vecher_hapvane">
+          <label><input type="radio" name="vecher_hapvane" value="Не"> Не</label>
+          <label><input type="radio" name="vecher_hapvane" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="vecher_hapvane" value="Често"> Често</label>
+        </div>
+        <label class="q">Ядеш ли при стрес, скука или емоция?</label>
+        <div class="opts" data-radio="emo_hapvane">
+          <label><input type="radio" name="emo_hapvane" value="Не"> Не</label>
+          <label><input type="radio" name="emo_hapvane" value="Понякога"> Понякога</label>
+          <label><input type="radio" name="emo_hapvane" value="Често"> Често</label>
+        </div>
+
+        <label class="q" style="margin-top:16px;">Колко вода пиеш на ден?
+          <span class="hint">Приблизително — чиста вода (не кафе/чай).</span>
+        </label>
+        <div class="opts" data-radio="voda">
+          <label><input type="radio" name="voda" value="Под 1 л"> Под 1 литър</label>
+          <label><input type="radio" name="voda" value="1–2 л"> 1–2 литра</label>
+          <label><input type="radio" name="voda" value="2–3 л"> 2–3 литра</label>
+          <label><input type="radio" name="voda" value="Над 3 л"> Над 3 литра</label>
+        </div>
+        <label class="q">Има ли храни, които задължително искаш да присъстват? (по желание)</label>
+        <input type="text" id="zadalzhitelni">
+        <label class="q">Нещо друго за храненето ти? (по желание)</label>
+        <textarea id="drugo_hrana"></textarea>
+
+        <label class="q" style="margin-top:16px;">Какви добавки или витамини пиеш в момента?
+          <span class="hint">Добавката е добавка към храната. Напр. „витамин D, магнезий, омега-3". Ако нищо — „няма".</span>
+        </label>
+        <textarea id="dobavki"></textarea>
+      </div>
+    </details>
+
+    <!-- ================= 🩺 ЗДРАВЕ ================= -->
+    <details class="sec health" data-sec="health">
+      <summary><span class="emo">🩺</span><span class="ttl">Здраве<span class="sub">кръвни, лекарства, контузии — основата</span></span><span class="done">✓ попълнено</span><span class="chev"></span></summary>
+      <div class="sec-body">
+        <p class="hint first">Отбележи областите, които те засягат — под всяка ще се появят няколко въпроса. Попълва се само каквото важи.</p>
+        <div id="areasBox"></div>
+
+        <label class="q">Друго състояние или заболяване, което не е в списъка? (по желание)
+          <span class="hint">Само го назови. Ако няма — остави празно.</span>
+        </label>
+        <input type="text" id="drugo_sastoyanie">
+
+        <label class="q">Приемаш ли нещо от изброеното? (отметни класовете)
+          <span class="hint">Лекарствата често влияят на теглото, апетита и енергията. Отметни класовете, после опиши имената отдолу.</span>
+        </label>
+        <div class="opts" data-check="lek_klas">
+          <label><input type="checkbox" value="Психиатрични / за нерви"> Психиатрични / за нерви</label>
+          <label><input type="checkbox" value="Щитовидна жлеза"> За щитовидната жлеза</label>
+          <label><input type="checkbox" value="Кръвно / сърце"> За кръвно / сърце</label>
+          <label><input type="checkbox" value="Хормонални / контрацепция"> Хормонални / противозачатъчни</label>
+          <label><input type="checkbox" value="Кортикостероиди"> Кортикостероиди (кортизон)</label>
+          <label><input type="checkbox" value="За холестерол (статини)"> За холестерол (статини)</label>
+          <label><input type="checkbox" value="За захар / диабет"> За захар / диабет</label>
+          <label><input type="checkbox" value="Стомашно"> Стомашно (киселини и др.)</label>
+          <label><input type="checkbox" value="Друго"> Друго</label>
+        </div>
+
+        <label class="q">Влияе ли някое лекарство на теглото, апетита или енергията ти? (по желание)</label>
+        <input type="text" id="lek_vliyanie">
+
+        <label class="q">Какви лекарства приемаш в момента?
+          <span class="hint">Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин"). Ако няма — „няма".</span>
+        </label>
+        <textarea id="lekarstva"></textarea>
+
+        <label class="q">Работата ти натоварва ли тялото по специфичен начин? (по желание)
+          <span class="hint">Повтарящи движения, дълго стоене в една поза, вдигане на тежко, вибрации.</span>
+        </label>
+        <input type="text" id="prof_natovarvane">
+
+        <label class="q">Има ли още нещо за здравето ти, което е добре да се знае? (по желание)</label>
+        <textarea id="drugo_vazhno"></textarea>
+
+        <label class="q" style="margin-top:16px;">Документи (епикризи, изследвания)</label>
+        <p class="hint" style="margin:0 0 4px">Изпрати ги като снимки <b>по Viber на треньора</b> — не се качват тук (остават поверителни).</p>
+        <div class="opts">
+          <label><input type="checkbox" id="docs_viber"> Ще изпратя епикризи/изследвания по Viber</label>
         </div>
       </div>
     </details>
