@@ -129,7 +129,7 @@
 <header>
   <div class="wrap" style="padding:0 4px;">
     <h1>cdb-Gym — Въпросник</h1>
-    <p>Една форма · попълваш каквото те засяга</p>
+    <p>Една форма · попълваш всичко необходимо</p>
   </div>
 </header>
 
@@ -153,9 +153,8 @@
       <div class="opts" data-check="izhod" id="izhodGroup">
         <label><input type="checkbox" value="Хранителен режим"> Хранителен режим</label>
         <label><input type="checkbox" value="Тренировъчна програма"> Тренировъчна програма</label>
-        <label><input type="checkbox" value="Препоръка за добавки"> Препоръка за добавки</label>
         <label><input type="checkbox" value="Цялостен подход"> Цялостен подход (всичко)</label>
-        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — преценете вие</label>
+        <label><input type="checkbox" value="Не съм сигурен"> Не съм сигурен — не мога да преценя</label>
       </div>
 
       <label class="q">Каква е целта ти?</label>
@@ -964,7 +963,6 @@
     var s = checks("izhod"), all = s.indexOf("Цялостен подход") > -1;
     if (all || s.indexOf("Хранителен режим") > -1) openSec("nutrition");
     if (all || s.indexOf("Тренировъчна програма") > -1) openSec("training");
-    if (all || s.indexOf("Препоръка за добавки") > -1) openSec("nutrition");
   });
 
   // ---- „Попълнено ✓" badge на секциите ----
@@ -989,7 +987,7 @@
     var f = [], s = izhodSel(), all = wantsAll();
     var anyArea = AREAS.some(function (a) { return isArea(a.key); });
     if (anyArea || all || val("drugo_sastoyanie")) f.push("Здраве");
-    if (all || s.indexOf("Хранителен режим") > -1 || s.indexOf("Препоръка за добавки") > -1) f.push("Хранене");
+    if (all || s.indexOf("Хранителен режим") > -1) f.push("Хранене");
     if (all || s.indexOf("Тренировъчна програма") > -1) f.push("Тренировки");
     return f;
   }
