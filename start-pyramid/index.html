@@ -78,14 +78,17 @@
     box-shadow: 0 3px 10px rgba(0,0,0,.14);
   }
   .pyr .lvl > summary {
-    list-style: none; cursor: pointer; position: relative;
-    padding: 16px 36px; text-align: center; line-height: 1.22;
+    list-style: none; cursor: pointer;
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px; line-height: 1.22;
   }
   .pyr .lvl > summary::-webkit-details-marker { display: none; }
-  .pyr .lvl > summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; font-weight: 700; }
+  .pyr .lvl > summary .emo { font-size: 19px; flex: none; }
+  .pyr .lvl > summary .ttl { display: flex; flex-direction: column; }
+  .pyr .lvl > summary b { font-size: 16.5px; font-weight: 700; }
+  .pyr .lvl > summary .sub { font-size: 12.5px; font-weight: 400; opacity: 0.92; margin-top: 1px; }
+  .pyr .lvl > summary::after { content: "+"; margin-left: auto; font-size: 22px; font-weight: 700; flex: none; }
   .pyr .lvl[open] > summary::after { content: "\2212"; }
-  .pyr .lvl > summary b { display: block; font-size: 16.5px; font-weight: 700; }
-  .pyr .lvl > summary > span { font-size: 12.5px; font-weight: 400; opacity: 0.92; }
   .pyr .lvl .lvl-body { display: none; padding: 0 16px 16px; text-align: left; font-size: 14.5px; line-height: 1.5; }
   .pyr .lvl[open] .lvl-body { display: block; }
   .pyr .l4 { width: 100%; background: var(--c-sleep); }
@@ -231,19 +234,19 @@
 
     <div class="pyr">
       <details class="lvl l4">
-        <summary><b>😴 Възстановяване и сън</b><span>връх · фина настройка</span></summary>
+        <summary><span class="emo">😴</span><span class="ttl"><b>Възстановяване и сън</b><span class="sub">връх · фина настройка</span></span></summary>
         <div class="lvl-body">Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане. <span class="free-pill">включено</span></div>
       </details>
       <details class="lvl l3">
-        <summary><b>🏋 Тренировки</b><span>сигналът за промяна</span></summary>
+        <summary><span class="emo">🏋</span><span class="ttl"><b>Тренировки</b><span class="sub">сигналът за промяна</span></span></summary>
         <div class="lvl-body">Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</div>
       </details>
       <details class="lvl l2">
-        <summary><b>🍎 Хранене</b><span>горивото и материалът</span></summary>
+        <summary><span class="emo">🍎</span><span class="ttl"><b>Хранене</b><span class="sub">горивото и материалът</span></span></summary>
         <div class="lvl-body">По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</div>
       </details>
       <details class="lvl l1">
-        <summary><b>🩺 Здраве и изследвания</b><span>основата на всичко</span></summary>
+        <summary><span class="emo">🩺</span><span class="ttl"><b>Здраве и изследвания</b><span class="sub">основата на всичко</span></span></summary>
         <div class="lvl-body">Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</div>
       </details>
     </div>
