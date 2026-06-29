@@ -16,14 +16,18 @@
     --card: #ffffff;
     --ink: #1c2733;
     --muted: #6b7886;
-    --navy: #0e2030;
+    --navy: #16324c;
     --navy2: #16324c;
     --accent: #16324c;
     --accent-dark: #16324c;
     --accent-bright: #c4a845;
     --border: #d8dee5;
-    --soft: #eaf0f4;
+    --soft: #eef4f1;
     --gold: #c4a845;
+    --c-health: #c43d3d;
+    --c-nutrition: #34376f;
+    --c-training: #245fb0;
+    --c-sleep: #129e90;
   }
   * { box-sizing: border-box; }
   body {
@@ -71,10 +75,10 @@
   }
   .pyr .lvl b { display: block; font-size: 13.5px; font-weight: 800; letter-spacing: 0.02em; }
   .pyr .lvl span { font-size: 11px; opacity: 0.82; text-transform: uppercase; letter-spacing: 0.06em; }
-  .pyr .l4 { width: 78%; background: #3d5e7d; }
-  .pyr .l3 { width: 85%; background: #2a4a66; }
-  .pyr .l2 { width: 92%; background: #16324c; }
-  .pyr .l1 { width: 100%; background: #0e2030; }
+  .pyr .l4 { width: 78%; background: var(--c-sleep); }
+  .pyr .l3 { width: 85%; background: var(--c-training); }
+  .pyr .l2 { width: 92%; background: var(--c-nutrition); }
+  .pyr .l1 { width: 100%; background: var(--c-health); }
   .pyr-note {
     font-size: 13.5px; color: #3a4753; text-align: center; margin: 2px 0 14px;
     padding: 0 4px; line-height: 1.5;
@@ -88,11 +92,15 @@
     background: var(--soft); color: var(--accent-dark);
     display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;
   }
+  .rows .ic.health { background: var(--c-health); color: #fff; }
+  .rows .ic.nutrition { background: var(--c-nutrition); color: #fff; }
+  .rows .ic.training { background: var(--c-training); color: #fff; }
+  .rows .ic.sleep { background: var(--c-sleep); color: #fff; }
   .rows .tx b { display: block; font-size: 15.5px; margin-bottom: 2px; }
   .rows .tx span { font-size: 14.5px; color: var(--muted); }
   .rows .tx .step-n { color: var(--accent-dark); font-weight: 800; }
   .in-pill {
-    display: inline-block; background: #fff8ec; border: 1px solid #ecd9af; color: #6a531f;
+    display: inline-block; background: #fff4e5; border: 1px solid #f0c891; color: #8a5a00;
     font-size: 11.5px; font-weight: 700; padding: 0 7px; border-radius: 20px; margin-left: 6px;
     text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle;
   }
@@ -114,7 +122,7 @@
   .plan .price b { font-size: 19px; color: var(--accent-dark); }
   .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
 
-  .bonus { background: var(--soft); border: 1px solid #d8dee5; border-radius: 12px; padding: 16px 18px; }
+  .bonus { background: #f9f3e0; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
   .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
   .bonus .item:last-child { margin-bottom: 0; }
   .bonus .item .e { flex: none; font-size: 18px; }
@@ -129,7 +137,7 @@
   .step .c b { font-size: 15.5px; }
   .step .c p { margin: 3px 0 0; font-size: 14.5px; color: #3a4753; }
   .free-pill {
-    display: inline-block; background: #fff8ec; border: 1px solid #ecd9af; color: #6a531f;
+    display: inline-block; background: #fff4e5; border: 1px solid #f0c891; color: #8a5a00;
     font-size: 12.5px; font-weight: 700; padding: 1px 8px; border-radius: 20px; margin-left: 6px;
   }
 
@@ -149,21 +157,21 @@
   details.faq .a p:last-child { margin-bottom: 0; }
 
   .cta-box {
-    background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 100%); color: #fff;
-    border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
+    background: #f9f3e0; color: #5c4814;
+    border: 1px solid var(--border); border-radius: 16px; padding: 26px 20px; text-align: center; margin: 28px 0 10px;
   }
-  .cta-box h2 { margin: 0 0 8px; font-size: 20px; color: #fff; }
-  .cta-box p { margin: 0 0 18px; font-size: 15px; color: #fff; opacity: 0.95; }
+  .cta-box h2 { margin: 0 0 8px; font-size: 20px; color: #5c4814; }
+  .cta-box p { margin: 0 0 18px; font-size: 15px; color: #8a5a00; }
   .cta-btn {
-    display: block; background: var(--accent-bright); color: var(--navy); text-decoration: none;
+    display: block; background: #16324c; color: #fff; text-decoration: none;
     font-weight: 700; font-size: 17px; padding: 14px 18px; border-radius: 12px; margin: 0 0 10px;
   }
   .cta-btn:last-child { margin-bottom: 0; }
 
   footer { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 22px; padding: 0 14px; }
   .intro {
-    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
-    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #3a4753; line-height: 1.5;
+    background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid var(--accent);
+    border-radius: 12px; padding: 11px 14px; margin: 14px 0 6px; font-size: 13.5px; color: #5c4814; line-height: 1.5;
   }
   .intro p { margin: 0; }
   .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; position: relative; font-weight: 700; white-space: nowrap; }
@@ -212,19 +220,19 @@
 
     <div class="card rows">
       <div class="row">
-        <div class="ic">🩺</div>
+        <div class="ic health">🩺</div>
         <div class="tx"><b><span class="step-n">Етаж 1 · основата</span> — Здраве и изследвания</b><span>Кръвни показатели, лекарства, стари контузии. Храненето, добавките и тренировката се правят <b>около</b> тях, не въпреки тях — затова започваме оттук. Сгрешиш ли основата, нищо отгоре не я поправя.</span></div>
       </div>
       <div class="row">
-        <div class="ic">🍎</div>
+        <div class="ic nutrition">🍎</div>
         <div class="tx"><b><span class="step-n">Етаж 2</span> — Хранене</b><span>По реалните ти числа — калории, макроси, твоите храни. Има си своя вътрешна подредба: първо колко ядеш, после протеинът, после качеството. Най-големият дневен лост.</span></div>
       </div>
       <div class="row">
-        <div class="ic">🏋</div>
+        <div class="ic training">🏋</div>
         <div class="tx"><b><span class="step-n">Етаж 3</span> — Тренировки</b><span>Стимулът, който казва на тялото „изгради сила и форма" — адаптиран към здравето и контузиите ти. Храненето сваля мазнина; мускул и сила се градят само от натоварване.</span></div>
       </div>
       <div class="row">
-        <div class="ic">😴</div>
+        <div class="ic sleep">😴</div>
         <div class="tx"><b><span class="step-n">Етаж 4 · връх</span> — Възстановяване и сън <span class="in-pill">включено</span></b><span>Там тялото всъщност се променя — растеш докато спиш, не в залата. Хигиена на съня, почивка и таргетиран стак (по нужда). Новото перо в подхода — влиза без доплащане.</span></div>
       </div>
     </div>
