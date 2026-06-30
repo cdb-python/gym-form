@@ -157,9 +157,13 @@
     var html = '';
     cards.forEach(function (r) {
       var key = "a_" + r.sort;
-      var ttl = r.title || "Виж";
-      var m = String(ttl).match(/Слой\s*([1-5])/);
-      var cls = m ? ("l" + m[1]) : "lx";
+      var ttl = String(r.title || "Виж");
+      var cls = /Количество/.test(ttl) ? "l1"
+              : /Макроси/.test(ttl) ? "l2"
+              : /Качество/.test(ttl) ? "l3"
+              : /Тайминг/.test(ttl) ? "l4"
+              : /Добавки/.test(ttl) ? "l5"
+              : "lx";
       html += '<div class="card ' + cls + '" data-key="' + esc(key) + '">';
       html += '<div class="t">' + esc(ttl) + "</div>";
       if (r.body) html += '<div class="body">' + r.body + "</div>";
