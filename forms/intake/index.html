@@ -1282,6 +1282,8 @@
     sendErr.classList.remove("show");
 
     var data = gatherData();
+    var tkn = new URLSearchParams(location.search).get("t");
+    if (tkn) data.token = tkn;   // токен от анализа → авто-връзване към client_id (DB тригер)
     var text = build();
     btn.disabled = true;
     btn.textContent = "Изпращане…";
