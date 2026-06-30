@@ -369,9 +369,9 @@
 
     // банерът е горе (стики); самите съобщения са НАЙ-ДОЛУ — банерът скролва до тях
     content.innerHTML = bannerHtml + progressHtml + rewardHtml + formHtml + infoHtml + guideHtml + histHtml + coachHtml;
+    // NB: wireAccordion() НЕ тук — закача се ВЕДНЪЖ на init (делегация на content). Иначе всеки render трупа листенер → toggle×N → картите „не се отварят" при първо зареждане (поправено 30.06).
 
     wireForm(data, today);
-    wireAccordion();
     wireCoach(latestCoachAt);
   }
 
@@ -476,6 +476,8 @@
 
   var token = new URLSearchParams(location.search).get("t");
   if (!token) { showState("Липсва код в линка. Отвори линка, който получи."); return; }
+
+  wireAccordion();  // ВЕДНЪЖ — делегация на content (стабилен), важи за всички текущи/бъдещи карти
 
   sb.rpc("get_food_log", { p_token: token }).then(function (res) {
     if (res.error) { showState("Възникна грешка при зареждането. Опитай по-късно."); return; }
