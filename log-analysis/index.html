@@ -47,15 +47,24 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 14px 16px;
     margin: 12px 0 0;
+    overflow: hidden;
   }
-  .card .t { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
-  .card .t::before { content: ""; flex: none; width: 14px; }
-  .card .t::after { content: "▸"; flex: none; width: 14px; color: var(--accent); font-size: 14px; }
-  .card.open .t::after { content: "▾"; }
-  .card .body { font-size: 15.5px; margin-top: 8px; display: none; overflow-x: auto; }
+  .card .t {
+    font-weight: 700; font-size: 16px; margin: 0; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 14px 16px; text-align: left; color: #fff; background: var(--accent);
+  }
+  .card .t::after { content: "+"; flex: none; color: #fff; font-size: 20px; font-weight: 700; }
+  .card.open .t::after { content: "\2212"; }
+  .card .body { font-size: 15.5px; padding: 14px 16px; display: none; overflow-x: auto; }
   .card.open .body { display: block; }
+  .card.l1 .t { background: #c43d3d; }
+  .card.l2 .t { background: #34376f; }
+  .card.l3 .t { background: #245fb0; }
+  .card.l4 .t { background: #129e90; }
+  .card.l5 .t { background: #8a5a00; }
+  .card.lx .t { background: #b8862f; }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
   .card .body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 8px 0; font-size: 13.5px; }
@@ -141,8 +150,11 @@
     var html = '';
     cards.forEach(function (r) {
       var key = "a_" + r.sort;
-      html += '<div class="card" data-key="' + esc(key) + '">';
-      html += '<div class="t">' + esc(r.title || "Виж") + "</div>";
+      var ttl = r.title || "Виж";
+      var m = String(ttl).match(/Слой\s*([1-5])/);
+      var cls = m ? ("l" + m[1]) : "lx";
+      html += '<div class="card ' + cls + '" data-key="' + esc(key) + '">';
+      html += '<div class="t">' + esc(ttl) + "</div>";
       if (r.body) html += '<div class="body">' + r.body + "</div>";
       html += "</div>";
     });
