@@ -175,7 +175,8 @@
     <fieldset>
       <legend>Основни данни</legend>
 
-      <label class="q">Име <span style="color:#c43d3d;font-weight:700;">— нужно</span></label>
+      <div id="hello" style="display:none;background:#eef0f7;border:1px solid #c3c9e6;border-radius:10px;padding:10px 13px;margin:0 0 12px;font-weight:700;color:#34376f;"></div>
+      <label class="q">Име <span id="imeReqLbl" style="color:#c43d3d;font-weight:700;">— нужно</span></label>
       <input type="text" id="ime">
       <div class="reqnote" id="imeReq">Нужно е името, за да се свържат данните. Попълни го, моля.</div>
 
@@ -1256,6 +1257,22 @@
   var okMsg = document.getElementById("okMsg");
   var sendErr = document.getElementById("sendErr");
   var outBox = document.getElementById("outBox");
+
+  // Идващ с токен (от анализа) → знаем кой е: попълваме името, поздрав, без „нужно"
+  (function () {
+    var tkn = new URLSearchParams(location.search).get("t");
+    if (!tkn) return;
+    sb.rpc("get_client_name", { p_token: tkn }).then(function (res) {
+      var nm = (res && res.data) ? String(res.data).trim() : "";
+      if (!nm) return;
+      imeEl.value = nm;
+      imeEl.readOnly = true;
+      var lbl = document.getElementById("imeReqLbl"); if (lbl) lbl.style.display = "none";
+      imeReqNote.classList.remove("show");
+      var hello = document.getElementById("hello");
+      if (hello) { hello.textContent = "Здравей, " + nm + "! 👋"; hello.style.display = "block"; }
+    }, function () { /* без връзка → името остава за ръчно попълване */ });
+  })();
 
   document.getElementById("sendBtn").addEventListener("click", function () {
     var btn = this;
