@@ -429,9 +429,10 @@
 
   <!-- CTA -->
   <div class="cta-box">
-    <h2>Остана въпрос?</h2>
-    <p>Ако нещо не е ясно или си готов/а да започнеш.</p>
-    <a class="cta-btn" href="viber://chat?number=%2B359877779555">Пиши във Viber</a>
+    <h2>Готов/а да започнеш?</h2>
+    <p>Логът и анализът са зад теб. Следва пълната картина — попълни данните си и планът тръгва.</p>
+    <a class="cta-btn" id="startbtn" href="https://cdb-python.github.io/gym-form/forms/intake/">Влез и попълни данните си →</a>
+    <p style="margin:14px 0 0;font-size:13px;opacity:.85;">Остана въпрос? <a href="viber://chat?number=%2B359877779555" style="color:#fff;text-decoration:underline;">Пиши в Viber</a></p>
   </div>
 
   <footer>
@@ -441,6 +442,11 @@
 </div>
 <script>
   (function(){
+    // пренасяне на токена от анализа → интейк бутона (за авто-връзване)
+    var t = new URLSearchParams(location.search).get('t');
+    var startbtn = document.getElementById('startbtn');
+    if (t && startbtn) startbtn.href += (startbtn.href.indexOf('?') >= 0 ? '&' : '?') + 't=' + encodeURIComponent(t);
+
     var certs = Array.prototype.slice.call(document.querySelectorAll('.cert'));
     function place(el){
       var pop = el.querySelector('.cert-pop');
