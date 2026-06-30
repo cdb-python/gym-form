@@ -90,6 +90,26 @@
   }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
   footer { text-align: center; color: var(--muted); font-size: 13px; margin: 22px 0 0; }
+  .exit { text-align: center; margin: 20px 0 0; }
+  .exit p { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  .pdfbtn {
+    display: inline-block; background: #fff; color: var(--accent);
+    border: 1.5px solid var(--accent); border-radius: 11px;
+    font-weight: 700; font-size: 15px; padding: 11px 18px; cursor: pointer;
+  }
+  .pdfbtn:active { background: var(--soft); }
+  @media print {
+    .no-print, .loading { display: none !important; }
+    .card .body { display: block !important; }
+    .card .t { cursor: default; }
+    .card .t::after { content: "" !important; }
+    .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; }
+    body { padding: 0; font-size: 12pt; }
+    header, .card .t, .card .body th {
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    a[href] { color: inherit; text-decoration: none; }
+  }
   .cert { color: var(--accent); border-bottom: 1px dotted var(--accent); cursor: pointer; font-weight: 700; white-space: nowrap; }
   .cert-pop {
     display: none; position: fixed; z-index: 100;
@@ -169,8 +189,15 @@
       if (r.body) html += '<div class="body">' + r.body + "</div>";
       html += "</div>";
     });
+    html += '<div class="exit no-print"><p>Искаш да помислиш? Запази анализа и го разгледай на спокойствие.</p>'
+          + '<button type="button" class="pdfbtn" onclick="window.print()">⬇ Свали анализа (PDF)</button></div>';
     html += '<footer>cdb-Gym · личен анализ</footer>';
     content.innerHTML = html;
+
+    // пренасяне на токена към Път 2 (start-pyramid-direct) → нататък към интейка
+    [].slice.call(content.querySelectorAll('a[href*="start-pyramid-direct"]')).forEach(function (a) {
+      a.href += (a.href.indexOf("?") >= 0 ? "&" : "?") + "t=" + encodeURIComponent(token);
+    });
 
     content.addEventListener("click", function (e) {
       if (e.target.closest(".cert")) return;
