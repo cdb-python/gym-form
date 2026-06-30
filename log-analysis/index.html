@@ -112,8 +112,8 @@
 <body>
 <header>
   <div class="wrap" style="padding:0 4px;">
-    <h1>Твоят анализ</h1>
-    <p id="who">какво показа храна-логът ти</p>
+    <h1>Твоят личен анализ</h1>
+    <p id="who">какво показа храната ти</p>
   </div>
 </header>
 
@@ -149,7 +149,7 @@
   function render(data) {
     loading.style.display = "none";
     var cards = (data && data.cards) || [];
-    if (data && data.name) who.textContent = data.name + " — какво показа храна-логът ти";
+    if (data && data.name) who.textContent = data.name + " — какво показа храната ти";
     if (!cards.length) {
       content.innerHTML = '<div class="state">Анализът ти още се подготвя. Скоро тук ще има съдържание.</div>';
       return;
