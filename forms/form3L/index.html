@@ -396,6 +396,22 @@
     var confirmBtn = document.getElementById("confirmBtn");
     var okMsg = document.getElementById("okMsg");
 
+    // Последно въведено тегло (за проверка на рязка разлика). entries са created_at desc.
+    var lastWeight = null;
+    (data.entries || []).filter(function (e) { return e.kind !== "coach"; }).some(function (e) {
+      if (e.weight != null && e.weight !== "") { lastWeight = parseFloat(e.weight); return true; }
+      return false;
+    });
+    function weightWarning(wStr) {
+      if (!wStr) return null;
+      var x = parseFloat(String(wStr).replace(",", "."));
+      if (!isFinite(x)) return null;
+      if (x < 30 || x > 250) return "Тегло " + wStr + " кг изглежда необичайно — провери да не е печатна грешка.";
+      if (lastWeight != null && Math.abs(x - lastWeight) >= 7)
+        return "Теглото " + x + " кг се различава с " + Math.abs(x - lastWeight).toFixed(1) + " кг от последното (" + lastWeight + " кг) — сигурна ли си, че е вярно?";
+      return null;
+    }
+
     // примерният текст изчезва веднага при фокус/клик; връща се ако полето остане празно
     var textPH = textEl.getAttribute("placeholder");
     textEl.addEventListener("focus", function () { textEl.setAttribute("placeholder", ""); });
@@ -415,6 +431,8 @@
       var bits = [];
       if (t) bits.push(esc(t));
       if (w) bits.push('<span class="w">⚖ ' + esc(w) + " кг</span>");
+      var wWarn = weightWarning(w);
+      if (wWarn) bits.push('<span style="color:#8a5a00;font-weight:700;">⚠ ' + esc(wWarn) + "</span>");
       confirmWhat.innerHTML = bits.join("<br>");
       confirm.classList.add("show");
       saveBtn.style.display = "none";
