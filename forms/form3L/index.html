@@ -398,6 +398,7 @@
 
     // Последно въведено тегло (за проверка на рязка разлика). entries са created_at desc.
     var lastWeight = null;
+    var lastWeightWarn = false;  // имаше ли предупреждение за теглото при последния „Запиши"
     (data.entries || []).filter(function (e) { return e.kind !== "coach"; }).some(function (e) {
       if (e.weight != null && e.weight !== "") { lastWeight = parseFloat(e.weight); return true; }
       return false;
@@ -432,6 +433,7 @@
       if (t) bits.push(esc(t));
       if (w) bits.push('<span class="w">⚖ ' + esc(w) + " кг</span>");
       var wWarn = weightWarning(w);
+      lastWeightWarn = !!wWarn;
       if (wWarn) bits.push('<span style="color:#8a5a00;font-weight:700;">⚠ ' + esc(wWarn) + "</span>");
       confirmWhat.innerHTML = bits.join("<br>");
       confirm.classList.add("show");
@@ -441,7 +443,9 @@
     editBtn.addEventListener("click", function () {
       confirm.classList.remove("show");
       saveBtn.style.display = "";
-      textEl.focus();
+      // курсорът отива на полето за корекция: теглото при предупреждение за тегло, иначе храната.
+      // нищо не се нулира — стойностите остават за поправка.
+      (lastWeightWarn ? wEl : textEl).focus();
     });
 
     confirmBtn.addEventListener("click", function () {
