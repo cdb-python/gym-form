@@ -408,8 +408,12 @@
       var x = parseFloat(String(wStr).replace(",", "."));
       if (!isFinite(x)) return null;
       if (x < 30 || x > 250) return "Тегло " + wStr + " кг изглежда необичайно — провери да не е печатна грешка.";
-      if (lastWeight != null && Math.abs(x - lastWeight) >= 7)
-        return "Теглото " + x + " кг се различава с " + Math.abs(x - lastWeight).toFixed(1) + " кг от последното (" + lastWeight + " кг) — сигурна ли си, че е вярно?";
+      // процентен праг (скалира с теглото): ≥8% разлика, но поне 4 кг — лови и по-леки хора
+      if (lastWeight != null) {
+        var thr = Math.max(4, 0.08 * lastWeight);
+        if (Math.abs(x - lastWeight) >= thr)
+          return "Теглото " + x + " кг се различава с " + Math.abs(x - lastWeight).toFixed(1) + " кг от последното (" + lastWeight + " кг) — сигурна ли си, че е вярно?";
+      }
       return null;
     }
 
