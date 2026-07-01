@@ -204,6 +204,7 @@
           <label><input type="radio" name="menopauza" value="Не"> Не</label>
           <label><input type="radio" name="menopauza" value="Не знам"> Не знам</label>
         </div>
+        <div class="vnote" id="vnCikyl" style="display:none;"></div>
         <label class="q">Бременна си, кърмиш или планираш бременност?
           <span class="hint">Важно за безопасността на режима и добавките.</span>
         </label>
@@ -213,6 +214,7 @@
           <label><input type="radio" name="bremennost" value="Кърмя"> Кърмя</label>
           <label><input type="radio" name="bremennost" value="Планирам"> Планирам</label>
         </div>
+        <div class="vnote" id="vnBrem" style="display:none;"></div>
         <label class="q">Хормонална терапия или контрацепция? (по желание)
           <span class="hint">Кои — напр. противозачатъчни, хормонозаместителна терапия. Ако няма — остави празно.</span>
         </label>
@@ -229,6 +231,7 @@
           <input type="number" id="visochina" inputmode="numeric">
         </div>
       </div>
+      <div class="vnote" id="vnAgeHt" style="display:none;"></div>
 
       <div class="row2">
         <div>
@@ -243,6 +246,7 @@
         </div>
       </div>
       <div class="reqnote" id="ztReq">Без цел няма посока. Дори да искаш да останеш на същите килограми — това пак е цел; отправна точка, по която се мери напредъкът и се крепи мотивацията. Попълни желаното тегло — без него нищо от това, което искаш да постигнеш тук, не може да започне.</div>
+      <div class="vnote" id="vnWt" style="display:none;"></div>
 
       <div class="row2">
         <div>
@@ -254,6 +258,7 @@
           <input type="number" id="hansh" inputmode="numeric">
         </div>
       </div>
+      <div class="vnote" id="vnMeas" style="display:none;"></div>
 
       <label class="q">Теглото ти напоследък?</label>
       <div class="opts" data-radio="teglo_trend">
@@ -1274,6 +1279,83 @@
     }, function () { /* без връзка → името остава за ръчно попълване */ });
   })();
 
+  // ── Валидация: ТВЪРД блок на противоречия · МЕК confirm на аномални мерки ──
+  // Модел: банер до конкретното поле (като „нужно"), по една зона наведнъж, скрол дотам.
+  var VZONES = ["vnCikyl", "vnBrem", "vnAgeHt", "vnWt", "vnMeas"];
+  var vAcked = {};  // ключове на предупреждения, отметнати „вярно е" (пазят се между кликове)
+  function numOf(id) { var v = val(id).replace(",", "."); if (v === "") return null; var n = parseFloat(v); return isFinite(n) ? n : null; }
+  function bmiOf(w, h) { if (!w || !h || h <= 0) return null; var m = h / 100; return w / (m * m); }
+  function esc(s) { var d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+  function clearNotes() { VZONES.forEach(function (id) { var e = document.getElementById(id); e.style.display = "none"; e.innerHTML = ""; }); }
+
+  // Всяка находка: {zone, key, type:'block'|'warn', msg, focus}
+  function computeIssues() {
+    var out = [];
+    var cel = radio("cel"), men = radio("menopauza"), cik = radio("cikyl"), brem = radio("bremennost");
+    var t = numOf("teglo"), z = numOf("zhelano_teglo"), h = numOf("visochina"),
+        ta = numOf("taliya"), ha = numOf("hansh"), yr = numOf("godina_razhdane");
+    var bT = bmiOf(t, h), bZ = bmiOf(z, h);
+    // Противоречия (блок)
+    if (men === "Да" && (cik === "Редовен" || cik === "Нередовен"))
+      out.push({ zone: "vnCikyl", key: "men_cik", type: "block", msg: "Отбелязана е менопауза „Да“, но цикълът е „" + cik + "“. Двете не се връзват — избери кое е вярното." });
+    if (brem === "Бременна" && men === "Да")
+      out.push({ zone: "vnBrem", key: "brem_men", type: "block", msg: "Отбелязано е „бременна“ и едновременно менопауза „Да“ — провери кое е вярното." });
+    if (cel === "Сваляне на килограми" && t != null && z != null && z >= t)
+      out.push({ zone: "vnWt", key: "cel_dir", type: "block", focus: "zhelano_teglo", msg: "Целта е „сваляне на килограми“, а желаното тегло (" + z + " кг) не е по-малко от сегашното (" + t + " кг). Провери числата." });
+    if (cel === "Качване на мускулна маса" && t != null && z != null && z < t)
+      out.push({ zone: "vnWt", key: "cel_dir", type: "block", focus: "zhelano_teglo", msg: "Целта е „качване на мускулна маса“, а желаното тегло (" + z + " кг) е по-малко от сегашното (" + t + " кг). Провери числата." });
+    // Аномални мерки (мек confirm)
+    if (yr != null) { var age = (new Date().getFullYear()) - yr; if (age < 14 || age > 90) out.push({ zone: "vnAgeHt", key: "age", type: "warn", focus: "godina_razhdane", msg: "Годината на раждане (" + yr + ") дава възраст " + age + " г. — провери." }); }
+    if (h != null && (h < 130 || h > 210)) out.push({ zone: "vnAgeHt", key: "height", type: "warn", focus: "visochina", msg: "Ръст " + h + " см изглежда необичаен — провери." });
+    if (bT != null && (bT < 16 || bT > 38)) out.push({ zone: "vnWt", key: "bmi_cur", type: "warn", focus: "teglo", msg: "Сегашно тегло " + t + " кг при ръст " + h + " см дава ИТМ " + bT.toFixed(1) + " — необичайно. Провери да не е печатна грешка." });
+    else if (t != null && (t < 35 || t > 200)) out.push({ zone: "vnWt", key: "wt_range", type: "warn", focus: "teglo", msg: "Тегло " + t + " кг изглежда необичайно — провери." });
+    if (bZ != null && bZ < 18.5) out.push({ zone: "vnWt", key: "bmi_des_low", type: "warn", focus: "zhelano_teglo", msg: "Желано тегло " + z + " кг при ръст " + h + " см е под здравословната граница (ИТМ " + bZ.toFixed(1) + "). Сигурна ли си?" });
+    else if (bZ != null && bZ > 35) out.push({ zone: "vnWt", key: "bmi_des_high", type: "warn", focus: "zhelano_teglo", msg: "Желано тегло " + z + " кг при ръст " + h + " см е доста високо (ИТМ " + bZ.toFixed(1) + "). Провери." });
+    if (t != null && z != null && t > 0) { var d = Math.abs(z - t) / t; if (d > 0.2) out.push({ zone: "vnWt", key: "diff", type: "warn", focus: "zhelano_teglo", msg: "Разликата между сегашно (" + t + " кг) и желано (" + z + " кг) тегло е " + Math.round(d * 100) + "% — провери числата." }); }
+    if (ta != null && (ta < 45 || ta > 160)) out.push({ zone: "vnMeas", key: "ta_range", type: "warn", focus: "taliya", msg: "Талия " + ta + " см изглежда необичайна — провери." });
+    if (ha != null && (ha < 55 || ha > 180)) out.push({ zone: "vnMeas", key: "ha_range", type: "warn", focus: "hansh", msg: "Ханш " + ha + " см изглежда необичаен — провери." });
+    if (ta != null && ha != null && ta > ha) out.push({ zone: "vnMeas", key: "ta_gt_ha", type: "warn", focus: "taliya", msg: "Талията (" + ta + " см) е по-голяма от ханша (" + ha + " см) — провери да не са разменени." });
+    return out;
+  }
+
+  function renderZone(zoneId, type, items) {
+    var c = (type === "block") ? { b: "#c43d3d", bg: "#fdeaea", fg: "#7a1a1a" } : { b: "#b8862f", bg: "#fdf6e3", fg: "#5c4814" };
+    var title = (type === "block") ? "Поправи, за да продължиш:" : "Провери преди да изпратиш:";
+    var body;
+    if (items.length > 1) { body = "<ul style='margin:0;padding-left:20px;'>" + items.map(function (x) { return "<li>" + esc(x.msg) + "</li>"; }).join("") + "</ul>"; }
+    else { body = "<div>" + esc(items[0].msg) + "</div>"; }
+    var ack = "";
+    if (type === "warn") {
+      var keys = items.map(function (x) { return x.key; }).join(",");
+      ack = "<label style='display:flex;gap:8px;align-items:flex-start;font-weight:600;cursor:pointer;margin-top:8px;'><input type='checkbox' class='vn-ack' data-keys='" + keys + "' style='margin-top:3px;flex:none;'> Проверих — вярно е, продължи.</label>";
+    }
+    var el = document.getElementById(zoneId);
+    el.innerHTML = "<div style='margin-top:10px;padding:11px 13px;border:2px solid " + c.b + ";border-radius:8px;background:" + c.bg + ";color:" + c.fg + ";text-align:left;'><div style='font-weight:700;margin-bottom:6px;'>" + title + "</div>" + body + ack + "</div>";
+    el.style.display = "block";
+  }
+
+  // Връща true, ако всичко е чисто (може да се изпраща); иначе показва банер и false.
+  function runValidation() {
+    var openAck = document.querySelector(".vn-ack:checked");
+    if (openAck) openAck.getAttribute("data-keys").split(",").forEach(function (k) { vAcked[k] = true; });
+    clearNotes();
+    var issues = computeIssues().filter(function (x) { return !(x.type === "warn" && vAcked[x.key]); });
+    if (!issues.length) return true;
+    for (var i = 0; i < VZONES.length; i++) {
+      var zi = issues.filter(function (x) { return x.zone === VZONES[i]; });
+      if (!zi.length) continue;
+      var blocks = zi.filter(function (x) { return x.type === "block"; });
+      var show = blocks.length ? blocks : zi;
+      var type = blocks.length ? "block" : "warn";
+      renderZone(VZONES[i], type, show);
+      var el = document.getElementById(VZONES[i]);
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      var f = show[0].focus; if (f) { var fe = document.getElementById(f); if (fe) fe.focus({ preventScroll: true }); }
+      return false;
+    }
+    return true;
+  }
+
   document.getElementById("sendBtn").addEventListener("click", function () {
     var btn = this;
     if (val("ime") === "") {
@@ -1297,6 +1379,9 @@
       return;
     }
     sendErr.classList.remove("show");
+
+    // Банер до конкретното поле: блок на противоречия, мек confirm на аномалии
+    if (!runValidation()) return;
 
     var data = gatherData();
     var tkn = new URLSearchParams(location.search).get("t");
