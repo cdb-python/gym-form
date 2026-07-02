@@ -100,7 +100,8 @@
     background: var(--accent-dark); color: #fff; border-radius: 12px;
     padding: 14px 16px; margin: 18px 0 12px; text-align: center;
   }
-  .progress .big { font-size: 22px; font-weight: 800; }
+  .progress .phead { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; font-weight: 700; margin: 0 0 3px; }
+  .progress .big { font-size: 21px; font-weight: 800; }
   .progress .sub { font-size: 13.5px; opacity: 0.9; margin-top: 2px; }
   .progress .bar { height: 7px; background: rgba(255,255,255,0.25); border-radius: 4px; margin: 10px 0 0; overflow: hidden; }
   .progress .bar > i { display: block; height: 100%; background: #fff; border-radius: 4px; }
@@ -300,14 +301,12 @@
 
     var progressHtml;
     if (done) {
-      progressHtml = '<div class="progress"><div class="big">15 записани дни ✓</div>'
+      progressHtml = '<div class="progress"><div class="phead">Прогрес на дните</div><div class="big">15 / 15 ✓</div>'
         + '<div class="sub">Картината ти е готова — анализът идва скоро.</div>'
         + '<div class="bar"><i style="width:100%"></i></div></div>';
     } else {
-      progressHtml = '<div class="progress"><div class="big">Записани дни: ' + loggedDays + ' от 15</div>'
-        + '<div class="sub">' + (loggedDays === 0
-            ? "Започни — впиши първото, което хапнеш или пиеш."
-            : ("Остават " + (WINDOW_DAYS - loggedDays) + " — пропуснат ден не се брои.")) + "</div>"
+      progressHtml = '<div class="progress"><div class="phead">Прогрес на дните</div><div class="big">' + loggedDays + ' / 15</div>'
+        + (loggedDays === 0 ? "" : '<div class="sub">Остават ' + (WINDOW_DAYS - loggedDays) + ' — пропуснат ден не се брои.</div>')
         + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
         + rewardLine + '</div>';
     }
