@@ -85,6 +85,9 @@
   /* обединен хедър: зелен етикет (ляво) + черен тайтъл (дясно) на един ред */
   .card .t .lbl { color: var(--accent-dark); font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; flex: none; }
   .card .t .ttl { color: var(--ink); font-size: 13.5px; font-weight: 700; flex: 1; text-align: right; }
+  .card.lf .t .lbl { text-transform: none; letter-spacing: 0; font-size: 14px; }
+  .card.lf .t .note { color: var(--muted); font-size: 10.5px; font-weight: 600; flex: none; margin-left: auto; text-align: right; white-space: nowrap; }
+  .card.lf .t::after { display: none; }
   .card .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
   .card .body { font-size: 15.5px; margin-top: 8px; display: none; }
   .card.open .body { display: block; }
@@ -314,9 +317,7 @@
       progressHtml = '<div class="progress">' + scaleHtml
         + '<div class="sub">Картината ти е готова — анализът идва скоро.</div></div>';
     } else {
-      progressHtml = '<div class="progress">' + scaleHtml
-        + (loggedDays === 0 ? "" : '<div class="sub">Пропуснат ден не се брои.</div>')
-        + rewardLine + '</div>';
+      progressHtml = '<div class="progress">' + scaleHtml + rewardLine + '</div>';
     }
 
     var infoHtml = '<div class="sec">'
@@ -351,7 +352,7 @@
       + "</div></div></div>";
 
     var formHtml = '<div class="sec">'
-      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none"><span class="lbl">Впиши какво ядеш и пиеш</span></div>'
+      + '<div class="card open lf"><div class="t" style="cursor:default;pointer-events:none"><span class="lbl">Какво хапна и пи?</span><span class="note">Пропуснат ден не се брои</span></div>'
       + '<div class="body" style="display:block">'
       + '<textarea id="f_text" placeholder="напр.: половин кофичка кисело мляко 4% + 2 лъжици мед · 1 филия с масло · пържола колкото длан + порция пържени · кафе с 2 бучки захар"></textarea>'
       + '<p class="hint">Опиши с <b>количество + вид</b> — лъжица, чаша, кофичка, шепа, длан, на части (половин/четвърт). Везна не трябва. Кажеш ли марка или % масленост — още по-точно. Пиши и дребното: сос, захар в кафето, олио.</p>'
