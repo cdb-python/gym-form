@@ -104,6 +104,12 @@
   .progress .sub { font-size: 13.5px; opacity: 0.9; margin-top: 2px; }
   .progress .bar { height: 7px; background: rgba(255,255,255,0.25); border-radius: 4px; margin: 10px 0 0; overflow: hidden; }
   .progress .bar > i { display: block; height: 100%; background: #fff; border-radius: 4px; }
+  /* наградата вградена ВЪТРЕ в прогрес картата (под бара, тънък разделител, златист акцент) */
+  .progress .reward-in {
+    margin-top: 13px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.22);
+    font-size: 13px; line-height: 1.5; opacity: 0.96;
+  }
+  .progress .reward-in b { color: #ffd98a; font-weight: 700; }
   .intro {
     background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
     border-radius: 12px; padding: 14px 16px; margin: 0 0 10px; font-size: 14.5px;
@@ -111,11 +117,6 @@
   .intro p { margin: 0 0 8px; }
   .intro p:last-child { margin-bottom: 0; }
   .intro .lead { color: var(--accent-dark); }
-  .reward {
-    background: #fff8ec; border: 1px solid #ecd9af; border-left: 4px solid var(--accent); border-radius: 12px;
-    padding: 12px 15px; margin: 0 0 10px; font-size: 14.5px; color: #6a531f;
-  }
-  .reward b { color: var(--gold); }
   .muted2 { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
   .drip { color: var(--muted); font-size: 13px; text-align: center; margin: 2px 0 0; }
 
@@ -293,6 +294,10 @@
     var done = loggedDays >= WINDOW_DAYS;
     var pct = Math.min(100, Math.round((loggedDays / WINDOW_DAYS) * 100));
 
+    // наградата е вградена ВЪТРЕ в прогрес картата (под бара) — само докато логът тече
+    var rewardLine = '<div class="reward-in">🎁 <b>На 15 записани дни</b> — писмен анализ: картината и първата посока. '
+      + "После избираш <b>пълен режим</b> върху твоите храни или <b>само корекция</b>.</div>";
+
     var progressHtml;
     if (done) {
       progressHtml = '<div class="progress"><div class="big">15 записани дни ✓</div>'
@@ -303,11 +308,9 @@
         + '<div class="sub">' + (loggedDays === 0
             ? "Започни — впиши първото, което хапнеш или пиеш."
             : ("Остават " + (WINDOW_DAYS - loggedDays) + " — пропуснат ден не се брои.")) + "</div>"
-        + '<div class="bar"><i style="width:' + pct + '%"></i></div></div>';
+        + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
+        + rewardLine + '</div>';
     }
-
-    var rewardHtml = '<div class="reward">🎁 След <b>15 записани дни</b> получаваш писмен анализ — картината и първата посока. '
-      + "Оттам ти решаваш: <b>пълен режим</b> върху твоите храни или <b>еднократна корекция</b> — каквото ти трябва.</div>";
 
     var infoHtml = '<div class="sec">'
       + '<div class="card" data-key="info"><div class="t"><span class="lbl">За лога</span><span class="ttl">Какво е това и защо работи</span></div><div class="body">'
@@ -393,7 +396,7 @@
     }
 
     // банерът е горе (стики); самите съобщения са НАЙ-ДОЛУ — банерът скролва до тях
-    content.innerHTML = bannerHtml + progressHtml + rewardHtml + formHtml + infoHtml + guideHtml + histHtml + coachHtml;
+    content.innerHTML = bannerHtml + progressHtml + formHtml + infoHtml + guideHtml + histHtml + coachHtml;
     // NB: wireAccordion() НЕ тук — закача се ВЕДНЪЖ на init (делегация на content). Иначе всеки render трупа листенер → toggle×N → картите „не се отварят" при първо зареждане (поправено 30.06).
 
     wireForm(data, today);
