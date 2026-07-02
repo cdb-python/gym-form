@@ -98,13 +98,16 @@
   /* Прогрес + награда */
   .progress {
     background: var(--accent-dark); color: #fff; border-radius: 12px;
-    padding: 14px 16px; margin: 18px 0 12px; text-align: center;
+    padding: 13px 15px; margin: 18px 0 12px;
   }
-  .progress .phead { font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85; font-weight: 700; margin: 0 0 3px; }
-  .progress .big { font-size: 21px; font-weight: 800; }
-  .progress .sub { font-size: 13.5px; opacity: 0.9; margin-top: 2px; }
-  .progress .bar { height: 7px; background: rgba(255,255,255,0.25); border-radius: 4px; margin: 10px 0 0; overflow: hidden; }
-  .progress .bar > i { display: block; height: 100%; background: #fff; border-radius: 4px; }
+  .progress .sub { font-size: 13.5px; opacity: 0.9; margin-top: 9px; text-align: center; }
+  /* прогрес-скала на ЕДИН ред: label + 15 гъвкави сегмента + число */
+  .dayscale { display: flex; align-items: center; gap: 8px; }
+  .dayscale .dlbl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; opacity: 0.9; white-space: nowrap; flex: none; }
+  .dayscale .segs { display: flex; gap: 2px; flex: 1; min-width: 0; }
+  .dayscale .segs > i { flex: 1; height: 15px; border-radius: 2px; background: rgba(255,255,255,0.20); }
+  .dayscale .segs > i.on { background: #fff; }
+  .dayscale .num { font-size: 14px; font-weight: 800; white-space: nowrap; flex: none; }
   /* наградата вградена ВЪТРЕ в прогрес картата (под бара, тънък разделител, златист акцент) */
   .progress .reward-in {
     margin-top: 13px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.22);
@@ -299,15 +302,20 @@
     var rewardLine = '<div class="reward-in">🎁 <b>На 15 записани дни</b> — писмен анализ: картината и първата посока. '
       + "После избираш <b>пълен режим</b> върху твоите храни или <b>само корекция</b>.</div>";
 
+    // 15-сегментна скала (попълва се с записаните дни) на един ред
+    var segs = "";
+    for (var si = 0; si < WINDOW_DAYS; si++) segs += '<i class="' + (si < loggedDays ? "on" : "") + '"></i>';
+    var scaleHtml = '<div class="dayscale"><span class="dlbl">Прогрес</span>'
+      + '<span class="segs">' + segs + '</span>'
+      + '<span class="num">' + (done ? "15/15 ✓" : (loggedDays + "/15")) + '</span></div>';
+
     var progressHtml;
     if (done) {
-      progressHtml = '<div class="progress"><div class="phead">Прогрес на дните</div><div class="big">15 / 15 ✓</div>'
-        + '<div class="sub">Картината ти е готова — анализът идва скоро.</div>'
-        + '<div class="bar"><i style="width:100%"></i></div></div>';
+      progressHtml = '<div class="progress">' + scaleHtml
+        + '<div class="sub">Картината ти е готова — анализът идва скоро.</div></div>';
     } else {
-      progressHtml = '<div class="progress"><div class="phead">Прогрес на дните</div><div class="big">' + loggedDays + ' / 15</div>'
-        + (loggedDays === 0 ? "" : '<div class="sub">Остават ' + (WINDOW_DAYS - loggedDays) + ' — пропуснат ден не се брои.</div>')
-        + '<div class="bar"><i style="width:' + pct + '%"></i></div>'
+      progressHtml = '<div class="progress">' + scaleHtml
+        + (loggedDays === 0 ? "" : '<div class="sub">Пропуснат ден не се брои.</div>')
         + rewardLine + '</div>';
     }
 
