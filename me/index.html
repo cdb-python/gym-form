@@ -16,6 +16,15 @@
 <link rel="manifest" href="manifest.webmanifest">
 <script>
 (function () {
+  // iOS: инсталираното A2HS-приложение има ОТДЕЛНО хранилище от Safari → self-heal през
+  // localStorage не работи. Махаме manifest-а на iOS → Safari закача иконата към ТЕКУЩИЯ URL
+  // (с токена) вместо към start_url без токен. Android (Chrome) не се пипа — там хранилището е общо.
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isIOS) {
+    var mf = document.querySelector('link[rel="manifest"]');
+    if (mf) mf.remove();
+  }
   // Токенът се пази локално → инсталираното приложение (start_url без токен) сам се връща на личния дневник.
   try {
     var t = new URLSearchParams(location.search).get("t");
