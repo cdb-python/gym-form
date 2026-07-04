@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Личен дневник</title>
+<!-- PWA: инсталируем на екрана (истински manifest); токенът се пази локално -->
+<meta name="theme-color" content="#2e7d5b">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Дневник">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+(function () {
+  // Токенът се пази локално → инсталираното приложение (start_url без токен) сам се връща на личния дневник.
+  try {
+    var t = new URLSearchParams(location.search).get("t");
+    if (t) { localStorage.setItem("cdbgym_diary_token", t); }
+    else {
+      var saved = localStorage.getItem("cdbgym_diary_token");
+      if (saved) { location.replace(location.pathname + "?t=" + saved); return; }
+    }
+  } catch (e) {}
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
 <style>
   :root {
     --bg: #f4f6f8;
@@ -32,6 +57,7 @@
     background: var(--accent);
     color: #fff;
     padding: 22px 18px 18px;
+    text-align: center;
   }
   header h1 { margin: 0 0 4px; font-size: 20px; }
   header p { margin: 0; font-size: 15px; opacity: 0.92; }
