@@ -136,7 +136,7 @@
   .plan.pay { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
   .plan.pay:hover, .plan.pay:active { border-color: #245fb0; box-shadow: 0 3px 12px rgba(36,95,176,.18); }
   .plan .price small.go { color: #245fb0; font-weight: 700; margin-top: 4px; }
-  .paybubble { display: none; background: #16324c; color: #fff; font-size: 14px; line-height: 1.45; border-radius: 10px; padding: 11px 14px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+  .paybubble { display: block; background: #fdeaea; color: #a83232; border: 1px solid #f1c7c7; border-left: 4px solid #c43d3d; font-size: 14px; font-weight: 600; line-height: 1.45; border-radius: 10px; padding: 11px 14px; margin: 0 0 14px; }
   .paidhint { display: none; background: #0f6f4f; color: #fff; font-size: 14.5px; border-radius: 10px; padding: 10px 14px; margin: 0 0 14px; text-align: center; font-weight: 700; }
 
   .bonus { background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #245fb0; border-radius: 12px; padding: 16px 18px; }
@@ -474,13 +474,12 @@
       if (paid) {
         startbtn.href = 'https://cdb-python.github.io/gym-form/forms/intake/' + (t ? ('?t=' + encodeURIComponent(t)) : '');
         var ph = document.getElementById('paidhint'); if (ph) ph.style.display = 'block';
+        var pb = document.getElementById('paybubble'); if (pb) pb.style.display = 'none';
       } else {
         startbtn.addEventListener('click', function (e) {
           e.preventDefault();
           var sec = document.getElementById('plans-sec');
           if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          var b = document.getElementById('paybubble');
-          if (b) { b.style.display = 'block'; clearTimeout(window.__pb); window.__pb = setTimeout(function () { b.style.display = 'none'; }, 7000); }
         });
       }
     }
