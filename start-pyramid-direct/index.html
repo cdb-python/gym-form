@@ -133,6 +133,11 @@
   .plan .price { text-align: right; flex: none; }
   .plan .price b { font-size: 19px; color: var(--accent-dark); }
   .plan .price small { display: block; font-size: 12.5px; color: var(--muted); }
+  .plan.pay { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+  .plan.pay:hover, .plan.pay:active { border-color: #245fb0; box-shadow: 0 3px 12px rgba(36,95,176,.18); }
+  .plan .price small.go { color: #245fb0; font-weight: 700; margin-top: 4px; }
+  .paybubble { display: none; background: #16324c; color: #fff; font-size: 14px; line-height: 1.45; border-radius: 10px; padding: 11px 14px; margin: 0 0 12px; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+  .paidhint { display: none; background: #0f6f4f; color: #fff; font-size: 14.5px; border-radius: 10px; padding: 10px 14px; margin: 0 0 14px; text-align: center; font-weight: 700; }
 
   .bonus { background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #245fb0; border-radius: 12px; padding: 16px 18px; }
   .bonus .item { display: flex; gap: 10px; margin: 0 0 12px; align-items: flex-start; }
@@ -337,21 +342,22 @@
   </div>
 
   <!-- ПАКЕТИ -->
-  <div class="sec">
+  <div class="sec" id="plans-sec">
     <h2>Какво избираш</h2>
+    <div class="paybubble" id="paybubble">Първо избери пакет и плати тук — тогава се отваря формата за данните ти. ⤵</div>
     <div class="plans">
-      <div class="plan">
+      <div class="plan pay" data-stripe="https://buy.stripe.com/8x24gAaWgbLogrM3JyfrW04">
         <div class="name">Твоето хранене<small>нагласено и следено — стъпва на това, което вече ядеш</small></div>
-        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small><small class="go">избери и плати →</small></div>
       </div>
-      <div class="plan">
+      <div class="plan pay" data-stripe="https://buy.stripe.com/8x24gAaWgbLogrM3JyfrW04">
         <div class="name">Твоите тренировки<small>програмата ти адаптирана (или нова), и следена</small></div>
-        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small></div>
+        <div class="price"><b>60€</b><small>/месец · 2€ на ден</small><small class="go">избери и плати →</small></div>
       </div>
-      <div class="plan feature">
+      <div class="plan feature pay" data-stripe="https://buy.stripe.com/14A00kggA5n0b7scg4frW05">
         <span class="tag">Най-пълно</span>
         <div class="name">Двете заедно<small>пълна настройка — хранене + тренировки</small></div>
-        <div class="price"><b>90€</b><small>/месец · 3€ на ден</small></div>
+        <div class="price"><b>90€</b><small>/месец · 3€ на ден</small><small class="go">избери и плати →</small></div>
       </div>
     </div>
   </div>
@@ -431,6 +437,7 @@
   <div class="cta-box">
     <h2>Готов/а да започнеш?</h2>
     <p>Логът и анализът са зад теб. Следва пълната картина — попълни данните си и планът тръгва.</p>
+    <div class="paidhint" id="paidhint">✓ Плащането е прието — формата е отключена.</div>
     <a class="cta-btn" id="startbtn" href="https://cdb-python.github.io/gym-form/forms/intake/">Влез и попълни данните си →</a>
     <p style="margin:14px 0 0;font-size:13px;opacity:.85;">Остана въпрос? <a href="viber://chat?number=%2B359877779555" style="color:#fff;text-decoration:underline;">Пиши в Viber</a></p>
   </div>
@@ -442,10 +449,41 @@
 </div>
 <script>
   (function(){
-    // пренасяне на токена от анализа → интейк бутона (за авто-връзване)
-    var t = new URLSearchParams(location.search).get('t');
+    // Токен (self-heal през localStorage) + плащане-гейт на формата
+    var qs = new URLSearchParams(location.search);
+    var TKEY = 'cdbgym_dir_token';
+    var t = qs.get('t');
+    try { if (t) localStorage.setItem(TKEY, t); else t = localStorage.getItem(TKEY) || ''; } catch (e) { t = t || ''; }
+    var PKEY = 'cdbgym_dir_paid_' + (t || 'x');
+    var paid = false;
+    if (qs.has('paid')) { paid = true; try { localStorage.setItem(PKEY, '1'); } catch (e) {} }
+    else { try { paid = localStorage.getItem(PKEY) === '1'; } catch (e) {} }
+
+    // Бутоните за плащане (картите) → Stripe (+ client_reference_id = токен)
+    Array.prototype.forEach.call(document.querySelectorAll('.plan.pay'), function (el) {
+      el.addEventListener('click', function () {
+        var url = el.getAttribute('data-stripe');
+        if (t) url += (url.indexOf('?') >= 0 ? '&' : '?') + 'client_reference_id=' + encodeURIComponent(t);
+        window.location.href = url;
+      });
+    });
+
+    // Формата — отключва се само след плащане
     var startbtn = document.getElementById('startbtn');
-    if (t && startbtn) startbtn.href += (startbtn.href.indexOf('?') >= 0 ? '&' : '?') + 't=' + encodeURIComponent(t);
+    if (startbtn) {
+      if (paid) {
+        startbtn.href = 'https://cdb-python.github.io/gym-form/forms/intake/' + (t ? ('?t=' + encodeURIComponent(t)) : '');
+        var ph = document.getElementById('paidhint'); if (ph) ph.style.display = 'block';
+      } else {
+        startbtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          var sec = document.getElementById('plans-sec');
+          if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          var b = document.getElementById('paybubble');
+          if (b) { b.style.display = 'block'; clearTimeout(window.__pb); window.__pb = setTimeout(function () { b.style.display = 'none'; }, 7000); }
+        });
+      }
+    }
 
     var certs = Array.prototype.slice.call(document.querySelectorAll('.cert'));
     function place(el){
