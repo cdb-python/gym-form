@@ -64,6 +64,14 @@
   .card .body th, .card .body td { border: 1px solid var(--border); padding: 6px 7px; text-align: left; word-break: break-word; vertical-align: top; }
   .card .body th { background: var(--soft); color: var(--accent-dark); }
   .card .body td:first-child, .card .body th:first-child { width: 40%; }
+  .card .body details.fx { border: 1px solid var(--border); border-radius: 10px; background: #fff; margin: 8px 0; }
+  .card .body details.fx > summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 700; font-size: 15px; color: var(--accent-dark); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .card .body details.fx > summary::-webkit-details-marker { display: none; }
+  .card .body details.fx > summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 400; line-height: 1; flex: none; }
+  .card .body details.fx[open] > summary { border-bottom: 1px solid var(--border); }
+  .card .body details.fx[open] > summary::after { content: "\2212"; }
+  .card .body details.fx > .fxb { padding: 11px 14px 13px; font-size: 15px; }
+  .card .body details.fx > .fxb p:first-child { margin-top: 0; }
   .state {
     background: var(--card);
     border: 1px solid var(--border);
