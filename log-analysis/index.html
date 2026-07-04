@@ -101,9 +101,12 @@
   @media print {
     .no-print, .loading { display: none !important; }
     .card .body { display: block !important; }
-    .card .t { cursor: default; }
+    .card .t { cursor: default; break-after: avoid; }
     .card .t::after { content: "" !important; }
-    .card { break-inside: avoid; page-break-inside: avoid; border: 1px solid #ccc; }
+    .card { overflow: visible; border: none; border-radius: 0; box-shadow: none; margin: 0 0 12px; }
+    .card .body { break-before: avoid; }
+    .card .body table, .card .body tr { break-inside: avoid; }
+    footer { break-inside: avoid; }
     body { padding: 0; font-size: 12pt; }
     header, .card .t, .card .body th {
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
