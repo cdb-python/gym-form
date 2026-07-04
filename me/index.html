@@ -164,6 +164,7 @@
     var hasSaved = saved && typeof saved.length === "number";
 
     var html = "";
+    var firstOpen = true;
     SECTIONS.forEach(function (sec) {
       var rows = items.filter(function (r) { return r.section === sec.key; });
       if (!rows.length) return;
@@ -173,7 +174,8 @@
       html += '<div class="sec"><h2>' + esc(sec.label) + "</h2>";
       rows.forEach(function (r, i) {
         var key = sec.key + "_" + r.sort;
-        var isOpen = hasSaved ? (saved.indexOf(key) > -1) : (i === 0);
+        var isOpen = hasSaved ? (saved.indexOf(key) > -1) : firstOpen;
+        if (!hasSaved) firstOpen = false;
         html += '<div class="card' + (isOpen ? " open" : "") + '" data-key="' + key + '">';
         if (r.entry_date) html += '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>";
         html += '<div class="t">' + esc(r.title || "Виж") + "</div>";
