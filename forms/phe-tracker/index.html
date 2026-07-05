@@ -44,6 +44,15 @@
   .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
 
+  /* Акордеон карти по дни в историята */
+  .daycard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 10px; }
+  .daycard .dt { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .daycard .dt::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
+  .daycard.open .dt::after { content: "▾"; }
+  .daycard .dt .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; flex: 1; text-align: center; }
+  .daycard .dbody { display: none; margin-top: 10px; }
+  .daycard.open .dbody { display: block; }
+
   label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
   input, select {
     width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
@@ -205,14 +214,37 @@
     return '<div class="card"><div class="t">Чакащи (нови храни/мерки)</div><p class="hint" style="margin:0 0 8px">Тези още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
   }
 
-  function renderHistory(entries) {
+  function dayLabel(dStr, today) {
+    if (dStr === today) return "Днес";
+    var d = new Date(dStr + "T00:00:00"), t = new Date(today + "T00:00:00");
+    var diff = Math.round((t - d) / 86400000);
+    if (diff === 1) return "Вчера";
+    return fmtDate(dStr);
+  }
+
+  function entryLine(e) {
+    var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : (e.custom_unit_text ? "чака ⏳" : (e.grams != null ? e.grams + " g" : ""));
+    var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null ? " (" + e.grams + "г)" : "");
+    return '<div class="logitem"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span></div>';
+  }
+
+  function renderHistory(entries, today) {
     if (!entries.length) return '<div class="card"><div class="t">История</div><p style="color:var(--muted);font-size:14px;margin:0">Още няма записи.</p></div>';
-    var rows = entries.slice(0, 20).map(function (e) {
-      var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : (e.custom_unit_text ? "чака ⏳" : (e.grams != null ? e.grams + " g" : ""));
-      var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null ? " (" + e.grams + "г)" : "");
-      return '<div class="logitem"><span><span class="tm">' + esc(fmtDate(e.entry_date)) + ' ' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span></div>';
+    var order = [], groups = {};
+    entries.forEach(function (e) {
+      var k = e.entry_date || "—";
+      if (!groups[k]) { groups[k] = []; order.push(k); }
+      groups[k].push(e);
+    });
+    var cards = order.map(function (k, i) {
+      var arr = groups[k];
+      var lbl = dayLabel(k, today);
+      var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
+      return '<div class="daycard' + (i === 0 ? " open" : "") + '" data-day="' + esc(k) + '">'
+        + '<div class="dt"><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + '</span></div>'
+        + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></div>';
     }).join("");
-    return '<div class="card"><div class="t">История</div>' + rows + '</div>';
+    return '<div class="sec">' + cards + '</div>';
   }
 
   function renderBlood(rows) {
@@ -238,9 +270,18 @@
 
   function render(today, log, blood, pending) {
     loading.style.display = "none";
-    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log) + renderBlood(blood);
+    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderBlood(blood);
     wireAdd();
     wireBlood();
+    wireHistoryAccordion();
+  }
+
+  function wireHistoryAccordion() {
+    content.querySelectorAll(".daycard .dt").forEach(function (dt) {
+      dt.addEventListener("click", function () {
+        dt.closest(".daycard").classList.toggle("open");
+      });
+    });
   }
 
   function wireAdd() {
