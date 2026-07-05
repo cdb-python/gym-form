@@ -162,30 +162,16 @@
       + '<label>Храна</label>'
       + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълка, Хляб, Сирене...">'
       + '<datalist id="foodlist">' + options + '</datalist>'
-      + '<div id="f_body"></div>'
-      + '<div class="ok" id="okMsg"></div>'
-      + '</div>';
-  }
-
-  function renderPortionPicker(f, units) {
-    var estBadge = f.is_measured === false ? '<span class="badge-est">оценка</span>' : "";
-    var opts = units.map(function (u, i) {
-      return '<option value="' + i + '">' + esc(u.unit_label) + '</option>';
-    }).join("") + '<option value="g">г (грам)</option>';
-    return '<div class="foodmeta">' + esc(f.food_name) + estBadge + '</div>'
+      + '<div id="f_meta" class="foodmeta">&nbsp;</div>'
       + '<div class="row2">'
-      + '<select id="f_unit">' + opts + '</select>'
+      + '<select id="f_unit"><option value="g">г (грам)</option></select>'
       + '<input type="number" id="f_qty" inputmode="decimal" step="0.5" value="1" placeholder="брой">'
       + '</div>'
-      + '<p class="hint" id="f_preview"></p>'
-      + '<button type="button" id="saveBtn">Запиши</button>';
-  }
-
-  function renderUnknownFood(name) {
-    return '<div class="newfood">Тази храна не е в базата — ще се запише сега (само с грамажа), и ще бъде добавена официално по-късно.</div>'
-      + '<label>Приблизително грамове</label>'
-      + '<input type="number" id="f_grams" inputmode="decimal" step="1" placeholder="напр. 100">'
-      + '<button type="button" id="saveBtn">Запиши като нова храна</button>';
+      + '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
+      + '<div id="f_newfood"></div>'
+      + '<button type="button" id="saveBtn">Запиши</button>'
+      + '<div class="ok" id="okMsg"></div>'
+      + '</div>';
   }
 
   function renderPendingFoods(rows) {
@@ -235,8 +221,14 @@
 
   function wireAdd() {
     var foodEl = document.getElementById("f_food");
-    var bodyEl = document.getElementById("f_body");
+    var metaEl = document.getElementById("f_meta");
+    var unitSel = document.getElementById("f_unit");
+    var qtyEl = document.getElementById("f_qty");
+    var previewEl = document.getElementById("f_preview");
+    var newfoodEl = document.getElementById("f_newfood");
+    var saveBtn = document.getElementById("saveBtn");
     var okMsg = document.getElementById("okMsg");
+    var currentUnits = []; // текущите мерки на избраната храна (празно = само "г")
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
@@ -248,71 +240,88 @@
         .sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
     }
 
-    function renderBody() {
+    function refreshUnitOptions(f) {
+      currentUnits = f ? unitsFor(f.food_name) : [];
+      var opts = currentUnits.map(function (u, i) {
+        return '<option value="' + i + '">' + esc(u.unit_label) + '</option>';
+      }).join("") + '<option value="g">г (грам)</option>';
+      unitSel.innerHTML = opts;
+    }
+
+    function currentGramsPerUnit() {
+      if (unitSel.value === "g") return 1;
+      var u = currentUnits[parseInt(unitSel.value, 10)];
+      return u ? u.grams_per_unit : 1;
+    }
+
+    function updatePreview() {
       var name = foodEl.value.trim();
-      if (!name) { bodyEl.innerHTML = ""; return; }
       var f = findFood(name);
+      var qty = parseFloat(qtyEl.value);
+      if (!name) { previewEl.textContent = "Избери или впиши храна отгоре"; metaEl.innerHTML = "&nbsp;"; newfoodEl.innerHTML = ""; return; }
       if (f) {
-        var units = unitsFor(name);
-        bodyEl.innerHTML = renderPortionPicker(f, units);
-        var unitSel = document.getElementById("f_unit");
-        var qtyEl = document.getElementById("f_qty");
-        function updatePreview() {
-          var qty = parseFloat(qtyEl.value);
-          if (!isFinite(qty) || qty <= 0) { document.getElementById("f_preview").textContent = ""; return; }
-          var gramsPerUnit = unitSel.value === "g" ? 1 : units[parseInt(unitSel.value, 10)].grams_per_unit;
-          var grams = qty * gramsPerUnit;
+        var estBadge = f.is_measured === false ? '<span class="badge-est">оценка</span>' : "";
+        metaEl.innerHTML = esc(f.food_name) + estBadge;
+        newfoodEl.innerHTML = "";
+        if (isFinite(qty) && qty > 0) {
+          var grams = qty * currentGramsPerUnit();
           var phe = (grams / 100) * f.phe_mg_per_100g;
-          document.getElementById("f_preview").textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+          previewEl.textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+        } else {
+          previewEl.textContent = "Впиши брой";
         }
-        unitSel.addEventListener("change", updatePreview);
-        qtyEl.addEventListener("input", updatePreview);
-        updatePreview();
-        wireSave(function () {
-          var qty = parseFloat(qtyEl.value);
-          if (!isFinite(qty) || qty <= 0) return null;
-          var gramsPerUnit = unitSel.value === "g" ? 1 : units[parseInt(unitSel.value, 10)].grams_per_unit;
-          return { name: f.food_name, grams: qty * gramsPerUnit, phe: null };
-        });
       } else {
-        bodyEl.innerHTML = renderUnknownFood(name);
-        wireSave(function () {
-          var gramsEl = document.getElementById("f_grams");
-          var g = parseFloat(gramsEl.value);
-          if (!isFinite(g)) return null;
-          return { name: name, grams: g, phe: null };
-        });
+        metaEl.innerHTML = "&nbsp;";
+        newfoodEl.innerHTML = '<div class="newfood">Тази храна не е в базата — ще се запише сега (само с грамажа), и ще бъде добавена официално по-късно.</div>';
+        if (isFinite(qty) && qty > 0) {
+          var g2 = qty * currentGramsPerUnit();
+          previewEl.textContent = Math.round(g2) + " г (без изчислен фениланин — нова храна)";
+        } else {
+          previewEl.textContent = "Впиши брой";
+        }
       }
     }
 
-    function wireSave(getPayload) {
-      var saveBtn = document.getElementById("saveBtn");
-      if (!saveBtn) return;
-      saveBtn.addEventListener("click", function () {
-        var payload = getPayload();
-        if (!payload) { okMsg.textContent = "Избери количество."; okMsg.className = "ok show err"; return; }
-        saveBtn.disabled = true; saveBtn.textContent = "Записване…";
-        sb.rpc("add_phe_entry", { token: token, p_food_text: payload.name, p_grams: payload.grams, p_phe_mg: payload.phe })
-          .then(function (res) {
-            if (res.error) throw res.error;
-            var isPending = res.data && res.data[0] && res.data[0].is_pending;
-            okMsg.textContent = isPending
-              ? "Записано ✓ Нова храна — ще бъде добавена в базата скоро."
-              : "Записано ✓";
-            okMsg.className = "ok show";
-            foodEl.value = ""; bodyEl.innerHTML = "";
-            reload();
-          })
-          .catch(function () {
-            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
-            okMsg.textContent = "Неуспешно. Опитай пак.";
-            okMsg.className = "ok show err";
-          });
-      });
+    function onFoodChange() {
+      var name = foodEl.value.trim();
+      var f = findFood(name);
+      refreshUnitOptions(f);
+      updatePreview();
     }
 
-    foodEl.addEventListener("input", renderBody);
-    foodEl.addEventListener("change", renderBody);
+    foodEl.addEventListener("input", onFoodChange);
+    foodEl.addEventListener("change", onFoodChange);
+    unitSel.addEventListener("change", updatePreview);
+    qtyEl.addEventListener("input", updatePreview);
+    refreshUnitOptions(null);
+
+    saveBtn.addEventListener("click", function () {
+      var name = foodEl.value.trim();
+      var qty = parseFloat(qtyEl.value);
+      if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
+      if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой."; okMsg.className = "ok show err"; return; }
+      var grams = qty * currentGramsPerUnit();
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+      sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: grams, p_phe_mg: null })
+        .then(function (res) {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          if (res.error) throw res.error;
+          var isPending = res.data && res.data[0] && res.data[0].is_pending;
+          okMsg.textContent = isPending
+            ? "Записано ✓ Нова храна — ще бъде добавена в базата скоро."
+            : "Записано ✓";
+          okMsg.className = "ok show";
+          foodEl.value = ""; qtyEl.value = "1";
+          refreshUnitOptions(null);
+          updatePreview();
+          reload();
+        })
+        .catch(function () {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
   }
 
   function wireBlood() {
