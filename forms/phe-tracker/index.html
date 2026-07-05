@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Моят фениланин</title>
+<meta name="theme-color" content="#c77d2e">
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #c77d2e;
+    --accent-dark: #8a5a1a;
+    --border: #d8dee5;
+    --soft: #fbf1e6;
+    --green: #2e8b57;
+    --yellow: #b8862f;
+    --red: #c43d3d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55; padding: 0 0 40px;
+  }
+  header { background: var(--accent); color: #fff; padding: 22px 18px 18px; text-align: center; }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header p { margin: 0; font-size: 15px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+
+  .bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 18px 0 12px; }
+  .bar .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 8px; }
+  .bar .track { background: #eef1f3; border-radius: 8px; height: 22px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 8px; transition: width 0.3s; }
+  .bar .fill.green { background: var(--green); }
+  .bar .fill.yellow { background: var(--yellow); }
+  .bar .fill.red { background: var(--red); }
+  .bar .nums { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14.5px; font-weight: 600; }
+  .bar .provisional { font-size: 12.5px; color: var(--muted); margin-top: 6px; font-style: italic; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+  .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
+
+  label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
+  input, select {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
+    border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff;
+  }
+  .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+  button {
+    width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
+    color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer;
+  }
+  button:active { background: var(--accent-dark); }
+  button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > * { flex: 1; }
+  .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e9f5ee; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--green); font-size: 14px; text-align: center; }
+  .ok.show { display: block; }
+  .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
+
+  .logitem { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; display: flex; justify-content: space-between; }
+  .logitem:last-child { border-bottom: none; }
+  .logitem .tm { color: var(--muted); font-size: 13px; }
+  .logitem .amt { color: var(--accent-dark); font-weight: 600; white-space: nowrap; margin-left: 8px; }
+
+  .bloodrow { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .bloodrow:last-child { border-bottom: none; }
+  .bloodrow .v { font-weight: 700; }
+  .bloodrow .v.hi { color: var(--red); }
+  .bloodrow .v.ok { color: var(--green); }
+
+  .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
+  .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Моят фениланин</h1>
+    <p id="who">&nbsp;</p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="loading" id="loading">Зарежда…</div>
+  <div id="content"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var loading = document.getElementById("loading");
+  var content = document.getElementById("content");
+  var who = document.getElementById("who");
+  var phedb = []; // кеш на храните за autocomplete
+
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+  function fmtDate(s) {
+    if (!s) return "";
+    var p = String(s).split("-");
+    return p.length === 3 ? (p[2] + "." + p[1] + "." + p[0]) : s;
+  }
+  function fmtTime(s) {
+    if (!s) return "";
+    try { return new Date(s).toLocaleTimeString("bg-BG", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sofia" }); }
+    catch (e) { return ""; }
+  }
+  function todayStr() {
+    try { return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }); }
+    catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  function showState(msg) {
+    loading.style.display = "none";
+    content.innerHTML = '<div class="state">' + esc(msg) + "</div>";
+  }
+
+  var token = new URLSearchParams(location.search).get("t");
+  if (!token) { showState("Липсва код в линка. Отвори линка, който получи."); return; }
+
+  function renderBar(t) {
+    var pct = Math.min(100, t.percent || 0);
+    return '<div class="bar">'
+      + '<div class="label">Днес</div>'
+      + '<div class="track"><div class="fill ' + t.color + '" style="width:' + pct + '%"></div></div>'
+      + '<div class="nums"><span>' + Math.round(t.total_mg) + ' mg</span><span>цел: ' + Math.round(t.daily_target_mg) + ' mg</span></div>'
+      + (t.target_is_provisional ? '<div class="provisional">Целта е ориентировъчна (общ диапазон за възрастта) — ще се смени с личното число от клиниката.</div>' : '')
+      + '</div>';
+  }
+
+  function renderAddForm() {
+    var options = phedb.map(function (f) { return '<option value="' + esc(f.food_name) + '">'; }).join("");
+    return '<div class="card">'
+      + '<div class="t">Добави храна</div>'
+      + '<label>Храна</label>'
+      + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълки, Хляб, Сирене...">'
+      + '<datalist id="foodlist">' + options + '</datalist>'
+      + '<label>Грамове</label>'
+      + '<input type="number" id="f_grams" inputmode="decimal" step="1" placeholder="напр. 150">'
+      + '<p class="hint" id="f_preview"></p>'
+      + '<button type="button" id="saveBtn">Запиши</button>'
+      + '<div class="ok" id="okMsg"></div>'
+      + '</div>';
+  }
+
+  function renderHistory(entries) {
+    if (!entries.length) return '<div class="card"><div class="t">История</div><p style="color:var(--muted);font-size:14px;margin:0">Още няма записи.</p></div>';
+    var rows = entries.slice(0, 20).map(function (e) {
+      var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : (e.grams != null ? e.grams + " g" : "");
+      return '<div class="logitem"><span><span class="tm">' + esc(fmtDate(e.entry_date)) + ' ' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + (e.grams != null ? " (" + e.grams + "г)" : "") + '</span><span class="amt">' + esc(amt) + '</span></div>';
+    }).join("");
+    return '<div class="card"><div class="t">История</div>' + rows + '</div>';
+  }
+
+  function renderBlood(rows) {
+    var form = '<div class="card">'
+      + '<div class="t">Кръвно изследване (фениланин)</div>'
+      + '<label>Дата на пробата</label>'
+      + '<input type="date" id="b_date" value="' + todayStr() + '">'
+      + '<label>Резултат (mg/%)</label>'
+      + '<input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2">'
+      + '<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;"><input type="checkbox" id="b_flag" style="width:auto;"> Особена седмица (болест/пропусната формула/лекарство с аспартам)</label>'
+      + '<button type="button" id="bloodBtn">Запиши резултат</button>'
+      + '<div class="ok" id="bloodOk"></div>'
+      + '</div>';
+    var hist = '';
+    if (rows.length) {
+      hist = '<div class="card"><div class="t">Тренд (таван ≤8 mg/%)</div>' + rows.map(function (r) {
+        var cls = r.mg_percent > 8 ? "hi" : "ok";
+        return '<div class="bloodrow"><span>' + esc(fmtDate(r.sample_date)) + (r.flag_unusual_week ? " ⚠" : "") + '</span><span class="v ' + cls + '">' + r.mg_percent + ' mg/%</span></div>';
+      }).join("") + '</div>';
+    }
+    return form + hist;
+  }
+
+  function render(today, log, blood) {
+    loading.style.display = "none";
+    content.innerHTML = renderBar(today) + renderAddForm() + renderHistory(log) + renderBlood(blood);
+    wireAdd();
+    wireBlood();
+  }
+
+  function wireAdd() {
+    var foodEl = document.getElementById("f_food");
+    var gramsEl = document.getElementById("f_grams");
+    var preview = document.getElementById("f_preview");
+    var saveBtn = document.getElementById("saveBtn");
+    var okMsg = document.getElementById("okMsg");
+
+    function findFood(name) {
+      var n = (name || "").trim().toLowerCase();
+      return phedb.find(function (f) { return f.food_name.toLowerCase() === n; });
+    }
+    function updatePreview() {
+      var f = findFood(foodEl.value);
+      var g = parseFloat(gramsEl.value);
+      if (f && isFinite(g)) {
+        var phe = (g / 100) * f.phe_mg_per_100g;
+        preview.textContent = "≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+      } else if (foodEl.value && !f) {
+        preview.textContent = "Извън базата — ще се запише с грамажа, без изчислен фениланин.";
+      } else {
+        preview.textContent = "";
+      }
+    }
+    foodEl.addEventListener("input", updatePreview);
+    gramsEl.addEventListener("input", updatePreview);
+
+    saveBtn.addEventListener("click", function () {
+      var name = foodEl.value.trim();
+      var grams = parseFloat(gramsEl.value);
+      if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+      sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: isFinite(grams) ? grams : null })
+        .then(function (res) {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          if (res.error) throw res.error;
+          okMsg.textContent = "Записано ✓";
+          okMsg.className = "ok show";
+          foodEl.value = ""; gramsEl.value = ""; preview.textContent = "";
+          reload();
+        })
+        .catch(function () {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
+  }
+
+  function wireBlood() {
+    var dateEl = document.getElementById("b_date");
+    var valEl = document.getElementById("b_value");
+    var flagEl = document.getElementById("b_flag");
+    var btn = document.getElementById("bloodBtn");
+    var okMsg = document.getElementById("bloodOk");
+
+    btn.addEventListener("click", function () {
+      var v = parseFloat(valEl.value);
+      if (!isFinite(v)) { okMsg.textContent = "Впиши резултата."; okMsg.className = "ok show err"; return; }
+      btn.disabled = true; btn.textContent = "Записване…";
+      sb.rpc("add_blood_reading", { token: token, p_sample_date: dateEl.value, p_mg_percent: v, p_flag_unusual: flagEl.checked })
+        .then(function (res) {
+          btn.disabled = false; btn.textContent = "Запиши резултат";
+          if (res.error) throw res.error;
+          okMsg.textContent = "Записано ✓";
+          okMsg.className = "ok show";
+          valEl.value = ""; flagEl.checked = false;
+          reload();
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "Запиши резултат";
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
+  }
+
+  function reload() {
+    Promise.all([
+      sb.rpc("get_phe_today", { token: token }),
+      sb.rpc("get_phe_log", { token: token }),
+      sb.rpc("get_blood_trend", { token: token })
+    ]).then(function (results) {
+      var todayRes = results[0], logRes = results[1], bloodRes = results[2];
+      if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
+      var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green" };
+      render(todayRow, logRes.data || [], bloodRes.data || []);
+    }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
+  }
+
+  sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note").then(function (res) {
+    if (!res.error && res.data) phedb = res.data;
+    reload();
+  }, function () { reload(); });
+})();
+</script>
+</body>
+</html>
