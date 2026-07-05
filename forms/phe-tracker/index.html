@@ -5,7 +5,40 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Моят фениланин</title>
+<!-- PWA: инсталируем на екрана (истински manifest); токенът се пази локално -->
 <meta name="theme-color" content="#c77d2e">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Фениланин">
+<link rel="manifest" href="manifest.webmanifest">
+<script>
+(function () {
+  // iOS: инсталираното A2HS-приложение има ОТДЕЛНО хранилище от Safari → self-heal през
+  // localStorage не работи. Махаме manifest-а на iOS → Safari закача иконата към ТЕКУЩИЯ URL
+  // (с токена) вместо към start_url без токен. Android (Chrome) не се пипа — там хранилището е общо.
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (isIOS) {
+    var mf = document.querySelector('link[rel="manifest"]');
+    if (mf) mf.remove();
+  }
+  // Токенът се пази локално → инсталираното приложение (start_url без токен) сам се връща на личния лог.
+  try {
+    var t = new URLSearchParams(location.search).get("t");
+    if (t) { localStorage.setItem("cdbgym_phe_token", t); }
+    else {
+      var saved = localStorage.getItem("cdbgym_phe_token");
+      if (saved) { location.replace(location.pathname + "?t=" + saved); return; }
+    }
+  } catch (e) {}
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
 <style>
   :root {
     --bg: #f4f6f8;
