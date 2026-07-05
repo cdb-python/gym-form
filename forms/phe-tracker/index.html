@@ -172,6 +172,7 @@
   var who = document.getElementById("who");
   var phedb = []; // кеш на храните за autocomplete
   var pheunits = []; // кеш на мерките (падащо меню) на храна
+  var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
 
   function esc(s) {
     var d = document.createElement("div");
@@ -300,7 +301,7 @@
   function renderBlood(rows, hasPin) {
     // Родителска секция — акордеон „За родителя", затворен по подразбиране.
     // Ако има зададен PIN и не е отключен в тази сесия → PIN екран; иначе директно съдържанието.
-    var unlocked = !hasPin || sessionStorage.getItem("phe_parent_unlocked_" + token) === "1";
+    var unlocked = !hasPin || parentUnlocked;
     var inner;
     if (unlocked) {
       inner = bloodInner(rows);
@@ -339,7 +340,7 @@
         pinBtn.disabled = false; pinBtn.textContent = "Отключи";
         if (res.error) { pinErr.textContent = "Грешка. Опитай пак."; return; }
         if (res.data === true) {
-          try { sessionStorage.setItem("phe_parent_unlocked_" + token, "1"); } catch (e) {}
+          parentUnlocked = true;
           // презареди само родителския блок (остава отворен)
           var body = document.getElementById("parentBody");
           if (body) { body.innerHTML = bloodInner(bloodRows || []); wireBlood(bloodRows || []); }
