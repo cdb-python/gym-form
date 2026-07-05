@@ -116,6 +116,7 @@
   var content = document.getElementById("content");
   var who = document.getElementById("who");
   var phedb = []; // кеш на храните за autocomplete
+  var pheunits = []; // кеш на мерките (падащо меню) на храна
 
   function esc(s) {
     var d = document.createElement("div");
@@ -154,14 +155,6 @@
       + '</div>';
   }
 
-  var MULTS = [
-    { label: "¼", val: 0.25 },
-    { label: "½", val: 0.5 },
-    { label: "1", val: 1 },
-    { label: "2", val: 2 },
-    { label: "3", val: 3 }
-  ];
-
   function renderAddForm() {
     var options = phedb.map(function (f) { return '<option value="' + esc(f.food_name) + '">'; }).join("");
     return '<div class="card">'
@@ -174,16 +167,18 @@
       + '</div>';
   }
 
-  function renderPortionPicker(f) {
-    var unitLabel = f.unit_label || "порция";
-    var buttons = MULTS.map(function (m) {
-      return '<button type="button" class="mult" data-mult="' + m.val + '">' + m.label + ' ' + esc(unitLabel) + '</button>';
-    }).join("");
+  function renderPortionPicker(f, units) {
     var estBadge = f.is_measured === false ? '<span class="badge-est">оценка</span>' : "";
-    return '<div class="foodmeta">' + esc(f.food_name) + estBadge + ' — 1 ' + esc(unitLabel) + ' ≈ ' + Math.round(f.unit_grams) + ' г</div>'
-      + '<div class="portions" id="portionBtns">' + buttons + '</div>'
-      + '<p class="hint" id="f_preview">Избери количество отгоре</p>'
-      + '<button type="button" id="saveBtn" disabled>Запиши</button>';
+    var opts = units.map(function (u, i) {
+      return '<option value="' + i + '">' + esc(u.unit_label) + '</option>';
+    }).join("") + '<option value="g">г (грам)</option>';
+    return '<div class="foodmeta">' + esc(f.food_name) + estBadge + '</div>'
+      + '<div class="row2">'
+      + '<select id="f_unit">' + opts + '</select>'
+      + '<input type="number" id="f_qty" inputmode="decimal" step="0.5" value="1" placeholder="брой">'
+      + '</div>'
+      + '<p class="hint" id="f_preview"></p>'
+      + '<button type="button" id="saveBtn">Запиши</button>';
   }
 
   function renderUnknownFood(name) {
@@ -242,38 +237,42 @@
     var foodEl = document.getElementById("f_food");
     var bodyEl = document.getElementById("f_body");
     var okMsg = document.getElementById("okMsg");
-    var selectedMult = null;
-    var currentFood = null;
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
       return phedb.find(function (f) { return f.food_name.toLowerCase() === n; });
+    }
+    function unitsFor(name) {
+      var n = (name || "").trim().toLowerCase();
+      return pheunits.filter(function (u) { return u.food_name.toLowerCase() === n; })
+        .sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
     }
 
     function renderBody() {
       var name = foodEl.value.trim();
       if (!name) { bodyEl.innerHTML = ""; return; }
       var f = findFood(name);
-      currentFood = f || null;
-      selectedMult = null;
       if (f) {
-        bodyEl.innerHTML = renderPortionPicker(f);
-        var btns = bodyEl.querySelectorAll(".mult");
-        btns.forEach(function (b) {
-          b.addEventListener("click", function () {
-            btns.forEach(function (x) { x.classList.remove("sel"); });
-            b.classList.add("sel");
-            selectedMult = parseFloat(b.getAttribute("data-mult"));
-            var grams = selectedMult * f.unit_grams;
-            var phe = (grams / 100) * f.phe_mg_per_100g;
-            document.getElementById("f_preview").textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
-            document.getElementById("saveBtn").disabled = false;
-          });
-        });
+        var units = unitsFor(name);
+        bodyEl.innerHTML = renderPortionPicker(f, units);
+        var unitSel = document.getElementById("f_unit");
+        var qtyEl = document.getElementById("f_qty");
+        function updatePreview() {
+          var qty = parseFloat(qtyEl.value);
+          if (!isFinite(qty) || qty <= 0) { document.getElementById("f_preview").textContent = ""; return; }
+          var gramsPerUnit = unitSel.value === "g" ? 1 : units[parseInt(unitSel.value, 10)].grams_per_unit;
+          var grams = qty * gramsPerUnit;
+          var phe = (grams / 100) * f.phe_mg_per_100g;
+          document.getElementById("f_preview").textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+        }
+        unitSel.addEventListener("change", updatePreview);
+        qtyEl.addEventListener("input", updatePreview);
+        updatePreview();
         wireSave(function () {
-          if (selectedMult == null) return null;
-          var grams = selectedMult * f.unit_grams;
-          return { name: f.food_name, grams: grams, phe: null };
+          var qty = parseFloat(qtyEl.value);
+          if (!isFinite(qty) || qty <= 0) return null;
+          var gramsPerUnit = unitSel.value === "g" ? 1 : units[parseInt(unitSel.value, 10)].grams_per_unit;
+          return { name: f.food_name, grams: qty * gramsPerUnit, phe: null };
         });
       } else {
         bodyEl.innerHTML = renderUnknownFood(name);
@@ -358,8 +357,12 @@
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
   }
 
-  sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note,unit_grams,unit_label,is_measured").then(function (res) {
-    if (!res.error && res.data) phedb = res.data;
+  Promise.all([
+    sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note,unit_grams,unit_label,is_measured"),
+    sb.from("phe_units").select("food_name,unit_label,grams_per_unit,sort_order")
+  ]).then(function (results) {
+    if (!results[0].error && results[0].data) phedb = results[0].data;
+    if (!results[1].error && results[1].data) pheunits = results[1].data;
     reload();
   }, function () { reload(); });
 })();
