@@ -44,7 +44,22 @@
   .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
 
-  /* Акордеон карти по дни в историята — стил на ЧЗВ в start-pyramid (details.faq) */
+  /* Външен акордеон „История" (свива цялата секция) — стил на faq-outer в start-pyramid */
+  details.hist-outer {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 12px; overflow: hidden; margin: 0 0 12px;
+  }
+  details.hist-outer > summary {
+    list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16px;
+    color: var(--accent-dark); display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  }
+  details.hist-outer > summary::-webkit-details-marker { display: none; }
+  details.hist-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
+  details.hist-outer[open] > summary::after { content: "\2212"; }
+  details.hist-outer .hist-body { display: none; padding: 4px 12px 12px; }
+  details.hist-outer[open] .hist-body { display: block; }
+
+  /* Вътрешен акордеон карти по дни — стил на ЧЗВ в start-pyramid (details.faq) */
   details.daycard {
     background: var(--card); border: 1px solid var(--border); border-radius: 12px;
     padding: 0; margin: 0 0 10px; overflow: hidden;
@@ -242,6 +257,7 @@
       if (!groups[k]) { groups[k] = []; order.push(k); }
       groups[k].push(e);
     });
+    var totalDays = order.length;
     var cards = order.map(function (k, i) {
       var arr = groups[k];
       var lbl = dayLabel(k, today);
@@ -250,7 +266,10 @@
         + '<summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + '</span></summary>'
         + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></details>';
     }).join("");
-    return '<div class="sec">' + cards + '</div>';
+    var dayWord = totalDays === 1 ? " ден" : " дни";
+    return '<details class="hist-outer" open>'
+      + '<summary><span>История</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + totalDays + dayWord + '</span></summary>'
+      + '<div class="hist-body">' + cards + '</div></details>';
   }
 
   function renderBlood(rows) {
