@@ -58,6 +58,10 @@
   button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   .row2 { display: flex; gap: 10px; }
   .row2 > * { flex: 1; }
+  .row3 { display: flex; gap: 8px; }
+  .row3 > input[type="number"] { flex: 0 0 70px; }
+  .row3 > select { flex: 1 1 40%; }
+  .row3 > input[type="text"] { flex: 1 1 40%; }
   .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e9f5ee; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--green); font-size: 14px; text-align: center; }
   .ok.show { display: block; }
   .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
@@ -163,9 +167,10 @@
       + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълка, Хляб, Сирене...">'
       + '<datalist id="foodlist">' + options + '</datalist>'
       + '<div id="f_meta" class="foodmeta">&nbsp;</div>'
-      + '<div class="row2">'
-      + '<select id="f_unit"><option value="g">г (грам)</option></select>'
+      + '<div class="row3">'
       + '<input type="number" id="f_qty" inputmode="decimal" step="0.5" value="1" placeholder="брой">'
+      + '<select id="f_unit"><option value="g">г (грам)</option></select>'
+      + '<input type="text" id="f_custom_unit" placeholder="друга мярка...">'
       + '</div>'
       + '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
       + '<div id="f_newfood"></div>'
@@ -177,16 +182,20 @@
   function renderPendingFoods(rows) {
     if (!rows || !rows.length) return "";
     var lines = rows.map(function (r) {
-      return '<div class="pendrow"><span>' + esc(r.food_text) + '</span><span class="cnt">' + r.times_logged + '× · последно ' + esc(fmtDate(r.last_seen)) + '</span></div>';
+      var label = r.custom_unit_text
+        ? esc(r.food_text) + " — мярка „" + esc(r.custom_unit_text) + "“" + (r.custom_qty != null ? " ×" + r.custom_qty : "")
+        : esc(r.food_text) + " (нова храна)";
+      return '<div class="pendrow"><span>' + label + '</span><span class="cnt">' + r.times_logged + '× · последно ' + esc(fmtDate(r.last_seen)) + '</span></div>';
     }).join("");
-    return '<div class="card"><div class="t">Чакащи нови храни</div><p class="hint" style="margin:0 0 8px">Тези храни още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
+    return '<div class="card"><div class="t">Чакащи (нови храни/мерки)</div><p class="hint" style="margin:0 0 8px">Тези още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
   }
 
   function renderHistory(entries) {
     if (!entries.length) return '<div class="card"><div class="t">История</div><p style="color:var(--muted);font-size:14px;margin:0">Още няма записи.</p></div>';
     var rows = entries.slice(0, 20).map(function (e) {
-      var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : (e.grams != null ? e.grams + " g" : "");
-      return '<div class="logitem"><span><span class="tm">' + esc(fmtDate(e.entry_date)) + ' ' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + (e.grams != null ? " (" + e.grams + "г)" : "") + '</span><span class="amt">' + esc(amt) + '</span></div>';
+      var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : (e.custom_unit_text ? "чака ⏳" : (e.grams != null ? e.grams + " g" : ""));
+      var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null ? " (" + e.grams + "г)" : "");
+      return '<div class="logitem"><span><span class="tm">' + esc(fmtDate(e.entry_date)) + ' ' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span></div>';
     }).join("");
     return '<div class="card"><div class="t">История</div>' + rows + '</div>';
   }
@@ -224,6 +233,7 @@
     var metaEl = document.getElementById("f_meta");
     var unitSel = document.getElementById("f_unit");
     var qtyEl = document.getElementById("f_qty");
+    var customEl = document.getElementById("f_custom_unit");
     var previewEl = document.getElementById("f_preview");
     var newfoodEl = document.getElementById("f_newfood");
     var saveBtn = document.getElementById("saveBtn");
@@ -258,27 +268,27 @@
       var name = foodEl.value.trim();
       var f = findFood(name);
       var qty = parseFloat(qtyEl.value);
+      var customUnit = customEl.value.trim();
       if (!name) { previewEl.textContent = "Избери или впиши храна отгоре"; metaEl.innerHTML = "&nbsp;"; newfoodEl.innerHTML = ""; return; }
+      var estBadge = (f && f.is_measured === false) ? '<span class="badge-est">оценка</span>' : "";
+      metaEl.innerHTML = f ? (esc(f.food_name) + estBadge) : "&nbsp;";
+      newfoodEl.innerHTML = f ? "" : '<div class="newfood">Тази храна не е в базата — ще се запише сега (само с грамажа), и ще бъде добавена официално по-късно.</div>';
+
+      if (customUnit) {
+        unitSel.disabled = true;
+        previewEl.textContent = isFinite(qty) && qty > 0
+          ? "Ще се запише: " + qty + " × „" + customUnit + "“ — Chris ще добави грамажа/фениланина по-късно."
+          : "Впиши брой";
+        return;
+      }
+      unitSel.disabled = false;
+      if (!isFinite(qty) || qty <= 0) { previewEl.textContent = "Впиши брой"; return; }
+      var grams = qty * currentGramsPerUnit();
       if (f) {
-        var estBadge = f.is_measured === false ? '<span class="badge-est">оценка</span>' : "";
-        metaEl.innerHTML = esc(f.food_name) + estBadge;
-        newfoodEl.innerHTML = "";
-        if (isFinite(qty) && qty > 0) {
-          var grams = qty * currentGramsPerUnit();
-          var phe = (grams / 100) * f.phe_mg_per_100g;
-          previewEl.textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
-        } else {
-          previewEl.textContent = "Впиши брой";
-        }
+        var phe = (grams / 100) * f.phe_mg_per_100g;
+        previewEl.textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
       } else {
-        metaEl.innerHTML = "&nbsp;";
-        newfoodEl.innerHTML = '<div class="newfood">Тази храна не е в базата — ще се запише сега (само с грамажа), и ще бъде добавена официално по-късно.</div>';
-        if (isFinite(qty) && qty > 0) {
-          var g2 = qty * currentGramsPerUnit();
-          previewEl.textContent = Math.round(g2) + " г (без изчислен фениланин — нова храна)";
-        } else {
-          previewEl.textContent = "Впиши брой";
-        }
+        previewEl.textContent = Math.round(grams) + " г (без изчислен фениланин — нова храна)";
       }
     }
 
@@ -293,27 +303,36 @@
     foodEl.addEventListener("change", onFoodChange);
     unitSel.addEventListener("change", updatePreview);
     qtyEl.addEventListener("input", updatePreview);
+    customEl.addEventListener("input", updatePreview);
     refreshUnitOptions(null);
+
+    function resetForm() {
+      foodEl.value = ""; qtyEl.value = "1"; customEl.value = "";
+      refreshUnitOptions(null);
+      updatePreview();
+    }
 
     saveBtn.addEventListener("click", function () {
       var name = foodEl.value.trim();
       var qty = parseFloat(qtyEl.value);
+      var customUnit = customEl.value.trim();
       if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
       if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой."; okMsg.className = "ok show err"; return; }
-      var grams = qty * currentGramsPerUnit();
       saveBtn.disabled = true; saveBtn.textContent = "Записване…";
-      sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: grams, p_phe_mg: null })
-        .then(function (res) {
+
+      var call = customUnit
+        ? sb.rpc("add_phe_custom_unit", { token: token, p_food_text: name, p_custom_unit: customUnit, p_qty: qty })
+        : sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
+
+      call.then(function (res) {
           saveBtn.disabled = false; saveBtn.textContent = "Запиши";
           if (res.error) throw res.error;
           var isPending = res.data && res.data[0] && res.data[0].is_pending;
           okMsg.textContent = isPending
-            ? "Записано ✓ Нова храна — ще бъде добавена в базата скоро."
+            ? "Записано ✓ Ново — ще бъде добавено в базата скоро."
             : "Записано ✓";
           okMsg.className = "ok show";
-          foodEl.value = ""; qtyEl.value = "1";
-          refreshUnitOptions(null);
-          updatePreview();
+          resetForm();
           reload();
         })
         .catch(function () {
