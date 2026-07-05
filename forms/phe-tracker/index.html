@@ -44,14 +44,20 @@
   .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
 
-  /* Акордеон карти по дни в историята */
-  .daycard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 10px; }
-  .daycard .dt { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-  .daycard .dt::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
-  .daycard.open .dt::after { content: "▾"; }
-  .daycard .dt .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; flex: 1; text-align: center; }
-  .daycard .dbody { display: none; margin-top: 10px; }
-  .daycard.open .dbody { display: block; }
+  /* Акордеон карти по дни в историята — стил на ЧЗВ в start-pyramid (details.faq) */
+  details.daycard {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0; margin: 0 0 10px; overflow: hidden;
+  }
+  details.daycard summary {
+    list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--ink);
+  }
+  details.daycard summary::-webkit-details-marker { display: none; }
+  details.daycard summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
+  details.daycard[open] summary::after { content: "\2212"; }
+  details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
+  details.daycard .dbody { padding: 0 16px 15px; }
 
   label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
   input, select {
@@ -240,9 +246,9 @@
       var arr = groups[k];
       var lbl = dayLabel(k, today);
       var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
-      return '<div class="daycard' + (i === 0 ? " open" : "") + '" data-day="' + esc(k) + '">'
-        + '<div class="dt"><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + '</span></div>'
-        + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></div>';
+      return '<details class="daycard"' + (i === 0 ? " open" : "") + '>'
+        + '<summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + '</span></summary>'
+        + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></details>';
     }).join("");
     return '<div class="sec">' + cards + '</div>';
   }
@@ -273,15 +279,6 @@
     content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderBlood(blood);
     wireAdd();
     wireBlood();
-    wireHistoryAccordion();
-  }
-
-  function wireHistoryAccordion() {
-    content.querySelectorAll(".daycard .dt").forEach(function (dt) {
-      dt.addEventListener("click", function () {
-        dt.closest(".daycard").classList.toggle("open");
-      });
-    });
   }
 
   function wireAdd() {
