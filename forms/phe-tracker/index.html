@@ -93,6 +93,13 @@
   .row3 > select { flex: 1 1 40%; }
   .row3 > input[type="text"] { flex: 1 1 40%; }
 
+  /* PIN екран за родителската секция */
+  .pinbox { text-align: center; padding: 6px 0 2px; }
+  .pinbox .lock { font-size: 30px; margin-bottom: 6px; }
+  .pinbox p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .pinbox input { text-align: center; letter-spacing: 8px; font-size: 22px; font-weight: 700; max-width: 180px; margin: 0 auto; }
+  .pinbox .err { color: var(--red); font-size: 13.5px; margin: 8px 0 0; min-height: 18px; }
+
   /* Собствено падащо меню за избор на храна (заменя нативния datalist — Android не показва
      подсказки на всяка буква + черен несmenяем фон на системния елемент) */
   .ac-wrap { position: relative; }
@@ -272,20 +279,17 @@
       + '<div class="hist-body">' + cards + '</div></details>';
   }
 
-  function renderBlood(rows) {
-    var form = '<div class="card">'
-      + '<div class="t">Кръвно изследване (фениланин)</div>'
-      + '<label>Дата на пробата</label>'
+  function bloodInner(rows) {
+    var form = '<label>Дата на пробата</label>'
       + '<input type="date" id="b_date" value="' + todayStr() + '">'
       + '<label>Резултат (mg/%)</label>'
       + '<input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2">'
       + '<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;"><input type="checkbox" id="b_flag" style="width:auto;"> Особена седмица (болест/пропусната формула/лекарство с аспартам)</label>'
       + '<button type="button" id="bloodBtn">Запиши резултат</button>'
-      + '<div class="ok" id="bloodOk"></div>'
-      + '</div>';
+      + '<div class="ok" id="bloodOk"></div>';
     var hist = '';
     if (rows.length) {
-      hist = '<div class="card"><div class="t">Тренд (таван ≤8 mg/%)</div>' + rows.map(function (r) {
+      hist = '<div style="margin-top:16px"><div class="t" style="font-weight:700;font-size:15px;color:var(--accent-dark);margin-bottom:8px">Тренд (таван ≤8 mg/%)</div>' + rows.map(function (r) {
         var cls = r.mg_percent > 8 ? "hi" : "ok";
         return '<div class="bloodrow"><span>' + esc(fmtDate(r.sample_date)) + (r.flag_unusual_week ? " ⚠" : "") + '</span><span class="v ' + cls + '">' + r.mg_percent + ' mg/%</span></div>';
       }).join("") + '</div>';
@@ -293,11 +297,62 @@
     return form + hist;
   }
 
+  function renderBlood(rows, hasPin) {
+    // Родителска секция — акордеон „За родителя", затворен по подразбиране.
+    // Ако има зададен PIN и не е отключен в тази сесия → PIN екран; иначе директно съдържанието.
+    var unlocked = !hasPin || sessionStorage.getItem("phe_parent_unlocked_" + token) === "1";
+    var inner;
+    if (unlocked) {
+      inner = bloodInner(rows);
+    } else {
+      inner = '<div class="pinbox" id="pinbox">'
+        + '<div class="lock">🔒</div>'
+        + '<p>Тази част е за родителя. Въведи PIN, за да я отвориш.</p>'
+        + '<input type="password" id="pin_input" inputmode="numeric" maxlength="8" placeholder="••••">'
+        + '<button type="button" id="pinBtn" style="max-width:200px;margin:12px auto 0;">Отключи</button>'
+        + '<div class="err" id="pin_err"></div>'
+        + '</div>';
+    }
+    return '<details class="hist-outer" id="parentSec">'
+      + '<summary><span>За родителя — кръвни резултати</span><span style="font-size:16px;">' + (unlocked ? '' : '🔒') + '</span></summary>'
+      + '<div class="hist-body" id="parentBody">' + inner + '</div></details>';
+  }
+
   function render(today, log, blood, pending) {
     loading.style.display = "none";
-    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderBlood(blood);
+    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderBlood(blood, today.has_pin);
     wireAdd();
-    wireBlood();
+    wireBlood(blood);
+    wirePin(blood);
+  }
+
+  function wirePin(bloodRows) {
+    var pinBtn = document.getElementById("pinBtn");
+    if (!pinBtn) return;
+    var pinInput = document.getElementById("pin_input");
+    var pinErr = document.getElementById("pin_err");
+    function submit() {
+      var pin = (pinInput.value || "").trim();
+      if (!pin) { pinErr.textContent = "Въведи PIN."; return; }
+      pinBtn.disabled = true; pinBtn.textContent = "Проверка…";
+      sb.rpc("verify_parent_pin", { token: token, p_pin: pin }).then(function (res) {
+        pinBtn.disabled = false; pinBtn.textContent = "Отключи";
+        if (res.error) { pinErr.textContent = "Грешка. Опитай пак."; return; }
+        if (res.data === true) {
+          try { sessionStorage.setItem("phe_parent_unlocked_" + token, "1"); } catch (e) {}
+          // презареди само родителския блок (остава отворен)
+          var body = document.getElementById("parentBody");
+          if (body) { body.innerHTML = bloodInner(bloodRows || []); wireBlood(bloodRows || []); }
+          var sec = document.getElementById("parentSec");
+          if (sec) { sec.setAttribute("open", ""); var mark = sec.querySelector("summary span:last-child"); if (mark) mark.textContent = ""; }
+        } else {
+          pinErr.textContent = "Грешен PIN.";
+          pinInput.value = ""; pinInput.focus();
+        }
+      }, function () { pinBtn.disabled = false; pinBtn.textContent = "Отключи"; pinErr.textContent = "Няма връзка."; });
+    }
+    pinBtn.addEventListener("click", submit);
+    pinInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
   }
 
   function wireAdd() {
@@ -448,6 +503,7 @@
     var flagEl = document.getElementById("b_flag");
     var btn = document.getElementById("bloodBtn");
     var okMsg = document.getElementById("bloodOk");
+    if (!btn) return; // формата е заключена (PIN екран) — няма какво да wire-ваме
 
     btn.addEventListener("click", function () {
       var v = parseFloat(valEl.value);
@@ -479,7 +535,7 @@
     ]).then(function (results) {
       var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3];
       if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
-      var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green" };
+      var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green", has_pin: false };
       render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
   }
