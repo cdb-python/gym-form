@@ -31,15 +31,15 @@
   header p { margin: 0; font-size: 15px; opacity: 0.92; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
 
-  .bar { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 18px 0 12px; }
-  .bar .label { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 8px; }
-  .bar .track { background: #eef1f3; border-radius: 8px; height: 22px; overflow: hidden; }
+  /* Картата „Днес" — оцветена (една идея по-тъмна от хедъра #c77d2e), бял текст */
+  .bar { background: #b06f22; border: 1px solid #9c611c; border-radius: 12px; padding: 16px; margin: 18px 0 12px; color: #fff; }
+  .bar .label { font-size: 13px; color: rgba(255,255,255,0.85); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 8px; }
+  .bar .track { background: rgba(255,255,255,0.28); border-radius: 8px; height: 22px; overflow: hidden; }
   .bar .fill { height: 100%; border-radius: 8px; transition: width 0.3s; }
-  .bar .fill.green { background: var(--green); }
-  .bar .fill.yellow { background: var(--yellow); }
-  .bar .fill.red { background: var(--red); }
-  .bar .nums { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14.5px; font-weight: 600; }
-  .bar .provisional { font-size: 12.5px; color: var(--muted); margin-top: 6px; font-style: italic; }
+  .bar .fill.green { background: #34d17e; }
+  .bar .fill.yellow { background: #ffd166; }
+  .bar .fill.red { background: #ff6b6b; }
+  .bar .nums { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14.5px; font-weight: 700; color: #fff; }
 
   .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
@@ -127,6 +127,7 @@
   .bloodrow .v { font-weight: 700; }
   .bloodrow .v.hi { color: var(--red); }
   .bloodrow .v.ok { color: var(--green); }
+  .bloodrow .wkflag { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin-left: 8px; }
 
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
@@ -206,15 +207,13 @@
     return '<div class="bar">'
       + '<div class="label">Днес</div>'
       + '<div class="track"><div class="fill ' + t.color + '" style="width:' + pct + '%"></div></div>'
-      + '<div class="nums"><span>' + Math.round(t.total_mg) + ' mg</span><span>цел: ' + Math.round(t.daily_target_mg) + ' mg</span></div>'
-      + (t.target_is_provisional ? '<div class="provisional">Целта е ориентировъчна (общ диапазон за възрастта) — ще се смени с личното число от клиниката.</div>' : '')
+      + '<div class="nums"><span>' + Math.round(t.total_mg) + ' mg</span><span>дневен лимит: ' + Math.round(t.daily_target_mg) + ' mg</span></div>'
       + '</div>';
   }
 
   function renderAddForm() {
     return '<div class="card">'
       + '<div class="t">Добави храна</div>'
-      + '<label>Храна</label>'
       + '<div class="ac-wrap">'
       + '<input type="text" id="f_food" autocomplete="off" placeholder="напр. Ябълка, Хляб, Сирене...">'
       + '<div class="ac-list" id="ac_list"></div>'
@@ -290,12 +289,48 @@
       + '<div class="ok" id="bloodOk"></div>';
     var hist = '';
     if (rows.length) {
-      hist = '<div style="margin-top:16px"><div class="t" style="font-weight:700;font-size:15px;color:var(--accent-dark);margin-bottom:8px">Тренд (таван ≤8 mg/%)</div>' + rows.map(function (r) {
+      var trendRows = rows.map(function (r) {
         var cls = r.mg_percent > 8 ? "hi" : "ok";
-        return '<div class="bloodrow"><span>' + esc(fmtDate(r.sample_date)) + (r.flag_unusual_week ? " ⚠" : "") + '</span><span class="v ' + cls + '">' + r.mg_percent + ' mg/%</span></div>';
-      }).join("") + '</div>';
+        var flag = r.flag_unusual_week ? '<span class="wkflag">⚠ особена седмица</span>' : '';
+        return '<div class="bloodrow"><span>' + esc(fmtDate(r.sample_date)) + flag + '</span><span class="v ' + cls + '">' + r.mg_percent + ' mg/%</span></div>';
+      }).join("");
+      var word = rows.length === 1 ? " резултат" : " резултата";
+      hist = '<details class="hist-outer" open style="margin-top:16px">'
+        + '<summary><span>Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
+        + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Таван ≤ 8 mg/%. Зелено = в норма, червено = над тавана.</p>' + trendRows + '</div></details>';
     }
     return form + hist;
+  }
+
+  function helpItem(title, body) {
+    return '<details class="daycard"><summary><span>' + title + '</span></summary>'
+      + '<div class="dbody" style="font-size:14.5px;line-height:1.55;color:#3a4753;">' + body + '</div></details>';
+  }
+
+  function renderHelp() {
+    var items = ''
+      + helpItem("Какво е това?",
+          '<p>Тук се записва какво яде Криста през деня. Приложението смята колко фениланин има в храната — така се вижда лесно и всеки ден дали денят е спокоен, или трябва внимание.</p>')
+      + helpItem("Как да добавя храна?",
+          '<p>1. Пиши храната в полето „Добави храна" — щом почнеш да пишеш, излизат подсказки; докосни своята от тях.</p>'
+          + '<p>2. Избери количество: напиши число и избери мярка от списъка (например „1 ябълка", „2 филии", „7 лъжици").</p>'
+          + '<p>3. Долу се показва колко фениланин ще се запише. Натисни „Запиши".</p>')
+      + helpItem("Ако храната я няма в списъка?",
+          '<p>Понякога Криста яде нещо, което още не е в приложението. Тогава просто го запиши — приема се и се показва в „Чакащи". Стойността му се добавя скоро, за да смята точно и него следващия път.</p>')
+      + helpItem("Ако мярката я няма?",
+          '<p>До мерките има трето поле „друга мярка". Ако това, което търсиш, го няма (например „шепа малини" или „половин филийка с масло") — напиши го там със свои думи и числото. И то отива в „Чакащи", за да го добавим.</p>')
+      + helpItem("Дневният лимит и цветовете",
+          '<p>Лентата „Днес" показва колко фениланин е събран за деня спрямо дневния лимит. <b>Зелено</b> = спокойно, <b>жълто</b> = наближава лимита, <b>червено</b> = над лимита. Лимитът засега е ориентировъчен (по възрастта) и ще се смени с личното число от клиниката.</p>')
+      + helpItem("История по дни",
+          '<p>Всеки ден се пази отделно. Докосни деня, за да видиш какво е записано. Така картината се трупа с времето — полезно е и за прегледите в клиниката.</p>')
+      + helpItem("Кръвните изследвания (за родителя)",
+          '<p>Резултатите от кръвните изследвания се въвеждат от родителя, в заключената част най-долу (с PIN). Там се пази хронологията им и се вижда дали са в норма (таван 8 mg/%). Тази част е скрита с PIN, защото е за родителя.</p>')
+      + helpItem("Важно",
+          '<p>Приложението помага да следите лесно — но <b>дневният лимит, дозата на лекарството и диетата остават решение на лекарите</b>. Тук само записвате и наблюдавате; числата помагат на вас и на клиниката.</p>');
+
+    return '<details class="hist-outer">'
+      + '<summary><span>Как се ползва (помощ)</span></summary>'
+      + '<div class="hist-body">' + items + '</div></details>';
   }
 
   function renderBlood(rows, hasPin) {
@@ -320,7 +355,7 @@
 
   function render(today, log, blood, pending) {
     loading.style.display = "none";
-    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderBlood(blood, today.has_pin);
+    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderHelp() + renderBlood(blood, today.has_pin);
     wireAdd();
     wireBlood(blood);
     wirePin(blood);
