@@ -75,6 +75,21 @@
 
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+
+  /* Порционни бутони — детето тапва количество, без грамове */
+  .portions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .portions button {
+    width: auto; margin-top: 0; padding: 12px 16px; font-size: 15px; font-weight: 700;
+    background: var(--soft); color: var(--accent-dark); border: 2px solid var(--accent);
+    border-radius: 10px; flex: 1 1 60px; min-width: 60px;
+  }
+  .portions button.sel { background: var(--accent); color: #fff; }
+  .foodmeta { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+  .badge-est { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 6px; }
+  .newfood { background: #fbf1e6; border: 1px dashed var(--accent); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 14px; color: var(--accent-dark); }
+  .pendrow { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; justify-content: space-between; }
+  .pendrow:last-child { border-bottom: none; }
+  .pendrow .cnt { color: var(--muted); font-size: 12.5px; }
 </style>
 </head>
 <body>
@@ -139,19 +154,51 @@
       + '</div>';
   }
 
+  var MULTS = [
+    { label: "¼", val: 0.25 },
+    { label: "½", val: 0.5 },
+    { label: "1", val: 1 },
+    { label: "2", val: 2 },
+    { label: "3", val: 3 }
+  ];
+
   function renderAddForm() {
     var options = phedb.map(function (f) { return '<option value="' + esc(f.food_name) + '">'; }).join("");
     return '<div class="card">'
       + '<div class="t">Добави храна</div>'
       + '<label>Храна</label>'
-      + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълки, Хляб, Сирене...">'
+      + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълка, Хляб, Сирене...">'
       + '<datalist id="foodlist">' + options + '</datalist>'
-      + '<label>Грамове</label>'
-      + '<input type="number" id="f_grams" inputmode="decimal" step="1" placeholder="напр. 150">'
-      + '<p class="hint" id="f_preview"></p>'
-      + '<button type="button" id="saveBtn">Запиши</button>'
+      + '<div id="f_body"></div>'
       + '<div class="ok" id="okMsg"></div>'
       + '</div>';
+  }
+
+  function renderPortionPicker(f) {
+    var unitLabel = f.unit_label || "порция";
+    var buttons = MULTS.map(function (m) {
+      return '<button type="button" class="mult" data-mult="' + m.val + '">' + m.label + ' ' + esc(unitLabel) + '</button>';
+    }).join("");
+    var estBadge = f.is_measured === false ? '<span class="badge-est">оценка</span>' : "";
+    return '<div class="foodmeta">' + esc(f.food_name) + estBadge + ' — 1 ' + esc(unitLabel) + ' ≈ ' + Math.round(f.unit_grams) + ' г</div>'
+      + '<div class="portions" id="portionBtns">' + buttons + '</div>'
+      + '<p class="hint" id="f_preview">Избери количество отгоре</p>'
+      + '<button type="button" id="saveBtn" disabled>Запиши</button>';
+  }
+
+  function renderUnknownFood(name) {
+    return '<div class="newfood">Тази храна не е в базата — ще се запише сега (само с грамажа), и ще бъде добавена официално по-късно.</div>'
+      + '<label>Приблизително грамове</label>'
+      + '<input type="number" id="f_grams" inputmode="decimal" step="1" placeholder="напр. 100">'
+      + '<button type="button" id="saveBtn">Запиши като нова храна</button>';
+  }
+
+  function renderPendingFoods(rows) {
+    if (!rows || !rows.length) return "";
+    var lines = rows.map(function (r) {
+      return '<div class="pendrow"><span>' + esc(r.food_text) + '</span><span class="cnt">' + r.times_logged + '× · последно ' + esc(fmtDate(r.last_seen)) + '</span></div>';
+    }).join("");
+    return '<div class="card"><div class="t">Чакащи нови храни</div><p class="hint" style="margin:0 0 8px">Тези храни още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
   }
 
   function renderHistory(entries) {
@@ -184,59 +231,89 @@
     return form + hist;
   }
 
-  function render(today, log, blood) {
+  function render(today, log, blood, pending) {
     loading.style.display = "none";
-    content.innerHTML = renderBar(today) + renderAddForm() + renderHistory(log) + renderBlood(blood);
+    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log) + renderBlood(blood);
     wireAdd();
     wireBlood();
   }
 
   function wireAdd() {
     var foodEl = document.getElementById("f_food");
-    var gramsEl = document.getElementById("f_grams");
-    var preview = document.getElementById("f_preview");
-    var saveBtn = document.getElementById("saveBtn");
+    var bodyEl = document.getElementById("f_body");
     var okMsg = document.getElementById("okMsg");
+    var selectedMult = null;
+    var currentFood = null;
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
       return phedb.find(function (f) { return f.food_name.toLowerCase() === n; });
     }
-    function updatePreview() {
-      var f = findFood(foodEl.value);
-      var g = parseFloat(gramsEl.value);
-      if (f && isFinite(g)) {
-        var phe = (g / 100) * f.phe_mg_per_100g;
-        preview.textContent = "≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
-      } else if (foodEl.value && !f) {
-        preview.textContent = "Извън базата — ще се запише с грамажа, без изчислен фениланин.";
+
+    function renderBody() {
+      var name = foodEl.value.trim();
+      if (!name) { bodyEl.innerHTML = ""; return; }
+      var f = findFood(name);
+      currentFood = f || null;
+      selectedMult = null;
+      if (f) {
+        bodyEl.innerHTML = renderPortionPicker(f);
+        var btns = bodyEl.querySelectorAll(".mult");
+        btns.forEach(function (b) {
+          b.addEventListener("click", function () {
+            btns.forEach(function (x) { x.classList.remove("sel"); });
+            b.classList.add("sel");
+            selectedMult = parseFloat(b.getAttribute("data-mult"));
+            var grams = selectedMult * f.unit_grams;
+            var phe = (grams / 100) * f.phe_mg_per_100g;
+            document.getElementById("f_preview").textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+            document.getElementById("saveBtn").disabled = false;
+          });
+        });
+        wireSave(function () {
+          if (selectedMult == null) return null;
+          var grams = selectedMult * f.unit_grams;
+          return { name: f.food_name, grams: grams, phe: null };
+        });
       } else {
-        preview.textContent = "";
+        bodyEl.innerHTML = renderUnknownFood(name);
+        wireSave(function () {
+          var gramsEl = document.getElementById("f_grams");
+          var g = parseFloat(gramsEl.value);
+          if (!isFinite(g)) return null;
+          return { name: name, grams: g, phe: null };
+        });
       }
     }
-    foodEl.addEventListener("input", updatePreview);
-    gramsEl.addEventListener("input", updatePreview);
 
-    saveBtn.addEventListener("click", function () {
-      var name = foodEl.value.trim();
-      var grams = parseFloat(gramsEl.value);
-      if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
-      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
-      sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: isFinite(grams) ? grams : null })
-        .then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
-          if (res.error) throw res.error;
-          okMsg.textContent = "Записано ✓";
-          okMsg.className = "ok show";
-          foodEl.value = ""; gramsEl.value = ""; preview.textContent = "";
-          reload();
-        })
-        .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
-          okMsg.textContent = "Неуспешно. Опитай пак.";
-          okMsg.className = "ok show err";
-        });
-    });
+    function wireSave(getPayload) {
+      var saveBtn = document.getElementById("saveBtn");
+      if (!saveBtn) return;
+      saveBtn.addEventListener("click", function () {
+        var payload = getPayload();
+        if (!payload) { okMsg.textContent = "Избери количество."; okMsg.className = "ok show err"; return; }
+        saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+        sb.rpc("add_phe_entry", { token: token, p_food_text: payload.name, p_grams: payload.grams, p_phe_mg: payload.phe })
+          .then(function (res) {
+            if (res.error) throw res.error;
+            var isPending = res.data && res.data[0] && res.data[0].is_pending;
+            okMsg.textContent = isPending
+              ? "Записано ✓ Нова храна — ще бъде добавена в базата скоро."
+              : "Записано ✓";
+            okMsg.className = "ok show";
+            foodEl.value = ""; bodyEl.innerHTML = "";
+            reload();
+          })
+          .catch(function () {
+            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+            okMsg.textContent = "Неуспешно. Опитай пак.";
+            okMsg.className = "ok show err";
+          });
+      });
+    }
+
+    foodEl.addEventListener("input", renderBody);
+    foodEl.addEventListener("change", renderBody);
   }
 
   function wireBlood() {
@@ -271,16 +348,17 @@
     Promise.all([
       sb.rpc("get_phe_today", { token: token }),
       sb.rpc("get_phe_log", { token: token }),
-      sb.rpc("get_blood_trend", { token: token })
+      sb.rpc("get_blood_trend", { token: token }),
+      sb.rpc("get_pending_foods", { token: token })
     ]).then(function (results) {
-      var todayRes = results[0], logRes = results[1], bloodRes = results[2];
+      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3];
       if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
       var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green" };
-      render(todayRow, logRes.data || [], bloodRes.data || []);
+      render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
   }
 
-  sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note").then(function (res) {
+  sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note,unit_grams,unit_label,is_measured").then(function (res) {
     if (!res.error && res.data) phedb = res.data;
     reload();
   }, function () { reload(); });
