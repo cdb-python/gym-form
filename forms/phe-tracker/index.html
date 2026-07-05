@@ -62,6 +62,20 @@
   .row3 > input[type="number"] { flex: 0 0 70px; }
   .row3 > select { flex: 1 1 40%; }
   .row3 > input[type="text"] { flex: 1 1 40%; }
+
+  /* Собствено падащо меню за избор на храна (заменя нативния datalist — Android не показва
+     подсказки на всяка буква + черен несmenяем фон на системния елемент) */
+  .ac-wrap { position: relative; }
+  .ac-list {
+    display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 20;
+    background: #fff; border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 9px 9px; max-height: 220px; overflow-y: auto;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  }
+  .ac-list.show { display: block; }
+  .ac-item { padding: 11px 12px; font-size: 15.5px; color: var(--ink); cursor: pointer; border-bottom: 1px solid #eef1f3; }
+  .ac-item:last-child { border-bottom: none; }
+  .ac-item:active, .ac-item.hl { background: var(--soft); }
   .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e9f5ee; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--green); font-size: 14px; text-align: center; }
   .ok.show { display: block; }
   .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
@@ -160,12 +174,13 @@
   }
 
   function renderAddForm() {
-    var options = phedb.map(function (f) { return '<option value="' + esc(f.food_name) + '">'; }).join("");
     return '<div class="card">'
       + '<div class="t">Добави храна</div>'
       + '<label>Храна</label>'
-      + '<input type="text" id="f_food" list="foodlist" placeholder="напр. Ябълка, Хляб, Сирене...">'
-      + '<datalist id="foodlist">' + options + '</datalist>'
+      + '<div class="ac-wrap">'
+      + '<input type="text" id="f_food" autocomplete="off" placeholder="напр. Ябълка, Хляб, Сирене...">'
+      + '<div class="ac-list" id="ac_list"></div>'
+      + '</div>'
       + '<div id="f_meta" class="foodmeta">&nbsp;</div>'
       + '<div class="row3">'
       + '<input type="number" id="f_qty" inputmode="decimal" step="0.5" value="1" placeholder="брой">'
@@ -238,12 +253,35 @@
     var newfoodEl = document.getElementById("f_newfood");
     var saveBtn = document.getElementById("saveBtn");
     var okMsg = document.getElementById("okMsg");
+    var acList = document.getElementById("ac_list");
     var currentUnits = []; // текущите мерки на избраната храна (празно = само "г")
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
       return phedb.find(function (f) { return f.food_name.toLowerCase() === n; });
     }
+
+    function hideAc() { acList.classList.remove("show"); acList.innerHTML = ""; }
+    function showAc(query) {
+      var q = (query || "").trim().toLowerCase();
+      if (!q) { hideAc(); return; }
+      var matches = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+      if (!matches.length) { hideAc(); return; }
+      acList.innerHTML = matches.map(function (f) {
+        return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>';
+      }).join("");
+      acList.classList.add("show");
+    }
+    acList.addEventListener("click", function (e) {
+      var item = e.target.closest(".ac-item");
+      if (!item) return;
+      foodEl.value = item.getAttribute("data-name");
+      hideAc();
+      onFoodChange();
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target !== foodEl && !acList.contains(e.target)) hideAc();
+    });
     function unitsFor(name) {
       var n = (name || "").trim().toLowerCase();
       return pheunits.filter(function (u) { return u.food_name.toLowerCase() === n; })
@@ -299,8 +337,11 @@
       updatePreview();
     }
 
-    foodEl.addEventListener("input", onFoodChange);
-    foodEl.addEventListener("change", onFoodChange);
+    foodEl.addEventListener("input", function () {
+      showAc(foodEl.value);
+      onFoodChange();
+    });
+    foodEl.addEventListener("focus", function () { if (foodEl.value.trim()) showAc(foodEl.value); });
     unitSel.addEventListener("change", updatePreview);
     qtyEl.addEventListener("input", updatePreview);
     customEl.addEventListener("input", updatePreview);
@@ -308,6 +349,7 @@
 
     function resetForm() {
       foodEl.value = ""; qtyEl.value = "1"; customEl.value = "";
+      hideAc();
       refreshUnitOptions(null);
       updatePreview();
     }
