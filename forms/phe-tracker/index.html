@@ -268,6 +268,12 @@
     d.textContent = s == null ? "" : String(s);
     return d.innerHTML;
   }
+  // Име на рецепта: при >1 дума → първата дума горе, останалото на нов ред (за компактна карта).
+  function nameTwoLines(name) {
+    var parts = String(name == null ? "" : name).trim().split(/\s+/);
+    if (parts.length <= 1) return esc(name);
+    return esc(parts[0]) + "<br>" + esc(parts.slice(1).join(" "));
+  }
   function fmtDate(s) {
     if (!s) return "";
     var p = String(s).split("-");
@@ -754,7 +760,7 @@
       var tot = r.total_phe_mg != null ? (Math.round(r.total_phe_mg) + " mg") : "–";
       var warn = r.has_pending ? '<p class="rc-warn">Чака стойност на съставка — сборът ще се допълни.</p>' : "";
       var prep = r.instructions ? '<details class="daycard prep" style="margin-top:10px"><summary><span>🍳 Приготвяне</span></summary><div class="dbody" style="font-size:14px;line-height:1.55;color:#3a4753;white-space:pre-wrap;">' + esc(r.instructions) + '</div></details>' : "";
-      return '<details class="daycard"><summary><span>' + esc(r.name) + '</span><span class="cnt">' + per + '</span></summary>'
+      return '<details class="daycard"><summary><span>' + nameTwoLines(r.name) + '</span><span class="cnt">' + per + '</span></summary>'
         + '<div class="dbody">' + ingLines
         + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + yn + " " + esc(plabel) + '</span></div>' + warn
         + prep
