@@ -116,9 +116,13 @@
   details.daycard[open] summary::after { content: "\2212"; }
   details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
   .daymg { color: var(--accent-dark); font-weight: 700; }
-  /* Рецептна библиотека: Fe числото оранжево (изпъква), останалото черно болд */
-  .reclib details.daycard > summary .cnt { color: var(--ink); font-weight: 700; }
+  /* Рецептна библиотека: per-ът на ДВА реда (Android) — mg/бр отгоре (оранжево), бройка отдолу (черно) */
+  .reclib details.daycard > summary .cnt {
+    display: inline-flex; flex-direction: column; align-items: flex-end;
+    text-align: right; line-height: 1.25; font-weight: 700; flex: none;
+  }
   .reclib .rc-mg { color: var(--accent-dark); }
+  .reclib .rc-cnt2 { color: var(--ink); }
   details.daycard .dbody { padding: 0 16px 15px; }
 
   /* Блед винтидж хранителен фон (контурни плодове/зеленчуци) на белите карти.
@@ -741,8 +745,8 @@
       var plabel = r.portion_label || "порция";      // множествено, както е в базата
       var yn = r.yield_portions || 1;
       var per = r.phe_per_portion != null
-        ? ('<span class="rc-mg">' + Math.round(r.phe_per_portion) + ' mg/бр</span>  —  ' + yn + ' ' + esc(plabel))
-        : ('чака ⏳ · ' + yn + ' ' + esc(plabel));
+        ? ('<span class="rc-mg">' + Math.round(r.phe_per_portion) + ' mg/бр</span><span class="rc-cnt2">' + yn + ' ' + esc(plabel) + '</span>')
+        : ('<span class="rc-mg">чака ⏳</span><span class="rc-cnt2">' + yn + ' ' + esc(plabel) + '</span>');
       var ingLines = (r.ingredients || []).map(function (g) {
         var v = g.in_base ? ((g.phe_mg != null ? Math.round(g.phe_mg) : 0) + " mg") : '<span class="ing-pend">чака ⏳</span>';
         return '<div class="logitem"><span>' + esc(g.food_text) + (g.grams != null ? " (" + g.grams + "г)" : "") + '</span><span class="amt">' + v + '</span></div>';
