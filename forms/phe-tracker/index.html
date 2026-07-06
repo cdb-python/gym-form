@@ -59,22 +59,20 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 17px; line-height: 1.55; padding: 0 0 40px;
   }
-  header { background: var(--accent); color: #fff; padding: 22px 18px 18px; text-align: center; }
-  header h1 { margin: 0 0 4px; font-size: 20px; }
-  header p { margin: 0; font-size: 15px; opacity: 0.92; }
+  header { background: var(--accent); color: #fff; padding: 20px 18px; text-align: center; }
+  header h1 { margin: 0; font-size: 24px; }
+  header p { margin: 4px 0 0; font-size: 15px; opacity: 0.92; }
+  #who:empty { display: none; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
 
   /* Картата „Днес" — оцветена (една идея по-тъмна от хедъра #c77d2e), бял текст */
   .bar { background: #b06f22; border: 1px solid #9c611c; border-radius: 12px; padding: 14px 16px; margin: 18px 0 12px; color: #fff; }
   .bar .track { background: rgba(255,255,255,0.28); border-radius: 8px; height: 22px; overflow: hidden; }
-  /* Непрекъснат градиент, закачен за ПЪЛНАТА скала (0→лимит): fill-ът разкрива лявата част.
-     background-size се задава inline = 100/pct*100% → спектърът винаги обхваща целия track,
-     затова върхът на прогреса показва реалния цвят спрямо лимита (зелено<70 · жълто 70 · червено 100). */
-  .bar .fill { height: 100%; border-radius: 8px; transition: width 0.3s, background-size 0.3s;
-    background-image: linear-gradient(90deg, #2e8b57 0%, #7cc24a 40%, #ffd166 70%, #ff9d3c 88%, #ff4d4d 100%);
-    background-repeat: no-repeat; background-position: left center; }
-  .bar .nums { display: flex; justify-content: space-between; margin-top: 8px; font-size: 14.5px; font-weight: 700; color: #fff; }
-  .bar .nums .over { color: #ff6b6b; }   /* над дневния лимит — числото почервенява (сигнал) */
+  /* Лентата само визуализира натрупаното през деня — един спокоен зелен цвят, без прагове/аларми.
+     (Няма известен дневен таван → не рисуваме такъв; водещо е седмичното кръвно.) */
+  .bar .fill { height: 100%; border-radius: 8px; transition: width 0.3s; background: #2e8b57; }
+  .bar .today-line { text-align: center; color: #fff; font-size: 17px; font-weight: 600; }
+  .bar .today-line .n { font-size: 21px; font-weight: 800; }
 
   .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
@@ -87,7 +85,12 @@
   details.hist-outer > summary {
     list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16px;
     color: var(--accent-dark); display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    position: relative;
   }
+  .lockmark { font-size: 16px; }
+  /* Заглавието поема свободното място → дясното съдържание (сума/катинар) се долепя до „+" */
+  details.hist-outer > summary > span:first-child,
+  details.daycard summary > span:first-child { flex: 1 1 auto; }
   details.hist-outer > summary::-webkit-details-marker { display: none; }
   details.hist-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
   details.hist-outer[open] > summary::after { content: "\2212"; }
@@ -107,6 +110,7 @@
   details.daycard summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
   details.daycard[open] summary::after { content: "\2212"; }
   details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
+  .daymg { color: var(--accent-dark); font-weight: 700; }
   details.daycard .dbody { padding: 0 16px 15px; }
 
   /* Блед винтидж хранителен фон (контурни плодове/зеленчуци) на белите карти.
@@ -150,7 +154,7 @@
   .pinbox { text-align: center; padding: 6px 0 2px; }
   .pinbox .lock { font-size: 30px; margin-bottom: 6px; }
   .pinbox p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
-  .pinbox input { text-align: center; letter-spacing: 8px; font-size: 22px; font-weight: 700; max-width: 180px; margin: 0 auto; }
+  .pinbox input { text-align: center; letter-spacing: 8px; font-size: 22px; font-weight: 700; max-width: 180px; margin: 0 auto; -webkit-text-security: disc; text-security: disc; }
   .pinbox .err { color: var(--red); font-size: 13.5px; margin: 8px 0 0; min-height: 18px; }
 
   /* Собствено падащо меню за избор на храна (заменя нативния datalist — Android не показва
@@ -199,13 +203,28 @@
   .pendrow { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; justify-content: space-between; }
   .pendrow:last-child { border-bottom: none; }
   .pendrow .cnt { color: var(--muted); font-size: 12.5px; }
+
+  /* Рецепти — бланка за въвеждане */
+  .recmeta { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
+  .ing-row { border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin: 0 0 8px; background: #fff; }
+  .ing-row .ac-wrap { margin: 0; }
+  .ing-line2 { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .ing-line2 .ing-qty { flex: 0 0 58px; padding: 9px 8px; }
+  .ing-line2 .ing-unit { flex: 1 1 auto; padding: 9px 8px; }
+  .ing-line2 .ing-phe { flex: 0 0 auto; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); white-space: nowrap; min-width: 46px; text-align: right; }
+  .ing-line2 .ing-del { flex: 0 0 auto; width: auto; margin: 0; padding: 9px 11px; background: #fff; color: var(--red); border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
+  .ing-pend { color: var(--yellow); font-weight: 600; }
+  .rc-sum { display: flex; justify-content: space-between; font-size: 14.5px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .rc-sum b { color: var(--accent-dark); }
+  .rc-warn { color: var(--yellow); font-size: 12.5px; margin: 4px 0 0; min-height: 4px; }
+  .reclib .t { margin: 18px 0 8px; color: var(--accent-dark); font-weight: 700; font-size: 15px; }
 </style>
 </head>
 <body>
 <header>
   <div class="wrap" style="padding:0 4px;">
     <h1>Моят фениланин</h1>
-    <p id="who">&nbsp;</p>
+    <p id="who"></p>
   </div>
 </header>
 
@@ -226,6 +245,7 @@
   var who = document.getElementById("who");
   var phedb = []; // кеш на храните за autocomplete
   var pheunits = []; // кеш на мерките (падащо меню) на храна
+  var recipes = []; // кеш на рецептите на клиента (смятани на живо от базата)
   var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
 
   function esc(s) {
@@ -251,22 +271,25 @@
     loading.style.display = "none";
     content.innerHTML = '<div class="state">' + esc(msg) + "</div>";
   }
+  function showMissingToken(storageKey) {
+    var saved = "?"; try { saved = localStorage.getItem(storageKey) ? "да" : "не"; } catch (e) {}
+    var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    loading.style.display = "none";
+    content.innerHTML = '<div class="state">Липсва код в линка. Отвори линка, който получи.'
+      + '<div style="margin-top:14px;padding:10px;border:1px dashed #d8dee5;border-radius:8px;font-size:11.5px;color:#6b7886;text-align:left;word-break:break-all;line-height:1.55;">'
+      + '<b>Диагностика (за Chris):</b><br>URL: ' + esc(location.href)
+      + '<br>Запазен код: ' + saved
+      + '<br>Режим: ' + (standalone ? "приложение (standalone)" : "браузър")
+      + '<br>iOS: ' + (ios ? "да" : "не") + '</div></div>';
+  }
 
   var token = new URLSearchParams(location.search).get("t");
-  if (!token) { showState("Липсва код в линка. Отвори линка, който получи."); return; }
+  if (!token) { showMissingToken("cdbgym_phe_token"); return; }
 
   function renderBar(t) {
-    var pct = Math.min(100, t.percent || 0);
-    // спектърът покрива целия track: fill е pct% от него → мащабираме фона на 100/pct, за да е пълен
-    var gsize = pct > 0 ? (10000 / pct) : 100;
-    var over = t.total_mg > t.daily_target_mg;   // над дневния лимит → числото почервенява
-    var left = over
-      ? '<span class="over">' + Math.round(t.total_mg) + ' mg · над лимита</span>'
-      : '<span>' + Math.round(t.total_mg) + ' mg</span>';
-    return '<div class="bar">'
-      + '<div class="track"><div class="fill" style="width:' + pct + '%;background-size:' + gsize + '% 100%"></div></div>'
-      + '<div class="nums">' + left + '<span>дневен лимит: ' + Math.round(t.daily_target_mg) + ' mg</span></div>'
-      + '</div>';
+    // Само число за деня — без лента/таван. (По-късно: седмица / последно кръвно.)
+    return '<div class="bar"><div class="today-line">Днес: <span class="n">' + Math.round(t.total_mg) + ' mg</span></div></div>';
   }
 
   function renderAddForm() {
@@ -278,9 +301,9 @@
       + '</div>'
       + '<div id="f_meta" class="foodmeta">&nbsp;</div>'
       + '<div class="row3">'
-      + '<input type="number" id="f_qty" inputmode="decimal" step="0.5" value="1" placeholder="брой">'
+      + '<input type="number" id="f_qty" inputmode="decimal" autocomplete="off" step="0.5" value="1" placeholder="брой">'
       + '<select id="f_unit"><option value="g">г (грам)</option></select>'
-      + '<input type="text" id="f_custom_unit" placeholder="друга мярка...">'
+      + '<input type="text" id="f_custom_unit" autocomplete="off" placeholder="друга мярка...">'
       + '</div>'
       + '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
       + '<div id="f_newfood"></div>'
@@ -327,8 +350,11 @@
       var arr = groups[k];
       var lbl = dayLabel(k, today);
       var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
+      var dayTotal = 0, pend = false;
+      arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
+      var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
       return '<details class="daycard"' + (i === 0 ? " open" : "") + '>'
-        + '<summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + '</span></summary>'
+        + '<summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
         + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></details>';
     }).join("");
     var dayWord = totalDays === 1 ? " ден" : " дни";
@@ -377,8 +403,9 @@
           '<p>Понякога Криста яде нещо, което още не е в приложението. Тогава просто го запиши — приема се и се показва в „Чакащи". Стойността му се добавя скоро, за да смята точно и него следващия път.</p>')
       + helpItem("Ако мярката я няма?",
           '<p>До мерките има трето поле „друга мярка". Ако това, което търсиш, го няма (например „шепа малини" или „половин филийка с масло") — напиши го там със свои думи и числото. И то отива в „Чакащи", за да го добавим.</p>')
-      + helpItem("Дневният лимит и цветовете",
-          '<p>Лентата „Днес" показва колко фениланин е събран за деня спрямо дневния лимит. <b>Зелено</b> = спокойно, <b>жълто</b> = наближава лимита, <b>червено</b> = над лимита. Лимитът засега е ориентировъчен (по възрастта) и ще се смени с личното число от клиниката.</p>')
+      + helpItem("Лентата за деня — какво показва",
+          '<p>Лентата показва <b>колко фениланин е събран за деня</b> от записаните храни. Няма строг дневен таван — това е просто сбор, за да се вижда денят с един поглед.</p>'
+          + '<p><b>Водещото винаги е седмичното кръвно изследване</b> — то показва реалната поносимост на детето. Криста понася известно количество фениланин; целта не е точно число всеки ден, а разнообразна храна без прекаляване, а по-високите на фениланин храни — по-рядко.</p>')
       + helpItem("История по дни",
           '<p>Всеки ден се пази отделно. Докосни деня, за да видиш какво е записано. Така картината се трупа с времето — полезно е и за прегледите в клиниката.</p>')
       + helpItem("Кръвните изследвания (за родителя)",
@@ -401,20 +428,21 @@
     } else {
       inner = '<div class="pinbox" id="pinbox">'
         + '<p>Тази част е за родителя. Въведи PIN, за да я отвориш.</p>'
-        + '<input type="password" id="pin_input" inputmode="numeric" maxlength="8" placeholder="••••">'
+        + '<input type="text" id="pin_input" inputmode="numeric" autocomplete="off" autocorrect="off" name="blood_pin_' + Math.random().toString(36).slice(2) + '" maxlength="8" placeholder="••••">'
         + '<button type="button" id="pinBtn" style="max-width:200px;margin:12px auto 0;">Отключи</button>'
         + '<div class="err" id="pin_err"></div>'
         + '</div>';
     }
     return '<details class="hist-outer" id="parentSec">'
-      + '<summary><span>За родителя — кръвни резултати</span><span style="font-size:16px;">' + (unlocked ? '' : '🔒') + '</span></summary>'
+      + '<summary><span>За родителя — кръвни резултати</span><span class="lockmark">' + (unlocked ? '' : '🔒') + '</span></summary>'
       + '<div class="hist-body" id="parentBody">' + inner + '</div></details>';
   }
 
   function render(today, log, blood, pending) {
     loading.style.display = "none";
-    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderHelp() + renderBlood(blood, today.has_pin);
+    content.innerHTML = renderBar(today) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
     wireAdd();
+    wireRecipe(recipes, today.has_pin);
     wireBlood(blood);
     wirePin(blood);
   }
@@ -460,6 +488,7 @@
     var okMsg = document.getElementById("okMsg");
     var acList = document.getElementById("ac_list");
     var currentUnits = []; // текущите мерки на избраната храна (празно = само "г")
+    var selectedRecipe = null; // ако е избрана рецепта → логваме по брой порции
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
@@ -470,17 +499,29 @@
     function showAc(query) {
       var q = (query || "").trim().toLowerCase();
       if (!q) { hideAc(); return; }
-      var matches = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
-      if (!matches.length) { hideAc(); return; }
-      acList.innerHTML = matches.map(function (f) {
-        return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>';
-      }).join("");
+      var recM = recipes.filter(function (r) { return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0, 4);
+      var foodM = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
+      if (!recM.length && !foodM.length) { hideAc(); return; }
+      acList.innerHTML =
+        recM.map(function (r) {
+          return '<div class="ac-item" data-recipe="' + esc(r.id) + '"><b>' + esc(r.name) + '</b> <span style="color:var(--muted);font-size:12px">· рецепта</span></div>';
+        }).join("") +
+        foodM.map(function (f) {
+          return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>';
+        }).join("");
       acList.classList.add("show");
     }
     acList.addEventListener("click", function (e) {
       var item = e.target.closest(".ac-item");
       if (!item) return;
-      foodEl.value = item.getAttribute("data-name");
+      var rid = item.getAttribute("data-recipe");
+      if (rid) {
+        var r = recipes.find(function (x) { return String(x.id) === String(rid); });
+        if (r) { foodEl.value = r.name; selectedRecipe = r; }
+      } else {
+        foodEl.value = item.getAttribute("data-name");
+        selectedRecipe = null;
+      }
       hideAc();
       onFoodChange();
     });
@@ -507,7 +548,27 @@
       return u ? u.grams_per_unit : 1;
     }
 
+    // при рецепта скриваме мярка/друга мярка — броим порции
+    function setRecipeMode(on) {
+      unitSel.style.display = on ? "none" : "";
+      customEl.style.display = on ? "none" : "";
+    }
+
     function updatePreview() {
+      if (selectedRecipe) {
+        setRecipeMode(true);
+        var pq = parseFloat(qtyEl.value);
+        var plabel = selectedRecipe.portion_label || "порция";
+        metaEl.innerHTML = esc(selectedRecipe.name) + ' <span style="color:var(--muted)">· рецепта</span>';
+        newfoodEl.innerHTML = "";
+        var per = selectedRecipe.phe_per_portion;
+        if (!isFinite(pq) || pq <= 0) { previewEl.textContent = "Впиши брой (" + plabel + ")"; return; }
+        previewEl.textContent = per != null
+          ? (pq + " × " + Math.round(per) + " mg ≈ " + Math.round(pq * per) + " mg фениланин")
+          : "Рецептата още чака стойност на съставка — ще се уточни.";
+        return;
+      }
+      setRecipeMode(false);
       var name = foodEl.value.trim();
       var f = findFood(name);
       var qty = parseFloat(qtyEl.value);
@@ -536,13 +597,12 @@
     }
 
     function onFoodChange() {
-      var name = foodEl.value.trim();
-      var f = findFood(name);
-      refreshUnitOptions(f);
+      if (!selectedRecipe) { refreshUnitOptions(findFood(foodEl.value.trim())); }
       updatePreview();
     }
 
     foodEl.addEventListener("input", function () {
+      selectedRecipe = null; // писане = ново търсене
       showAc(foodEl.value);
       onFoodChange();
     });
@@ -553,15 +613,34 @@
     refreshUnitOptions(null);
 
     function resetForm() {
-      foodEl.value = ""; qtyEl.value = "1"; customEl.value = "";
+      foodEl.value = ""; qtyEl.value = "1"; customEl.value = ""; selectedRecipe = null;
       hideAc();
+      setRecipeMode(false);
       refreshUnitOptions(null);
       updatePreview();
     }
 
     saveBtn.addEventListener("click", function () {
-      var name = foodEl.value.trim();
       var qty = parseFloat(qtyEl.value);
+
+      if (selectedRecipe) {
+        if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой порции."; okMsg.className = "ok show err"; return; }
+        saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+        sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: selectedRecipe.id, p_portions: qty })
+          .then(function (res) {
+            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+            if (res.error) throw res.error;
+            okMsg.textContent = "Записано ✓"; okMsg.className = "ok show";
+            resetForm(); reload();
+          })
+          .catch(function () {
+            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+            okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
+          });
+        return;
+      }
+
+      var name = foodEl.value.trim();
       var customUnit = customEl.value.trim();
       if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
       if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой."; okMsg.className = "ok show err"; return; }
@@ -619,15 +698,230 @@
     });
   }
 
+  // ── Рецепти ──────────────────────────────────────────────────────────────
+  function renderRecipeLib(recs) {
+    if (!recs || !recs.length) return "";
+    var items = recs.map(function (r) {
+      var plabel = r.portion_label || "порция";
+      var per = r.phe_per_portion != null ? (Math.round(r.phe_per_portion) + " mg/" + plabel) : "чака ⏳";
+      var ingLines = (r.ingredients || []).map(function (g) {
+        var v = g.in_base ? ((g.phe_mg != null ? Math.round(g.phe_mg) : 0) + " mg") : '<span class="ing-pend">чака ⏳</span>';
+        return '<div class="logitem"><span>' + esc(g.food_text) + (g.grams != null ? " (" + g.grams + "г)" : "") + '</span><span class="amt">' + v + '</span></div>';
+      }).join("");
+      var tot = r.total_phe_mg != null ? (Math.round(r.total_phe_mg) + " mg") : "–";
+      var warn = r.has_pending ? '<p class="rc-warn">Чака стойност на съставка — сборът ще се допълни.</p>' : "";
+      return '<details class="daycard"><summary><span>' + esc(r.name) + '</span><span class="cnt">' + esc(per) + '</span></summary>'
+        + '<div class="dbody">' + ingLines
+        + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + (r.yield_portions || 1) + " " + esc(plabel) + '</span></div>' + warn
+        + '<div class="row2" style="margin-top:12px">'
+        + '<button type="button" class="ghost rc-edit" data-id="' + esc(r.id) + '">Редактирай</button>'
+        + '<button type="button" class="ghost rc-del" data-id="' + esc(r.id) + '" style="color:var(--red);border-color:var(--red)">Изтрий</button>'
+        + '</div></div></details>';
+    }).join("");
+    return '<div class="reclib"><div class="t">Вече въведени рецепти (' + recs.length + ')</div>' + items + '</div>';
+  }
+
+  function recipeBuilderHTML(recs) {
+    return '<p class="recmeta">Сглоби ястие от съставки веднъж. После в „Добави храна" го намираш по име и въвеждаш само брой порции.</p>'
+      + '<label>Име на рецептата</label>'
+      + '<input type="text" id="rc_name" placeholder="напр. Палачинки Мевалия">'
+      + '<label style="margin-top:14px">Съставки</label>'
+      + '<div id="rc_ings"></div>'
+      + '<button type="button" class="ghost" id="rc_add_ing" style="margin-top:2px">+ Добави съставка</button>'
+      + '<div class="row2" style="margin-top:14px;align-items:flex-end">'
+      +   '<div><label style="margin:0 0 4px">На колко порции излиза</label><input type="number" id="rc_yield" inputmode="decimal" step="1" min="1" value="1"></div>'
+      +   '<div><label style="margin:0 0 4px">Мярка (по избор)</label><input type="text" id="rc_label" placeholder="палачинки, парчета…"></div>'
+      + '</div>'
+      + '<div class="rc-sum"><span>Общо за дозата: <b id="rc_total">–</b></span><span>На порция: <b id="rc_per">–</b></span></div>'
+      + '<div class="rc-warn" id="rc_warn"></div>'
+      + '<button type="button" id="rc_save">Запиши рецептата</button>'
+      + '<div class="ok" id="rc_ok"></div>'
+      + renderRecipeLib(recs);
+  }
+
+  function recipePinHTML() {
+    return '<p class="recmeta">Създаването на рецепти е за родителя.</p>'
+      + '<div class="pinbox">'
+      + '<p>Въведи PIN, за да отвориш.</p>'
+      + '<input type="text" id="rc_pin_input" inputmode="numeric" autocomplete="off" autocorrect="off" name="rc_pin_' + Math.random().toString(36).slice(2) + '" maxlength="8" placeholder="••••">'
+      + '<button type="button" id="rc_pinBtn" style="max-width:200px;margin:12px auto 0;">Отключи</button>'
+      + '<div class="err" id="rc_pin_err"></div>'
+      + '</div>';
+  }
+
+  function renderRecipeCard(recs, hasPin) {
+    var locked = hasPin && !parentUnlocked;
+    return '<details class="hist-outer" id="recipeCard">'
+      + '<summary><span>➕ Въведи рецепта</span><span class="lockmark">' + (locked ? '🔒' : '') + '</span></summary>'
+      + '<div class="hist-body" id="recipeBody">' + (locked ? recipePinHTML() : recipeBuilderHTML(recs)) + '</div></details>';
+  }
+
+  function wireRecipe(recs, hasPin) {
+    var card = document.getElementById("recipeCard");
+    if (!card) return;
+    if (hasPin && !parentUnlocked) {
+      var pinBtn = document.getElementById("rc_pinBtn");
+      if (!pinBtn) return;
+      var pinInput = document.getElementById("rc_pin_input");
+      var pinErr = document.getElementById("rc_pin_err");
+      var submit = function () {
+        var pin = (pinInput.value || "").trim();
+        if (!pin) { pinErr.textContent = "Въведи PIN."; return; }
+        pinBtn.disabled = true; pinBtn.textContent = "Проверка…";
+        sb.rpc("verify_parent_pin", { token: token, p_pin: pin }).then(function (res) {
+          pinBtn.disabled = false; pinBtn.textContent = "Отключи";
+          if (res.error) { pinErr.textContent = "Грешка. Опитай пак."; return; }
+          if (res.data === true) {
+            parentUnlocked = true;
+            var body = document.getElementById("recipeBody");
+            if (body) { body.innerHTML = recipeBuilderHTML(recs); }
+            card.setAttribute("open", "");
+            var mark = card.querySelector("summary span:last-child"); if (mark) mark.textContent = "";
+            wireRecipeBuilder(recs);
+          } else { pinErr.textContent = "Грешен PIN."; pinInput.value = ""; pinInput.focus(); }
+        }, function () { pinBtn.disabled = false; pinBtn.textContent = "Отключи"; pinErr.textContent = "Няма връзка."; });
+      };
+      pinBtn.addEventListener("click", submit);
+      pinInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      return;
+    }
+    wireRecipeBuilder(recs);
+  }
+
+  function wireRecipeBuilder(recs) {
+    var card = document.getElementById("recipeCard");
+    if (!card) return;
+    var nameEl = document.getElementById("rc_name");
+    if (!nameEl) return;
+    var ingWrap = document.getElementById("rc_ings");
+    var addIngBtn = document.getElementById("rc_add_ing");
+    var yieldEl = document.getElementById("rc_yield");
+    var labelEl = document.getElementById("rc_label");
+    var totalEl = document.getElementById("rc_total");
+    var perEl = document.getElementById("rc_per");
+    var warnEl = document.getElementById("rc_warn");
+    var saveEl = document.getElementById("rc_save");
+    var okEl = document.getElementById("rc_ok");
+    var editId = null;
+
+    function updateTotals() {
+      var total = 0, pend = false, any = false;
+      ingWrap.querySelectorAll(".ing-row").forEach(function (r) {
+        var d = r._data();
+        if (d.food_text) { if (!d.inBase) pend = true; else if (d.phe != null) { total += d.phe; any = true; } }
+      });
+      var y = parseFloat(yieldEl.value) || 1;
+      if (!any && !pend) { totalEl.textContent = "–"; perEl.textContent = "–"; warnEl.textContent = ""; return; }
+      totalEl.textContent = Math.round(total) + " mg" + (pend ? " +" : "");
+      perEl.textContent = Math.round(total / y) + " mg" + (pend ? " +" : "");
+      warnEl.textContent = pend ? "Има съставка без стойност — сборът ще се допълни, щом я добавя." : "";
+    }
+
+    function addRow(preset) {
+      var row = document.createElement("div"); row.className = "ing-row";
+      row.innerHTML = '<div class="ac-wrap"><input type="text" class="ing-food" autocomplete="off" placeholder="съставка (напр. Яйце)…"><div class="ac-list"></div></div>'
+        + '<div class="ing-line2"><input type="number" class="ing-qty" inputmode="decimal" step="0.5" value="1"><select class="ing-unit"></select><span class="ing-phe">–</span><button type="button" class="ing-del">×</button></div>';
+      ingWrap.appendChild(row);
+      var foodEl = row.querySelector(".ing-food"), listEl = row.querySelector(".ac-list"),
+          qtyEl = row.querySelector(".ing-qty"), unitEl = row.querySelector(".ing-unit"),
+          pheEl = row.querySelector(".ing-phe"), delEl = row.querySelector(".ing-del");
+      var units = [];
+      function findFood(n) { n = (n || "").trim().toLowerCase(); return phedb.find(function (f) { return f.food_name.toLowerCase() === n; }); }
+      function unitsFor(n) { n = (n || "").trim().toLowerCase(); return pheunits.filter(function (u) { return u.food_name.toLowerCase() === n; }).sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); }); }
+      function refreshUnits(f) { units = f ? unitsFor(f.food_name) : []; unitEl.innerHTML = units.map(function (u, i) { return '<option value="' + i + '">' + esc(u.unit_label) + '</option>'; }).join("") + '<option value="g">г</option>'; }
+      function gpu() { if (unitEl.value === "g") return 1; var u = units[parseInt(unitEl.value, 10)]; return u ? u.grams_per_unit : 1; }
+      function recompute() {
+        var f = findFood(foodEl.value), qty = parseFloat(qtyEl.value);
+        if (!f) { pheEl.innerHTML = foodEl.value.trim() ? '<span class="ing-pend">чака ⏳</span>' : "–"; }
+        else if (isFinite(qty) && qty > 0) { pheEl.textContent = "≈ " + Math.round(qty * gpu() / 100 * f.phe_mg_per_100g) + " mg"; }
+        else pheEl.textContent = "–";
+        updateTotals();
+      }
+      function onFood() { refreshUnits(findFood(foodEl.value)); recompute(); }
+      function hide() { listEl.classList.remove("show"); listEl.innerHTML = ""; }
+      function show(q) { q = (q || "").trim().toLowerCase(); if (!q) { hide(); return; } var m = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8); if (!m.length) { hide(); return; } listEl.innerHTML = m.map(function (f) { return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>'; }).join(""); listEl.classList.add("show"); }
+      listEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      listEl.addEventListener("click", function (e) { var it = e.target.closest(".ac-item"); if (!it) return; foodEl.value = it.getAttribute("data-name"); hide(); onFood(); });
+      foodEl.addEventListener("input", function () { show(foodEl.value); onFood(); });
+      foodEl.addEventListener("focus", function () { if (foodEl.value.trim()) show(foodEl.value); });
+      foodEl.addEventListener("blur", function () { setTimeout(hide, 120); });
+      qtyEl.addEventListener("input", recompute);
+      unitEl.addEventListener("change", recompute);
+      delEl.addEventListener("click", function () { row.remove(); updateTotals(); });
+      refreshUnits(null);
+      row._data = function () {
+        var f = findFood(foodEl.value), qty = parseFloat(qtyEl.value);
+        var g = (isFinite(qty) && qty > 0) ? qty * gpu() : null;
+        return { food_text: foodEl.value.trim(), grams: g, inBase: !!f, phe: (f && g != null) ? (g / 100 * f.phe_mg_per_100g) : null };
+      };
+      if (preset) { foodEl.value = preset.food_text || ""; onFood(); if (preset.grams != null) { unitEl.value = "g"; qtyEl.value = preset.grams; } recompute(); }
+      return row;
+    }
+
+    function resetBuilder() {
+      editId = null; nameEl.value = ""; yieldEl.value = "1"; labelEl.value = "";
+      ingWrap.innerHTML = ""; addRow(); updateTotals();
+      saveEl.textContent = "Запиши рецептата";
+    }
+
+    addIngBtn.addEventListener("click", function () { addRow(); });
+    yieldEl.addEventListener("input", updateTotals);
+    if (!ingWrap.querySelector(".ing-row")) addRow();
+
+    saveEl.addEventListener("click", function () {
+      var name = (nameEl.value || "").trim();
+      if (!name) { okEl.textContent = "Впиши име на рецептата."; okEl.className = "ok show err"; return; }
+      var ings = [];
+      ingWrap.querySelectorAll(".ing-row").forEach(function (r) { var d = r._data(); if (d.food_text && d.grams != null) ings.push({ food_text: d.food_text, grams: d.grams }); });
+      if (!ings.length) { okEl.textContent = "Добави поне една съставка с количество."; okEl.className = "ok show err"; return; }
+      var y = parseFloat(yieldEl.value) || 1;
+      saveEl.disabled = true; saveEl.textContent = "Записване…";
+      sb.rpc("save_phe_recipe", { token: token, p_name: name, p_yield: y, p_portion_label: (labelEl.value || "").trim(), p_ingredients: ings, p_recipe_id: editId })
+        .then(function (res) {
+          saveEl.disabled = false;
+          if (res.error) throw res.error;
+          okEl.textContent = "Записано ✓ — вече я има в търсенето на храни."; okEl.className = "ok show";
+          resetBuilder(); reload();
+        })
+        .catch(function () {
+          saveEl.disabled = false; saveEl.textContent = editId ? "Запази промените" : "Запиши рецептата";
+          okEl.textContent = "Неуспешно. Опитай пак."; okEl.className = "ok show err";
+        });
+    });
+
+    card.querySelectorAll(".rc-edit").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var r = (recs || []).find(function (x) { return String(x.id) === String(b.getAttribute("data-id")); });
+        if (!r) return;
+        editId = r.id; nameEl.value = r.name; yieldEl.value = r.yield_portions || 1; labelEl.value = r.portion_label || "";
+        ingWrap.innerHTML = "";
+        (r.ingredients || []).forEach(function (g) { addRow({ food_text: g.food_text, grams: g.grams }); });
+        if (!ingWrap.querySelector(".ing-row")) addRow();
+        saveEl.textContent = "Запази промените"; updateTotals();
+        card.setAttribute("open", ""); nameEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+    card.querySelectorAll(".rc-del").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Изтрий тази рецепта?")) return;
+        sb.rpc("delete_phe_recipe", { token: token, p_recipe_id: b.getAttribute("data-id") })
+          .then(function (res) { if (res.error) throw res.error; reload(); })
+          .catch(function () { alert("Неуспешно. Опитай пак."); });
+      });
+    });
+  }
+
   function reload() {
     Promise.all([
       sb.rpc("get_phe_today", { token: token }),
       sb.rpc("get_phe_log", { token: token }),
       sb.rpc("get_blood_trend", { token: token }),
-      sb.rpc("get_pending_foods", { token: token })
+      sb.rpc("get_pending_foods", { token: token }),
+      sb.rpc("get_phe_recipes", { token: token })
     ]).then(function (results) {
-      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3];
+      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3], recRes = results[4];
       if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
+      recipes = (recRes && recRes.data) || [];
       var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green", has_pin: false };
       render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
