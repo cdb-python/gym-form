@@ -116,6 +116,9 @@
   details.daycard[open] summary::after { content: "\2212"; }
   details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
   .daymg { color: var(--accent-dark); font-weight: 700; }
+  /* Рецептна библиотека: Fe числото оранжево (изпъква), останалото черно болд */
+  .reclib details.daycard > summary .cnt { color: var(--ink); font-weight: 700; }
+  .reclib .rc-mg { color: var(--accent-dark); }
   details.daycard .dbody { padding: 0 16px 15px; }
 
   /* Блед винтидж хранителен фон (контурни плодове/зеленчуци) на белите карти.
@@ -137,10 +140,11 @@
   }
 
   label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
-  input, select {
+  input, select, textarea {
     width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
     border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff;
   }
+  textarea { resize: vertical; line-height: 1.5; }
   .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
   button {
     width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
@@ -734,17 +738,22 @@
   function renderRecipeLib(recs) {
     if (!recs || !recs.length) return "";
     var items = recs.map(function (r) {
-      var plabel = r.portion_label || "порция";
-      var per = r.phe_per_portion != null ? (Math.round(r.phe_per_portion) + " mg/" + plabel) : "чака ⏳";
+      var plabel = r.portion_label || "порция";      // множествено, както е в базата
+      var yn = r.yield_portions || 1;
+      var per = r.phe_per_portion != null
+        ? ('<span class="rc-mg">' + Math.round(r.phe_per_portion) + ' mg/бр</span>  —  ' + yn + ' ' + esc(plabel))
+        : ('чака ⏳ · ' + yn + ' ' + esc(plabel));
       var ingLines = (r.ingredients || []).map(function (g) {
         var v = g.in_base ? ((g.phe_mg != null ? Math.round(g.phe_mg) : 0) + " mg") : '<span class="ing-pend">чака ⏳</span>';
         return '<div class="logitem"><span>' + esc(g.food_text) + (g.grams != null ? " (" + g.grams + "г)" : "") + '</span><span class="amt">' + v + '</span></div>';
       }).join("");
       var tot = r.total_phe_mg != null ? (Math.round(r.total_phe_mg) + " mg") : "–";
       var warn = r.has_pending ? '<p class="rc-warn">Чака стойност на съставка — сборът ще се допълни.</p>' : "";
-      return '<details class="daycard"><summary><span>' + esc(r.name) + '</span><span class="cnt">' + esc(per) + '</span></summary>'
+      var prep = r.instructions ? '<details class="daycard prep" style="margin-top:10px"><summary><span>🍳 Приготвяне</span></summary><div class="dbody" style="font-size:14px;line-height:1.55;color:#3a4753;white-space:pre-wrap;">' + esc(r.instructions) + '</div></details>' : "";
+      return '<details class="daycard"><summary><span>' + esc(r.name) + '</span><span class="cnt">' + per + '</span></summary>'
         + '<div class="dbody">' + ingLines
-        + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + (r.yield_portions || 1) + " " + esc(plabel) + '</span></div>' + warn
+        + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + yn + " " + esc(plabel) + '</span></div>' + warn
+        + prep
         + '<div class="row2" style="margin-top:12px">'
         + '<button type="button" class="ghost rc-edit" data-id="' + esc(r.id) + '">Редактирай</button>'
         + '<button type="button" class="ghost rc-del" data-id="' + esc(r.id) + '" style="color:var(--red);border-color:var(--red)">Изтрий</button>'
@@ -764,6 +773,8 @@
       +   '<div><label style="margin:0 0 4px">На колко порции излиза</label><input type="number" id="rc_yield" inputmode="decimal" step="1" min="1" value="1"></div>'
       +   '<div><label style="margin:0 0 4px">Мярка (по избор)</label><input type="text" id="rc_label" placeholder="палачинки, парчета…"></div>'
       + '</div>'
+      + '<label style="margin-top:12px">Приготвяне (как се прави) — по избор</label>'
+      + '<textarea id="rc_instr" rows="3" placeholder="Кратки стъпки — виждат се под рецептата (напр.: смеси брашното и захарта; добави яйцето и млякото; пече се 20 мин на 180°)."></textarea>'
       + '<div class="rc-sum"><span>Общо за дозата: <b id="rc_total">–</b></span><span>На порция: <b id="rc_per">–</b></span></div>'
       + '<div class="rc-warn" id="rc_warn"></div>'
       + '<button type="button" id="rc_save">Запиши рецептата</button>'
@@ -892,6 +903,7 @@
 
     function resetBuilder() {
       editId = null; nameEl.value = ""; yieldEl.value = "1"; labelEl.value = "";
+      var ie = document.getElementById("rc_instr"); if (ie) ie.value = "";
       ingWrap.innerHTML = ""; addRow(); updateTotals();
       saveEl.textContent = "Запиши рецептата";
     }
@@ -907,8 +919,9 @@
       ingWrap.querySelectorAll(".ing-row").forEach(function (r) { var d = r._data(); if (d.food_text && d.grams != null) ings.push({ food_text: d.food_text, grams: d.grams }); });
       if (!ings.length) { okEl.textContent = "Добави поне една съставка с количество."; okEl.className = "ok show err"; return; }
       var y = parseFloat(yieldEl.value) || 1;
+      var instr = (document.getElementById("rc_instr").value || "").trim();
       saveEl.disabled = true; saveEl.textContent = "Записване…";
-      sb.rpc("save_phe_recipe", { token: token, p_name: name, p_yield: y, p_portion_label: (labelEl.value || "").trim(), p_ingredients: ings, p_recipe_id: editId })
+      sb.rpc("save_phe_recipe", { token: token, p_name: name, p_yield: y, p_portion_label: (labelEl.value || "").trim(), p_ingredients: ings, p_instructions: instr, p_recipe_id: editId })
         .then(function (res) {
           saveEl.disabled = false;
           if (res.error) throw res.error;
@@ -926,6 +939,7 @@
         var r = (recs || []).find(function (x) { return String(x.id) === String(b.getAttribute("data-id")); });
         if (!r) return;
         editId = r.id; nameEl.value = r.name; yieldEl.value = r.yield_portions || 1; labelEl.value = r.portion_label || "";
+        var ie = document.getElementById("rc_instr"); if (ie) ie.value = r.instructions || "";
         ingWrap.innerHTML = "";
         (r.ingredients || []).forEach(function (g) { addRow({ food_text: g.food_text, grams: g.grams }); });
         if (!ingWrap.querySelector(".ing-row")) addRow();
