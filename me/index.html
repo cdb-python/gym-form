@@ -13,17 +13,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Дневник">
-<link rel="manifest" href="manifest.webmanifest">
 <script>
 (function () {
-  // iOS: инсталираното A2HS-приложение има ОТДЕЛНО хранилище от Safari → self-heal през
-  // localStorage не работи. Махаме manifest-а на iOS → Safari закача иконата към ТЕКУЩИЯ URL
-  // (с токена) вместо към start_url без токен. Android (Chrome) не се пипа — там хранилището е общо.
+  // iOS 16.4+ ползва manifest.start_url (БЕЗ токен) + отделно standalone хранилище от Safari →
+  // токенът се губи („Липсва код"). Затова НЕ слагаме <link rel=manifest> в HTML-а; добавяме го
+  // през JS САМО за НЕ-iOS (Android). На iOS без manifest → A2HS (apple-meta) закача иконата към
+  // ТЕКУЩИЯ URL (с токена) → токенът оцелява. (Диагностика 06.07: iOS стартираше ?src=pwa без токен.)
   var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
               (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  if (isIOS) {
-    var mf = document.querySelector('link[rel="manifest"]');
-    if (mf) mf.remove();
+  if (!isIOS) {
+    var lnk = document.createElement("link");
+    lnk.rel = "manifest"; lnk.href = "manifest.webmanifest";
+    document.head.appendChild(lnk);
   }
   // Токенът се пази локално → инсталираното приложение (start_url без токен) сам се връща на личния дневник.
   try {
