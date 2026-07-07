@@ -420,10 +420,10 @@
     var lines = rows.map(function (r) {
       var label = r.custom_unit_text
         ? esc(r.food_text) + " — мярка „" + esc(r.custom_unit_text) + "“" + (r.custom_qty != null ? " ×" + r.custom_qty : "")
-        : esc(r.food_text) + " (нова храна)";
+        : esc(r.food_text);
       return '<div class="pendrow"><span>' + label + '</span></div>';
     }).join("");
-    return '<div class="card"><div class="t">Чакащи (нови храни/мерки)</div><p class="hint" style="margin:0 0 8px">Тези още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
+    return '<div class="card"><div class="t">Чакащи изчисление</div><p class="hint" style="margin:0 0 8px">Тези записи чакат да им бъде изчислен фениланинът — ще стане скоро.</p>' + lines + '</div>';
   }
 
   function dayLabel(dStr, today) {
