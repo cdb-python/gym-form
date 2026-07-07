@@ -421,7 +421,7 @@
       var label = r.custom_unit_text
         ? esc(r.food_text) + " — мярка „" + esc(r.custom_unit_text) + "“" + (r.custom_qty != null ? " ×" + r.custom_qty : "")
         : esc(r.food_text) + " (нова храна)";
-      return '<div class="pendrow"><span>' + label + '</span><span class="cnt">' + r.times_logged + '× · последно ' + esc(fmtDate(r.last_seen)) + '</span></div>';
+      return '<div class="pendrow"><span>' + label + '</span></div>';
     }).join("");
     return '<div class="card"><div class="t">Чакащи (нови храни/мерки)</div><p class="hint" style="margin:0 0 8px">Тези още нямат стойност фениланин в базата — ще бъдат добавени скоро.</p>' + lines + '</div>';
   }
