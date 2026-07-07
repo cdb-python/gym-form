@@ -125,8 +125,9 @@
   .reclib .rc-cnt2 { color: var(--ink); }
   details.daycard .dbody { padding: 0 16px 15px; }
   /* „Днес" = бял акордеон-прозорец (форсиран бял, БЕЗ шарката — записите на чист фон), отворен по подразбиране. */
-  details.daycard.todaycard { background-color: var(--card); background-image: none; margin: 0 0 12px; }
-  details.daycard.todaycard > summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 700; }
+  /* „Днес" = външна карта КАТО другите (тониран фон + шарка); записите вътре са в БЯЛА карта-в-картата
+     (класът .daybox е вложен .card → правилото „.card .card → бяло" по-долу го прави бял). */
+  .todaycard .daybox { margin: 0; padding: 2px 14px; }
   /* История: месецът = леко тониран контейнер (дните бели вътре); месечните заглавия в оранжево — за йерархия. */
   details.hist-outer details.daycard.monthcard { background-color: var(--soft); }
   details.daycard.monthcard > summary { color: var(--accent-dark); }
@@ -449,9 +450,11 @@
     var body = arr.length
       ? arr.map(entryLine).join("")
       : '<p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Още няма записи за днес.</p>';
-    return '<details class="daycard todaycard" open>'
-      + '<summary><span>Днес</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
-      + '<div class="dbody">' + body + '</div></details>';
+    return '<div class="card todaycard">'
+      + '<div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">'
+      + '<span>Днес</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      + '</div>'
+      + '<div class="card daybox">' + body + '</div></div>';
   }
 
   var MONTH_NAMES = ["Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"];
