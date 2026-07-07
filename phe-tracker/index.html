@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Моят фениланин</title>
+<!-- PWA: инсталируем на екрана (истински manifest); токенът се пази локално -->
+<meta name="theme-color" content="#c77d2e">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Фениланин">
+<script>
+(function () {
+  // iOS 16.4+ ползва manifest.start_url (БЕЗ токен) + отделно standalone хранилище от Safari →
+  // токенът се губи („Липсва код"). Затова НЕ слагаме <link rel=manifest> в HTML-а; добавяме го
+  // през JS САМО за НЕ-iOS (Android). На iOS без manifest → A2HS (apple-meta) закача иконата към
+  // ТЕКУЩИЯ URL (с токена) → токенът оцелява. (Диагностика 06.07: iOS стартираше ?src=pwa без токен.)
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (!isIOS) {
+    var lnk = document.createElement("link");
+    lnk.rel = "manifest"; lnk.href = "manifest.webmanifest";
+    document.head.appendChild(lnk);
+  }
+  // Токенът се пази локално → инсталираното приложение (start_url без токен) сам се връща на личния лог.
+  try {
+    var t = new URLSearchParams(location.search).get("t");
+    if (t) { localStorage.setItem("cdbgym_phe_token", t); }
+    else {
+      var saved = localStorage.getItem("cdbgym_phe_token");
+      if (saved) { location.replace(location.pathname + "?t=" + saved); return; }
+    }
+  } catch (e) {}
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #c77d2e;
+    --accent-dark: #8a5a1a;
+    --border: #d8dee5;
+    --soft: #fbf1e6;
+    --green: #2e8b57;
+    --yellow: #b8862f;
+    --red: #c43d3d;
+    /* Цветен плодово-зеленчуков патент (за оранжевия хедър + бутони) — детски, весел */
+    --fruit-color: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22300%22%20height%3D%2256%22%20viewBox%3D%220%200%20300%2056%22%3E%3Cg%20opacity%3D%220.34%22%3E%3Cg%20transform%3D%22translate%2828%2C20%29%20rotate%28-18%29%22%3E%3Cpath%20d%3D%22M-15%2C8%20C-19%2C-5%20-8%2C-16%208%2C-15%20C3%2C-11%20-2%2C-5%20-5%2C3%20C-9%2C11%20-13%2C12%20-15%2C8%20Z%22%20fill%3D%22%23ffd54f%22%2F%3E%3Cpath%20d%3D%22M-15%2C8%20C-19%2C-5%20-8%2C-16%208%2C-15%22%20fill%3D%22none%22%20stroke%3D%22%23f9a825%22%20stroke-width%3D%221.3%22%2F%3E%3Ccircle%20cx%3D%228%22%20cy%3D%22-15%22%20r%3D%221.6%22%20fill%3D%22%238d6e63%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%2866%2C37%29%22%3E%3Ccircle%20r%3D%2212%22%20fill%3D%22%23fb8c00%22%2F%3E%3Ccircle%20r%3D%229.4%22%20fill%3D%22%23ffcc80%22%2F%3E%3Cg%20stroke%3D%22%23fb8c00%22%20stroke-width%3D%221.2%22%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C-9.4%22%2F%3E%3Cpath%20d%3D%22M0%2C0%20L8.1%2C-4.7%22%2F%3E%3Cpath%20d%3D%22M0%2C0%20L8.1%2C4.7%22%2F%3E%3Cpath%20d%3D%22M0%2C0%20L0%2C9.4%22%2F%3E%3Cpath%20d%3D%22M0%2C0%20L-8.1%2C4.7%22%2F%3E%3Cpath%20d%3D%22M0%2C0%20L-8.1%2C-4.7%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28104%2C19%29%22%3E%3Cellipse%20cx%3D%220%22%20cy%3D%223%22%20rx%3D%229%22%20ry%3D%2212%22%20fill%3D%22%23f9a825%22%2F%3E%3Cg%20stroke%3D%22%23e08e0b%22%20stroke-width%3D%220.9%22%3E%3Cpath%20d%3D%22M-6%2C-3%20L6%2C3%22%2F%3E%3Cpath%20d%3D%22M-6%2C3%20L6%2C9%22%2F%3E%3Cpath%20d%3D%22M-6%2C9%20L6%2C15%22%2F%3E%3Cpath%20d%3D%22M6%2C-3%20L-6%2C3%22%2F%3E%3Cpath%20d%3D%22M6%2C3%20L-6%2C9%22%2F%3E%3Cpath%20d%3D%22M6%2C9%20L-6%2C15%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M-5%2C-8%20L-2%2C-16%20L0%2C-10%20L2%2C-17%20L5%2C-8%20Z%22%20fill%3D%22%2366bb6a%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28142%2C34%29%22%3E%3Ccircle%20cx%3D%220%22%20cy%3D%220%22%20r%3D%224.3%22%20fill%3D%22%23ab47bc%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%222%22%20r%3D%224.3%22%20fill%3D%22%23ab47bc%22%2F%3E%3Ccircle%20cx%3D%223.7%22%20cy%3D%227.5%22%20r%3D%224.3%22%20fill%3D%22%239430a8%22%2F%3E%3Ccircle%20cx%3D%2211%22%20cy%3D%228.5%22%20r%3D%224.3%22%20fill%3D%22%239430a8%22%2F%3E%3Ccircle%20cx%3D%226.5%22%20cy%3D%2214%22%20r%3D%224.3%22%20fill%3D%22%237e2792%22%2F%3E%3Cpath%20d%3D%22M3.7%2C-4.6%20C3.7%2C-7%206.5%2C-9%209%2C-8%22%20fill%3D%22none%22%20stroke%3D%22%2366bb6a%22%20stroke-width%3D%221.2%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28180%2C21%29%22%3E%3Cpath%20d%3D%22M-5%2C0%20C-3%2C-8%203%2C-9%207%2C-2%22%20fill%3D%22none%22%20stroke%3D%22%2366bb6a%22%20stroke-width%3D%221.5%22%2F%3E%3Ccircle%20cx%3D%22-5%22%20cy%3D%227%22%20r%3D%225.5%22%20fill%3D%22%23e53935%22%2F%3E%3Ccircle%20cx%3D%227%22%20cy%3D%225%22%20r%3D%225.5%22%20fill%3D%22%23e53935%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28218%2C38%29%22%3E%3Ccircle%20cx%3D%220%22%20cy%3D%223%22%20r%3D%2211%22%20fill%3D%22%23ef5350%22%2F%3E%3Cpath%20d%3D%22M0%2C-8%20C4%2C-13%2010%2C-13%2012%2C-8%20C7%2C-6%203%2C-7%200%2C-5%20Z%22%20fill%3D%22%2366bb6a%22%2F%3E%3Crect%20x%3D%22-1.3%22%20y%3D%22-12%22%20width%3D%222.6%22%20height%3D%225.5%22%20rx%3D%221.3%22%20fill%3D%22%238d6e63%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28256%2C20%29%22%3E%3Cpath%20d%3D%22M-10%2C-5%20C-5%2C-10%205%2C-10%2010%2C-5%20C6%2C9%200%2C15%200%2C15%20C0%2C15%20-6%2C9%20-10%2C-5%20Z%22%20fill%3D%22%23ec407a%22%2F%3E%3Cpath%20d%3D%22M-10%2C-5%20C-6%2C-11%20-2%2C-11%200%2C-7%20C2%2C-11%206%2C-11%2010%2C-5%20C4%2C-2%20-4%2C-2%20-10%2C-5%20Z%22%20fill%3D%22%2366bb6a%22%2F%3E%3Cg%20fill%3D%22%23ffe082%22%3E%3Ccircle%20cx%3D%22-3.5%22%20cy%3D%223%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%223.5%22%20cy%3D%223%22%20r%3D%220.8%22%2F%3E%3Ccircle%20cx%3D%220%22%20cy%3D%227%22%20r%3D%220.8%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate%28292%2C37%29%22%3E%3Cpath%20d%3D%22M0%2C-12%20C3%2C-12%204%2C-8%203%2C-5%20C7%2C-2%209%2C5%204%2C10%20C-2%2C15%20-8%2C10%20-6%2C4%20C-5%2C-2%20-3%2C-4%20-2%2C-6%20C-3%2C-9%20-3%2C-12%200%2C-12%20Z%22%20fill%3D%22%239ccc65%22%2F%3E%3Crect%20x%3D%22-0.9%22%20y%3D%22-16%22%20width%3D%222%22%20height%3D%225%22%20rx%3D%221%22%20fill%3D%22%238d6e63%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.55; padding: 0 0 40px;
+  }
+  header { background-color: var(--accent); background-image: var(--fruit-color); background-size: auto; color: #fff; padding: 20px 18px; text-align: center; }
+  header h1 { margin: 0; font-size: 24px; }
+  header p { margin: 4px 0 0; font-size: 15px; opacity: 0.92; }
+  #who:empty { display: none; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+
+  /* Обобщаваща лента — три колони: Днес · Седмица · Месец (голямо число = сбор, ситно = норма). */
+  .bar { background: #b06f22; border: 1px solid #9c611c; border-radius: 12px; padding: 12px 8px; margin: 18px 0 12px; color: #fff; display: flex; align-items: stretch; }
+  .bar .statcol { flex: 1 1 0; min-width: 0; text-align: center; padding: 0 4px; }
+  .bar .statcol + .statcol { border-left: 1px solid rgba(255,255,255,0.22); }
+  .bar .statcol .lbl { font-size: 12px; font-weight: 600; opacity: 0.9; }
+  .bar .statcol .big { font-size: 20px; font-weight: 800; line-height: 1.15; margin: 3px 0 2px; white-space: nowrap; }
+  .bar .statcol .big .u { font-size: 12px; font-weight: 700; opacity: 0.82; margin-left: 2px; }
+  .bar .statcol .sub { font-size: 11.5px; font-weight: 600; opacity: 0.82; white-space: nowrap; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+  .card .t { font-weight: 700; font-size: 15px; margin: 0 0 10px; color: var(--accent-dark); }
+
+  /* Външен акордеон „История" (свива цялата секция) — стил на faq-outer в start-pyramid */
+  details.hist-outer {
+    background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent);
+    border-radius: 12px; overflow: hidden; margin: 0 0 12px;
+  }
+  details.hist-outer > summary {
+    list-style: none; cursor: pointer; padding: 15px 16px; font-weight: 700; font-size: 16px;
+    color: var(--accent-dark); display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    position: relative;
+  }
+  .lockmark { font-size: 16px; }
+  /* при авто-плъзгане отворената карта спира с малък отстъп от върха, не залепена */
+  details.hist-outer, details.daycard { scroll-margin-top: 10px; }
+  /* Заглавието поема свободното място → дясното съдържание (сума/катинар) се долепя до „+" */
+  details.hist-outer > summary > span:first-child,
+  details.daycard summary > span:first-child { flex: 1 1 auto; }
+  details.hist-outer > summary::-webkit-details-marker { display: none; }
+  details.hist-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
+  details.hist-outer[open] > summary::after { content: "\2212"; }
+  details.hist-outer > .hist-body { display: none; padding: 4px 12px 12px; }
+  details.hist-outer[open] > .hist-body { display: block; }
+
+  /* Вътрешен акордеон карти по дни — стил на ЧЗВ в start-pyramid (details.faq) */
+  details.daycard {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 0; margin: 0 0 10px; overflow: hidden;
+  }
+  details.daycard summary {
+    list-style: none; cursor: pointer; padding: 14px 16px; font-weight: 700; font-size: 16px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--ink);
+  }
+  details.daycard summary::-webkit-details-marker { display: none; }
+  /* Маркерът „+"/„−" е за СОБСТВЕНАТА карта (директно дете), не наследен от отворен родител-акордеон. */
+  details.daycard > summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
+  details.daycard[open] > summary::after { content: "\2212"; }
+  details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
+  .daymg { color: var(--accent-dark); font-weight: 700; }
+  /* Рецептна библиотека: per-ът на ДВА реда (Android) — mg/бр отгоре (оранжево), бройка отдолу (черно) */
+  .reclib details.daycard > summary .cnt {
+    display: inline-flex; flex-direction: column; align-items: flex-end;
+    text-align: right; line-height: 1.25; font-weight: 700; flex: none;
+  }
+  .reclib .rc-mg { color: var(--accent-dark); }
+  .reclib .rc-cnt2 { color: var(--ink); }
+  details.daycard .dbody { padding: 0 16px 15px; }
+  /* „Днес" = бял акордеон-прозорец (форсиран бял, БЕЗ шарката — записите на чист фон), отворен по подразбиране. */
+  /* „Днес" = външна карта КАТО другите (тониран фон + шарка); записите вътре са в БЯЛА карта-в-картата
+     (класът .daybox е вложен .card → правилото „.card .card → бяло" по-долу го прави бял). */
+  .todaycard .daybox { margin: 0; padding: 2px 14px; border-left: 1px solid var(--border); }
+  /* Тапет по йерархия: ХРАНА (#sec_log) → дните носят тапета (месецът бял); ИЗСЛЕДВАНИЯ (#parentBody) → месецът носи тапета (дните бели). Останалото е бяло по подразбиране. */
+  #sec_log details.daycard.monthcard details.daycard,
+  #parentBody details.daycard.monthcard,
+  details.daycard details.daycard.prep {
+    background-color: var(--soft);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27220%27%20viewBox%3D%270%200%20220%20220%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%238a5a1a%27%20stroke-width%3D%272.1%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%270.10%27%3E%3Cg%20transform%3D%27translate%2830%2C34%29%20rotate%28-12%29%27%3E%3Cpath%20d%3D%27M0%2C4%20C-11%2C4%20-15%2C14%20-12%2C22%20C-9%2C30%20-3%2C32%200%2C27%20C3%2C32%209%2C30%2012%2C22%20C15%2C14%2011%2C4%200%2C4%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C4%20C0%2C-2%203%2C-6%208%2C-7%27%2F%3E%3Cpath%20d%3D%27M2%2C2%20C6%2C-4%2013%2C-4%2015%2C0%20C10%2C3%204%2C3%202%2C2%20Z%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28160%2C30%29%20rotate%2810%29%27%3E%3Cpath%20d%3D%27M0%2C-14%20C1%2C-8%20-1%2C-4%20-6%2C1%20C-12%2C7%20-12%2C20%20-3%2C24%20C6%2C28%2012%2C20%209%2C10%20C6%2C2%206%2C-6%204%2C-14%27%2F%3E%3Cpath%20d%3D%27M2%2C-14%20C4%2C-19%209%2C-20%2011%2C-18%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2824%2C108%29%20rotate%286%29%27%3E%3Cpath%20d%3D%27M2%2C-16%20C6%2C-8%2010%2C-6%2013%2C-4%27%2F%3E%3Cpath%20d%3D%27M2%2C-16%20C0%2C-8%20-6%2C-4%20-9%2C0%27%2F%3E%3Ccircle%20cx%3D%27-11%27%20cy%3D%276%27%20r%3D%277%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274%27%20r%3D%277%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28108%2C96%29%20rotate%28-4%29%27%3E%3Cpath%20d%3D%27M0%2C20%20C-2%2C6%206%2C-10%2020%2C-18%20C14%2C-2%2010%2C10%200%2C20%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C20%20C4%2C8%2010%2C-2%2018%2C-14%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28176%2C104%29%27%3E%3Cpath%20d%3D%27M0%2C-16%20C-2%2C-12%200%2C-9%202%2C-8%27%2F%3E%3Ccircle%20cx%3D%27-8%27%20cy%3D%27-4%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%273%27%20cy%3D%27-5%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%27-3%27%20cy%3D%274%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%278%27%20cy%3D%273%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%2712%27%20r%3D%275.2%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2844%2C176%29%20rotate%2820%29%27%3E%3Cpath%20d%3D%27M-8%2C-10%20C-4%2C-6%204%2C-6%208%2C-10%20C4%2C12%200%2C20%200%2C20%20C0%2C20%20-4%2C12%20-8%2C-10%20Z%27%2F%3E%3Cpath%20d%3D%27M-6%2C-10%20C-8%2C-18%20-6%2C-22%20-4%2C-24%27%2F%3E%3Cpath%20d%3D%27M0%2C-11%20C0%2C-20%202%2C-24%204%2C-26%27%2F%3E%3Cpath%20d%3D%27M6%2C-10%20C10%2C-17%2010%2C-22%209%2C-24%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28112%2C182%29%20rotate%28-8%29%27%3E%3Cpath%20d%3D%27M-12%2C-6%20C-10%2C10%200%2C18%200%2C18%20C0%2C18%2010%2C10%2012%2C-6%20C6%2C-2%20-6%2C-2%20-12%2C-6%20Z%27%2F%3E%3Cpath%20d%3D%27M-12%2C-6%20C-8%2C-12%20-3%2C-13%200%2C-9%20C3%2C-13%208%2C-12%2012%2C-6%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28180%2C176%29%20rotate%288%29%27%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2715%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2710.5%27%2F%3E%3Cpath%20d%3D%27M0%2C0%20L0%2C-10.5%20M0%2C0%20L9%2C-5.4%20M0%2C0%20L9%2C5.4%20M0%2C0%20L0%2C10.5%20M0%2C0%20L-9%2C5.4%20M0%2C0%20L-9%2C-5.4%27%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-size: 150px;
+    background-repeat: repeat;
+  }
+  details.daycard.monthcard > summary { color: var(--accent-dark); }
+
+  /* Блед винтидж хранителен фон (контурни плодове/зеленчуци) на белите карти.
+     "Днес" (.bar) и полетата за писане остават чисти. Сила ~0.10, безшевна плочка 150px. */
+  .card, details.hist-outer, details.daycard {
+    background-color: #f8efe6;   /* 12% тинт от оранжевото на тайтъла (#c77d2e) върху бяло */
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27220%27%20viewBox%3D%270%200%20220%20220%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%238a5a1a%27%20stroke-width%3D%272.1%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%270.10%27%3E%3Cg%20transform%3D%27translate%2830%2C34%29%20rotate%28-12%29%27%3E%3Cpath%20d%3D%27M0%2C4%20C-11%2C4%20-15%2C14%20-12%2C22%20C-9%2C30%20-3%2C32%200%2C27%20C3%2C32%209%2C30%2012%2C22%20C15%2C14%2011%2C4%200%2C4%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C4%20C0%2C-2%203%2C-6%208%2C-7%27%2F%3E%3Cpath%20d%3D%27M2%2C2%20C6%2C-4%2013%2C-4%2015%2C0%20C10%2C3%204%2C3%202%2C2%20Z%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28160%2C30%29%20rotate%2810%29%27%3E%3Cpath%20d%3D%27M0%2C-14%20C1%2C-8%20-1%2C-4%20-6%2C1%20C-12%2C7%20-12%2C20%20-3%2C24%20C6%2C28%2012%2C20%209%2C10%20C6%2C2%206%2C-6%204%2C-14%27%2F%3E%3Cpath%20d%3D%27M2%2C-14%20C4%2C-19%209%2C-20%2011%2C-18%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2824%2C108%29%20rotate%286%29%27%3E%3Cpath%20d%3D%27M2%2C-16%20C6%2C-8%2010%2C-6%2013%2C-4%27%2F%3E%3Cpath%20d%3D%27M2%2C-16%20C0%2C-8%20-6%2C-4%20-9%2C0%27%2F%3E%3Ccircle%20cx%3D%27-11%27%20cy%3D%276%27%20r%3D%277%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274%27%20r%3D%277%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28108%2C96%29%20rotate%28-4%29%27%3E%3Cpath%20d%3D%27M0%2C20%20C-2%2C6%206%2C-10%2020%2C-18%20C14%2C-2%2010%2C10%200%2C20%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C20%20C4%2C8%2010%2C-2%2018%2C-14%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28176%2C104%29%27%3E%3Cpath%20d%3D%27M0%2C-16%20C-2%2C-12%200%2C-9%202%2C-8%27%2F%3E%3Ccircle%20cx%3D%27-8%27%20cy%3D%27-4%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%273%27%20cy%3D%27-5%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%27-3%27%20cy%3D%274%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%278%27%20cy%3D%273%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%2712%27%20r%3D%275.2%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2844%2C176%29%20rotate%2820%29%27%3E%3Cpath%20d%3D%27M-8%2C-10%20C-4%2C-6%204%2C-6%208%2C-10%20C4%2C12%200%2C20%200%2C20%20C0%2C20%20-4%2C12%20-8%2C-10%20Z%27%2F%3E%3Cpath%20d%3D%27M-6%2C-10%20C-8%2C-18%20-6%2C-22%20-4%2C-24%27%2F%3E%3Cpath%20d%3D%27M0%2C-11%20C0%2C-20%202%2C-24%204%2C-26%27%2F%3E%3Cpath%20d%3D%27M6%2C-10%20C10%2C-17%2010%2C-22%209%2C-24%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28112%2C182%29%20rotate%28-8%29%27%3E%3Cpath%20d%3D%27M-12%2C-6%20C-10%2C10%200%2C18%200%2C18%20C0%2C18%2010%2C10%2012%2C-6%20C6%2C-2%20-6%2C-2%20-12%2C-6%20Z%27%2F%3E%3Cpath%20d%3D%27M-12%2C-6%20C-8%2C-12%20-3%2C-13%200%2C-9%20C3%2C-13%208%2C-12%2012%2C-6%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28180%2C176%29%20rotate%288%29%27%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2715%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2710.5%27%2F%3E%3Cpath%20d%3D%27M0%2C0%20L0%2C-10.5%20M0%2C0%20L9%2C-5.4%20M0%2C0%20L9%2C5.4%20M0%2C0%20L0%2C10.5%20M0%2C0%20L-9%2C5.4%20M0%2C0%20L-9%2C-5.4%27%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-size: 150px;
+    background-repeat: repeat;
+  }
+  /* Само ГОРНИТЕ карти носят шарката. Всяка карта, ВЛОЖЕНА в друга карта (дневните карти в
+     „История", „Хронологията" в родителската и т.н.) остава чисто бяла — на всяка дълбочина.
+     Класовете се ползват на две нива, затова разделяме структурно (родител-карта → дете-карта). */
+  .card .card, .card details.hist-outer, .card details.daycard,
+  details.hist-outer .card, details.hist-outer details.hist-outer, details.hist-outer details.daycard,
+  details.daycard .card, details.daycard details.hist-outer, details.daycard details.daycard {
+    background-image: none;
+    background-color: var(--card);
+  }
+
+  label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
+  input, select, textarea {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
+    border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff;
+  }
+  textarea { resize: vertical; line-height: 1.5; }
+  .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+  button {
+    width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
+    color: #fff; background-color: var(--accent); background-image: var(--fruit-color); background-size: auto;
+    border: none; border-radius: 10px; cursor: pointer;
+  }
+  button:active { background-color: var(--accent-dark); }
+  button.ghost { background-color: #fff; background-image: none; color: var(--accent-dark); border: 1px solid var(--accent); }
+  /* Временно „записано" състояние — плътно зелено с тикче (после се връща). */
+  button.saved, button.saved:active { background-color: var(--green); background-image: none; }
+  .row2 { display: flex; gap: 10px; }
+  .row2 > * { flex: 1; }
+  .row3 { display: flex; gap: 8px; }
+  .row3 > #f_qty { flex: 0 0 64px; }                    /* число — колкото за „999", не повече */
+  .row3 > select { flex: 1 1 0; min-width: 0; }          /* мярка */
+  .row3 > #f_custom_unit { flex: 1 1 0; min-width: 0; }  /* друга мярка — двете делят остатъка по равно */
+
+  /* PIN екран за родителската секция */
+  .pinbox { text-align: center; padding: 6px 0 2px; }
+  .pinbox .lock { font-size: 30px; margin-bottom: 6px; }
+  .pinbox p { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+  .pinbox input { text-align: center; letter-spacing: 8px; font-size: 22px; font-weight: 700; max-width: 180px; margin: 0 auto; -webkit-text-security: disc; text-security: disc; }
+  .pinbox .err { color: var(--red); font-size: 13.5px; margin: 8px 0 0; min-height: 18px; }
+
+  /* Собствено падащо меню за избор на храна (заменя нативния datalist — Android не показва
+     подсказки на всяка буква + черен несmenяем фон на системния елемент) */
+  .ac-wrap { position: relative; }
+  .ac-list {
+    display: none; position: absolute; left: 0; right: 0; top: 100%; z-index: 20;
+    background: #fff; border: 1px solid var(--border); border-top: none;
+    border-radius: 0 0 9px 9px; max-height: 220px; overflow-y: auto;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+  }
+  .ac-list.show { display: block; }
+  .ac-item { padding: 11px 12px; font-size: 15.5px; color: var(--ink); cursor: pointer; border-bottom: 1px solid #eef1f3; }
+  .ac-item:last-child { border-bottom: none; }
+  .ac-item:active, .ac-item.hl { background: var(--soft); }
+  .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e9f5ee; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--green); font-size: 14px; text-align: center; }
+  .ok.show { display: block; }
+  .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
+
+  .logitem { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; display: flex; justify-content: space-between; }
+  .logitem:last-child { border-bottom: none; }
+  .logitem .tm { color: var(--muted); font-size: 13px; }
+  .logitem .amt { color: var(--accent-dark); font-weight: 600; white-space: nowrap; margin-left: 8px; }
+  /* Режим поправка на „Днес": 🗑 до всеки запис */
+  .logitem.editing > span:first-child { flex: 1 1 auto; min-width: 0; }
+  .logitem .ent-del { flex: none; width: auto; margin: 0 0 0 10px; padding: 3px 9px; background: #fff; background-image: none; color: var(--red); border: 1px solid var(--red); border-radius: 8px; font-size: 15px; line-height: 1.1; }
+  /* Малка молив-икона в заглавието на „Днес" (режим поправка) */
+  .today-edit-ic { width: auto; margin: 0 12px 0 0; padding: 2px 5px; background: transparent; background-image: none; color: var(--accent-dark); border: none; font-size: 17px; line-height: 1; cursor: pointer; }
+  .today-edit-ic.on { color: var(--green); }
+  .today-edit-ic:active { background: transparent; }
+  .today-edit-ic svg { display: block; }
+
+  .bloodrow { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .bloodrow:last-child { border-bottom: none; }
+  .bloodrow .v { font-weight: 700; }
+  .bloodrow .v.hi { color: var(--red); }
+  .bloodrow .v.ok { color: var(--green); }
+  /* В „За родителя": вложените карти Хронология + Разпечатка БЕЗ страничния оранжев акцент. */
+  #parentBody > .hist-outer, #parentBody > .card { border-left: 1px solid var(--border); }
+  /* Кръвен вход: дата + резултат един до друг (да не дължим картата). */
+  .brow { display: flex; gap: 10px; }
+  .brow .bcol { flex: 1 1 0; min-width: 0; }
+  .brow .bcol label { margin-top: 0; }
+  /* Кръвни стойности — собствени класове (НЕ „ok"/„hi" — те се разбиват с .ok на съобщението). 3 цвята. */
+  .bval { font-weight: 700; font-size: 14.5px; }
+  .bval.bnorm { color: #2e8b57; }   /* ≤6 в норма — зелено */
+  .bval.bwarn { color: #e0821e; }   /* 6–8 завишено — оранжево */
+  .bval.bhigh { color: #c43d3d; }   /* >8 над тавана — червено */
+  .wkflag { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin-left: 6px; white-space: nowrap; }
+  /* В заглавието на кръвната карта: датата+етикетът на един ред (не се пренасят), числото вдясно. */
+  #parentBody details.daycard > summary { flex-wrap: nowrap; }
+  #parentBody details.daycard > summary > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
+  .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+
+  /* Порционни бутони — детето тапва количество, без грамове */
+  .portions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+  .portions button {
+    width: auto; margin-top: 0; padding: 12px 16px; font-size: 15px; font-weight: 700;
+    background: var(--soft); color: var(--accent-dark); border: 2px solid var(--accent);
+    border-radius: 10px; flex: 1 1 60px; min-width: 60px;
+  }
+  .portions button.sel { background: var(--accent); color: #fff; }
+  .foodmeta { font-size: 13px; color: var(--muted); margin: 4px 0 0; }
+  .badge-est { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 11.5px; font-weight: 700; padding: 2px 7px; border-radius: 6px; margin-left: 6px; }
+  .newfood { background: #fbf1e6; border: 1px dashed var(--accent); border-radius: 10px; padding: 10px 12px; margin: 10px 0; font-size: 14px; color: var(--accent-dark); }
+  .pendrow { padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; justify-content: space-between; }
+  .pendrow:last-child { border-bottom: none; }
+  .pendrow .cnt { color: var(--muted); font-size: 12.5px; }
+
+  /* Рецепти — бланка за въвеждане */
+  .recmeta { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
+  .ing-row { border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin: 0 0 8px; background: #fff; }
+  .ing-row .ac-wrap { margin: 0; }
+  .ing-line2 { display: flex; gap: 6px; align-items: center; margin-top: 6px; }
+  .ing-line2 .ing-qty { flex: 0 0 58px; padding: 9px 8px; }
+  .ing-line2 .ing-unit { flex: 1 1 auto; padding: 9px 8px; }
+  .ing-line2 .ing-phe { flex: 0 0 auto; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); white-space: nowrap; min-width: 46px; text-align: right; }
+  .ing-line2 .ing-del { flex: 0 0 auto; width: auto; margin: 0; padding: 9px 11px; background: #fff; color: var(--red); border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
+  .ing-pend { color: var(--yellow); font-weight: 600; }
+  .rc-sum { display: flex; justify-content: space-between; font-size: 14.5px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .rc-sum b { color: var(--accent-dark); }
+  .rc-warn { color: var(--yellow); font-size: 12.5px; margin: 4px 0 0; min-height: 4px; }
+  .reclib .t { margin: 18px 0 8px; color: var(--accent-dark); font-weight: 700; font-size: 15px; }
+
+  /* Превключвател на режима в „Добави храна" — заглавието СТАВА ключ.
+     Ляв надпис „От списъка" (дефолт) | център заглавие | десен „Свободен текст". Двата странични са бутони. */
+  .addsw { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 0 0 12px; }
+  .addsw .sw-mid { flex: 0 0 auto; font-weight: 800; font-size: 15px; color: var(--accent-dark); padding: 0 2px; white-space: nowrap; }
+  .addsw .sw-side {
+    flex: 0 1 auto; width: auto; margin: 0; padding: 6px 8px; font-size: 11px; font-weight: 700; line-height: 1.15;
+    background: #fff; background-image: none; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 8px; white-space: nowrap;
+  }
+  .addsw .sw-side.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
+  .addsw .sw-side:active { background-color: var(--accent-dark); }
+  #f_freetext { min-height: 92px; }
+
+  /* 3-сегментен ключ: Списък · Рецепти · Свободно (заглавието „Добави храна" отгоре). */
+  .addhead { font-weight: 800; font-size: 15px; color: var(--accent-dark); text-align: center; margin: 0 0 8px; }
+  .segbar { display: flex; gap: 6px; margin: 0 0 12px; }
+  .segbar .seg {
+    flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding: 8px 4px; font-size: 12.5px; font-weight: 700; line-height: 1.15;
+    background: #fff; background-image: none; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 9px; white-space: nowrap;
+  }
+  .segbar .seg.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
+  .segbar .seg:active { background-color: var(--accent-dark); }
+
+  /* Здравни бележки (родителски канал) — chips за избор + списък */
+  .evchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+  .evchip {
+    width: auto; margin: 0; padding: 7px 11px; font-size: 12.5px; font-weight: 700; line-height: 1.1;
+    background: #fff; background-image: none; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 9px; white-space: nowrap;
+  }
+  .evchip.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
+  .evchip:active { background-color: var(--accent-dark); }
+  .evrow { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin: 8px 0 0; background: #fff; }
+  .evrow .evtop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .evrow .evdate { font-weight: 700; font-size: 13.5px; color: var(--accent-dark); }
+  .evrow .evnote { font-size: 14px; color: #3a4753; margin: 5px 0 0; line-height: 1.5; white-space: pre-wrap; }
+  .evtag { display: inline-block; background: #eef3f7; color: #3a4753; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin: 4px 4px 0 0; white-space: nowrap; }
+  .ev-del { width: auto; margin: 0; padding: 3px 9px; font-size: 12px; flex: 0 0 auto; background: #fff; background-image: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 7px; }
+  .ev-del:active { background-color: var(--red); color: #fff; }
+
+  /* Режим „Рецепти" — скролваща листа за избор */
+  .rec-picklist { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; margin: 2px 0 4px; }
+  .rec-pick {
+    width: 100%; margin: 0; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 12px 14px; font-size: 15px; font-weight: 600;
+    background: #fff; background-image: none; color: var(--ink);
+    border: 1.5px solid var(--border); border-radius: 10px;
+  }
+  .rec-pick .rp-name { flex: 1 1 auto; }
+  .rec-pick .rp-per { flex: none; color: var(--accent-dark); font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .rec-pick.sel { border-color: var(--accent); background: var(--soft); }
+  .rec-chosen-name { font-weight: 700; color: var(--accent-dark); margin: 14px 0 0; }
+  .recqtyrow { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+  .recqtyrow input { flex: 0 0 70px; }
+  .recqtyrow .lbl2 { color: var(--muted); }
+
+  /* Разпечатка / PDF — печатен изглед (виждаме го само при печат). */
+  #printArea { display: none; }
+  @media print {
+    header, .wrap { display: none !important; }
+    #printArea { display: block; color: #000; padding: 0; }
+    .pr-doc h1 { font-size: 20px; margin: 0 0 4px; }
+    .pr-doc .pr-sub { color: #444; font-size: 12px; margin: 0 0 14px; }
+    .pr-doc h2 { font-size: 15px; margin: 18px 0 6px; border-bottom: 1.5px solid #000; padding-bottom: 3px; }
+    .pr-doc h3 { font-size: 12.5px; margin: 12px 0 3px; }
+    .pr-doc table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0 0 4px; }
+    .pr-doc th, .pr-doc td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+    .pr-doc th { background: #eee; }
+    .pr-doc table.pr-day td { border: none; border-bottom: 1px solid #ddd; }
+    .pr-doc .pr-amt { text-align: right; white-space: nowrap; }
+    .pr-doc .pr-tm { color: #555; white-space: nowrap; width: 46px; }
+    .pr-doc .pr-note { font-size: 11.5px; color: #333; margin: 5px 0 0; }
+    .pr-doc .pr-ev { font-size: 11px; font-weight: 400; color: #7a3a10; }
+    .pr-doc h2, .pr-doc h3 { break-after: avoid; }
+    .pr-doc tr { break-inside: avoid; }
+    @page { margin: 14mm; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0 4px;">
+    <h1>Моят фениланин</h1>
+    <p id="who"></p>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="loading" id="loading">Зарежда…</div>
+  <div id="content"></div>
+</div>
+<div id="printArea"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var loading = document.getElementById("loading");
+  var content = document.getElementById("content");
+  var who = document.getElementById("who");
+  var phedb = []; // кеш на храните за autocomplete
+  var pheunits = []; // кеш на мерките (падащо меню) на храна
+  var recipes = []; // кеш на рецептите на клиента (смятани на живо от базата)
+  var events = []; // кеш на здравните бележки (родителски канал, PIN)
+  var autoScrollReady = false; // авто-скролът при отваряне на карта важи чак след рендиране (не при рефреш)
+  var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
+
+  function esc(s) {
+    var d = document.createElement("div");
+    d.textContent = s == null ? "" : String(s);
+    return d.innerHTML;
+  }
+  // Име на рецепта: при >1 дума → първата дума горе, останалото на нов ред (за компактна карта).
+  function nameTwoLines(name) {
+    var parts = String(name == null ? "" : name).trim().split(/\s+/);
+    if (parts.length <= 1) return esc(name);
+    return esc(parts[0]) + "<br>" + esc(parts.slice(1).join(" "));
+  }
+  function fmtDate(s) {
+    if (!s) return "";
+    var p = String(s).split("-");
+    return p.length === 3 ? (p[2] + "." + p[1] + "." + p[0]) : s;
+  }
+  function fmtTime(s) {
+    if (!s) return "";
+    try { return new Date(s).toLocaleTimeString("bg-BG", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sofia" }); }
+    catch (e) { return ""; }
+  }
+  function todayStr() {
+    try { return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }); }
+    catch (e) { return new Date().toISOString().slice(0, 10); }
+  }
+  function showState(msg) {
+    loading.style.display = "none";
+    content.innerHTML = '<div class="state">' + esc(msg) + "</div>";
+  }
+  function showMissingToken(storageKey) {
+    var saved = "?"; try { saved = localStorage.getItem(storageKey) ? "да" : "не"; } catch (e) {}
+    var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    loading.style.display = "none";
+    content.innerHTML = '<div class="state">Липсва код в линка. Отвори линка, който получи.'
+      + '<div style="margin-top:14px;padding:10px;border:1px dashed #d8dee5;border-radius:8px;font-size:11.5px;color:#6b7886;text-align:left;word-break:break-all;line-height:1.55;">'
+      + '<b>Диагностика (за Chris):</b><br>URL: ' + esc(location.href)
+      + '<br>Запазен код: ' + saved
+      + '<br>Режим: ' + (standalone ? "приложение (standalone)" : "браузър")
+      + '<br>iOS: ' + (ios ? "да" : "не") + '</div></div>';
+  }
+
+  // При отваряне на акордеон → плъзни заглавието му към върха на екрана (стабилно поведение,
+  // вместо картата да се разгъва на място и да пада под линията). Важи за всички <details>.
+  function alignDetailsTop(d) {
+    try {
+      var top = d.getBoundingClientRect().top + (window.pageYOffset || document.documentElement.scrollTop || 0) - 10;
+      if (top < 0) top = 0;
+      window.scrollTo({ top: top, behavior: "smooth" });   // плавно, не мигновено
+    } catch (err) {
+      try { d.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e2) {}
+    }
+  }
+  document.addEventListener("toggle", function (e) {
+    var d = e.target;
+    // само при реални кликвания — НЕ при първоначалното рендиране (иначе рефреш скача до отворената карта)
+    if (autoScrollReady && d && d.tagName === "DETAILS" && d.open) { alignDetailsTop(d); }
+  }, true);
+
+  var token = new URLSearchParams(location.search).get("t");
+  if (!token) { showMissingToken("cdbgym_phe_token"); return; }
+
+  // „Режим поправка" на картата „Днес" (само днешните записи; в паметта — рефреш го изключва).
+  var todayEditMode = false;
+  document.addEventListener("click", function (e) {
+    var editBtn = e.target.closest ? e.target.closest("#today_edit") : null;
+    if (editBtn) { todayEditMode = !todayEditMode; refreshLog(); return; }
+    var delBtn = e.target.closest ? e.target.closest(".ent-del") : null;
+    if (delBtn) {
+      var id = delBtn.getAttribute("data-id");
+      if (!id) return;
+      if (!confirm("Изтрий този запис?")) return;
+      delBtn.disabled = true;
+      sb.rpc("delete_phe_entry", { token: token, p_entry_id: id }).then(function (res) {
+        if (res.error) { alert("Неуспешно. Опитай пак."); delBtn.disabled = false; return; }
+        refreshLog();
+      }).catch(function () { alert("Няма връзка."); delBtn.disabled = false; });
+      return;
+    }
+  });
+
+  function daysBetween(dStr, today) {
+    if (!dStr) return null;
+    var d = new Date(dStr + "T00:00:00"), t = new Date(today + "T00:00:00");
+    if (isNaN(d) || isNaN(t)) return null;
+    return Math.round((t - d) / 86400000);
+  }
+  function statCol(lbl, big, plus, sub) {
+    return '<div class="statcol"><div class="lbl">' + lbl + '</div>'
+      + '<div class="big">' + big + (plus ? "+" : "") + '<span class="u">mg</span></div>'
+      + '<div class="sub">' + sub + '</div></div>';
+  }
+
+  function renderBar(log) {
+    // Три плъзгащи прозореца от лога (get_phe_log връща последните 30 дни): днес · последни 7 · последни 30.
+    // Голямото число = сбор за периода; ситният ред = норма (ядения за деня, mg/ден за седмица/месец).
+    // Чакащите (⏳, phe_mg=null) нямат стойност → не влизат в сбора → слагаме „+" (= „поне толкова").
+    var today = todayStr();
+    var tSum = 0, tCount = 0, tPend = false;
+    var wSum = 0, wPend = false, wDays = {};
+    var mSum = 0, mPend = false, mDays = {};
+    (log || []).forEach(function (e) {
+      var diff = daysBetween(e.entry_date, today);
+      if (diff == null || diff < 0) return;
+      var hasPhe = e.phe_mg != null;
+      var val = hasPhe ? Number(e.phe_mg) : 0;
+      if (diff === 0) { tCount++; if (hasPhe) tSum += val; else tPend = true; }
+      if (diff <= 6) { if (hasPhe) wSum += val; else wPend = true; wDays[e.entry_date] = 1; }
+      if (diff <= 29) { if (hasPhe) mSum += val; else mPend = true; mDays[e.entry_date] = 1; }
+    });
+    var wD = Object.keys(wDays).length, mD = Object.keys(mDays).length;
+    var mealsWord = tCount === 1 ? "ядене" : "ядения";
+    var wSub = wD ? (Math.round(wSum / wD) + (wPend ? "+" : "") + " mg/ден") : "—";
+    var mSub = mD ? (Math.round(mSum / mD) + (mPend ? "+" : "") + " mg/ден") : "—";
+    return '<div class="bar">'
+      + statCol("Днес", Math.round(tSum), tPend, tCount + " " + mealsWord)
+      + statCol("Седмица", Math.round(wSum), wPend, wSub)
+      + statCol("Месец", Math.round(mSum), mPend, mSub)
+      + '</div>';
+  }
+
+  function renderAddForm() {
+    return '<div class="card">'
+      + '<div class="segbar">'
+      +   '<button type="button" class="seg on" id="sw_list">🍎 Храни</button>'
+      +   '<button type="button" class="seg" id="sw_recipes">🍳 Рецепти</button>'
+      +   '<button type="button" class="seg" id="sw_free">✍ Свободно</button>'
+      + '</div>'
+      + '<div id="mode_list">'
+      +   '<div class="ac-wrap">'
+      +   '<input type="text" id="f_food" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" placeholder="напр. Ябълка, Хляб, Сирене...">'
+      +   '<div class="ac-list" id="ac_list"></div>'
+      +   '</div>'
+      +   '<div id="f_meta" class="foodmeta">&nbsp;</div>'
+      +   '<div class="row3">'
+      +   '<input type="text" id="f_qty" inputmode="decimal" autocomplete="off" autocorrect="off" data-lpignore="true" value="1" placeholder="брой">'
+      +   '<select id="f_unit"><option value="g">г (грам)</option></select>'
+      +   '<input type="text" id="f_custom_unit" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" placeholder="друга мярка...">'
+      +   '</div>'
+      +   '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
+      +   '<div id="f_newfood"></div>'
+      + '</div>'
+      + '<div id="mode_recipes" style="display:none">'
+      +   '<div class="rec-picklist" id="rec_picklist"></div>'
+      +   '<div id="rec_chosen" style="display:none">'
+      +     '<div class="rec-chosen-name" id="rec_chosen_name"></div>'
+      +     '<div class="recqtyrow"><input type="text" id="rec_qty" inputmode="decimal" autocomplete="off" data-lpignore="true" value="1" placeholder="порции"><span class="lbl2" id="rec_qty_lbl">порции</span></div>'
+      +     '<p class="hint" id="rec_preview"></p>'
+      +   '</div>'
+      + '</div>'
+      + '<div id="mode_free" style="display:none">'
+      +   '<textarea id="f_freetext" rows="4" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="Опиши какво е яла — напр. „една шепа бял ориз + 2 филии хляб с малко масло“. Записва се и фениланинът се смята после."></textarea>'
+      +   '<p class="hint">Свободен текст — влиза като „⏳ чака“ и се пресмята по-късно. Базата расте от тези записи.</p>'
+      + '</div>'
+      + '<button type="button" id="saveBtn">Запиши храната</button>'
+      + '<div class="ok" id="okMsg"></div>'
+      + '</div>';
+  }
+
+  function renderPendingFoods(rows) {
+    if (!rows || !rows.length) return "";
+    var lines = rows.map(function (r) {
+      var label = r.custom_unit_text
+        ? esc(r.food_text) + " — мярка „" + esc(r.custom_unit_text) + "“" + (r.custom_qty != null ? " ×" + r.custom_qty : "")
+        : esc(r.food_text);
+      return '<div class="pendrow"><span>' + label + '</span></div>';
+    }).join("");
+    return '<div class="card"><div class="t">⏳ Чакащи изчисление</div><p class="hint" style="margin:0 0 8px">Тези записи чакат да им бъде изчислен фениланинът — ще стане скоро.</p>' + lines + '</div>';
+  }
+
+  function dayLabel(dStr, today) {
+    if (dStr === today) return "Днес";
+    var d = new Date(dStr + "T00:00:00"), t = new Date(today + "T00:00:00");
+    var diff = Math.round((t - d) / 86400000);
+    if (diff === 1) return "Вчера";
+    return fmtDate(dStr);
+  }
+
+  function entryLine(e, withDel) {
+    var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : "чака ⏳";
+    var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null && e.grams > 0 ? " (" + e.grams + "г)" : "");
+    var del = withDel ? '<button type="button" class="ent-del" data-id="' + esc(e.id) + '" title="Изтрий">🗑</button>' : '';
+    return '<div class="logitem' + (withDel ? ' editing' : '') + '"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span>' + del + '</div>';
+  }
+
+  // Карта „Днес" — отделна, ВИНАГИ видима; само днешните записи (Вариант А).
+  function renderToday(entries, today) {
+    var arr = (entries || []).filter(function (e) { return e.entry_date === today; });
+    var dayTotal = 0, pend = false;
+    arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
+    var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
+    var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
+    var body = arr.length
+      ? arr.map(function (e) { return entryLine(e, todayEditMode); }).join("")
+      : '<p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Още няма записи за днес.</p>';
+    var pencilSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
+    var checkSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    var editIc = arr.length
+      ? '<button type="button" id="today_edit" class="today-edit-ic' + (todayEditMode ? ' on' : '') + '" title="Поправи">' + (todayEditMode ? checkSvg : pencilSvg) + '</button>'
+      : '';
+    return '<div class="card todaycard">'
+      + '<div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">'
+      + '<span>🍽️ Днес</span>'
+      + '<span style="display:flex;align-items:center;gap:6px;">'
+      +   '<span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      +   editIc
+      + '</span>'
+      + '</div>'
+      + '<div class="card daybox">' + body + '</div></div>';
+  }
+
+  var MONTH_NAMES = ["Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"];
+  function monthLabel(ym) {   // ym = "ГГГГ-ММ"
+    var p = String(ym).split("-");
+    var mi = parseInt(p[1], 10) - 1;
+    return (MONTH_NAMES[mi] || p[1]) + " " + p[0];
+  }
+
+  // Акордеон „История" — само МИНАЛИ дни (без днес), СВИТ по подразбиране (Вариант А).
+  // Йерархия Месец → Ден → записи: всеки месец е свит акордеон (сбор/средно), вътре дните (свити).
+  // Мащабира се до години — екранът стои къс на всяко ниво; ровиш надолу История → месец → ден → записи.
+  function renderHistory(entries, today) {
+    var dayOrder = [], dayGroups = {};
+    (entries || []).forEach(function (e) {
+      var k = e.entry_date || "—";
+      if (k === today) return;              // днешният ден е в отделната карта „Днес"
+      if (!dayGroups[k]) { dayGroups[k] = []; dayOrder.push(k); }
+      dayGroups[k].push(e);
+    });
+    if (!dayOrder.length) return "";        // няма минали дни → не показваме „История" изобщо
+    dayOrder.sort(function (a, b) { return a < b ? 1 : (a > b ? -1 : 0); });   // най-нов ден горе
+    var totalDays = dayOrder.length;
+
+    // групиране по месец (ГГГГ-ММ), най-новият месец горе
+    var monthOrder = [], monthDays = {};
+    dayOrder.forEach(function (k) {
+      var ym = k.slice(0, 7);
+      if (!monthDays[ym]) { monthDays[ym] = []; monthOrder.push(ym); }
+      monthDays[ym].push(k);
+    });
+
+    function dayCard(k) {
+      var arr = dayGroups[k];
+      var lbl = dayLabel(k, today);
+      var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
+      var dayTotal = 0, pend = false;
+      arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
+      var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
+      return '<details class="daycard"><summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
+        + '<div class="dbody">' + arr.map(function (e) { return entryLine(e, false); }).join("") + '</div></details>';
+    }
+
+    var monthCards = monthOrder.map(function (ym) {
+      var days = monthDays[ym];
+      var mSum = 0, mPend = false;
+      days.forEach(function (k) { dayGroups[k].forEach(function (e) { if (e.phe_mg != null) mSum += Number(e.phe_mg); else mPend = true; }); });
+      var avg = days.length ? Math.round(mSum / days.length) : 0;
+      var dWord = days.length === 1 ? " ден" : " дни";
+      var sub = days.length + dWord + ' · ~' + avg + (mPend ? "+" : "") + ' mg/ден';
+      return '<details class="daycard monthcard"><summary><span>' + esc(monthLabel(ym)) + '</span><span class="cnt">' + sub + '</span></summary>'
+        + '<div class="dbody">' + days.map(dayCard).join("") + '</div></details>';
+    }).join("");
+
+    var dayWord = totalDays === 1 ? " ден" : " дни";
+    return '<details class="hist-outer">'   // БЕЗ open → свита по подразбиране
+      + '<summary><span>📅 История</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + totalDays + dayWord + '</span></summary>'
+      + '<div class="hist-body">' + monthCards + '</div></details>';
+  }
+
+  // ── Разпечатка / PDF ──────────────────────────────────────────────────────
+  function printPeriodDates(period, fromVal, toVal) {
+    var today = todayStr();
+    if (period === "month") return { from: today.slice(0, 7) + "-01", to: today, label: "този месец" };
+    if (period === "3m") {
+      var d = new Date(today + "T00:00:00"); d.setDate(d.getDate() - 90);
+      return { from: d.toISOString().slice(0, 10), to: today, label: "последни 3 месеца" };
+    }
+    if (period === "range") {
+      var f = fromVal || "2020-01-01", t = toVal || today;
+      return { from: f, to: t, label: fmtDate(f) + " – " + fmtDate(t) };
+    }
+    return { from: "2020-01-01", to: today, label: "цялата история" };
+  }
+
+  function buildPrintDoc(what, dates, detail, log, blood, evs) {
+    var out = '<div class="pr-doc">';
+    out += '<h1>Криста — дневник фениланин</h1>';
+    out += '<p class="pr-sub">Период: ' + esc(dates.label) + ' · изготвено: ' + esc(fmtDate(todayStr())) + '</p>';
+
+    if (what === "blood" || what === "both") {
+      var brows = (blood || []).filter(function (b) { return b.sample_date >= dates.from && b.sample_date <= dates.to; })
+        .sort(function (a, b) { return a.sample_date < b.sample_date ? -1 : 1; });
+      out += '<h2>Кръвни изследвания (фениланин)</h2>';
+      if (!brows.length) out += '<p class="pr-note">Няма резултати за периода.</p>';
+      else {
+        var bsum = 0;
+        out += '<table><thead><tr><th>Дата на пробата</th><th>mg/%</th><th>µmol/L</th><th>Състояние</th><th>Особена седмица</th></tr></thead><tbody>';
+        brows.forEach(function (b) {
+          var st = bloodStatus(b.mg_percent); bsum += Number(b.mg_percent);
+          out += '<tr><td>' + esc(fmtDate(b.sample_date)) + '</td><td>' + esc(b.mg_percent) + '</td><td>' + Math.round(Number(b.mg_percent) * 60.5) + '</td><td>' + st.word + '</td><td>' + (b.flag_unusual_week ? "да" : "—") + '</td></tr>';
+        });
+        out += '</tbody></table>';
+        out += '<p class="pr-note">Средно за периода: ' + (Math.round(bsum / brows.length * 10) / 10) + ' mg/% · ' + brows.length + (brows.length === 1 ? " резултат" : " резултата") + ' (цел ≤ 6 mg/%, таван 8).</p>';
+      }
+
+      var erows = (evs || []).filter(function (e) { return e.event_date >= dates.from && e.event_date <= dates.to; })
+        .sort(function (a, b) { return a.event_date < b.event_date ? -1 : 1; });
+      out += '<h2>Здравни бележки (болест / лекарства / апетит)</h2>';
+      if (!erows.length) out += '<p class="pr-note">Няма бележки за периода.</p>';
+      else {
+        out += '<table><thead><tr><th>Дата</th><th>Вид</th><th>Бележка</th></tr></thead><tbody>';
+        erows.forEach(function (e) {
+          var kinds = (e.kinds || []).map(function (k) { return eventKindLabel(k); }).join(", ");
+          out += '<tr><td>' + esc(fmtDate(e.event_date)) + '</td><td>' + esc(kinds || "—") + '</td><td>' + esc(e.note) + '</td></tr>';
+        });
+        out += '</tbody></table>';
+      }
+    }
+
+    if (what === "food" || what === "both") {
+      var dayOrder = [], dayGroups = {};
+      (log || []).forEach(function (e) {
+        var k = e.entry_date || "—";
+        if (!dayGroups[k]) { dayGroups[k] = []; dayOrder.push(k); }
+        dayGroups[k].push(e);
+      });
+      dayOrder.sort();
+      // Здравни бележки по ден (маркер до деня — корелация болест/лекарство ↔ прием)
+      var evDays = {};
+      (evs || []).forEach(function (e) {
+        var k = e.event_date;
+        if (!evDays[k]) evDays[k] = [];
+        (e.kinds || []).forEach(function (x) { if (evDays[k].indexOf(x) < 0) evDays[k].push(x); });
+      });
+      function dayEventLabel(k) {
+        if (!(k in evDays)) return "";
+        return evDays[k].length ? evDays[k].map(eventKindLabel).join(", ") : "🩺 бележка";
+      }
+      var hasFoodDayEvents = dayOrder.some(function (k) { return k in evDays; });
+      out += '<h2>Хранене (фениланин)</h2>';
+      if (!dayOrder.length) out += '<p class="pr-note">Няма записи за периода.</p>';
+      else {
+        var totSum = 0, totDays = dayOrder.length, anyPend = false;
+        if (detail === "full") {
+          dayOrder.forEach(function (k) {
+            var arr = dayGroups[k], s = 0, pend = false;
+            arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
+            totSum += s; if (pend) anyPend = true;
+            var evl = dayEventLabel(k);
+            out += '<h3>' + esc(fmtDate(k)) + ' — ' + Math.round(s) + (pend ? "+" : "") + ' mg' + (evl ? ' <span class="pr-ev">⚠ ' + esc(evl) + '</span>' : '') + '</h3>';
+            out += '<table class="pr-day"><tbody>';
+            arr.forEach(function (e) {
+              var amt = e.phe_mg != null ? (Math.round(e.phe_mg) + " mg") : "чака";
+              out += '<tr><td class="pr-tm">' + esc(fmtTime(e.created_at)) + '</td><td>' + esc(e.food_text) + '</td><td class="pr-amt">' + amt + '</td></tr>';
+            });
+            out += '</tbody></table>';
+          });
+        } else {
+          out += '<table><thead><tr><th>Дата</th><th>Записи</th><th>Фениланин (mg)</th>' + (hasFoodDayEvents ? '<th>Здравословно</th>' : '') + '</tr></thead><tbody>';
+          dayOrder.forEach(function (k) {
+            var arr = dayGroups[k], s = 0, pend = false;
+            arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
+            totSum += s; if (pend) anyPend = true;
+            var evl = dayEventLabel(k);
+            out += '<tr><td>' + esc(fmtDate(k)) + '</td><td>' + arr.length + '</td><td>' + Math.round(s) + (pend ? "+" : "") + '</td>' + (hasFoodDayEvents ? '<td>' + (evl ? '⚠ ' + esc(evl) : '—') + '</td>' : '') + '</tr>';
+          });
+          out += '</tbody></table>';
+        }
+        out += '<p class="pr-note">Средно: ' + Math.round(totSum / totDays) + (anyPend ? "+" : "") + ' mg/ден · ' + totDays + (totDays === 1 ? " ден" : " дни") + ' със запис' + (anyPend ? " · знакът + значи, че има записи без изчислена стойност" : "") + '.</p>';
+      }
+    }
+    out += '</div>';
+    return out;
+  }
+
+  // Цвят/състояние на кръвна стойност (mg/%). Цел 120–360 µmol/L ≈ 2–6 mg/%; таван ≤ 8.
+  function bloodStatus(mg) {
+    mg = Number(mg);
+    if (mg > 8) return { cls: "bhigh", word: "над тавана" };
+    if (mg > 6) return { cls: "bwarn", word: "завишено" };
+    return { cls: "bnorm", word: "в норма" };
+  }
+
+  function bloodInner(rows) {
+    var form = '<div class="brow">'
+      + '<div class="bcol"><label>Дата на пробата</label><input type="date" id="b_date" value="' + todayStr() + '"></div>'
+      + '<div class="bcol"><label>Резултат (mg/%)</label><input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2"></div>'
+      + '</div>'
+      + '<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;"><input type="checkbox" id="b_flag" style="width:auto;"> Особена седмица (болест/пропусната формула/лекарство с аспартам)</label>'
+      + '<p class="hint" style="margin:4px 0 0">Отметни, ако тази проба е при особени обстоятелства. <b>Защо?</b> — опиши болестта/лекарството в „🩺 Здравни бележки" по-долу; бележките от седмицата ще се покажат до резултата.</p>'
+      + '<button type="button" id="bloodBtn">Запиши резултат</button>'
+      + '<div class="ok" id="bloodOk"></div>';
+    var hist = '';
+    if (rows.length) {
+      // 3 нива като хранителната История: Хронология → Месец (тониран) → дата (бяла) → детайл.
+      var sorted = rows.slice().sort(function (a, b) { return a.sample_date < b.sample_date ? 1 : (a.sample_date > b.sample_date ? -1 : 0); });
+      var monthOrder = [], monthRows = {};
+      sorted.forEach(function (r) {
+        var ym = String(r.sample_date).slice(0, 7);
+        if (!monthRows[ym]) { monthRows[ym] = []; monthOrder.push(ym); }
+        monthRows[ym].push(r);
+      });
+      function readingCard(r) {
+        var st = bloodStatus(r.mg_percent);
+        var flagSum = r.flag_unusual_week ? ' <span class="wkflag">⚠ Особ. сед.</span>' : '';
+        var weekLine = r.flag_unusual_week
+          ? '<span class="wkflag">⚠ Особена седмица</span>' + (r.flag_note ? ' — ' + esc(r.flag_note) : '')
+          : 'без Особена седмица';
+        // Бележки от седмицата на пробата (±3 дни) — свързва „обяснена проба" с реалната причина.
+        var near = (events || []).filter(function (e) {
+          var d = daysBetween(e.event_date, r.sample_date);
+          return d != null && Math.abs(d) <= 3;
+        });
+        var notesBlock = "";
+        if (near.length) {
+          notesBlock = '<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--border)">'
+            + '<div style="font-size:12.5px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">🩺 Бележки от седмицата</div>'
+            + near.map(function (e) {
+                var tags = (e.kinds || []).map(function (k) { return '<span class="evtag">' + eventKindLabel(k) + '</span>'; }).join("");
+                return '<div style="font-size:13px;color:#3a4753;margin:0 0 4px"><b>' + esc(fmtDate(e.event_date)) + '</b> ' + tags + '<div style="margin-top:2px">' + esc(e.note) + '</div></div>';
+              }).join("")
+            + '</div>';
+        }
+        return '<details class="daycard">'
+          + '<summary><span>' + esc(fmtDate(r.sample_date)) + flagSum + '</span>'
+          + '<span class="cnt"><b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></span></summary>'
+          + '<div class="dbody">'
+          +   '<div style="padding:4px 0 2px">генетично изследване: <b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></div>'
+          +   '<div style="color:var(--muted);font-size:13.5px">' + weekLine + '</div>'
+          +   notesBlock
+          + '</div></details>';
+      }
+      var monthCards = monthOrder.map(function (ym) {
+        var rs = monthRows[ym];
+        var sum = 0; rs.forEach(function (r) { sum += Number(r.mg_percent); });
+        var avg = Math.round((sum / rs.length) * 10) / 10;
+        var rWord = rs.length === 1 ? " резултат" : " резултата";
+        return '<details class="daycard monthcard"><summary><span>' + esc(monthLabel(ym)) + '</span><span class="cnt">' + rs.length + rWord + ' · средно <b class="bval ' + bloodStatus(avg).cls + '">~' + avg + ' mg/%</b></span></summary>'
+          + '<div class="dbody">' + rs.map(readingCard).join("") + '</div></details>';
+      }).join("");
+      var word = rows.length === 1 ? " резултат" : " резултата";
+      hist = '<details class="hist-outer" style="margin-top:16px">'
+        + '<summary><span>📈 Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
+        + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Цел ≤ 6 mg/% (в норма) · 6–8 завишено · над 8 = над тавана.</p>' + monthCards + '</div></details>';
+    }
+    var eventsCard = renderEvents(events);
+    var printCard = '<details class="hist-outer" style="margin-top:16px">'
+      + '<summary><span>🖨️ Разпечатка / PDF</span></summary>'
+      + '<div class="hist-body">'
+      + '<p class="hint" style="margin:0 0 8px">Изнеси за клиниката — избери какво и за кой период. Отваря печат → „Запази като PDF".</p>'
+      + '<label>Какво</label>'
+      + '<select id="pr_what"><option value="both">Двете (храни + изследвания)</option><option value="food">Само храни</option><option value="blood">Само изследвания</option></select>'
+      + '<label>Период</label>'
+      + '<select id="pr_period"><option value="all">Цялата история</option><option value="month">Този месец</option><option value="3m">Последни 3 месеца</option><option value="range">Избери период…</option></select>'
+      + '<div id="pr_range" style="display:none"><div class="brow" style="margin-top:6px"><div class="bcol"><label>От</label><input type="date" id="pr_from"></div><div class="bcol"><label>До</label><input type="date" id="pr_to"></div></div></div>'
+      + '<div id="pr_detail_wrap"><label>Храните</label><select id="pr_detail"><option value="daily">Само дневни суми (компактно)</option><option value="full">Пълно (всяка храна)</option></select></div>'
+      + '<button type="button" id="pr_btn">Отвори за печат / PDF</button>'
+      + '</div></details>';
+    return form + hist + eventsCard + printCard;
+  }
+
+  // Здравни бележки — етикети (стойност в базата → показен надпис)
+  var EVENT_KINDS = [
+    { k: "illness", label: "🤒 Болест/температура" },
+    { k: "medicine", label: "💊 Лекарство" },
+    { k: "no_appetite", label: "🍽 Без апетит" },
+    { k: "other", label: "📝 Друго" }
+  ];
+  function eventKindLabel(k) {
+    for (var i = 0; i < EVENT_KINDS.length; i++) if (EVENT_KINDS[i].k === k) return EVENT_KINDS[i].label;
+    return k;
+  }
+
+  function renderEvents(evs) {
+    var chips = EVENT_KINDS.map(function (e) {
+      return '<button type="button" class="evchip" data-kind="' + e.k + '">' + e.label + '</button>';
+    }).join("");
+    var form = '<p class="hint" style="margin:0 0 10px">Записвай болест, лекарства или дни без апетит — стоят в историята и се вземат предвид при оценката. Не влизат в дневния фениланин.</p>'
+      + '<div class="brow"><div class="bcol"><label>Дата</label><input type="date" id="ev_date" value="' + todayStr() + '"></div></div>'
+      + '<label>Какво (по избор — може повече)</label>'
+      + '<div class="evchips" id="ev_chips">' + chips + '</div>'
+      + '<label>Бележка</label>'
+      + '<textarea id="ev_note" rows="3" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="Опиши накратко — напр. „температура 38.5, не се храни, дадохме Нурофен сироп сутрин и вечер“."></textarea>'
+      + '<button type="button" id="evBtn">Запиши бележка</button>'
+      + '<div class="ok" id="evOk"></div>';
+
+    function eventRow(e) {
+      var tags = (e.kinds || []).map(function (k) { return '<span class="evtag">' + eventKindLabel(k) + '</span>'; }).join("");
+      return '<div class="evrow">'
+        + '<div class="evtop"><span class="evdate">' + esc(fmtDate(e.event_date)) + '</span>'
+        + '<button type="button" class="ev-del" data-id="' + e.id + '">🗑 Изтрий</button></div>'
+        + (tags ? '<div>' + tags + '</div>' : '')
+        + '<div class="evnote">' + esc(e.note) + '</div>'
+        + '</div>';
+    }
+    var list;
+    if (evs && evs.length) {
+      // Хронология като храната/кръвните: свит акордеон → месеци (тонирани, свити) → бележки.
+      var monthOrder = [], monthRows = {};
+      evs.forEach(function (e) {
+        var ym = String(e.event_date).slice(0, 7);
+        if (!monthRows[ym]) { monthRows[ym] = []; monthOrder.push(ym); }
+        monthRows[ym].push(e);
+      });
+      var monthCards = monthOrder.map(function (ym) {
+        var rs = monthRows[ym];
+        var w = rs.length === 1 ? " бележка" : " бележки";
+        return '<details class="daycard monthcard"><summary><span>' + esc(monthLabel(ym)) + '</span><span class="cnt">' + rs.length + w + '</span></summary>'
+          + '<div class="dbody">' + rs.map(eventRow).join("") + '</div></details>';
+      }).join("");
+      var word = evs.length === 1 ? " бележка" : " бележки";
+      list = '<details class="hist-outer" style="margin-top:14px">'
+        + '<summary><span>📋 Записани бележки</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + evs.length + word + '</span></summary>'
+        + '<div class="hist-body">' + monthCards + '</div></details>';
+    } else {
+      list = '<p class="hint" style="margin-top:12px">Още няма записани бележки.</p>';
+    }
+
+    return '<details class="hist-outer" id="evSec" style="margin-top:16px">'
+      + '<summary><span>🩺 Здравни бележки</span>' + (evs && evs.length ? '<span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + evs.length + (evs.length === 1 ? " бележка" : " бележки") + '</span>' : '') + '</summary>'
+      + '<div class="hist-body">' + form + list + '</div></details>';
+  }
+
+  function helpItem(title, body) {
+    return '<details class="daycard"><summary><span>' + title + '</span></summary>'
+      + '<div class="dbody" style="font-size:14.5px;line-height:1.55;color:#3a4753;">' + body + '</div></details>';
+  }
+
+  function renderHelp() {
+    var items = ''
+      + helpItem("ℹ️ Какво е това?",
+          '<p>Тук се записва какво яде Криста. Приложението смята колко фениланин (Phe) има в храната — така всеки ден се вижда с един поглед колко е събрала, трупа се история по дни и месеци, а най-долу се пазят и кръвните резултати.</p>')
+      + helpItem("🔀 Трите бутона: Храни · Рецепти · Свободно",
+          '<p>Горе има три бутона — три начина да запишеш храна:</p>'
+          + '<p>🍎 <b>Храни</b> — избираш храна от списъка; смята се сама.</p>'
+          + '<p>🍳 <b>Рецепти</b> — избираш готово ястие и казваш само колко порции.</p>'
+          + '<p>✍ <b>Свободно</b> — пишеш със свои думи, когато е нещо смесено или го няма в списъка.</p>')
+      + helpItem("🍎 Добавяне от списъка",
+          '<p>1. Пиши храната — щом почнеш, излизат подсказки; докосни своята.</p>'
+          + '<p>2. Избери количество: число + мярка (например „1 ябълка", „2 филии", „7 лъжици").</p>'
+          + '<p>3. Долу пише колко фениланин ще се запише. Натисни „Запиши храната" — бутонът светва зелено „✓ Храната записана", после веднага можеш да добавиш следващата.</p>')
+      + helpItem("🍳 Записване на рецепта",
+          '<p>Натисни бутона „🍳 Рецепти" — излиза списък с готовите ястия (например палачинки). Докосни ястието и въведи само <b>колко порции</b> е изяла.</p>'
+          + '<p>Фениланинът се смята сам — не се въвеждат съставки всеки път.</p>')
+      + helpItem("✍ Кога да ползвам Свободно?",
+          '<p>За смесени ястия или храна, която още я няма в списъка. Натисни „✍ Свободно" и опиши със свои думи какво е яла (например „шепа ориз + 2 филии хляб с масло").</p>'
+          + '<p>Записът влиза като „⏳ чака" и фениланинът му се смята малко по-късно.</p>')
+      + helpItem("📏 Ако мярката я няма?",
+          '<p>В „Храни", до мерките, има поле „друга мярка". Ако търсената я няма (например „шепа малини") — напиши я със свои думи + числото. И тя влиза в „Чакащи", за да ѝ се сложи стойност.</p>')
+      + helpItem("📊 Числата горе: Днес · Седмица · Месец",
+          '<p><b>Днес</b> — сборът фениланин за днешния ден.</p>'
+          + '<p><b>Седмица</b> и <b>Месец</b> — колко е <b>средно на ден</b> за последните 7 и 30 дни. Средните вървят успоредно с кръвните и заглаждат „днес много, утре малко".</p>'
+          + '<p>Знакът „+" (например „880+ mg") значи „поне толкова" — има записи, които още чакат да им се сметне стойността.</p>')
+      + helpItem("🍽️ Днешната карта",
+          '<p>Показва какво е записано днес и стои отворена, за да се вижда веднага. Минат ли 24 часа, денят слиза в „История", а „Днес" почва отначало.</p>')
+      + helpItem("🗑 Как да поправя или изтрия записана храна?",
+          '<p><b>Поправянето става на две крачки: първо трий грешния запис, после го добави наново — правилно.</b></p>'
+          + '<p><b>1. Трий грешния.</b> В заглавието на картата „Днес" има малка <b>иконка молив ✏️</b>. Докосни я — до всеки днешен запис се появява кошче 🗑. Натисни кошчето до грешния ред → потвърди „Изтрий" → редът се маха.</p>'
+          + '<p><b>2. Добави наново.</b> Върни се горе към „Добави храна" и запиши храната както обикновено — избери я от „🍎 Храни" с вярното количество (или „🍳 Рецепти" / „✍ Свободно") и натисни „Запиши храната". Готово — сега стойността е точна.</p>'
+          + '<p>Само трият, без „наново" — просто изтрий и не добавяй пак. Всичко това важи само за <b>днешните</b> записи; миналите дни в „История" не се пипат.</p>')
+      + helpItem("📅 Историята",
+          '<p>Пази всеки минал ден, подредено по месеци. Докосни месец → после ден → за да видиш какво е яла. До всеки месец и ден пише сборът/средното.</p>'
+          + '<p>Така страницата остава къса, колкото и дни да се натрупат.</p>')
+      + helpItem("⏳ Чакащи изчисление",
+          '<p>Тук стоят записите от „Свободно" или нови храни, които още нямат стойност фениланин. Скоро им се смята и влизат в числата.</p>')
+      + helpItem("🍳 Създаване на рецепти (за родителя)",
+          '<p>Картата „Въведи рецепта" е заключена с PIN — за родителя. Там ястие се сглобява <b>веднъж</b> от съставките му и се казва на колко порции излиза.</p>'
+          + '<p>После се появява в бутона „Рецепти" и всеки може да го записва по брой порции — без PIN.</p>')
+      + helpItem("🩸 Кръвните изследвания (за родителя)",
+          '<p>Заключената част най-долу (с PIN). Въвеждаш датата на пробата и резултата (mg/%). Цветът показва веднага:</p>'
+          + '<p><b style="color:#2e8b57">зелено</b> — в норма (до 6) · <b style="color:#e0821e">оранжево</b> — завишено (6–8) · <b style="color:#c43d3d">червено</b> — над тавана (над 8).</p>'
+          + '<p>Ако седмицата е била особена (болест, пропусната формула, лекарство с аспартам) — отметни го, за да се знае защо числото е различно. Историята се пази по месеци.</p>')
+      + helpItem("🩺 Здравни бележки (за родителя)",
+          '<p>В заключената част („За родителя") има карта „🩺 Здравни бележки". Там се записва <b>болест, температура, лекарства или дни без апетит</b> — с дата и кратък текст, по избор и с етикети.</p>'
+          + '<p>Защо е важно: при болест или някои лекарства (сиропи с аспартам) фениланинът в кръвта може да се вдигне, без храната да е сгрешена. Тези бележки остават в историята, за да се знае защо числата изглеждат така. <b>Не се смятат в дневния фениланин</b> — служат само като обяснение при оценката и влизат в разпечатката за клиниката.</p>')
+      + helpItem("⚠️ Важно",
+          '<p>Приложението помага да следите лесно — но <b>дозата на лекарството, изследванията и храненето остават с лекарите и клиниката</b>. Тук само записвате и наблюдавате; числата помагат на вас и на тях.</p>');
+
+    return '<details class="hist-outer">'
+      + '<summary><span>❓ Как се ползва (помощ)</span></summary>'
+      + '<div class="hist-body">' + items + '</div></details>';
+  }
+
+  function renderBlood(rows, hasPin) {
+    // Родителска секция — акордеон „За родителя", затворен по подразбиране.
+    // Ако има зададен PIN и не е отключен в тази сесия → PIN екран; иначе директно съдържанието.
+    var unlocked = !hasPin || parentUnlocked;
+    var inner;
+    if (unlocked) {
+      inner = bloodInner(rows);
+    } else {
+      inner = '<div class="pinbox" id="pinbox">'
+        + '<p>Тази част е за родителя. Въведи PIN, за да я отвориш.</p>'
+        + '<input type="text" id="pin_input" inputmode="numeric" autocomplete="off" autocorrect="off" name="blood_pin_' + Math.random().toString(36).slice(2) + '" maxlength="8" placeholder="••••">'
+        + '<button type="button" id="pinBtn" style="max-width:200px;margin:12px auto 0;">Отключи</button>'
+        + '<div class="err" id="pin_err"></div>'
+        + '</div>';
+    }
+    return '<details class="hist-outer" id="parentSec">'
+      + '<summary><span>🩸 За родителя — кръвни резултати</span><span class="lockmark">' + (unlocked ? '' : '🔒') + '</span></summary>'
+      + '<div class="hist-body" id="parentBody">' + inner + '</div></details>';
+  }
+
+  function render(today, log, blood, pending) {
+    autoScrollReady = false;   // изключи авто-скрола, докато се рендира (авто-отворените карти да не дърпат надолу)
+    loading.style.display = "none";
+    content.innerHTML = '<div id="sec_bar">' + renderBar(log) + '</div>'
+      + renderAddForm()
+      + '<div id="sec_log">' + renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + '</div>'
+      + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
+    wireAdd();
+    wireRecipe(recipes, today.has_pin);
+    wireBlood(blood);
+    wirePin(blood);
+    setTimeout(function () { autoScrollReady = true; }, 250);   // включи го чак след като рендирането се уталожи
+  }
+
+  function wirePin(bloodRows) {
+    var pinBtn = document.getElementById("pinBtn");
+    if (!pinBtn) return;
+    var pinInput = document.getElementById("pin_input");
+    var pinErr = document.getElementById("pin_err");
+    function submit() {
+      var pin = (pinInput.value || "").trim();
+      if (!pin) { pinErr.textContent = "Въведи PIN."; return; }
+      pinBtn.disabled = true; pinBtn.textContent = "Проверка…";
+      sb.rpc("verify_parent_pin", { token: token, p_pin: pin }).then(function (res) {
+        pinBtn.disabled = false; pinBtn.textContent = "Отключи";
+        if (res.error) { pinErr.textContent = "Грешка. Опитай пак."; return; }
+        if (res.data === true) {
+          parentUnlocked = true;
+          // презареди само родителския блок (остава отворен)
+          var body = document.getElementById("parentBody");
+          if (body) { body.innerHTML = bloodInner(bloodRows || []); wireBlood(bloodRows || []); }
+          var sec = document.getElementById("parentSec");
+          if (sec) { sec.setAttribute("open", ""); var mark = sec.querySelector("summary span:last-child"); if (mark) mark.textContent = ""; }
+        } else {
+          pinErr.textContent = "Грешен PIN.";
+          pinInput.value = ""; pinInput.focus();
+        }
+      }, function () { pinBtn.disabled = false; pinBtn.textContent = "Отключи"; pinErr.textContent = "Няма връзка."; });
+    }
+    pinBtn.addEventListener("click", submit);
+    pinInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+  }
+
+  function wireAdd() {
+    var foodEl = document.getElementById("f_food");
+    var metaEl = document.getElementById("f_meta");
+    var unitSel = document.getElementById("f_unit");
+    var qtyEl = document.getElementById("f_qty");
+    var customEl = document.getElementById("f_custom_unit");
+    var previewEl = document.getElementById("f_preview");
+    var newfoodEl = document.getElementById("f_newfood");
+    var saveBtn = document.getElementById("saveBtn");
+    var okMsg = document.getElementById("okMsg");
+    var acList = document.getElementById("ac_list");
+    var currentUnits = []; // текущите мерки на избраната храна (празно = само "г")
+    var selectedRecipe = null; // ако е избрана рецепта → логваме по брой порции
+    var listBlocked = false;   // в „От списъка": вписана храна извън базата → блокирано (насочваме към Свободен текст)
+
+    // ── 3-сегментен превключвател: Списък · Рецепти · Свободно ──────────────
+    var mode = "list"; // ВИНАГИ дефолт при всеки рендер/рефреш (нула персистенция)
+    var swList = document.getElementById("sw_list");
+    var swRecipes = document.getElementById("sw_recipes");
+    var swFree = document.getElementById("sw_free");
+    var modeList = document.getElementById("mode_list");
+    var modeRecipes = document.getElementById("mode_recipes");
+    var modeFree = document.getElementById("mode_free");
+    var freeEl = document.getElementById("f_freetext");
+    // Режим „Рецепти" елементи
+    var recPicklist = document.getElementById("rec_picklist");
+    var recChosen = document.getElementById("rec_chosen");
+    var recChosenName = document.getElementById("rec_chosen_name");
+    var recQtyEl = document.getElementById("rec_qty");
+    var recQtyLbl = document.getElementById("rec_qty_lbl");
+    var recPreviewEl = document.getElementById("rec_preview");
+    var pickedRecipe = null; // избраната рецепта в режим „Рецепти"
+
+    function setMode(m) {
+      mode = m;
+      modeList.style.display = m === "list" ? "" : "none";
+      modeRecipes.style.display = m === "recipes" ? "" : "none";
+      modeFree.style.display = m === "free" ? "" : "none";
+      swList.classList.toggle("on", m === "list");
+      swRecipes.classList.toggle("on", m === "recipes");
+      swFree.classList.toggle("on", m === "free");
+      okMsg.className = "ok"; okMsg.textContent = "";
+      if (m === "recipes") { renderRecList(); }
+      if (m === "free") { setTimeout(function () { try { freeEl.focus(); } catch (e) {} }, 30); }
+    }
+    swList.addEventListener("click", function () { setMode("list"); });
+    swRecipes.addEventListener("click", function () { setMode("recipes"); });
+    swFree.addEventListener("click", function () { setMode("free"); });
+    // бутонът „→ Премести в свободен текст" в банера (делегирано — банерът се пре-рендира при всяка буква)
+    newfoodEl.addEventListener("click", function (e) {
+      if (e.target && e.target.id === "toFreeBtn") {
+        var t = foodEl.value.trim();
+        setMode("free");
+        if (t) { freeEl.value = t; }
+      }
+    });
+
+    // ── Режим „Рецепти": листа за избор → брой порции → Запиши ──────────────
+    function renderRecList() {
+      pickedRecipe = null;
+      recChosen.style.display = "none";
+      if (!recipes.length) {
+        recPicklist.innerHTML = '<p class="hint" style="margin:6px 0">Още няма рецепти. Създай в „Въведи рецепта" по-долу (за родителя).</p>';
+        return;
+      }
+      var sorted = recipes.slice().sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "bg"); });
+      recPicklist.innerHTML = sorted.map(function (r) {
+        var per = r.phe_per_portion != null ? (Math.round(r.phe_per_portion) + " mg/бр") : "чака ⏳";
+        return '<button type="button" class="rec-pick" data-id="' + esc(r.id) + '"><span class="rp-name">' + esc(r.name) + '</span><span class="rp-per">' + per + '</span></button>';
+      }).join("");
+    }
+    function updateRecPreview() {
+      if (!pickedRecipe) { recPreviewEl.textContent = ""; return; }
+      var pq = parseFloat(recQtyEl.value);
+      var plabel = pickedRecipe.portion_label || "порция";
+      var per = pickedRecipe.phe_per_portion;
+      if (!isFinite(pq) || pq <= 0) { recPreviewEl.textContent = "Впиши брой (" + plabel + ")"; return; }
+      recPreviewEl.textContent = per != null
+        ? (pq + " × " + Math.round(per) + " mg ≈ " + Math.round(pq * per) + " mg фениланин")
+        : "Рецептата още чака стойност на съставка — ще се уточни.";
+    }
+    recPicklist.addEventListener("click", function (e) {
+      var b = e.target.closest(".rec-pick");
+      if (!b) return;
+      var r = recipes.find(function (x) { return String(x.id) === String(b.getAttribute("data-id")); });
+      if (!r) return;
+      pickedRecipe = r;
+      Array.prototype.slice.call(recPicklist.querySelectorAll(".rec-pick")).forEach(function (x) { x.classList.remove("sel"); });
+      b.classList.add("sel");
+      recChosenName.textContent = r.name;
+      recQtyLbl.textContent = r.portion_label || "порции";
+      recQtyEl.value = "1";
+      recChosen.style.display = "";
+      updateRecPreview();
+    });
+    recQtyEl.addEventListener("input", updateRecPreview);
+
+    function saveRecipeMode() {
+      if (!pickedRecipe) { okMsg.textContent = "Избери рецепта от списъка."; okMsg.className = "ok show err"; return; }
+      var pq = parseFloat(recQtyEl.value);
+      if (!isFinite(pq) || pq <= 0) { okMsg.textContent = "Впиши брой порции."; okMsg.className = "ok show err"; return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+      sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: pickedRecipe.id, p_portions: pq })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          foodSaved();
+        })
+        .catch(saveErr);
+    }
+
+    function findFood(name) {
+      var n = (name || "").trim().toLowerCase();
+      return phedb.find(function (f) { return f.food_name.toLowerCase() === n; });
+    }
+
+    function hideAc() { acList.classList.remove("show"); acList.innerHTML = ""; }
+    function showAc(query) {
+      var q = (query || "").trim().toLowerCase();
+      if (!q) { hideAc(); return; }
+      var recM = recipes.filter(function (r) { return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0, 4);
+      var foodM = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
+      if (!recM.length && !foodM.length) { hideAc(); return; }
+      acList.innerHTML =
+        recM.map(function (r) {
+          return '<div class="ac-item" data-recipe="' + esc(r.id) + '"><b>' + esc(r.name) + '</b> <span style="color:var(--muted);font-size:12px">· рецепта</span></div>';
+        }).join("") +
+        foodM.map(function (f) {
+          return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>';
+        }).join("");
+      acList.classList.add("show");
+    }
+    acList.addEventListener("click", function (e) {
+      var item = e.target.closest(".ac-item");
+      if (!item) return;
+      var rid = item.getAttribute("data-recipe");
+      if (rid) {
+        var r = recipes.find(function (x) { return String(x.id) === String(rid); });
+        if (r) { foodEl.value = r.name; selectedRecipe = r; }
+      } else {
+        foodEl.value = item.getAttribute("data-name");
+        selectedRecipe = null;
+      }
+      hideAc();
+      onFoodChange();
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target !== foodEl && !acList.contains(e.target)) hideAc();
+    });
+    function unitsFor(name) {
+      var n = (name || "").trim().toLowerCase();
+      return pheunits.filter(function (u) { return u.food_name.toLowerCase() === n; })
+        .sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); });
+    }
+
+    function refreshUnitOptions(f) {
+      currentUnits = f ? unitsFor(f.food_name) : [];
+      var opts = currentUnits.map(function (u, i) {
+        return '<option value="' + i + '">' + esc(u.unit_label) + '</option>';
+      }).join("") + '<option value="g">г (грам)</option>';
+      unitSel.innerHTML = opts;
+    }
+
+    function currentGramsPerUnit() {
+      if (unitSel.value === "g") return 1;
+      var u = currentUnits[parseInt(unitSel.value, 10)];
+      return u ? u.grams_per_unit : 1;
+    }
+
+    // при рецепта скриваме мярка/друга мярка — броим порции
+    function setRecipeMode(on) {
+      unitSel.style.display = on ? "none" : "";
+      customEl.style.display = on ? "none" : "";
+    }
+
+    function updatePreview() {
+      if (selectedRecipe) {
+        setRecipeMode(true);
+        var pq = parseFloat(qtyEl.value);
+        var plabel = selectedRecipe.portion_label || "порция";
+        metaEl.innerHTML = esc(selectedRecipe.name) + ' <span style="color:var(--muted)">· рецепта</span>';
+        newfoodEl.innerHTML = "";
+        var per = selectedRecipe.phe_per_portion;
+        if (!isFinite(pq) || pq <= 0) { previewEl.textContent = "Впиши брой (" + plabel + ")"; return; }
+        previewEl.textContent = per != null
+          ? (pq + " × " + Math.round(per) + " mg ≈ " + Math.round(pq * per) + " mg фениланин")
+          : "Рецептата още чака стойност на съставка — ще се уточни.";
+        return;
+      }
+      setRecipeMode(false);
+      var name = foodEl.value.trim();
+      var f = findFood(name);
+      var qty = parseFloat(qtyEl.value);
+      var customUnit = customEl.value.trim();
+      listBlocked = false;
+      if (!name) { previewEl.textContent = "Избери или впиши храна отгоре"; metaEl.innerHTML = "&nbsp;"; newfoodEl.innerHTML = ""; return; }
+      if (!f) {
+        // храна извън базата → в „От списъка" е забранена; насочваме към Свободен текст
+        listBlocked = true;
+        metaEl.innerHTML = "&nbsp;";
+        newfoodEl.innerHTML = '<div class="newfood">Тази храна не е в базата. За да я запишеш, използвай „✍ Свободен текст“.'
+          + '<button type="button" class="ghost" id="toFreeBtn" style="width:auto;margin:8px 0 0;padding:7px 11px;font-size:13px;">→ Премести в свободен текст</button></div>';
+        previewEl.textContent = "";
+        return;
+      }
+      var estBadge = (f.is_measured === false) ? '<span class="badge-est">оценка</span>' : "";
+      metaEl.innerHTML = esc(f.food_name) + estBadge;
+      newfoodEl.innerHTML = "";
+
+      if (customUnit) {
+        unitSel.disabled = true;
+        previewEl.textContent = isFinite(qty) && qty > 0
+          ? "Ще се запише: " + qty + " × „" + customUnit + "“ — Chris ще добави грамажа/фениланина по-късно."
+          : "Впиши брой";
+        return;
+      }
+      unitSel.disabled = false;
+      if (!isFinite(qty) || qty <= 0) { previewEl.textContent = "Впиши брой"; return; }
+      var grams = qty * currentGramsPerUnit();
+      var phe = (grams / 100) * f.phe_mg_per_100g;
+      previewEl.textContent = Math.round(grams) + " г ≈ " + Math.round(phe) + " mg фениланин" + (f.note ? " — " + f.note : "");
+    }
+
+    function onFoodChange() {
+      if (!selectedRecipe) { refreshUnitOptions(findFood(foodEl.value.trim())); }
+      updatePreview();
+    }
+
+    foodEl.addEventListener("input", function () {
+      selectedRecipe = null; // писане = ново търсене
+      showAc(foodEl.value);
+      onFoodChange();
+    });
+    foodEl.addEventListener("focus", function () { if (foodEl.value.trim()) showAc(foodEl.value); });
+    unitSel.addEventListener("change", updatePreview);
+    qtyEl.addEventListener("input", updatePreview);
+    customEl.addEventListener("input", updatePreview);
+    refreshUnitOptions(null);
+
+    function resetForm() {
+      foodEl.value = ""; qtyEl.value = "1"; customEl.value = ""; selectedRecipe = null;
+      hideAc();
+      setRecipeMode(false);
+      refreshUnitOptions(null);
+      updatePreview();
+    }
+
+    // Успешен запис на храна: бутонът светва зелено „✓ Храната записана" за ~1.6 сек, после се връща;
+    // данните се опресняват БЕЗ разграждане на формата → детето продължава да логва веднага.
+    function foodSaved() {
+      okMsg.className = "ok"; okMsg.textContent = "";
+      saveBtn.textContent = "✓ Храната записана";
+      saveBtn.classList.add("saved");
+      saveBtn.disabled = true;
+      refreshLog();
+      setTimeout(function () {
+        saveBtn.textContent = "Запиши храната";
+        saveBtn.classList.remove("saved");
+        saveBtn.disabled = false;
+      }, 1600);
+    }
+    function saveErr() {
+      saveBtn.disabled = false; saveBtn.textContent = "Запиши храната"; saveBtn.classList.remove("saved");
+      okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
+    }
+
+    function saveFree() {
+      var text = (freeEl.value || "").trim();
+      if (!text) { okMsg.textContent = "Впиши какво е яла."; okMsg.className = "ok show err"; return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+      // p_grams=0 (non-null, без съвпадение в базата) → pending=true; phe_mg остава null → „чака ⏳"
+      sb.rpc("add_phe_entry", { token: token, p_food_text: text, p_grams: 0, p_phe_mg: null })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          freeEl.value = ""; foodSaved();
+        })
+        .catch(saveErr);
+    }
+
+    saveBtn.addEventListener("click", function () {
+      if (mode === "free") { saveFree(); return; }
+      if (mode === "recipes") { saveRecipeMode(); return; }
+      var qty = parseFloat(qtyEl.value);
+
+      if (selectedRecipe) {
+        if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой порции."; okMsg.className = "ok show err"; return; }
+        saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+        sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: selectedRecipe.id, p_portions: qty })
+          .then(function (res) {
+            if (res.error) throw res.error;
+            resetForm(); foodSaved();
+          })
+          .catch(saveErr);
+        return;
+      }
+
+      var name = foodEl.value.trim();
+      var customUnit = customEl.value.trim();
+      if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
+      if (listBlocked || !findFood(name)) {
+        okMsg.textContent = "Храната не е в базата — премини на „✍ Свободен текст“."; okMsg.className = "ok show err"; return;
+      }
+      if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой."; okMsg.className = "ok show err"; return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+
+      var call = customUnit
+        ? sb.rpc("add_phe_custom_unit", { token: token, p_food_text: name, p_custom_unit: customUnit, p_qty: qty })
+        : sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
+
+      call.then(function (res) {
+          if (res.error) throw res.error;
+          resetForm();
+          foodSaved();
+        })
+        .catch(saveErr);
+    });
+  }
+
+  function wirePrint() {
+    var prBtn = document.getElementById("pr_btn");
+    if (!prBtn) return;
+    var whatSel = document.getElementById("pr_what");
+    var periodSel = document.getElementById("pr_period");
+    var rangeDiv = document.getElementById("pr_range");
+    var detailWrap = document.getElementById("pr_detail_wrap");
+    function sync() {
+      rangeDiv.style.display = periodSel.value === "range" ? "" : "none";
+      detailWrap.style.display = (whatSel.value === "blood") ? "none" : "";
+    }
+    whatSel.addEventListener("change", sync);
+    periodSel.addEventListener("change", sync);
+    sync();
+    prBtn.addEventListener("click", function () {
+      var what = whatSel.value;
+      var dates = printPeriodDates(periodSel.value, document.getElementById("pr_from").value, document.getElementById("pr_to").value);
+      var detail = document.getElementById("pr_detail").value;
+      prBtn.disabled = true; prBtn.textContent = "Подготвя…";
+      Promise.all([
+        sb.rpc("get_phe_log", { token: token, from_date: dates.from, to_date: dates.to }),
+        sb.rpc("get_blood_trend", { token: token }),
+        sb.rpc("get_phe_events", { token: token })
+      ]).then(function (r) {
+        prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
+        var log = (r[0] && r[0].data) || [];
+        var blood = (r[1] && r[1].data) || [];
+        var evs = (r[2] && r[2].data) || [];
+        document.getElementById("printArea").innerHTML = buildPrintDoc(what, dates, detail, log, blood, evs);
+        setTimeout(function () { window.print(); }, 120);
+      }).catch(function () {
+        prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
+      });
+    });
+  }
+
+  function wireBlood() {
+    wirePrint();   // печат-картата е в същата PIN секция
+    wireEvents();  // здравните бележки са в същата PIN секция
+    var dateEl = document.getElementById("b_date");
+    var valEl = document.getElementById("b_value");
+    var flagEl = document.getElementById("b_flag");
+    var btn = document.getElementById("bloodBtn");
+    var okMsg = document.getElementById("bloodOk");
+    if (!btn) return; // формата е заключена (PIN екран) — няма какво да wire-ваме
+
+    btn.addEventListener("click", function () {
+      var v = parseFloat(valEl.value);
+      if (!isFinite(v)) { okMsg.textContent = "Впиши резултата."; okMsg.className = "ok show err"; return; }
+      btn.disabled = true; btn.textContent = "Записване…";
+      sb.rpc("add_blood_reading", { token: token, p_sample_date: dateEl.value, p_mg_percent: v, p_flag_unusual: flagEl.checked })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          // флаш зелено „✓ Резултатът записан" ~1.6 сек, после reload обновява хронологията + връща бутона
+          okMsg.className = "ok"; okMsg.textContent = "";
+          valEl.value = ""; flagEl.checked = false;
+          btn.textContent = "✓ Резултатът записан"; btn.classList.add("saved");
+          setTimeout(function () { reload(); }, 1600);
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "Запиши резултат"; btn.classList.remove("saved");
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
+  }
+
+  // Опреснява САМО картата „Здравни бележки" (не разгражда цялата страница; PIN остава отключен)
+  function refreshEvents() {
+    sb.rpc("get_phe_events", { token: token }).then(function (res) {
+      events = (res && res.data) || [];
+      var sec = document.getElementById("evSec");
+      if (!sec) { reload(); return; }
+      var wasOpen = sec.hasAttribute("open");
+      var tmp = document.createElement("div");
+      tmp.innerHTML = renderEvents(events);
+      var newSec = tmp.firstChild;
+      if (wasOpen) newSec.setAttribute("open", "");
+      sec.parentNode.replaceChild(newSec, sec);
+      wireEvents();
+    }, function () {});
+  }
+
+  function wireEvents() {
+    var chipsWrap = document.getElementById("ev_chips");
+    var noteEl = document.getElementById("ev_note");
+    var dateEl = document.getElementById("ev_date");
+    var btn = document.getElementById("evBtn");
+    var okMsg = document.getElementById("evOk");
+    if (!btn) return; // заключено (PIN екран) — няма какво да wire-ваме
+
+    if (chipsWrap) chipsWrap.querySelectorAll(".evchip").forEach(function (c) {
+      c.addEventListener("click", function () { c.classList.toggle("on"); });
+    });
+
+    btn.addEventListener("click", function () {
+      var note = (noteEl.value || "").trim();
+      if (!note) { okMsg.textContent = "Впиши бележка."; okMsg.className = "ok show err"; return; }
+      var kinds = [];
+      if (chipsWrap) chipsWrap.querySelectorAll(".evchip.on").forEach(function (c) { kinds.push(c.getAttribute("data-kind")); });
+      btn.disabled = true; btn.textContent = "Записване…";
+      sb.rpc("add_phe_event", { token: token, p_event_date: dateEl.value, p_kinds: kinds, p_note: note })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          okMsg.className = "ok"; okMsg.textContent = "";
+          btn.textContent = "✓ Бележката записана"; btn.classList.add("saved");
+          setTimeout(function () { refreshEvents(); }, 1200);
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "Запиши бележка"; btn.classList.remove("saved");
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
+
+    document.querySelectorAll(".ev-del").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Изтрий тази бележка?")) return;
+        sb.rpc("delete_phe_event", { token: token, p_event_id: b.getAttribute("data-id") })
+          .then(function (res) { if (res.error) throw res.error; refreshEvents(); })
+          .catch(function () { alert("Неуспешно. Опитай пак."); });
+      });
+    });
+  }
+
+  // ── Рецепти ──────────────────────────────────────────────────────────────
+  function renderRecipeLib(recs) {
+    if (!recs || !recs.length) return "";
+    var items = recs.slice().sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "bg"); }).map(function (r) {
+      var plabel = r.portion_label || "порция";      // множествено, както е в базата
+      var yn = r.yield_portions || 1;
+      var per = r.phe_per_portion != null
+        ? ('<span class="rc-mg">' + Math.round(r.phe_per_portion) + ' mg/бр</span><span class="rc-cnt2">' + yn + ' ' + esc(plabel) + '</span>')
+        : ('<span class="rc-mg">чака ⏳</span><span class="rc-cnt2">' + yn + ' ' + esc(plabel) + '</span>');
+      var ingLines = (r.ingredients || []).map(function (g) {
+        var v = g.in_base ? ((g.phe_mg != null ? Math.round(g.phe_mg) : 0) + " mg") : '<span class="ing-pend">чака ⏳</span>';
+        return '<div class="logitem"><span>' + esc(g.food_text) + (g.grams != null ? " (" + g.grams + "г)" : "") + '</span><span class="amt">' + v + '</span></div>';
+      }).join("");
+      var tot = r.total_phe_mg != null ? (Math.round(r.total_phe_mg) + " mg") : "–";
+      var warn = r.has_pending ? '<p class="rc-warn">Чака стойност на съставка — сборът ще се допълни.</p>' : "";
+      var prep = r.instructions ? '<details class="daycard prep" style="margin-top:10px"><summary><span>🍳 Приготвяне</span></summary><div class="dbody" style="font-size:14px;line-height:1.55;color:#3a4753;white-space:pre-wrap;">' + esc(r.instructions) + '</div></details>' : "";
+      return '<details class="daycard"><summary><span>' + nameTwoLines(r.name) + '</span><span class="cnt">' + per + '</span></summary>'
+        + '<div class="dbody">' + ingLines
+        + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + yn + " " + esc(plabel) + '</span></div>' + warn
+        + prep
+        + '<div class="row2" style="margin-top:12px">'
+        + '<button type="button" class="rc-edit" data-id="' + esc(r.id) + '">Редактирай</button>'
+        + '<button type="button" class="rc-del" data-id="' + esc(r.id) + '" style="background-color:var(--red)">Изтрий</button>'
+        + '</div></div></details>';
+    }).join("");
+    return '<div class="reclib"><div class="t">Вече въведени рецепти (' + recs.length + ')</div>' + items + '</div>';
+  }
+
+  function recipeBuilderHTML(recs) {
+    return '<p class="recmeta">Сглоби ястие от съставки веднъж. После в „Добави храна" го намираш по име и въвеждаш само брой порции.</p>'
+      + '<label>Име на рецептата</label>'
+      + '<input type="text" id="rc_name" placeholder="напр. Палачинки Мевалия">'
+      + '<label style="margin-top:14px">Съставки</label>'
+      + '<div id="rc_ings"></div>'
+      + '<button type="button" id="rc_add_ing" style="margin-top:2px">+ Добави съставка</button>'
+      + '<div class="row2" style="margin-top:14px;align-items:flex-end">'
+      +   '<div><label style="margin:0 0 4px">На колко порции излиза</label><input type="number" id="rc_yield" inputmode="decimal" step="1" min="1" value="1"></div>'
+      +   '<div><label style="margin:0 0 4px">Мярка (по избор)</label><input type="text" id="rc_label" placeholder="палачинки, парчета…"></div>'
+      + '</div>'
+      + '<label style="margin-top:12px">Приготвяне (как се прави) — по избор</label>'
+      + '<textarea id="rc_instr" rows="3" placeholder="Кратки стъпки — виждат се под рецептата (напр.: смеси брашното и захарта; добави яйцето и млякото; пече се 20 мин на 180°)."></textarea>'
+      + '<div class="rc-sum"><span>Общо за дозата: <b id="rc_total">–</b></span><span>На порция: <b id="rc_per">–</b></span></div>'
+      + '<div class="rc-warn" id="rc_warn"></div>'
+      + '<button type="button" id="rc_save">Запиши рецептата</button>'
+      + '<div class="ok" id="rc_ok"></div>'
+      + renderRecipeLib(recs);
+  }
+
+  function recipePinHTML() {
+    return '<p class="recmeta">Създаването на рецепти е за родителя.</p>'
+      + '<div class="pinbox">'
+      + '<p>Въведи PIN, за да отвориш.</p>'
+      + '<input type="text" id="rc_pin_input" inputmode="numeric" autocomplete="off" autocorrect="off" name="rc_pin_' + Math.random().toString(36).slice(2) + '" maxlength="8" placeholder="••••">'
+      + '<button type="button" id="rc_pinBtn" style="max-width:200px;margin:12px auto 0;">Отключи</button>'
+      + '<div class="err" id="rc_pin_err"></div>'
+      + '</div>';
+  }
+
+  function renderRecipeCard(recs, hasPin) {
+    var locked = hasPin && !parentUnlocked;
+    return '<details class="hist-outer" id="recipeCard">'
+      + '<summary><span>🍳 Въведи рецепта</span><span class="lockmark">' + (locked ? '🔒' : '') + '</span></summary>'
+      + '<div class="hist-body" id="recipeBody">' + (locked ? recipePinHTML() : recipeBuilderHTML(recs)) + '</div></details>';
+  }
+
+  function wireRecipe(recs, hasPin) {
+    var card = document.getElementById("recipeCard");
+    if (!card) return;
+    if (hasPin && !parentUnlocked) {
+      var pinBtn = document.getElementById("rc_pinBtn");
+      if (!pinBtn) return;
+      var pinInput = document.getElementById("rc_pin_input");
+      var pinErr = document.getElementById("rc_pin_err");
+      var submit = function () {
+        var pin = (pinInput.value || "").trim();
+        if (!pin) { pinErr.textContent = "Въведи PIN."; return; }
+        pinBtn.disabled = true; pinBtn.textContent = "Проверка…";
+        sb.rpc("verify_parent_pin", { token: token, p_pin: pin }).then(function (res) {
+          pinBtn.disabled = false; pinBtn.textContent = "Отключи";
+          if (res.error) { pinErr.textContent = "Грешка. Опитай пак."; return; }
+          if (res.data === true) {
+            parentUnlocked = true;
+            var body = document.getElementById("recipeBody");
+            if (body) { body.innerHTML = recipeBuilderHTML(recs); }
+            card.setAttribute("open", "");
+            var mark = card.querySelector("summary span:last-child"); if (mark) mark.textContent = "";
+            wireRecipeBuilder(recs);
+          } else { pinErr.textContent = "Грешен PIN."; pinInput.value = ""; pinInput.focus(); }
+        }, function () { pinBtn.disabled = false; pinBtn.textContent = "Отключи"; pinErr.textContent = "Няма връзка."; });
+      };
+      pinBtn.addEventListener("click", submit);
+      pinInput.addEventListener("keydown", function (e) { if (e.key === "Enter") submit(); });
+      return;
+    }
+    wireRecipeBuilder(recs);
+  }
+
+  function wireRecipeBuilder(recs) {
+    var card = document.getElementById("recipeCard");
+    if (!card) return;
+    var nameEl = document.getElementById("rc_name");
+    if (!nameEl) return;
+    var ingWrap = document.getElementById("rc_ings");
+    var addIngBtn = document.getElementById("rc_add_ing");
+    var yieldEl = document.getElementById("rc_yield");
+    var labelEl = document.getElementById("rc_label");
+    var totalEl = document.getElementById("rc_total");
+    var perEl = document.getElementById("rc_per");
+    var warnEl = document.getElementById("rc_warn");
+    var saveEl = document.getElementById("rc_save");
+    var okEl = document.getElementById("rc_ok");
+    var editId = null;
+
+    function updateTotals() {
+      var total = 0, pend = false, any = false;
+      ingWrap.querySelectorAll(".ing-row").forEach(function (r) {
+        var d = r._data();
+        if (d.food_text) { if (!d.inBase) pend = true; else if (d.phe != null) { total += d.phe; any = true; } }
+      });
+      var y = parseFloat(yieldEl.value) || 1;
+      if (!any && !pend) { totalEl.textContent = "–"; perEl.textContent = "–"; warnEl.textContent = ""; return; }
+      totalEl.textContent = Math.round(total) + " mg" + (pend ? " +" : "");
+      perEl.textContent = Math.round(total / y) + " mg" + (pend ? " +" : "");
+      warnEl.textContent = pend ? "Има съставка без стойност — сборът ще се допълни, щом я добавя." : "";
+    }
+
+    function addRow(preset) {
+      var row = document.createElement("div"); row.className = "ing-row";
+      row.innerHTML = '<div class="ac-wrap"><input type="text" class="ing-food" autocomplete="off" placeholder="съставка (напр. Яйце)…"><div class="ac-list"></div></div>'
+        + '<div class="ing-line2"><input type="number" class="ing-qty" inputmode="decimal" step="0.5" value="1"><select class="ing-unit"></select><span class="ing-phe">–</span><button type="button" class="ing-del">×</button></div>';
+      ingWrap.appendChild(row);
+      var foodEl = row.querySelector(".ing-food"), listEl = row.querySelector(".ac-list"),
+          qtyEl = row.querySelector(".ing-qty"), unitEl = row.querySelector(".ing-unit"),
+          pheEl = row.querySelector(".ing-phe"), delEl = row.querySelector(".ing-del");
+      var units = [];
+      function findFood(n) { n = (n || "").trim().toLowerCase(); return phedb.find(function (f) { return f.food_name.toLowerCase() === n; }); }
+      function unitsFor(n) { n = (n || "").trim().toLowerCase(); return pheunits.filter(function (u) { return u.food_name.toLowerCase() === n; }).sort(function (a, b) { return (a.sort_order || 0) - (b.sort_order || 0); }); }
+      function refreshUnits(f) { units = f ? unitsFor(f.food_name) : []; unitEl.innerHTML = units.map(function (u, i) { return '<option value="' + i + '">' + esc(u.unit_label) + '</option>'; }).join("") + '<option value="g">г</option>'; }
+      function gpu() { if (unitEl.value === "g") return 1; var u = units[parseInt(unitEl.value, 10)]; return u ? u.grams_per_unit : 1; }
+      function recompute() {
+        var f = findFood(foodEl.value), qty = parseFloat(qtyEl.value);
+        if (!f) { pheEl.innerHTML = foodEl.value.trim() ? '<span class="ing-pend">чака ⏳</span>' : "–"; }
+        else if (isFinite(qty) && qty > 0) { pheEl.textContent = "≈ " + Math.round(qty * gpu() / 100 * f.phe_mg_per_100g) + " mg"; }
+        else pheEl.textContent = "–";
+        updateTotals();
+      }
+      function onFood() { refreshUnits(findFood(foodEl.value)); recompute(); }
+      function hide() { listEl.classList.remove("show"); listEl.innerHTML = ""; }
+      function show(q) { q = (q || "").trim().toLowerCase(); if (!q) { hide(); return; } var m = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8); if (!m.length) { hide(); return; } listEl.innerHTML = m.map(function (f) { return '<div class="ac-item" data-name="' + esc(f.food_name) + '">' + esc(f.food_name) + '</div>'; }).join(""); listEl.classList.add("show"); }
+      listEl.addEventListener("mousedown", function (e) { e.preventDefault(); });
+      listEl.addEventListener("click", function (e) { var it = e.target.closest(".ac-item"); if (!it) return; foodEl.value = it.getAttribute("data-name"); hide(); onFood(); });
+      foodEl.addEventListener("input", function () { show(foodEl.value); onFood(); });
+      foodEl.addEventListener("focus", function () { if (foodEl.value.trim()) show(foodEl.value); });
+      foodEl.addEventListener("blur", function () { setTimeout(hide, 120); });
+      qtyEl.addEventListener("input", recompute);
+      unitEl.addEventListener("change", recompute);
+      delEl.addEventListener("click", function () { row.remove(); updateTotals(); });
+      refreshUnits(null);
+      row._data = function () {
+        var f = findFood(foodEl.value), qty = parseFloat(qtyEl.value);
+        var g = (isFinite(qty) && qty > 0) ? qty * gpu() : null;
+        return { food_text: foodEl.value.trim(), grams: g, inBase: !!f, phe: (f && g != null) ? (g / 100 * f.phe_mg_per_100g) : null };
+      };
+      if (preset) { foodEl.value = preset.food_text || ""; onFood(); if (preset.grams != null) { unitEl.value = "g"; qtyEl.value = preset.grams; } recompute(); }
+      return row;
+    }
+
+    function resetBuilder() {
+      editId = null; nameEl.value = ""; yieldEl.value = "1"; labelEl.value = "";
+      var ie = document.getElementById("rc_instr"); if (ie) ie.value = "";
+      ingWrap.innerHTML = ""; addRow(); updateTotals();
+      saveEl.textContent = "Запиши рецептата";
+    }
+
+    addIngBtn.addEventListener("click", function () { addRow(); });
+    yieldEl.addEventListener("input", updateTotals);
+    if (!ingWrap.querySelector(".ing-row")) addRow();
+
+    saveEl.addEventListener("click", function () {
+      var name = (nameEl.value || "").trim();
+      if (!name) { okEl.textContent = "Впиши име на рецептата."; okEl.className = "ok show err"; return; }
+      var ings = [];
+      ingWrap.querySelectorAll(".ing-row").forEach(function (r) { var d = r._data(); if (d.food_text && d.grams != null) ings.push({ food_text: d.food_text, grams: d.grams }); });
+      if (!ings.length) { okEl.textContent = "Добави поне една съставка с количество."; okEl.className = "ok show err"; return; }
+      var y = parseFloat(yieldEl.value) || 1;
+      var instr = (document.getElementById("rc_instr").value || "").trim();
+      saveEl.disabled = true; saveEl.textContent = "Записване…";
+      sb.rpc("save_phe_recipe", { token: token, p_name: name, p_yield: y, p_portion_label: (labelEl.value || "").trim(), p_ingredients: ings, p_instructions: instr, p_recipe_id: editId })
+        .then(function (res) {
+          saveEl.disabled = false;
+          if (res.error) throw res.error;
+          okEl.textContent = "Записано ✓ — вече я има в търсенето на храни."; okEl.className = "ok show";
+          resetBuilder(); reload();
+        })
+        .catch(function () {
+          saveEl.disabled = false; saveEl.textContent = editId ? "Запази промените" : "Запиши рецептата";
+          okEl.textContent = "Неуспешно. Опитай пак."; okEl.className = "ok show err";
+        });
+    });
+
+    card.querySelectorAll(".rc-edit").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var r = (recs || []).find(function (x) { return String(x.id) === String(b.getAttribute("data-id")); });
+        if (!r) return;
+        editId = r.id; nameEl.value = r.name; yieldEl.value = r.yield_portions || 1; labelEl.value = r.portion_label || "";
+        var ie = document.getElementById("rc_instr"); if (ie) ie.value = r.instructions || "";
+        ingWrap.innerHTML = "";
+        (r.ingredients || []).forEach(function (g) { addRow({ food_text: g.food_text, grams: g.grams }); });
+        if (!ingWrap.querySelector(".ing-row")) addRow();
+        saveEl.textContent = "Запази промените"; updateTotals();
+        card.setAttribute("open", ""); nameEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+    });
+    card.querySelectorAll(".rc-del").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Изтрий тази рецепта?")) return;
+        sb.rpc("delete_phe_recipe", { token: token, p_recipe_id: b.getAttribute("data-id") })
+          .then(function (res) { if (res.error) throw res.error; reload(); })
+          .catch(function () { alert("Неуспешно. Опитай пак."); });
+      });
+    });
+  }
+
+  function reload() {
+    Promise.all([
+      sb.rpc("get_phe_today", { token: token }),
+      sb.rpc("get_phe_log", { token: token, from_date: "2020-01-01" }),   // цялата история (за месечния архив); лентата/днес пак смятат по дата
+      sb.rpc("get_blood_trend", { token: token }),
+      sb.rpc("get_pending_foods", { token: token }),
+      sb.rpc("get_phe_recipes", { token: token }),
+      sb.rpc("get_phe_events", { token: token })
+    ]).then(function (results) {
+      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3], recRes = results[4], evRes = results[5];
+      if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
+      recipes = (recRes && recRes.data) || [];
+      events = (evRes && evRes.data) || [];
+      var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green", has_pin: false };
+      render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
+    }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
+  }
+
+  // Опреснява САМО секциите с данни (лента + лог/чакащи/днес/история) — БЕЗ да разгражда формата
+  // „Добави храна" (детето продължава да логва без прекъсване; не губи какво пише).
+  function refreshLog() {
+    Promise.all([
+      sb.rpc("get_phe_log", { token: token, from_date: "2020-01-01" }),
+      sb.rpc("get_pending_foods", { token: token })
+    ]).then(function (r) {
+      var log = (r[0] && r[0].data) || [];
+      var pending = (r[1] && r[1].data) || [];
+      var bar = document.getElementById("sec_bar");
+      var seclog = document.getElementById("sec_log");
+      if (bar) bar.innerHTML = renderBar(log);
+      if (seclog) seclog.innerHTML = renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr());
+    }).catch(function () {});
+  }
+
+  Promise.all([
+    sb.from("phe_db").select("food_name,phe_mg_per_100g,category,note,unit_grams,unit_label,is_measured"),
+    sb.from("phe_units").select("food_name,unit_label,grams_per_unit,sort_order")
+  ]).then(function (results) {
+    if (!results[0].error && results[0].data) phedb = results[0].data;
+    if (!results[1].error && results[1].data) pheunits = results[1].data;
+    reload();
+  }, function () { reload(); });
+})();
+</script>
+</body>
+</html>
