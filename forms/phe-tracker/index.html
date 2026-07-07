@@ -209,6 +209,14 @@
   .logitem:last-child { border-bottom: none; }
   .logitem .tm { color: var(--muted); font-size: 13px; }
   .logitem .amt { color: var(--accent-dark); font-weight: 600; white-space: nowrap; margin-left: 8px; }
+  /* Режим поправка на „Днес": 🗑 до всеки запис */
+  .logitem.editing > span:first-child { flex: 1 1 auto; min-width: 0; }
+  .logitem .ent-del { flex: none; width: auto; margin: 0 0 0 10px; padding: 3px 9px; background: #fff; background-image: none; color: var(--red); border: 1px solid var(--red); border-radius: 8px; font-size: 15px; line-height: 1.1; }
+  /* Малка молив-икона в заглавието на „Днес" (режим поправка) */
+  .today-edit-ic { width: auto; margin: 0 12px 0 0; padding: 2px 5px; background: transparent; background-image: none; color: var(--accent-dark); border: none; font-size: 17px; line-height: 1; cursor: pointer; }
+  .today-edit-ic.on { color: var(--green); }
+  .today-edit-ic:active { background: transparent; }
+  .today-edit-ic svg { display: block; }
 
   .bloodrow { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
   .bloodrow:last-child { border-bottom: none; }
@@ -418,6 +426,25 @@
   var token = new URLSearchParams(location.search).get("t");
   if (!token) { showMissingToken("cdbgym_phe_token"); return; }
 
+  // „Режим поправка" на картата „Днес" (само днешните записи; в паметта — рефреш го изключва).
+  var todayEditMode = false;
+  document.addEventListener("click", function (e) {
+    var editBtn = e.target.closest ? e.target.closest("#today_edit") : null;
+    if (editBtn) { todayEditMode = !todayEditMode; refreshLog(); return; }
+    var delBtn = e.target.closest ? e.target.closest(".ent-del") : null;
+    if (delBtn) {
+      var id = delBtn.getAttribute("data-id");
+      if (!id) return;
+      if (!confirm("Изтрий този запис?")) return;
+      delBtn.disabled = true;
+      sb.rpc("delete_phe_entry", { token: token, p_entry_id: id }).then(function (res) {
+        if (res.error) { alert("Неуспешно. Опитай пак."); delBtn.disabled = false; return; }
+        refreshLog();
+      }).catch(function () { alert("Няма връзка."); delBtn.disabled = false; });
+      return;
+    }
+  });
+
   function daysBetween(dStr, today) {
     if (!dStr) return null;
     var d = new Date(dStr + "T00:00:00"), t = new Date(today + "T00:00:00");
@@ -515,10 +542,11 @@
     return fmtDate(dStr);
   }
 
-  function entryLine(e) {
+  function entryLine(e, withDel) {
     var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : "чака ⏳";
     var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null && e.grams > 0 ? " (" + e.grams + "г)" : "");
-    return '<div class="logitem"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span></div>';
+    var del = withDel ? '<button type="button" class="ent-del" data-id="' + esc(e.id) + '" title="Изтрий">🗑</button>' : '';
+    return '<div class="logitem' + (withDel ? ' editing' : '') + '"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span>' + del + '</div>';
   }
 
   // Карта „Днес" — отделна, ВИНАГИ видима; само днешните записи (Вариант А).
@@ -529,11 +557,20 @@
     var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
     var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
     var body = arr.length
-      ? arr.map(entryLine).join("")
+      ? arr.map(function (e) { return entryLine(e, todayEditMode); }).join("")
       : '<p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Още няма записи за днес.</p>';
+    var pencilSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
+    var checkSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    var editIc = arr.length
+      ? '<button type="button" id="today_edit" class="today-edit-ic' + (todayEditMode ? ' on' : '') + '" title="Поправи">' + (todayEditMode ? checkSvg : pencilSvg) + '</button>'
+      : '';
     return '<div class="card todaycard">'
       + '<div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">'
-      + '<span>🍽️ Днес</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      + '<span>🍽️ Днес</span>'
+      + '<span style="display:flex;align-items:center;gap:6px;">'
+      +   '<span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      +   editIc
+      + '</span>'
       + '</div>'
       + '<div class="card daybox">' + body + '</div></div>';
   }
