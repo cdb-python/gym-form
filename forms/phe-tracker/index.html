@@ -736,7 +736,8 @@
         recPicklist.innerHTML = '<p class="hint" style="margin:6px 0">Още няма рецепти. Създай в „Въведи рецепта" по-долу (за родителя).</p>';
         return;
       }
-      recPicklist.innerHTML = recipes.map(function (r) {
+      var sorted = recipes.slice().sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "bg"); });
+      recPicklist.innerHTML = sorted.map(function (r) {
         var per = r.phe_per_portion != null ? (Math.round(r.phe_per_portion) + " mg/бр") : "чака ⏳";
         return '<button type="button" class="rec-pick" data-id="' + esc(r.id) + '"><span class="rp-name">' + esc(r.name) + '</span><span class="rp-per">' + per + '</span></button>';
       }).join("");
@@ -1025,7 +1026,7 @@
   // ── Рецепти ──────────────────────────────────────────────────────────────
   function renderRecipeLib(recs) {
     if (!recs || !recs.length) return "";
-    var items = recs.map(function (r) {
+    var items = recs.slice().sort(function (a, b) { return String(a.name || "").localeCompare(String(b.name || ""), "bg"); }).map(function (r) {
       var plabel = r.portion_label || "порция";      // множествено, както е в базата
       var yn = r.yield_portions || 1;
       var per = r.phe_per_portion != null
