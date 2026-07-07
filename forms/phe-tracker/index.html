@@ -478,7 +478,7 @@
 
   function renderBar(log) {
     // Три плъзгащи прозореца от лога (get_phe_log връща последните 30 дни): днес · последни 7 · последни 30.
-    // Голямото число = сбор за периода; ситният ред = норма (ядения за деня, mg/ден за седмица/месец).
+    // Голямото число = сбор за периода; ситният ред = норма (брой записи за деня, mg/ден за седмица/месец).
     // Чакащите (⏳, phe_mg=null) нямат стойност → не влизат в сбора → слагаме „+" (= „поне толкова").
     var today = todayStr();
     var tSum = 0, tCount = 0, tPend = false;
@@ -494,7 +494,7 @@
       if (diff <= 29) { if (hasPhe) mSum += val; else mPend = true; mDays[e.entry_date] = 1; }
     });
     var wD = Object.keys(wDays).length, mD = Object.keys(mDays).length;
-    var mealsWord = tCount === 1 ? "ядене" : "ядения";
+    var mealsWord = tCount === 1 ? "запис" : "записа";
     var wSub = wD ? (Math.round(wSum / wD) + (wPend ? "+" : "") + " mg/ден") : "—";
     var mSub = mD ? (Math.round(mSum / mD) + (mPend ? "+" : "") + " mg/ден") : "—";
     return '<div class="bar">'
