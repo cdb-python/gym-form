@@ -252,6 +252,33 @@
   .addsw .sw-side.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
   .addsw .sw-side:active { background-color: var(--accent-dark); }
   #f_freetext { min-height: 92px; }
+
+  /* 3-сегментен ключ: Списък · Рецепти · Свободно (заглавието „Добави храна" отгоре). */
+  .addhead { font-weight: 800; font-size: 15px; color: var(--accent-dark); text-align: center; margin: 0 0 8px; }
+  .segbar { display: flex; gap: 6px; margin: 0 0 12px; }
+  .segbar .seg {
+    flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding: 8px 4px; font-size: 12.5px; font-weight: 700; line-height: 1.15;
+    background: #fff; background-image: none; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 9px; white-space: nowrap;
+  }
+  .segbar .seg.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
+  .segbar .seg:active { background-color: var(--accent-dark); }
+
+  /* Режим „Рецепти" — скролваща листа за избор */
+  .rec-picklist { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; margin: 2px 0 4px; }
+  .rec-pick {
+    width: 100%; margin: 0; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 12px 14px; font-size: 15px; font-weight: 600;
+    background: #fff; background-image: none; color: var(--ink);
+    border: 1.5px solid var(--border); border-radius: 10px;
+  }
+  .rec-pick .rp-name { flex: 1 1 auto; }
+  .rec-pick .rp-per { flex: none; color: var(--accent-dark); font-weight: 700; font-size: 13px; white-space: nowrap; }
+  .rec-pick.sel { border-color: var(--accent); background: var(--soft); }
+  .rec-chosen-name { font-weight: 700; color: var(--accent-dark); margin: 14px 0 0; }
+  .recqtyrow { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
+  .recqtyrow input { flex: 0 0 70px; }
+  .recqtyrow .lbl2 { color: var(--muted); }
 </style>
 </head>
 <body>
@@ -387,10 +414,10 @@
 
   function renderAddForm() {
     return '<div class="card">'
-      + '<div class="t addsw">'
-      +   '<button type="button" class="sw-side on" id="sw_list">🍎 Списък</button>'
-      +   '<span class="sw-mid">Добави храна</span>'
-      +   '<button type="button" class="sw-side" id="sw_free">✍ Свободно</button>'
+      + '<div class="segbar">'
+      +   '<button type="button" class="seg on" id="sw_list">🍎 Храни</button>'
+      +   '<button type="button" class="seg" id="sw_recipes">🍳 Рецепти</button>'
+      +   '<button type="button" class="seg" id="sw_free">✍ Свободно</button>'
       + '</div>'
       + '<div id="mode_list">'
       +   '<div class="ac-wrap">'
@@ -406,11 +433,19 @@
       +   '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
       +   '<div id="f_newfood"></div>'
       + '</div>'
+      + '<div id="mode_recipes" style="display:none">'
+      +   '<div class="rec-picklist" id="rec_picklist"></div>'
+      +   '<div id="rec_chosen" style="display:none">'
+      +     '<div class="rec-chosen-name" id="rec_chosen_name"></div>'
+      +     '<div class="recqtyrow"><input type="text" id="rec_qty" inputmode="decimal" autocomplete="off" data-lpignore="true" value="1" placeholder="порции"><span class="lbl2" id="rec_qty_lbl">порции</span></div>'
+      +     '<p class="hint" id="rec_preview"></p>'
+      +   '</div>'
+      + '</div>'
       + '<div id="mode_free" style="display:none">'
       +   '<textarea id="f_freetext" rows="4" placeholder="Опиши какво е яла — напр. „една шепа бял ориз + 2 филии хляб с малко масло“. Записва се и фениланинът се смята после."></textarea>'
       +   '<p class="hint">Свободен текст — влиза като „⏳ чака“ и се пресмята по-късно. Базата расте от тези записи.</p>'
       + '</div>'
-      + '<button type="button" id="saveBtn">Запиши</button>'
+      + '<button type="button" id="saveBtn">Запиши храната</button>'
       + '<div class="ok" id="okMsg"></div>'
       + '</div>';
   }
@@ -651,24 +686,38 @@
     var selectedRecipe = null; // ако е избрана рецепта → логваме по брой порции
     var listBlocked = false;   // в „От списъка": вписана храна извън базата → блокирано (насочваме към Свободен текст)
 
-    // ── Превключвател на режима (заглавието е ключ) ─────────────────────────
+    // ── 3-сегментен превключвател: Списък · Рецепти · Свободно ──────────────
     var mode = "list"; // ВИНАГИ дефолт при всеки рендер/рефреш (нула персистенция)
     var swList = document.getElementById("sw_list");
+    var swRecipes = document.getElementById("sw_recipes");
     var swFree = document.getElementById("sw_free");
     var modeList = document.getElementById("mode_list");
+    var modeRecipes = document.getElementById("mode_recipes");
     var modeFree = document.getElementById("mode_free");
     var freeEl = document.getElementById("f_freetext");
+    // Режим „Рецепти" елементи
+    var recPicklist = document.getElementById("rec_picklist");
+    var recChosen = document.getElementById("rec_chosen");
+    var recChosenName = document.getElementById("rec_chosen_name");
+    var recQtyEl = document.getElementById("rec_qty");
+    var recQtyLbl = document.getElementById("rec_qty_lbl");
+    var recPreviewEl = document.getElementById("rec_preview");
+    var pickedRecipe = null; // избраната рецепта в режим „Рецепти"
+
     function setMode(m) {
       mode = m;
-      var free = (m === "free");
-      modeFree.style.display = free ? "" : "none";
-      modeList.style.display = free ? "none" : "";
-      swFree.classList.toggle("on", free);
-      swList.classList.toggle("on", !free);
+      modeList.style.display = m === "list" ? "" : "none";
+      modeRecipes.style.display = m === "recipes" ? "" : "none";
+      modeFree.style.display = m === "free" ? "" : "none";
+      swList.classList.toggle("on", m === "list");
+      swRecipes.classList.toggle("on", m === "recipes");
+      swFree.classList.toggle("on", m === "free");
       okMsg.className = "ok"; okMsg.textContent = "";
-      if (free) { setTimeout(function () { try { freeEl.focus(); } catch (e) {} }, 30); }
+      if (m === "recipes") { renderRecList(); }
+      if (m === "free") { setTimeout(function () { try { freeEl.focus(); } catch (e) {} }, 30); }
     }
     swList.addEventListener("click", function () { setMode("list"); });
+    swRecipes.addEventListener("click", function () { setMode("recipes"); });
     swFree.addEventListener("click", function () { setMode("free"); });
     // бутонът „→ Премести в свободен текст" в банера (делегирано — банерът се пре-рендира при всяка буква)
     newfoodEl.addEventListener("click", function (e) {
@@ -678,6 +727,63 @@
         if (t) { freeEl.value = t; }
       }
     });
+
+    // ── Режим „Рецепти": листа за избор → брой порции → Запиши ──────────────
+    function renderRecList() {
+      pickedRecipe = null;
+      recChosen.style.display = "none";
+      if (!recipes.length) {
+        recPicklist.innerHTML = '<p class="hint" style="margin:6px 0">Още няма рецепти. Създай в „Въведи рецепта" по-долу (за родителя).</p>';
+        return;
+      }
+      recPicklist.innerHTML = recipes.map(function (r) {
+        var per = r.phe_per_portion != null ? (Math.round(r.phe_per_portion) + " mg/бр") : "чака ⏳";
+        return '<button type="button" class="rec-pick" data-id="' + esc(r.id) + '"><span class="rp-name">' + esc(r.name) + '</span><span class="rp-per">' + per + '</span></button>';
+      }).join("");
+    }
+    function updateRecPreview() {
+      if (!pickedRecipe) { recPreviewEl.textContent = ""; return; }
+      var pq = parseFloat(recQtyEl.value);
+      var plabel = pickedRecipe.portion_label || "порция";
+      var per = pickedRecipe.phe_per_portion;
+      if (!isFinite(pq) || pq <= 0) { recPreviewEl.textContent = "Впиши брой (" + plabel + ")"; return; }
+      recPreviewEl.textContent = per != null
+        ? (pq + " × " + Math.round(per) + " mg ≈ " + Math.round(pq * per) + " mg фениланин")
+        : "Рецептата още чака стойност на съставка — ще се уточни.";
+    }
+    recPicklist.addEventListener("click", function (e) {
+      var b = e.target.closest(".rec-pick");
+      if (!b) return;
+      var r = recipes.find(function (x) { return String(x.id) === String(b.getAttribute("data-id")); });
+      if (!r) return;
+      pickedRecipe = r;
+      Array.prototype.slice.call(recPicklist.querySelectorAll(".rec-pick")).forEach(function (x) { x.classList.remove("sel"); });
+      b.classList.add("sel");
+      recChosenName.textContent = r.name;
+      recQtyLbl.textContent = r.portion_label || "порции";
+      recQtyEl.value = "1";
+      recChosen.style.display = "";
+      updateRecPreview();
+    });
+    recQtyEl.addEventListener("input", updateRecPreview);
+
+    function saveRecipeMode() {
+      if (!pickedRecipe) { okMsg.textContent = "Избери рецепта от списъка."; okMsg.className = "ok show err"; return; }
+      var pq = parseFloat(recQtyEl.value);
+      if (!isFinite(pq) || pq <= 0) { okMsg.textContent = "Впиши брой порции."; okMsg.className = "ok show err"; return; }
+      saveBtn.disabled = true; saveBtn.textContent = "Записване…";
+      sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: pickedRecipe.id, p_portions: pq })
+        .then(function (res) {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
+          if (res.error) throw res.error;
+          okMsg.textContent = "Записано ✓"; okMsg.className = "ok show";
+          reload();
+        })
+        .catch(function () {
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
+          okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
+        });
+    }
 
     function findFood(name) {
       var n = (name || "").trim().toLowerCase();
@@ -822,19 +928,20 @@
       // p_grams=0 (non-null, без съвпадение в базата) → pending=true; phe_mg остава null → „чака ⏳"
       sb.rpc("add_phe_entry", { token: token, p_food_text: text, p_grams: 0, p_phe_mg: null })
         .then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           if (res.error) throw res.error;
           okMsg.textContent = "Записано ✓ Ще му сметнем фениланина."; okMsg.className = "ok show";
           freeEl.value = ""; reload();
         })
         .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
         });
     }
 
     saveBtn.addEventListener("click", function () {
       if (mode === "free") { saveFree(); return; }
+      if (mode === "recipes") { saveRecipeMode(); return; }
       var qty = parseFloat(qtyEl.value);
 
       if (selectedRecipe) {
@@ -842,13 +949,13 @@
         saveBtn.disabled = true; saveBtn.textContent = "Записване…";
         sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: selectedRecipe.id, p_portions: qty })
           .then(function (res) {
-            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+            saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
             if (res.error) throw res.error;
             okMsg.textContent = "Записано ✓"; okMsg.className = "ok show";
             resetForm(); reload();
           })
           .catch(function () {
-            saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+            saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
             okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
           });
         return;
@@ -868,7 +975,7 @@
         : sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
 
       call.then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           if (res.error) throw res.error;
           var isPending = res.data && res.data[0] && res.data[0].is_pending;
           okMsg.textContent = isPending
@@ -879,7 +986,7 @@
           reload();
         })
         .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши";
+          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           okMsg.textContent = "Неуспешно. Опитай пак.";
           okMsg.className = "ok show err";
         });
