@@ -112,8 +112,9 @@
     display: flex; justify-content: space-between; align-items: center; gap: 10px; color: var(--ink);
   }
   details.daycard summary::-webkit-details-marker { display: none; }
-  details.daycard summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
-  details.daycard[open] summary::after { content: "\2212"; }
+  /* Маркерът „+"/„−" е за СОБСТВЕНАТА карта (директно дете), не наследен от отворен родител-акордеон. */
+  details.daycard > summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 700; flex: none; }
+  details.daycard[open] > summary::after { content: "\2212"; }
   details.daycard summary .cnt { color: var(--muted); font-size: 13.5px; font-weight: 600; }
   .daymg { color: var(--accent-dark); font-weight: 700; }
   /* Рецептна библиотека: per-ът на ДВА реда (Android) — mg/бр отгоре (оранжево), бройка отдолу (черно) */
@@ -128,8 +129,14 @@
   /* „Днес" = външна карта КАТО другите (тониран фон + шарка); записите вътре са в БЯЛА карта-в-картата
      (класът .daybox е вложен .card → правилото „.card .card → бяло" по-долу го прави бял). */
   .todaycard .daybox { margin: 0; padding: 2px 14px; border-left: 1px solid var(--border); }
-  /* История: месецът = леко тониран контейнер (дните бели вътре); месечните заглавия в оранжево — за йерархия. */
-  details.hist-outer details.daycard.monthcard { background-color: var(--soft); }
+  /* История: месецът = тониран контейнер + СЪЩАТА бледа плодова шарка като горните карти (дните бели вътре);
+     месечните заглавия в оранжево — за йерархия. (Шарката е дублирана от .card по-долу — стабилна, за да не пипам голямото правило.) */
+  details.hist-outer details.daycard.monthcard {
+    background-color: var(--soft);
+    background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27220%27%20viewBox%3D%270%200%20220%20220%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%238a5a1a%27%20stroke-width%3D%272.1%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%270.10%27%3E%3Cg%20transform%3D%27translate%2830%2C34%29%20rotate%28-12%29%27%3E%3Cpath%20d%3D%27M0%2C4%20C-11%2C4%20-15%2C14%20-12%2C22%20C-9%2C30%20-3%2C32%200%2C27%20C3%2C32%209%2C30%2012%2C22%20C15%2C14%2011%2C4%200%2C4%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C4%20C0%2C-2%203%2C-6%208%2C-7%27%2F%3E%3Cpath%20d%3D%27M2%2C2%20C6%2C-4%2013%2C-4%2015%2C0%20C10%2C3%204%2C3%202%2C2%20Z%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28160%2C30%29%20rotate%2810%29%27%3E%3Cpath%20d%3D%27M0%2C-14%20C1%2C-8%20-1%2C-4%20-6%2C1%20C-12%2C7%20-12%2C20%20-3%2C24%20C6%2C28%2012%2C20%209%2C10%20C6%2C2%206%2C-6%204%2C-14%27%2F%3E%3Cpath%20d%3D%27M2%2C-14%20C4%2C-19%209%2C-20%2011%2C-18%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2824%2C108%29%20rotate%286%29%27%3E%3Cpath%20d%3D%27M2%2C-16%20C6%2C-8%2010%2C-6%2013%2C-4%27%2F%3E%3Cpath%20d%3D%27M2%2C-16%20C0%2C-8%20-6%2C-4%20-9%2C0%27%2F%3E%3Ccircle%20cx%3D%27-11%27%20cy%3D%276%27%20r%3D%277%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274%27%20r%3D%277%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28108%2C96%29%20rotate%28-4%29%27%3E%3Cpath%20d%3D%27M0%2C20%20C-2%2C6%206%2C-10%2020%2C-18%20C14%2C-2%2010%2C10%200%2C20%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C20%20C4%2C8%2010%2C-2%2018%2C-14%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28176%2C104%29%27%3E%3Cpath%20d%3D%27M0%2C-16%20C-2%2C-12%200%2C-9%202%2C-8%27%2F%3E%3Ccircle%20cx%3D%27-8%27%20cy%3D%27-4%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%273%27%20cy%3D%27-5%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%27-3%27%20cy%3D%274%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%278%27%20cy%3D%273%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%2712%27%20r%3D%275.2%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2844%2C176%29%20rotate%2820%29%27%3E%3Cpath%20d%3D%27M-8%2C-10%20C-4%2C-6%204%2C-6%208%2C-10%20C4%2C12%200%2C20%200%2C20%20C0%2C20%20-4%2C12%20-8%2C-10%20Z%27%2F%3E%3Cpath%20d%3D%27M-6%2C-10%20C-8%2C-18%20-6%2C-22%20-4%2C-24%27%2F%3E%3Cpath%20d%3D%27M0%2C-11%20C0%2C-20%202%2C-24%204%2C-26%27%2F%3E%3Cpath%20d%3D%27M6%2C-10%20C10%2C-17%2010%2C-22%209%2C-24%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28112%2C182%29%20rotate%28-8%29%27%3E%3Cpath%20d%3D%27M-12%2C-6%20C-10%2C10%200%2C18%200%2C18%20C0%2C18%2010%2C10%2012%2C-6%20C6%2C-2%20-6%2C-2%20-12%2C-6%20Z%27%2F%3E%3Cpath%20d%3D%27M-12%2C-6%20C-8%2C-12%20-3%2C-13%200%2C-9%20C3%2C-13%208%2C-12%2012%2C-6%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28180%2C176%29%20rotate%288%29%27%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2715%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2710.5%27%2F%3E%3Cpath%20d%3D%27M0%2C0%20L0%2C-10.5%20M0%2C0%20L9%2C-5.4%20M0%2C0%20L9%2C5.4%20M0%2C0%20L0%2C10.5%20M0%2C0%20L-9%2C5.4%20M0%2C0%20L-9%2C-5.4%27%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
+    background-size: 150px;
+    background-repeat: repeat;
+  }
   details.daycard.monthcard > summary { color: var(--accent-dark); }
 
   /* Блед винтидж хранителен фон (контурни плодове/зеленчуци) на белите карти.
@@ -164,6 +171,8 @@
   }
   button:active { background-color: var(--accent-dark); }
   button.ghost { background-color: #fff; background-image: none; color: var(--accent-dark); border: 1px solid var(--accent); }
+  /* Временно „записано" състояние — плътно зелено с тикче (после се връща). */
+  button.saved, button.saved:active { background-color: var(--green); background-image: none; }
   .row2 { display: flex; gap: 10px; }
   .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; }
@@ -205,7 +214,19 @@
   .bloodrow .v { font-weight: 700; }
   .bloodrow .v.hi { color: var(--red); }
   .bloodrow .v.ok { color: var(--green); }
-  .bloodrow .wkflag { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin-left: 8px; }
+  /* Кръвен вход: дата + резултат един до друг (да не дължим картата). */
+  .brow { display: flex; gap: 10px; }
+  .brow .bcol { flex: 1 1 0; min-width: 0; }
+  .brow .bcol label { margin-top: 0; }
+  /* Кръвни стойности — собствени класове (НЕ „ok"/„hi" — те се разбиват с .ok на съобщението). 3 цвята. */
+  .bval { font-weight: 700; font-size: 14.5px; }
+  .bval.bnorm { color: #2e8b57; }   /* ≤6 в норма — зелено */
+  .bval.bwarn { color: #e0821e; }   /* 6–8 завишено — оранжево */
+  .bval.bhigh { color: #c43d3d; }   /* >8 над тавана — червено */
+  .wkflag { display: inline-block; background: #fdf0d5; color: var(--yellow); font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin-left: 6px; white-space: nowrap; }
+  /* В заглавието на кръвната карта: датата+етикетът на един ред (не се пренасят), числото вдясно. */
+  #parentBody details.daycard > summary { flex-wrap: nowrap; }
+  #parentBody details.daycard > summary > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
@@ -458,7 +479,7 @@
         : esc(r.food_text);
       return '<div class="pendrow"><span>' + label + '</span></div>';
     }).join("");
-    return '<div class="card"><div class="t">Чакащи изчисление</div><p class="hint" style="margin:0 0 8px">Тези записи чакат да им бъде изчислен фениланинът — ще стане скоро.</p>' + lines + '</div>';
+    return '<div class="card"><div class="t">⏳ Чакащи изчисление</div><p class="hint" style="margin:0 0 8px">Тези записи чакат да им бъде изчислен фениланинът — ще стане скоро.</p>' + lines + '</div>';
   }
 
   function dayLabel(dStr, today) {
@@ -487,7 +508,7 @@
       : '<p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Още няма записи за днес.</p>';
     return '<div class="card todaycard">'
       + '<div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">'
-      + '<span>Днес</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      + '<span>🍽️ Днес</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
       + '</div>'
       + '<div class="card daybox">' + body + '</div></div>';
   }
@@ -546,29 +567,62 @@
 
     var dayWord = totalDays === 1 ? " ден" : " дни";
     return '<details class="hist-outer">'   // БЕЗ open → свита по подразбиране
-      + '<summary><span>История</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + totalDays + dayWord + '</span></summary>'
+      + '<summary><span>📅 История</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + totalDays + dayWord + '</span></summary>'
       + '<div class="hist-body">' + monthCards + '</div></details>';
   }
 
+  // Цвят/състояние на кръвна стойност (mg/%). Цел 120–360 µmol/L ≈ 2–6 mg/%; таван ≤ 8.
+  function bloodStatus(mg) {
+    mg = Number(mg);
+    if (mg > 8) return { cls: "bhigh", word: "над тавана" };
+    if (mg > 6) return { cls: "bwarn", word: "завишено" };
+    return { cls: "bnorm", word: "в норма" };
+  }
+
   function bloodInner(rows) {
-    var form = '<label>Дата на пробата</label>'
-      + '<input type="date" id="b_date" value="' + todayStr() + '">'
-      + '<label>Резултат (mg/%)</label>'
-      + '<input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2">'
+    var form = '<div class="brow">'
+      + '<div class="bcol"><label>Дата на пробата</label><input type="date" id="b_date" value="' + todayStr() + '"></div>'
+      + '<div class="bcol"><label>Резултат (mg/%)</label><input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2"></div>'
+      + '</div>'
       + '<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;"><input type="checkbox" id="b_flag" style="width:auto;"> Особена седмица (болест/пропусната формула/лекарство с аспартам)</label>'
       + '<button type="button" id="bloodBtn">Запиши резултат</button>'
       + '<div class="ok" id="bloodOk"></div>';
     var hist = '';
     if (rows.length) {
-      var trendRows = rows.map(function (r) {
-        var cls = r.mg_percent > 8 ? "hi" : "ok";
-        var flag = r.flag_unusual_week ? '<span class="wkflag">⚠ особена седмица</span>' : '';
-        return '<div class="bloodrow"><span>' + esc(fmtDate(r.sample_date)) + flag + '</span><span class="v ' + cls + '">' + r.mg_percent + ' mg/%</span></div>';
+      // 3 нива като хранителната История: Хронология → Месец (тониран) → дата (бяла) → детайл.
+      var sorted = rows.slice().sort(function (a, b) { return a.sample_date < b.sample_date ? 1 : (a.sample_date > b.sample_date ? -1 : 0); });
+      var monthOrder = [], monthRows = {};
+      sorted.forEach(function (r) {
+        var ym = String(r.sample_date).slice(0, 7);
+        if (!monthRows[ym]) { monthRows[ym] = []; monthOrder.push(ym); }
+        monthRows[ym].push(r);
+      });
+      function readingCard(r) {
+        var st = bloodStatus(r.mg_percent);
+        var flagSum = r.flag_unusual_week ? ' <span class="wkflag">⚠ Особ. сед.</span>' : '';
+        var weekLine = r.flag_unusual_week
+          ? '<span class="wkflag">⚠ Особена седмица</span>' + (r.flag_note ? ' — ' + esc(r.flag_note) : '')
+          : 'без Особена седмица';
+        return '<details class="daycard">'
+          + '<summary><span>' + esc(fmtDate(r.sample_date)) + flagSum + '</span>'
+          + '<span class="cnt"><b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></span></summary>'
+          + '<div class="dbody">'
+          +   '<div style="padding:4px 0 2px">генетично изследване: <b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></div>'
+          +   '<div style="color:var(--muted);font-size:13.5px">' + weekLine + '</div>'
+          + '</div></details>';
+      }
+      var monthCards = monthOrder.map(function (ym) {
+        var rs = monthRows[ym];
+        var sum = 0; rs.forEach(function (r) { sum += Number(r.mg_percent); });
+        var avg = Math.round((sum / rs.length) * 10) / 10;
+        var rWord = rs.length === 1 ? " резултат" : " резултата";
+        return '<details class="daycard monthcard"><summary><span>' + esc(monthLabel(ym)) + '</span><span class="cnt">' + rs.length + rWord + ' · средно <b class="bval ' + bloodStatus(avg).cls + '">~' + avg + ' mg/%</b></span></summary>'
+          + '<div class="dbody">' + rs.map(readingCard).join("") + '</div></details>';
       }).join("");
       var word = rows.length === 1 ? " резултат" : " резултата";
       hist = '<details class="hist-outer" open style="margin-top:16px">'
-        + '<summary><span>Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
-        + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Таван ≤ 8 mg/%. Зелено = в норма, червено = над тавана.</p>' + trendRows + '</div></details>';
+        + '<summary><span>📈 Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
+        + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Цел ≤ 6 mg/% (в норма) · 6–8 завишено · над 8 = над тавана.</p>' + monthCards + '</div></details>';
     }
     return form + hist;
   }
@@ -580,34 +634,48 @@
 
   function renderHelp() {
     var items = ''
-      + helpItem("Какво е това?",
-          '<p>Тук се записва какво яде Криста. Приложението смята колко фениланин има в храната — така всеки ден се вижда лесно и се трупа история.</p>')
-      + helpItem("Как да добавя храна?",
-          '<p>1. Пиши храната в полето „Добави храна" — щом почнеш, излизат подсказки; докосни своята.</p>'
-          + '<p>2. Избери количество: число и мярка от списъка (например „1 ябълка", „2 филии", „7 лъжици").</p>'
-          + '<p>3. Долу се показва колко фениланин ще се запише. Натисни „Запиши".</p>'
-          + '<p>В същото поле излизат и запазените <b>рецепти</b> (с надпис „рецепта") — за тях виж по-долу.</p>')
-      + helpItem("Как да запиша готово ястие (рецепта)?",
-          '<p>За ястия, които се готвят често (например палачинки), има запазена рецепта. В „Добави храна" напиши името ѝ, избери я от подсказките (пише „рецепта") и въведи само <b>колко порции</b> е изяла (например 3 палачинки).</p>'
+      + helpItem("ℹ️ Какво е това?",
+          '<p>Тук се записва какво яде Криста. Приложението смята колко фениланин (Phe) има в храната — така всеки ден се вижда с един поглед колко е събрала, трупа се история по дни и месеци, а най-долу се пазят и кръвните резултати.</p>')
+      + helpItem("🔀 Трите бутона: Храни · Рецепти · Свободно",
+          '<p>Горе има три бутона — три начина да запишеш храна:</p>'
+          + '<p>🍎 <b>Храни</b> — избираш храна от списъка; смята се сама.</p>'
+          + '<p>🍳 <b>Рецепти</b> — избираш готово ястие и казваш само колко порции.</p>'
+          + '<p>✍ <b>Свободно</b> — пишеш със свои думи, когато е нещо смесено или го няма в списъка.</p>')
+      + helpItem("🍎 Добавяне от списъка",
+          '<p>1. Пиши храната — щом почнеш, излизат подсказки; докосни своята.</p>'
+          + '<p>2. Избери количество: число + мярка (например „1 ябълка", „2 филии", „7 лъжици").</p>'
+          + '<p>3. Долу пише колко фениланин ще се запише. Натисни „Запиши храната" — бутонът светва зелено „✓ Храната записана", после веднага можеш да добавиш следващата.</p>')
+      + helpItem("🍳 Записване на рецепта",
+          '<p>Натисни бутона „🍳 Рецепти" — излиза списък с готовите ястия (например палачинки). Докосни ястието и въведи само <b>колко порции</b> е изяла.</p>'
           + '<p>Фениланинът се смята сам — не се въвеждат съставки всеки път.</p>')
-      + helpItem("Ако храната я няма в списъка?",
-          '<p>Понякога Криста яде нещо, което още не е в приложението. Просто го запиши — приема се и се показва в „Чакащи". Стойността му се добавя скоро, за да се смята точно следващия път.</p>')
-      + helpItem("Ако мярката я няма?",
-          '<p>До мерките има поле „друга мярка". Ако търсената я няма (например „шепа малини" или „половин филийка с масло") — напиши я със свои думи и числото. И то отива в „Чакащи", за да се добави.</p>')
-      + helpItem("Числото за деня",
-          '<p>Горе „Днес: … mg" показва колко фениланин е събран за деня от записаните храни. Няма строг таван — това е само сбор, за да се вижда денят с един поглед.</p>')
-      + helpItem("История по дни",
-          '<p>Всеки ден се пази отделно. До всеки ден пише сборът фениланин за него (например „2 записа · 632 mg") — така се вижда с един поглед колко е яла всеки ден, дори без да отваряш деня. Докосни ден, за да видиш какво е записано.</p>')
-      + helpItem("Въвеждане на рецепти (за родителя)",
+      + helpItem("✍ Кога да ползвам Свободно?",
+          '<p>За смесени ястия или храна, която още я няма в списъка. Натисни „✍ Свободно" и опиши със свои думи какво е яла (например „шепа ориз + 2 филии хляб с масло").</p>'
+          + '<p>Записът влиза като „⏳ чака" и фениланинът му се смята малко по-късно.</p>')
+      + helpItem("📏 Ако мярката я няма?",
+          '<p>В „Храни", до мерките, има поле „друга мярка". Ако търсената я няма (например „шепа малини") — напиши я със свои думи + числото. И тя влиза в „Чакащи", за да ѝ се сложи стойност.</p>')
+      + helpItem("📊 Числата горе: Днес · Седмица · Месец",
+          '<p><b>Днес</b> — сборът фениланин за днешния ден.</p>'
+          + '<p><b>Седмица</b> и <b>Месец</b> — колко е <b>средно на ден</b> за последните 7 и 30 дни. Средните вървят успоредно с кръвните и заглаждат „днес много, утре малко".</p>'
+          + '<p>Знакът „+" (например „880+ mg") значи „поне толкова" — има записи, които още чакат да им се сметне стойността.</p>')
+      + helpItem("🍽️ Днешната карта",
+          '<p>Показва какво е записано днес и стои отворена, за да се вижда веднага. Минат ли 24 часа, денят слиза в „История", а „Днес" почва отначало.</p>')
+      + helpItem("📅 Историята",
+          '<p>Пази всеки минал ден, подредено по месеци. Докосни месец → после ден → за да видиш какво е яла. До всеки месец и ден пише сборът/средното.</p>'
+          + '<p>Така страницата остава къса, колкото и дни да се натрупат.</p>')
+      + helpItem("⏳ Чакащи изчисление",
+          '<p>Тук стоят записите от „Свободно" или нови храни, които още нямат стойност фениланин. Скоро им се смята и влизат в числата.</p>')
+      + helpItem("🍳 Създаване на рецепти (за родителя)",
           '<p>Картата „Въведи рецепта" е заключена с PIN — за родителя. Там ястие се сглобява <b>веднъж</b> от съставките му и се казва на колко порции излиза.</p>'
-          + '<p>После рецептата се появява в „Добави храна" и всеки може да я записва по брой порции — без PIN.</p>')
-      + helpItem("Кръвните изследвания (за родителя)",
-          '<p>Резултатите от кръвните се въвеждат от родителя, в заключената част най-долу (с PIN). Там се пази хронологията им и се вижда дали са в норма (таван 8 mg/%).</p>')
-      + helpItem("Важно",
+          + '<p>После се появява в бутона „Рецепти" и всеки може да го записва по брой порции — без PIN.</p>')
+      + helpItem("🩸 Кръвните изследвания (за родителя)",
+          '<p>Заключената част най-долу (с PIN). Въвеждаш датата на пробата и резултата (mg/%). Цветът показва веднага:</p>'
+          + '<p><b style="color:#2e8b57">зелено</b> — в норма (до 6) · <b style="color:#e0821e">оранжево</b> — завишено (6–8) · <b style="color:#c43d3d">червено</b> — над тавана (над 8).</p>'
+          + '<p>Ако седмицата е била особена (болест, пропусната формула, лекарство с аспартам) — отметни го, за да се знае защо числото е различно. Историята се пази по месеци.</p>')
+      + helpItem("⚠️ Важно",
           '<p>Приложението помага да следите лесно — но <b>дозата на лекарството, изследванията и храненето остават с лекарите и клиниката</b>. Тук само записвате и наблюдавате; числата помагат на вас и на тях.</p>');
 
     return '<details class="hist-outer">'
-      + '<summary><span>Как се ползва (помощ)</span></summary>'
+      + '<summary><span>❓ Как се ползва (помощ)</span></summary>'
       + '<div class="hist-body">' + items + '</div></details>';
   }
 
@@ -627,14 +695,17 @@
         + '</div>';
     }
     return '<details class="hist-outer" id="parentSec">'
-      + '<summary><span>За родителя — кръвни резултати</span><span class="lockmark">' + (unlocked ? '' : '🔒') + '</span></summary>'
+      + '<summary><span>🩸 За родителя — кръвни резултати</span><span class="lockmark">' + (unlocked ? '' : '🔒') + '</span></summary>'
       + '<div class="hist-body" id="parentBody">' + inner + '</div></details>';
   }
 
   function render(today, log, blood, pending) {
     autoScrollReady = false;   // изключи авто-скрола, докато се рендира (авто-отворените карти да не дърпат надолу)
     loading.style.display = "none";
-    content.innerHTML = renderBar(log) + renderAddForm() + renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
+    content.innerHTML = '<div id="sec_bar">' + renderBar(log) + '</div>'
+      + renderAddForm()
+      + '<div id="sec_log">' + renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + '</div>'
+      + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
     wireAdd();
     wireRecipe(recipes, today.has_pin);
     wireBlood(blood);
@@ -775,15 +846,10 @@
       saveBtn.disabled = true; saveBtn.textContent = "Записване…";
       sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: pickedRecipe.id, p_portions: pq })
         .then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           if (res.error) throw res.error;
-          okMsg.textContent = "Записано ✓"; okMsg.className = "ok show";
-          reload();
+          foodSaved();
         })
-        .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
-          okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
-        });
+        .catch(saveErr);
     }
 
     function findFood(name) {
@@ -922,6 +988,25 @@
       updatePreview();
     }
 
+    // Успешен запис на храна: бутонът светва зелено „✓ Храната записана" за ~1.6 сек, после се връща;
+    // данните се опресняват БЕЗ разграждане на формата → детето продължава да логва веднага.
+    function foodSaved() {
+      okMsg.className = "ok"; okMsg.textContent = "";
+      saveBtn.textContent = "✓ Храната записана";
+      saveBtn.classList.add("saved");
+      saveBtn.disabled = true;
+      refreshLog();
+      setTimeout(function () {
+        saveBtn.textContent = "Запиши храната";
+        saveBtn.classList.remove("saved");
+        saveBtn.disabled = false;
+      }, 1600);
+    }
+    function saveErr() {
+      saveBtn.disabled = false; saveBtn.textContent = "Запиши храната"; saveBtn.classList.remove("saved");
+      okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
+    }
+
     function saveFree() {
       var text = (freeEl.value || "").trim();
       if (!text) { okMsg.textContent = "Впиши какво е яла."; okMsg.className = "ok show err"; return; }
@@ -929,15 +1014,10 @@
       // p_grams=0 (non-null, без съвпадение в базата) → pending=true; phe_mg остава null → „чака ⏳"
       sb.rpc("add_phe_entry", { token: token, p_food_text: text, p_grams: 0, p_phe_mg: null })
         .then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           if (res.error) throw res.error;
-          okMsg.textContent = "Записано ✓ Ще му сметнем фениланина."; okMsg.className = "ok show";
-          freeEl.value = ""; reload();
+          freeEl.value = ""; foodSaved();
         })
-        .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
-          okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
-        });
+        .catch(saveErr);
     }
 
     saveBtn.addEventListener("click", function () {
@@ -950,15 +1030,10 @@
         saveBtn.disabled = true; saveBtn.textContent = "Записване…";
         sb.rpc("add_phe_recipe_entry", { token: token, p_recipe_id: selectedRecipe.id, p_portions: qty })
           .then(function (res) {
-            saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
             if (res.error) throw res.error;
-            okMsg.textContent = "Записано ✓"; okMsg.className = "ok show";
-            resetForm(); reload();
+            resetForm(); foodSaved();
           })
-          .catch(function () {
-            saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
-            okMsg.textContent = "Неуспешно. Опитай пак."; okMsg.className = "ok show err";
-          });
+          .catch(saveErr);
         return;
       }
 
@@ -976,21 +1051,11 @@
         : sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
 
       call.then(function (res) {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
           if (res.error) throw res.error;
-          var isPending = res.data && res.data[0] && res.data[0].is_pending;
-          okMsg.textContent = isPending
-            ? "Записано ✓ Ново — ще бъде добавено в базата скоро."
-            : "Записано ✓";
-          okMsg.className = "ok show";
           resetForm();
-          reload();
+          foodSaved();
         })
-        .catch(function () {
-          saveBtn.disabled = false; saveBtn.textContent = "Запиши храната";
-          okMsg.textContent = "Неуспешно. Опитай пак.";
-          okMsg.className = "ok show err";
-        });
+        .catch(saveErr);
     });
   }
 
@@ -1008,15 +1073,15 @@
       btn.disabled = true; btn.textContent = "Записване…";
       sb.rpc("add_blood_reading", { token: token, p_sample_date: dateEl.value, p_mg_percent: v, p_flag_unusual: flagEl.checked })
         .then(function (res) {
-          btn.disabled = false; btn.textContent = "Запиши резултат";
           if (res.error) throw res.error;
-          okMsg.textContent = "Записано ✓";
-          okMsg.className = "ok show";
+          // флаш зелено „✓ Резултатът записан" ~1.6 сек, после reload обновява хронологията + връща бутона
+          okMsg.className = "ok"; okMsg.textContent = "";
           valEl.value = ""; flagEl.checked = false;
-          reload();
+          btn.textContent = "✓ Резултатът записан"; btn.classList.add("saved");
+          setTimeout(function () { reload(); }, 1600);
         })
         .catch(function () {
-          btn.disabled = false; btn.textContent = "Запиши резултат";
+          btn.disabled = false; btn.textContent = "Запиши резултат"; btn.classList.remove("saved");
           okMsg.textContent = "Неуспешно. Опитай пак.";
           okMsg.className = "ok show err";
         });
@@ -1084,7 +1149,7 @@
   function renderRecipeCard(recs, hasPin) {
     var locked = hasPin && !parentUnlocked;
     return '<details class="hist-outer" id="recipeCard">'
-      + '<summary><span>➕ Въведи рецепта</span><span class="lockmark">' + (locked ? '🔒' : '') + '</span></summary>'
+      + '<summary><span>🍳 Въведи рецепта</span><span class="lockmark">' + (locked ? '🔒' : '') + '</span></summary>'
       + '<div class="hist-body" id="recipeBody">' + (locked ? recipePinHTML() : recipeBuilderHTML(recs)) + '</div></details>';
   }
 
@@ -1260,6 +1325,22 @@
       var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green", has_pin: false };
       render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
+  }
+
+  // Опреснява САМО секциите с данни (лента + лог/чакащи/днес/история) — БЕЗ да разгражда формата
+  // „Добави храна" (детето продължава да логва без прекъсване; не губи какво пише).
+  function refreshLog() {
+    Promise.all([
+      sb.rpc("get_phe_log", { token: token, from_date: "2020-01-01" }),
+      sb.rpc("get_pending_foods", { token: token })
+    ]).then(function (r) {
+      var log = (r[0] && r[0].data) || [];
+      var pending = (r[1] && r[1].data) || [];
+      var bar = document.getElementById("sec_bar");
+      var seclog = document.getElementById("sec_log");
+      if (bar) bar.innerHTML = renderBar(log);
+      if (seclog) seclog.innerHTML = renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr());
+    }).catch(function () {});
   }
 
   Promise.all([
