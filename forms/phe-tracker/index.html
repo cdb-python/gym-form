@@ -214,6 +214,8 @@
   .bloodrow .v { font-weight: 700; }
   .bloodrow .v.hi { color: var(--red); }
   .bloodrow .v.ok { color: var(--green); }
+  /* В „За родителя": вложените карти Хронология + Разпечатка БЕЗ страничния оранжев акцент. */
+  #parentBody > .hist-outer, #parentBody > .card { border-left: 1px solid var(--border); }
   /* Кръвен вход: дата + резултат един до друг (да не дължим картата). */
   .brow { display: flex; gap: 10px; }
   .brow .bcol { flex: 1 1 0; min-width: 0; }
@@ -300,6 +302,27 @@
   .recqtyrow { display: flex; gap: 10px; align-items: center; margin-top: 8px; }
   .recqtyrow input { flex: 0 0 70px; }
   .recqtyrow .lbl2 { color: var(--muted); }
+
+  /* Разпечатка / PDF — печатен изглед (виждаме го само при печат). */
+  #printArea { display: none; }
+  @media print {
+    header, .wrap { display: none !important; }
+    #printArea { display: block; color: #000; padding: 0; }
+    .pr-doc h1 { font-size: 20px; margin: 0 0 4px; }
+    .pr-doc .pr-sub { color: #444; font-size: 12px; margin: 0 0 14px; }
+    .pr-doc h2 { font-size: 15px; margin: 18px 0 6px; border-bottom: 1.5px solid #000; padding-bottom: 3px; }
+    .pr-doc h3 { font-size: 12.5px; margin: 12px 0 3px; }
+    .pr-doc table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 0 0 4px; }
+    .pr-doc th, .pr-doc td { border: 1px solid #999; padding: 4px 6px; text-align: left; vertical-align: top; }
+    .pr-doc th { background: #eee; }
+    .pr-doc table.pr-day td { border: none; border-bottom: 1px solid #ddd; }
+    .pr-doc .pr-amt { text-align: right; white-space: nowrap; }
+    .pr-doc .pr-tm { color: #555; white-space: nowrap; width: 46px; }
+    .pr-doc .pr-note { font-size: 11.5px; color: #333; margin: 5px 0 0; }
+    .pr-doc h2, .pr-doc h3 { break-after: avoid; }
+    .pr-doc tr { break-inside: avoid; }
+    @page { margin: 14mm; }
+  }
 </style>
 </head>
 <body>
@@ -314,6 +337,7 @@
   <div class="loading" id="loading">Зарежда…</div>
   <div id="content"></div>
 </div>
+<div id="printArea"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -571,6 +595,85 @@
       + '<div class="hist-body">' + monthCards + '</div></details>';
   }
 
+  // ── Разпечатка / PDF ──────────────────────────────────────────────────────
+  function printPeriodDates(period, fromVal, toVal) {
+    var today = todayStr();
+    if (period === "month") return { from: today.slice(0, 7) + "-01", to: today, label: "този месец" };
+    if (period === "3m") {
+      var d = new Date(today + "T00:00:00"); d.setDate(d.getDate() - 90);
+      return { from: d.toISOString().slice(0, 10), to: today, label: "последни 3 месеца" };
+    }
+    if (period === "range") {
+      var f = fromVal || "2020-01-01", t = toVal || today;
+      return { from: f, to: t, label: fmtDate(f) + " – " + fmtDate(t) };
+    }
+    return { from: "2020-01-01", to: today, label: "цялата история" };
+  }
+
+  function buildPrintDoc(what, dates, detail, log, blood) {
+    var out = '<div class="pr-doc">';
+    out += '<h1>Криста — дневник фениланин</h1>';
+    out += '<p class="pr-sub">Период: ' + esc(dates.label) + ' · изготвено: ' + esc(fmtDate(todayStr())) + '</p>';
+
+    if (what === "blood" || what === "both") {
+      var brows = (blood || []).filter(function (b) { return b.sample_date >= dates.from && b.sample_date <= dates.to; })
+        .sort(function (a, b) { return a.sample_date < b.sample_date ? -1 : 1; });
+      out += '<h2>Кръвни изследвания (фениланин)</h2>';
+      if (!brows.length) out += '<p class="pr-note">Няма резултати за периода.</p>';
+      else {
+        var bsum = 0;
+        out += '<table><thead><tr><th>Дата на пробата</th><th>mg/%</th><th>µmol/L</th><th>Състояние</th><th>Особена седмица</th></tr></thead><tbody>';
+        brows.forEach(function (b) {
+          var st = bloodStatus(b.mg_percent); bsum += Number(b.mg_percent);
+          out += '<tr><td>' + esc(fmtDate(b.sample_date)) + '</td><td>' + esc(b.mg_percent) + '</td><td>' + Math.round(Number(b.mg_percent) * 60.5) + '</td><td>' + st.word + '</td><td>' + (b.flag_unusual_week ? "да" : "—") + '</td></tr>';
+        });
+        out += '</tbody></table>';
+        out += '<p class="pr-note">Средно за периода: ' + (Math.round(bsum / brows.length * 10) / 10) + ' mg/% · ' + brows.length + (brows.length === 1 ? " резултат" : " резултата") + ' (цел ≤ 6 mg/%, таван 8).</p>';
+      }
+    }
+
+    if (what === "food" || what === "both") {
+      var dayOrder = [], dayGroups = {};
+      (log || []).forEach(function (e) {
+        var k = e.entry_date || "—";
+        if (!dayGroups[k]) { dayGroups[k] = []; dayOrder.push(k); }
+        dayGroups[k].push(e);
+      });
+      dayOrder.sort();
+      out += '<h2>Хранене (фениланин)</h2>';
+      if (!dayOrder.length) out += '<p class="pr-note">Няма записи за периода.</p>';
+      else {
+        var totSum = 0, totDays = dayOrder.length, anyPend = false;
+        if (detail === "full") {
+          dayOrder.forEach(function (k) {
+            var arr = dayGroups[k], s = 0, pend = false;
+            arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
+            totSum += s; if (pend) anyPend = true;
+            out += '<h3>' + esc(fmtDate(k)) + ' — ' + Math.round(s) + (pend ? "+" : "") + ' mg</h3>';
+            out += '<table class="pr-day"><tbody>';
+            arr.forEach(function (e) {
+              var amt = e.phe_mg != null ? (Math.round(e.phe_mg) + " mg") : "чака";
+              out += '<tr><td class="pr-tm">' + esc(fmtTime(e.created_at)) + '</td><td>' + esc(e.food_text) + '</td><td class="pr-amt">' + amt + '</td></tr>';
+            });
+            out += '</tbody></table>';
+          });
+        } else {
+          out += '<table><thead><tr><th>Дата</th><th>Записи</th><th>Фениланин (mg)</th></tr></thead><tbody>';
+          dayOrder.forEach(function (k) {
+            var arr = dayGroups[k], s = 0, pend = false;
+            arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
+            totSum += s; if (pend) anyPend = true;
+            out += '<tr><td>' + esc(fmtDate(k)) + '</td><td>' + arr.length + '</td><td>' + Math.round(s) + (pend ? "+" : "") + '</td></tr>';
+          });
+          out += '</tbody></table>';
+        }
+        out += '<p class="pr-note">Средно: ' + Math.round(totSum / totDays) + (anyPend ? "+" : "") + ' mg/ден · ' + totDays + (totDays === 1 ? " ден" : " дни") + ' със запис' + (anyPend ? " · знакът + значи, че има записи без изчислена стойност" : "") + '.</p>';
+      }
+    }
+    out += '</div>';
+    return out;
+  }
+
   // Цвят/състояние на кръвна стойност (mg/%). Цел 120–360 µmol/L ≈ 2–6 mg/%; таван ≤ 8.
   function bloodStatus(mg) {
     mg = Number(mg);
@@ -624,7 +727,19 @@
         + '<summary><span>📈 Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
         + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Цел ≤ 6 mg/% (в норма) · 6–8 завишено · над 8 = над тавана.</p>' + monthCards + '</div></details>';
     }
-    return form + hist;
+    var printCard = '<details class="hist-outer" style="margin-top:16px">'
+      + '<summary><span>🖨️ Разпечатка / PDF</span></summary>'
+      + '<div class="hist-body">'
+      + '<p class="hint" style="margin:0 0 8px">Изнеси за клиниката — избери какво и за кой период. Отваря печат → „Запази като PDF".</p>'
+      + '<label>Какво</label>'
+      + '<select id="pr_what"><option value="both">Двете (храни + изследвания)</option><option value="food">Само храни</option><option value="blood">Само изследвания</option></select>'
+      + '<label>Период</label>'
+      + '<select id="pr_period"><option value="all">Цялата история</option><option value="month">Този месец</option><option value="3m">Последни 3 месеца</option><option value="range">Избери период…</option></select>'
+      + '<div id="pr_range" style="display:none"><div class="brow" style="margin-top:6px"><div class="bcol"><label>От</label><input type="date" id="pr_from"></div><div class="bcol"><label>До</label><input type="date" id="pr_to"></div></div></div>'
+      + '<div id="pr_detail_wrap"><label>Храните</label><select id="pr_detail"><option value="daily">Само дневни суми (компактно)</option><option value="full">Пълно (всяка храна)</option></select></div>'
+      + '<button type="button" id="pr_btn">Отвори за печат / PDF</button>'
+      + '</div></details>';
+    return form + hist + printCard;
   }
 
   function helpItem(title, body) {
@@ -1059,7 +1174,42 @@
     });
   }
 
+  function wirePrint() {
+    var prBtn = document.getElementById("pr_btn");
+    if (!prBtn) return;
+    var whatSel = document.getElementById("pr_what");
+    var periodSel = document.getElementById("pr_period");
+    var rangeDiv = document.getElementById("pr_range");
+    var detailWrap = document.getElementById("pr_detail_wrap");
+    function sync() {
+      rangeDiv.style.display = periodSel.value === "range" ? "" : "none";
+      detailWrap.style.display = (whatSel.value === "blood") ? "none" : "";
+    }
+    whatSel.addEventListener("change", sync);
+    periodSel.addEventListener("change", sync);
+    sync();
+    prBtn.addEventListener("click", function () {
+      var what = whatSel.value;
+      var dates = printPeriodDates(periodSel.value, document.getElementById("pr_from").value, document.getElementById("pr_to").value);
+      var detail = document.getElementById("pr_detail").value;
+      prBtn.disabled = true; prBtn.textContent = "Подготвя…";
+      Promise.all([
+        sb.rpc("get_phe_log", { token: token, from_date: dates.from, to_date: dates.to }),
+        sb.rpc("get_blood_trend", { token: token })
+      ]).then(function (r) {
+        prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
+        var log = (r[0] && r[0].data) || [];
+        var blood = (r[1] && r[1].data) || [];
+        document.getElementById("printArea").innerHTML = buildPrintDoc(what, dates, detail, log, blood);
+        setTimeout(function () { window.print(); }, 120);
+      }).catch(function () {
+        prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
+      });
+    });
+  }
+
   function wireBlood() {
+    wirePrint();   // печат-картата е в същата PIN секция
     var dateEl = document.getElementById("b_date");
     var valEl = document.getElementById("b_value");
     var flagEl = document.getElementById("b_flag");
