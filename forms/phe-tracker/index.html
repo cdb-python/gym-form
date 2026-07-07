@@ -433,13 +433,33 @@
     return '<div class="logitem"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span></div>';
   }
 
+  // Карта „Днес" — отделна, ВИНАГИ видима; само днешните записи (Вариант А).
+  function renderToday(entries, today) {
+    var arr = (entries || []).filter(function (e) { return e.entry_date === today; });
+    var dayTotal = 0, pend = false;
+    arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
+    var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
+    var cnt = arr.length + (arr.length === 1 ? " запис" : " записа");
+    var body = arr.length
+      ? arr.map(entryLine).join("")
+      : '<p style="color:var(--muted);font-size:14px;margin:6px 0 0">Още няма записи за днес.</p>';
+    return '<div class="card todaycard">'
+      + '<div class="t" style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;">'
+      + '<span>Днес</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:700;">' + cnt + ' · <b class="daymg">' + mg + '</b></span>'
+      + '</div>' + body + '</div>';
+  }
+
+  // Акордеон „История" — само МИНАЛИ дни (без днес), СВИТ по подразбиране (Вариант А).
+  // Всеки ден вътре = вложен акордеон, всички затворени. Не расте на екрана — стои зад един ред.
   function renderHistory(entries, today) {
     var order = [], groups = {};
     (entries || []).forEach(function (e) {
       var k = e.entry_date || "—";
+      if (k === today) return;              // днешният ден е в отделната карта „Днес"
       if (!groups[k]) { groups[k] = []; order.push(k); }
       groups[k].push(e);
     });
+    if (!order.length) return "";           // няма минали дни → не показваме „История" изобщо
     var totalDays = order.length;
     var cards = order.map(function (k) {
       var arr = groups[k];
@@ -448,21 +468,11 @@
       var dayTotal = 0, pend = false;
       arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
       var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
-      // САМО днешната карта е отворена по подразбиране; всички стари — затворени.
-      // (Мине ли 24ч → тя става „Вчера" и по дефинция се затваря; отваря се празната „Днес" по-долу.)
-      return '<details class="daycard"' + (k === today ? " open" : "") + '>'
-        + '<summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
+      return '<details class="daycard"><summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
         + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></details>';
     }).join("");
-    // Ако за днес още няма нито един запис → празна „Днес" карта най-горе, ОТВОРЕНА,
-    // за да се вижда веднага „още няма записи за днес" (а вчерашната стои затворена под нея).
-    if (order.indexOf(today) === -1) {
-      cards = '<details class="daycard" open>'
-        + '<summary><span>Днес</span><span class="cnt">0 записа · <b class="daymg">0 mg</b></span></summary>'
-        + '<div class="dbody"><p style="color:var(--muted);font-size:14px;margin:6px 0">Още няма записи за днес.</p></div></details>' + cards;
-    }
     var dayWord = totalDays === 1 ? " ден" : " дни";
-    return '<details class="hist-outer" open>'
+    return '<details class="hist-outer">'   // БЕЗ open → свита по подразбиране
       + '<summary><span>История</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + totalDays + dayWord + '</span></summary>'
       + '<div class="hist-body">' + cards + '</div></details>';
   }
@@ -551,7 +561,7 @@
   function render(today, log, blood, pending) {
     autoScrollReady = false;   // изключи авто-скрола, докато се рендира (авто-отворените карти да не дърпат надолу)
     loading.style.display = "none";
-    content.innerHTML = renderBar(log) + renderAddForm() + renderPendingFoods(pending) + renderHistory(log, todayStr()) + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
+    content.innerHTML = renderBar(log) + renderAddForm() + renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
     wireAdd();
     wireRecipe(recipes, today.has_pin);
     wireBlood(blood);
