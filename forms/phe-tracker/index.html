@@ -99,8 +99,8 @@
   details.hist-outer > summary::-webkit-details-marker { display: none; }
   details.hist-outer > summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 700; flex: none; }
   details.hist-outer[open] > summary::after { content: "\2212"; }
-  details.hist-outer .hist-body { display: none; padding: 4px 12px 12px; }
-  details.hist-outer[open] .hist-body { display: block; }
+  details.hist-outer > .hist-body { display: none; padding: 4px 12px 12px; }
+  details.hist-outer[open] > .hist-body { display: block; }
 
   /* Вътрешен акордеон карти по дни — стил на ЧЗВ в start-pyramid (details.faq) */
   details.daycard {
@@ -296,6 +296,23 @@
   .segbar .seg.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
   .segbar .seg:active { background-color: var(--accent-dark); }
 
+  /* Здравни бележки (родителски канал) — chips за избор + списък */
+  .evchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 10px; }
+  .evchip {
+    width: auto; margin: 0; padding: 7px 11px; font-size: 12.5px; font-weight: 700; line-height: 1.1;
+    background: #fff; background-image: none; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: 9px; white-space: nowrap;
+  }
+  .evchip.on { color: #fff; background-color: var(--accent); border-color: var(--accent); }
+  .evchip:active { background-color: var(--accent-dark); }
+  .evrow { border: 1px solid var(--border); border-radius: 10px; padding: 9px 11px; margin: 8px 0 0; background: #fff; }
+  .evrow .evtop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .evrow .evdate { font-weight: 700; font-size: 13.5px; color: var(--accent-dark); }
+  .evrow .evnote { font-size: 14px; color: #3a4753; margin: 5px 0 0; line-height: 1.5; white-space: pre-wrap; }
+  .evtag { display: inline-block; background: #eef3f7; color: #3a4753; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin: 4px 4px 0 0; white-space: nowrap; }
+  .ev-del { width: auto; margin: 0; padding: 3px 9px; font-size: 12px; flex: 0 0 auto; background: #fff; background-image: none; color: var(--red); border: 1.5px solid var(--red); border-radius: 7px; }
+  .ev-del:active { background-color: var(--red); color: #fff; }
+
   /* Режим „Рецепти" — скролваща листа за избор */
   .rec-picklist { display: flex; flex-direction: column; gap: 8px; max-height: 280px; overflow-y: auto; margin: 2px 0 4px; }
   .rec-pick {
@@ -328,6 +345,7 @@
     .pr-doc .pr-amt { text-align: right; white-space: nowrap; }
     .pr-doc .pr-tm { color: #555; white-space: nowrap; width: 46px; }
     .pr-doc .pr-note { font-size: 11.5px; color: #333; margin: 5px 0 0; }
+    .pr-doc .pr-ev { font-size: 11px; font-weight: 400; color: #7a3a10; }
     .pr-doc h2, .pr-doc h3 { break-after: avoid; }
     .pr-doc tr { break-inside: avoid; }
     @page { margin: 14mm; }
@@ -361,6 +379,7 @@
   var phedb = []; // кеш на храните за autocomplete
   var pheunits = []; // кеш на мерките (падащо меню) на храна
   var recipes = []; // кеш на рецептите на клиента (смятани на живо от базата)
+  var events = []; // кеш на здравните бележки (родителски канал, PIN)
   var autoScrollReady = false; // авто-скролът при отваряне на карта важи чак след рендиране (не при рефреш)
   var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
 
@@ -613,7 +632,7 @@
       arr.forEach(function (e) { if (e.phe_mg != null) dayTotal += Number(e.phe_mg); else pend = true; });
       var mg = Math.round(dayTotal) + (pend ? "+" : "") + " mg";
       return '<details class="daycard"><summary><span>' + esc(lbl) + '</span><span class="cnt">' + cnt + ' · <b class="daymg">' + mg + '</b></span></summary>'
-        + '<div class="dbody">' + arr.map(entryLine).join("") + '</div></details>';
+        + '<div class="dbody">' + arr.map(function (e) { return entryLine(e, false); }).join("") + '</div></details>';
     }
 
     var monthCards = monthOrder.map(function (ym) {
@@ -648,7 +667,7 @@
     return { from: "2020-01-01", to: today, label: "цялата история" };
   }
 
-  function buildPrintDoc(what, dates, detail, log, blood) {
+  function buildPrintDoc(what, dates, detail, log, blood, evs) {
     var out = '<div class="pr-doc">';
     out += '<h1>Криста — дневник фениланин</h1>';
     out += '<p class="pr-sub">Период: ' + esc(dates.label) + ' · изготвено: ' + esc(fmtDate(todayStr())) + '</p>';
@@ -668,6 +687,19 @@
         out += '</tbody></table>';
         out += '<p class="pr-note">Средно за периода: ' + (Math.round(bsum / brows.length * 10) / 10) + ' mg/% · ' + brows.length + (brows.length === 1 ? " резултат" : " резултата") + ' (цел ≤ 6 mg/%, таван 8).</p>';
       }
+
+      var erows = (evs || []).filter(function (e) { return e.event_date >= dates.from && e.event_date <= dates.to; })
+        .sort(function (a, b) { return a.event_date < b.event_date ? -1 : 1; });
+      out += '<h2>Здравни бележки (болест / лекарства / апетит)</h2>';
+      if (!erows.length) out += '<p class="pr-note">Няма бележки за периода.</p>';
+      else {
+        out += '<table><thead><tr><th>Дата</th><th>Вид</th><th>Бележка</th></tr></thead><tbody>';
+        erows.forEach(function (e) {
+          var kinds = (e.kinds || []).map(function (k) { return eventKindLabel(k); }).join(", ");
+          out += '<tr><td>' + esc(fmtDate(e.event_date)) + '</td><td>' + esc(kinds || "—") + '</td><td>' + esc(e.note) + '</td></tr>';
+        });
+        out += '</tbody></table>';
+      }
     }
 
     if (what === "food" || what === "both") {
@@ -678,6 +710,18 @@
         dayGroups[k].push(e);
       });
       dayOrder.sort();
+      // Здравни бележки по ден (маркер до деня — корелация болест/лекарство ↔ прием)
+      var evDays = {};
+      (evs || []).forEach(function (e) {
+        var k = e.event_date;
+        if (!evDays[k]) evDays[k] = [];
+        (e.kinds || []).forEach(function (x) { if (evDays[k].indexOf(x) < 0) evDays[k].push(x); });
+      });
+      function dayEventLabel(k) {
+        if (!(k in evDays)) return "";
+        return evDays[k].length ? evDays[k].map(eventKindLabel).join(", ") : "🩺 бележка";
+      }
+      var hasFoodDayEvents = dayOrder.some(function (k) { return k in evDays; });
       out += '<h2>Хранене (фениланин)</h2>';
       if (!dayOrder.length) out += '<p class="pr-note">Няма записи за периода.</p>';
       else {
@@ -687,7 +731,8 @@
             var arr = dayGroups[k], s = 0, pend = false;
             arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
             totSum += s; if (pend) anyPend = true;
-            out += '<h3>' + esc(fmtDate(k)) + ' — ' + Math.round(s) + (pend ? "+" : "") + ' mg</h3>';
+            var evl = dayEventLabel(k);
+            out += '<h3>' + esc(fmtDate(k)) + ' — ' + Math.round(s) + (pend ? "+" : "") + ' mg' + (evl ? ' <span class="pr-ev">⚠ ' + esc(evl) + '</span>' : '') + '</h3>';
             out += '<table class="pr-day"><tbody>';
             arr.forEach(function (e) {
               var amt = e.phe_mg != null ? (Math.round(e.phe_mg) + " mg") : "чака";
@@ -696,12 +741,13 @@
             out += '</tbody></table>';
           });
         } else {
-          out += '<table><thead><tr><th>Дата</th><th>Записи</th><th>Фениланин (mg)</th></tr></thead><tbody>';
+          out += '<table><thead><tr><th>Дата</th><th>Записи</th><th>Фениланин (mg)</th>' + (hasFoodDayEvents ? '<th>Здравословно</th>' : '') + '</tr></thead><tbody>';
           dayOrder.forEach(function (k) {
             var arr = dayGroups[k], s = 0, pend = false;
             arr.forEach(function (e) { if (e.phe_mg != null) s += Number(e.phe_mg); else pend = true; });
             totSum += s; if (pend) anyPend = true;
-            out += '<tr><td>' + esc(fmtDate(k)) + '</td><td>' + arr.length + '</td><td>' + Math.round(s) + (pend ? "+" : "") + '</td></tr>';
+            var evl = dayEventLabel(k);
+            out += '<tr><td>' + esc(fmtDate(k)) + '</td><td>' + arr.length + '</td><td>' + Math.round(s) + (pend ? "+" : "") + '</td>' + (hasFoodDayEvents ? '<td>' + (evl ? '⚠ ' + esc(evl) : '—') + '</td>' : '') + '</tr>';
           });
           out += '</tbody></table>';
         }
@@ -726,6 +772,7 @@
       + '<div class="bcol"><label>Резултат (mg/%)</label><input type="number" id="b_value" inputmode="decimal" step="0.1" placeholder="напр. 5.2"></div>'
       + '</div>'
       + '<label style="display:flex;align-items:center;gap:8px;font-weight:400;font-size:14px;"><input type="checkbox" id="b_flag" style="width:auto;"> Особена седмица (болест/пропусната формула/лекарство с аспартам)</label>'
+      + '<p class="hint" style="margin:4px 0 0">Отметни, ако тази проба е при особени обстоятелства. <b>Защо?</b> — опиши болестта/лекарството в „🩺 Здравни бележки" по-долу; бележките от седмицата ще се покажат до резултата.</p>'
       + '<button type="button" id="bloodBtn">Запиши резултат</button>'
       + '<div class="ok" id="bloodOk"></div>';
     var hist = '';
@@ -744,12 +791,28 @@
         var weekLine = r.flag_unusual_week
           ? '<span class="wkflag">⚠ Особена седмица</span>' + (r.flag_note ? ' — ' + esc(r.flag_note) : '')
           : 'без Особена седмица';
+        // Бележки от седмицата на пробата (±3 дни) — свързва „обяснена проба" с реалната причина.
+        var near = (events || []).filter(function (e) {
+          var d = daysBetween(e.event_date, r.sample_date);
+          return d != null && Math.abs(d) <= 3;
+        });
+        var notesBlock = "";
+        if (near.length) {
+          notesBlock = '<div style="margin-top:8px;padding-top:6px;border-top:1px dashed var(--border)">'
+            + '<div style="font-size:12.5px;font-weight:700;color:var(--accent-dark);margin-bottom:4px">🩺 Бележки от седмицата</div>'
+            + near.map(function (e) {
+                var tags = (e.kinds || []).map(function (k) { return '<span class="evtag">' + eventKindLabel(k) + '</span>'; }).join("");
+                return '<div style="font-size:13px;color:#3a4753;margin:0 0 4px"><b>' + esc(fmtDate(e.event_date)) + '</b> ' + tags + '<div style="margin-top:2px">' + esc(e.note) + '</div></div>';
+              }).join("")
+            + '</div>';
+        }
         return '<details class="daycard">'
           + '<summary><span>' + esc(fmtDate(r.sample_date)) + flagSum + '</span>'
           + '<span class="cnt"><b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></span></summary>'
           + '<div class="dbody">'
           +   '<div style="padding:4px 0 2px">генетично изследване: <b class="bval ' + st.cls + '">' + r.mg_percent + ' mg/%</b></div>'
           +   '<div style="color:var(--muted);font-size:13.5px">' + weekLine + '</div>'
+          +   notesBlock
           + '</div></details>';
       }
       var monthCards = monthOrder.map(function (ym) {
@@ -761,10 +824,11 @@
           + '<div class="dbody">' + rs.map(readingCard).join("") + '</div></details>';
       }).join("");
       var word = rows.length === 1 ? " резултат" : " резултата";
-      hist = '<details class="hist-outer" open style="margin-top:16px">'
+      hist = '<details class="hist-outer" style="margin-top:16px">'
         + '<summary><span>📈 Хронология на изследванията</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + rows.length + word + '</span></summary>'
         + '<div class="hist-body"><p class="hint" style="margin:0 0 8px">Цел ≤ 6 mg/% (в норма) · 6–8 завишено · над 8 = над тавана.</p>' + monthCards + '</div></details>';
     }
+    var eventsCard = renderEvents(events);
     var printCard = '<details class="hist-outer" style="margin-top:16px">'
       + '<summary><span>🖨️ Разпечатка / PDF</span></summary>'
       + '<div class="hist-body">'
@@ -777,7 +841,69 @@
       + '<div id="pr_detail_wrap"><label>Храните</label><select id="pr_detail"><option value="daily">Само дневни суми (компактно)</option><option value="full">Пълно (всяка храна)</option></select></div>'
       + '<button type="button" id="pr_btn">Отвори за печат / PDF</button>'
       + '</div></details>';
-    return form + hist + printCard;
+    return form + hist + eventsCard + printCard;
+  }
+
+  // Здравни бележки — етикети (стойност в базата → показен надпис)
+  var EVENT_KINDS = [
+    { k: "illness", label: "🤒 Болест/температура" },
+    { k: "medicine", label: "💊 Лекарство" },
+    { k: "no_appetite", label: "🍽 Без апетит" },
+    { k: "other", label: "📝 Друго" }
+  ];
+  function eventKindLabel(k) {
+    for (var i = 0; i < EVENT_KINDS.length; i++) if (EVENT_KINDS[i].k === k) return EVENT_KINDS[i].label;
+    return k;
+  }
+
+  function renderEvents(evs) {
+    var chips = EVENT_KINDS.map(function (e) {
+      return '<button type="button" class="evchip" data-kind="' + e.k + '">' + e.label + '</button>';
+    }).join("");
+    var form = '<p class="hint" style="margin:0 0 10px">Записвай болест, лекарства или дни без апетит — стоят в историята и се вземат предвид при оценката. Не влизат в дневния фениланин.</p>'
+      + '<div class="brow"><div class="bcol"><label>Дата</label><input type="date" id="ev_date" value="' + todayStr() + '"></div></div>'
+      + '<label>Какво (по избор — може повече)</label>'
+      + '<div class="evchips" id="ev_chips">' + chips + '</div>'
+      + '<label>Бележка</label>'
+      + '<textarea id="ev_note" rows="3" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="Опиши накратко — напр. „температура 38.5, не се храни, дадохме Нурофен сироп сутрин и вечер“."></textarea>'
+      + '<button type="button" id="evBtn">Запиши бележка</button>'
+      + '<div class="ok" id="evOk"></div>';
+
+    function eventRow(e) {
+      var tags = (e.kinds || []).map(function (k) { return '<span class="evtag">' + eventKindLabel(k) + '</span>'; }).join("");
+      return '<div class="evrow">'
+        + '<div class="evtop"><span class="evdate">' + esc(fmtDate(e.event_date)) + '</span>'
+        + '<button type="button" class="ev-del" data-id="' + e.id + '">🗑 Изтрий</button></div>'
+        + (tags ? '<div>' + tags + '</div>' : '')
+        + '<div class="evnote">' + esc(e.note) + '</div>'
+        + '</div>';
+    }
+    var list;
+    if (evs && evs.length) {
+      // Хронология като храната/кръвните: свит акордеон → месеци (тонирани, свити) → бележки.
+      var monthOrder = [], monthRows = {};
+      evs.forEach(function (e) {
+        var ym = String(e.event_date).slice(0, 7);
+        if (!monthRows[ym]) { monthRows[ym] = []; monthOrder.push(ym); }
+        monthRows[ym].push(e);
+      });
+      var monthCards = monthOrder.map(function (ym) {
+        var rs = monthRows[ym];
+        var w = rs.length === 1 ? " бележка" : " бележки";
+        return '<details class="daycard monthcard"><summary><span>' + esc(monthLabel(ym)) + '</span><span class="cnt">' + rs.length + w + '</span></summary>'
+          + '<div class="dbody">' + rs.map(eventRow).join("") + '</div></details>';
+      }).join("");
+      var word = evs.length === 1 ? " бележка" : " бележки";
+      list = '<details class="hist-outer" style="margin-top:14px">'
+        + '<summary><span>📋 Записани бележки</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + evs.length + word + '</span></summary>'
+        + '<div class="hist-body">' + monthCards + '</div></details>';
+    } else {
+      list = '<p class="hint" style="margin-top:12px">Още няма записани бележки.</p>';
+    }
+
+    return '<details class="hist-outer" id="evSec" style="margin-top:16px">'
+      + '<summary><span>🩺 Здравни бележки</span>' + (evs && evs.length ? '<span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + evs.length + (evs.length === 1 ? " бележка" : " бележки") + '</span>' : '') + '</summary>'
+      + '<div class="hist-body">' + form + list + '</div></details>';
   }
 
   function helpItem(title, body) {
@@ -812,6 +938,11 @@
           + '<p>Знакът „+" (например „880+ mg") значи „поне толкова" — има записи, които още чакат да им се сметне стойността.</p>')
       + helpItem("🍽️ Днешната карта",
           '<p>Показва какво е записано днес и стои отворена, за да се вижда веднага. Минат ли 24 часа, денят слиза в „История", а „Днес" почва отначало.</p>')
+      + helpItem("🗑 Как да поправя или изтрия записана храна?",
+          '<p><b>Поправянето става на две крачки: първо трий грешния запис, после го добави наново — правилно.</b></p>'
+          + '<p><b>1. Трий грешния.</b> В заглавието на картата „Днес" има малка <b>иконка молив ✏️</b>. Докосни я — до всеки днешен запис се появява кошче 🗑. Натисни кошчето до грешния ред → потвърди „Изтрий" → редът се маха.</p>'
+          + '<p><b>2. Добави наново.</b> Върни се горе към „Добави храна" и запиши храната както обикновено — избери я от „🍎 Храни" с вярното количество (или „🍳 Рецепти" / „✍ Свободно") и натисни „Запиши храната". Готово — сега стойността е точна.</p>'
+          + '<p>Само трият, без „наново" — просто изтрий и не добавяй пак. Всичко това важи само за <b>днешните</b> записи; миналите дни в „История" не се пипат.</p>')
       + helpItem("📅 Историята",
           '<p>Пази всеки минал ден, подредено по месеци. Докосни месец → после ден → за да видиш какво е яла. До всеки месец и ден пише сборът/средното.</p>'
           + '<p>Така страницата остава къса, колкото и дни да се натрупат.</p>')
@@ -824,6 +955,9 @@
           '<p>Заключената част най-долу (с PIN). Въвеждаш датата на пробата и резултата (mg/%). Цветът показва веднага:</p>'
           + '<p><b style="color:#2e8b57">зелено</b> — в норма (до 6) · <b style="color:#e0821e">оранжево</b> — завишено (6–8) · <b style="color:#c43d3d">червено</b> — над тавана (над 8).</p>'
           + '<p>Ако седмицата е била особена (болест, пропусната формула, лекарство с аспартам) — отметни го, за да се знае защо числото е различно. Историята се пази по месеци.</p>')
+      + helpItem("🩺 Здравни бележки (за родителя)",
+          '<p>В заключената част („За родителя") има карта „🩺 Здравни бележки". Там се записва <b>болест, температура, лекарства или дни без апетит</b> — с дата и кратък текст, по избор и с етикети.</p>'
+          + '<p>Защо е важно: при болест или някои лекарства (сиропи с аспартам) фениланинът в кръвта може да се вдигне, без храната да е сгрешена. Тези бележки остават в историята, за да се знае защо числата изглеждат така. <b>Не се смятат в дневния фениланин</b> — служат само като обяснение при оценката и влизат в разпечатката за клиниката.</p>')
       + helpItem("⚠️ Важно",
           '<p>Приложението помага да следите лесно — но <b>дозата на лекарството, изследванията и храненето остават с лекарите и клиниката</b>. Тук само записвате и наблюдавате; числата помагат на вас и на тях.</p>');
 
@@ -1233,12 +1367,14 @@
       prBtn.disabled = true; prBtn.textContent = "Подготвя…";
       Promise.all([
         sb.rpc("get_phe_log", { token: token, from_date: dates.from, to_date: dates.to }),
-        sb.rpc("get_blood_trend", { token: token })
+        sb.rpc("get_blood_trend", { token: token }),
+        sb.rpc("get_phe_events", { token: token })
       ]).then(function (r) {
         prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
         var log = (r[0] && r[0].data) || [];
         var blood = (r[1] && r[1].data) || [];
-        document.getElementById("printArea").innerHTML = buildPrintDoc(what, dates, detail, log, blood);
+        var evs = (r[2] && r[2].data) || [];
+        document.getElementById("printArea").innerHTML = buildPrintDoc(what, dates, detail, log, blood, evs);
         setTimeout(function () { window.print(); }, 120);
       }).catch(function () {
         prBtn.disabled = false; prBtn.textContent = "Отвори за печат / PDF";
@@ -1248,6 +1384,7 @@
 
   function wireBlood() {
     wirePrint();   // печат-картата е в същата PIN секция
+    wireEvents();  // здравните бележки са в същата PIN секция
     var dateEl = document.getElementById("b_date");
     var valEl = document.getElementById("b_value");
     var flagEl = document.getElementById("b_flag");
@@ -1273,6 +1410,64 @@
           okMsg.textContent = "Неуспешно. Опитай пак.";
           okMsg.className = "ok show err";
         });
+    });
+  }
+
+  // Опреснява САМО картата „Здравни бележки" (не разгражда цялата страница; PIN остава отключен)
+  function refreshEvents() {
+    sb.rpc("get_phe_events", { token: token }).then(function (res) {
+      events = (res && res.data) || [];
+      var sec = document.getElementById("evSec");
+      if (!sec) { reload(); return; }
+      var wasOpen = sec.hasAttribute("open");
+      var tmp = document.createElement("div");
+      tmp.innerHTML = renderEvents(events);
+      var newSec = tmp.firstChild;
+      if (wasOpen) newSec.setAttribute("open", "");
+      sec.parentNode.replaceChild(newSec, sec);
+      wireEvents();
+    }, function () {});
+  }
+
+  function wireEvents() {
+    var chipsWrap = document.getElementById("ev_chips");
+    var noteEl = document.getElementById("ev_note");
+    var dateEl = document.getElementById("ev_date");
+    var btn = document.getElementById("evBtn");
+    var okMsg = document.getElementById("evOk");
+    if (!btn) return; // заключено (PIN екран) — няма какво да wire-ваме
+
+    if (chipsWrap) chipsWrap.querySelectorAll(".evchip").forEach(function (c) {
+      c.addEventListener("click", function () { c.classList.toggle("on"); });
+    });
+
+    btn.addEventListener("click", function () {
+      var note = (noteEl.value || "").trim();
+      if (!note) { okMsg.textContent = "Впиши бележка."; okMsg.className = "ok show err"; return; }
+      var kinds = [];
+      if (chipsWrap) chipsWrap.querySelectorAll(".evchip.on").forEach(function (c) { kinds.push(c.getAttribute("data-kind")); });
+      btn.disabled = true; btn.textContent = "Записване…";
+      sb.rpc("add_phe_event", { token: token, p_event_date: dateEl.value, p_kinds: kinds, p_note: note })
+        .then(function (res) {
+          if (res.error) throw res.error;
+          okMsg.className = "ok"; okMsg.textContent = "";
+          btn.textContent = "✓ Бележката записана"; btn.classList.add("saved");
+          setTimeout(function () { refreshEvents(); }, 1200);
+        })
+        .catch(function () {
+          btn.disabled = false; btn.textContent = "Запиши бележка"; btn.classList.remove("saved");
+          okMsg.textContent = "Неуспешно. Опитай пак.";
+          okMsg.className = "ok show err";
+        });
+    });
+
+    document.querySelectorAll(".ev-del").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Изтрий тази бележка?")) return;
+        sb.rpc("delete_phe_event", { token: token, p_event_id: b.getAttribute("data-id") })
+          .then(function (res) { if (res.error) throw res.error; refreshEvents(); })
+          .catch(function () { alert("Неуспешно. Опитай пак."); });
+      });
     });
   }
 
@@ -1505,11 +1700,13 @@
       sb.rpc("get_phe_log", { token: token, from_date: "2020-01-01" }),   // цялата история (за месечния архив); лентата/днес пак смятат по дата
       sb.rpc("get_blood_trend", { token: token }),
       sb.rpc("get_pending_foods", { token: token }),
-      sb.rpc("get_phe_recipes", { token: token })
+      sb.rpc("get_phe_recipes", { token: token }),
+      sb.rpc("get_phe_events", { token: token })
     ]).then(function (results) {
-      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3], recRes = results[4];
+      var todayRes = results[0], logRes = results[1], bloodRes = results[2], pendRes = results[3], recRes = results[4], evRes = results[5];
       if (todayRes.error || logRes.error || bloodRes.error) { showState("Възникна грешка при зареждането."); return; }
       recipes = (recRes && recRes.data) || [];
+      events = (evRes && evRes.data) || [];
       var todayRow = (todayRes.data && todayRes.data[0]) || { total_mg: 0, daily_target_mg: 350, target_is_provisional: true, percent: 0, color: "green", has_pin: false };
       render(todayRow, logRes.data || [], bloodRes.data || [], (pendRes && pendRes.data) || []);
     }, function () { showState("Няма връзка. Провери интернета и опитай пак."); });
