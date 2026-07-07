@@ -129,9 +129,10 @@
   /* „Днес" = външна карта КАТО другите (тониран фон + шарка); записите вътре са в БЯЛА карта-в-картата
      (класът .daybox е вложен .card → правилото „.card .card → бяло" по-долу го прави бял). */
   .todaycard .daybox { margin: 0; padding: 2px 14px; border-left: 1px solid var(--border); }
-  /* История: месецът = тониран контейнер + СЪЩАТА бледа плодова шарка като горните карти (дните бели вътре);
-     месечните заглавия в оранжево — за йерархия. (Шарката е дублирана от .card по-долу — стабилна, за да не пипам голямото правило.) */
-  details.hist-outer details.daycard.monthcard {
+  /* Тапет по йерархия: ХРАНА (#sec_log) → дните носят тапета (месецът бял); ИЗСЛЕДВАНИЯ (#parentBody) → месецът носи тапета (дните бели). Останалото е бяло по подразбиране. */
+  #sec_log details.daycard.monthcard details.daycard,
+  #parentBody details.daycard.monthcard,
+  details.daycard details.daycard.prep {
     background-color: var(--soft);
     background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27220%27%20height%3D%27220%27%20viewBox%3D%270%200%20220%20220%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27%238a5a1a%27%20stroke-width%3D%272.1%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%20stroke-opacity%3D%270.10%27%3E%3Cg%20transform%3D%27translate%2830%2C34%29%20rotate%28-12%29%27%3E%3Cpath%20d%3D%27M0%2C4%20C-11%2C4%20-15%2C14%20-12%2C22%20C-9%2C30%20-3%2C32%200%2C27%20C3%2C32%209%2C30%2012%2C22%20C15%2C14%2011%2C4%200%2C4%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C4%20C0%2C-2%203%2C-6%208%2C-7%27%2F%3E%3Cpath%20d%3D%27M2%2C2%20C6%2C-4%2013%2C-4%2015%2C0%20C10%2C3%204%2C3%202%2C2%20Z%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28160%2C30%29%20rotate%2810%29%27%3E%3Cpath%20d%3D%27M0%2C-14%20C1%2C-8%20-1%2C-4%20-6%2C1%20C-12%2C7%20-12%2C20%20-3%2C24%20C6%2C28%2012%2C20%209%2C10%20C6%2C2%206%2C-6%204%2C-14%27%2F%3E%3Cpath%20d%3D%27M2%2C-14%20C4%2C-19%209%2C-20%2011%2C-18%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2824%2C108%29%20rotate%286%29%27%3E%3Cpath%20d%3D%27M2%2C-16%20C6%2C-8%2010%2C-6%2013%2C-4%27%2F%3E%3Cpath%20d%3D%27M2%2C-16%20C0%2C-8%20-6%2C-4%20-9%2C0%27%2F%3E%3Ccircle%20cx%3D%27-11%27%20cy%3D%276%27%20r%3D%277%27%2F%3E%3Ccircle%20cx%3D%2712%27%20cy%3D%274%27%20r%3D%277%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28108%2C96%29%20rotate%28-4%29%27%3E%3Cpath%20d%3D%27M0%2C20%20C-2%2C6%206%2C-10%2020%2C-18%20C14%2C-2%2010%2C10%200%2C20%20Z%27%2F%3E%3Cpath%20d%3D%27M0%2C20%20C4%2C8%2010%2C-2%2018%2C-14%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28176%2C104%29%27%3E%3Cpath%20d%3D%27M0%2C-16%20C-2%2C-12%200%2C-9%202%2C-8%27%2F%3E%3Ccircle%20cx%3D%27-8%27%20cy%3D%27-4%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%273%27%20cy%3D%27-5%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%27-3%27%20cy%3D%274%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%278%27%20cy%3D%273%27%20r%3D%275.2%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%2712%27%20r%3D%275.2%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%2844%2C176%29%20rotate%2820%29%27%3E%3Cpath%20d%3D%27M-8%2C-10%20C-4%2C-6%204%2C-6%208%2C-10%20C4%2C12%200%2C20%200%2C20%20C0%2C20%20-4%2C12%20-8%2C-10%20Z%27%2F%3E%3Cpath%20d%3D%27M-6%2C-10%20C-8%2C-18%20-6%2C-22%20-4%2C-24%27%2F%3E%3Cpath%20d%3D%27M0%2C-11%20C0%2C-20%202%2C-24%204%2C-26%27%2F%3E%3Cpath%20d%3D%27M6%2C-10%20C10%2C-17%2010%2C-22%209%2C-24%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28112%2C182%29%20rotate%28-8%29%27%3E%3Cpath%20d%3D%27M-12%2C-6%20C-10%2C10%200%2C18%200%2C18%20C0%2C18%2010%2C10%2012%2C-6%20C6%2C-2%20-6%2C-2%20-12%2C-6%20Z%27%2F%3E%3Cpath%20d%3D%27M-12%2C-6%20C-8%2C-12%20-3%2C-13%200%2C-9%20C3%2C-13%208%2C-12%2012%2C-6%27%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%27translate%28180%2C176%29%20rotate%288%29%27%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2715%27%2F%3E%3Ccircle%20cx%3D%270%27%20cy%3D%270%27%20r%3D%2710.5%27%2F%3E%3Cpath%20d%3D%27M0%2C0%20L0%2C-10.5%20M0%2C0%20L9%2C-5.4%20M0%2C0%20L9%2C5.4%20M0%2C0%20L0%2C10.5%20M0%2C0%20L-9%2C5.4%20M0%2C0%20L-9%2C-5.4%27%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E");
     background-size: 150px;
@@ -487,7 +488,7 @@
       +   '</div>'
       + '</div>'
       + '<div id="mode_free" style="display:none">'
-      +   '<textarea id="f_freetext" rows="4" placeholder="Опиши какво е яла — напр. „една шепа бял ориз + 2 филии хляб с малко масло“. Записва се и фениланинът се смята после."></textarea>'
+      +   '<textarea id="f_freetext" rows="4" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="Опиши какво е яла — напр. „една шепа бял ориз + 2 филии хляб с малко масло“. Записва се и фениланинът се смята после."></textarea>'
       +   '<p class="hint">Свободен текст — влиза като „⏳ чака“ и се пресмята по-късно. Базата расте от тези записи.</p>'
       + '</div>'
       + '<button type="button" id="saveBtn">Запиши храната</button>'
@@ -1259,8 +1260,8 @@
         + '<div class="rc-sum"><span>Общо: <b>' + tot + '</b></span><span>÷ ' + yn + " " + esc(plabel) + '</span></div>' + warn
         + prep
         + '<div class="row2" style="margin-top:12px">'
-        + '<button type="button" class="ghost rc-edit" data-id="' + esc(r.id) + '">Редактирай</button>'
-        + '<button type="button" class="ghost rc-del" data-id="' + esc(r.id) + '" style="color:var(--red);border-color:var(--red)">Изтрий</button>'
+        + '<button type="button" class="rc-edit" data-id="' + esc(r.id) + '">Редактирай</button>'
+        + '<button type="button" class="rc-del" data-id="' + esc(r.id) + '" style="background-color:var(--red)">Изтрий</button>'
         + '</div></div></details>';
     }).join("");
     return '<div class="reclib"><div class="t">Вече въведени рецепти (' + recs.length + ')</div>' + items + '</div>';
@@ -1272,7 +1273,7 @@
       + '<input type="text" id="rc_name" placeholder="напр. Палачинки Мевалия">'
       + '<label style="margin-top:14px">Съставки</label>'
       + '<div id="rc_ings"></div>'
-      + '<button type="button" class="ghost" id="rc_add_ing" style="margin-top:2px">+ Добави съставка</button>'
+      + '<button type="button" id="rc_add_ing" style="margin-top:2px">+ Добави съставка</button>'
       + '<div class="row2" style="margin-top:14px;align-items:flex-end">'
       +   '<div><label style="margin:0 0 4px">На колко порции излиза</label><input type="number" id="rc_yield" inputmode="decimal" step="1" min="1" value="1"></div>'
       +   '<div><label style="margin:0 0 4px">Мярка (по избор)</label><input type="text" id="rc_label" placeholder="палачинки, парчета…"></div>'
