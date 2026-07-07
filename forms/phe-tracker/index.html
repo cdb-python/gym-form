@@ -127,7 +127,7 @@
   /* „Днес" = бял акордеон-прозорец (форсиран бял, БЕЗ шарката — записите на чист фон), отворен по подразбиране. */
   /* „Днес" = външна карта КАТО другите (тониран фон + шарка); записите вътре са в БЯЛА карта-в-картата
      (класът .daybox е вложен .card → правилото „.card .card → бяло" по-долу го прави бял). */
-  .todaycard .daybox { margin: 0; padding: 2px 14px; }
+  .todaycard .daybox { margin: 0; padding: 2px 14px; border-left: 1px solid var(--border); }
   /* История: месецът = леко тониран контейнер (дните бели вътре); месечните заглавия в оранжево — за йерархия. */
   details.hist-outer details.daycard.monthcard { background-color: var(--soft); }
   details.daycard.monthcard > summary { color: var(--accent-dark); }
