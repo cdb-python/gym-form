@@ -380,6 +380,7 @@
   var pheunits = []; // кеш на мерките (падащо меню) на храна
   var recipes = []; // кеш на рецептите на клиента (смятани на живо от базата)
   var events = []; // кеш на здравните бележки (родителски канал, PIN)
+  var evEditMode = false; // режим редакция на здравните бележки (молив → редактирай/трий)
   var autoScrollReady = false; // авто-скролът при отваряне на карта важи чак след рендиране (не при рефреш)
   var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
 
@@ -860,9 +861,12 @@
 
     function eventRow(e) {
       var tags = (e.kinds || []).map(function (k) { return '<span class="evtag">' + eventKindLabel(k) + '</span>'; }).join("");
-      return '<div class="evrow">'
-        + '<div class="evtop"><span class="evdate">' + esc(fmtDate(e.event_date)) + '</span>'
-        + '<button type="button" class="ev-del" data-id="' + e.id + '">🗑 Изтрий</button></div>'
+      var btns = evEditMode
+        ? '<span style="display:flex;gap:6px"><button type="button" class="ev-edit" data-id="' + e.id + '">✏ Редактирай</button>'
+          + '<button type="button" class="ev-del" data-id="' + e.id + '">🗑</button></span>'
+        : '';
+      return '<div class="evrow" data-id="' + e.id + '">'
+        + '<div class="evtop"><span class="evdate">' + esc(fmtDate(e.event_date)) + '</span>' + btns + '</div>'
         + (tags ? '<div>' + tags + '</div>' : '')
         + '<div class="evnote">' + esc(e.note) + '</div>'
         + '</div>';
@@ -883,8 +887,9 @@
           + '<div class="dbody">' + rs.map(eventRow).join("") + '</div></details>';
       }).join("");
       var word = evs.length === 1 ? " бележка" : " бележки";
-      list = '<details class="hist-outer" style="margin-top:14px">'
-        + '<summary><span>📋 Записани бележки</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;">' + evs.length + word + '</span></summary>'
+      var editIc = '<button type="button" id="ev_edit" class="today-edit-ic' + (evEditMode ? ' on' : '') + '" title="Поправи бележка" style="margin-left:8px">' + (evEditMode ? checkSvg : pencilSvg) + '</button>';
+      list = '<details class="hist-outer" style="margin-top:14px"' + (evEditMode ? ' open' : '') + '>'
+        + '<summary><span>📋 Записани бележки</span><span class="cnt" style="color:var(--muted);font-size:13.5px;font-weight:600;display:flex;align-items:center">' + evs.length + word + editIc + '</span></summary>'
         + '<div class="hist-body">' + monthCards + '</div></details>';
     } else {
       list = '<p class="hint" style="margin-top:12px">Още няма записани бележки.</p>';
@@ -1458,6 +1463,41 @@
         sb.rpc("delete_phe_event", { token: token, p_event_id: b.getAttribute("data-id") })
           .then(function (res) { if (res.error) throw res.error; refreshEvents(); })
           .catch(function () { alert("Неуспешно. Опитай пак."); });
+      });
+    });
+
+    // молив → превключва режим редакция (без да отваря/затваря акордеона)
+    var evEdit = document.getElementById("ev_edit");
+    if (evEdit) evEdit.addEventListener("click", function (ev) {
+      ev.preventDefault(); ev.stopPropagation(); evEditMode = !evEditMode; refreshEvents();
+    });
+
+    // ✏ Редактирай → инлайн форма (дата + етикети + текст → Запази)
+    document.querySelectorAll(".ev-edit").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var id = b.getAttribute("data-id");
+        var e = events.filter(function (x) { return x.id === id; })[0];
+        var row = document.querySelector('.evrow[data-id="' + id + '"]');
+        if (!e || !row) return;
+        var chips = EVENT_KINDS.map(function (k) {
+          var on = (e.kinds || []).indexOf(k.k) > -1;
+          return '<button type="button" class="evchip' + (on ? ' on' : '') + '" data-kind="' + k.k + '">' + k.label + '</button>';
+        }).join("");
+        row.innerHTML = '<div class="brow"><div class="bcol"><label>Дата</label><input type="date" class="eve_date" value="' + esc(e.event_date) + '"></div></div>'
+          + '<label>Какво</label><div class="evchips eve_chips">' + chips + '</div>'
+          + '<label>Бележка</label><textarea class="eve_note" rows="3" autocorrect="off" autocapitalize="sentences" spellcheck="false">' + esc(e.note) + '</textarea>'
+          + '<div style="display:flex;gap:8px;margin-top:6px"><button type="button" class="eve_save">Запази</button>'
+          + '<button type="button" class="eve_cancel" style="background:#fff;background-image:none;color:var(--accent-dark);border:1px solid var(--accent)">Отказ</button></div>';
+        row.querySelectorAll(".evchip").forEach(function (c) { c.addEventListener("click", function () { c.classList.toggle("on"); }); });
+        row.querySelector(".eve_cancel").addEventListener("click", function () { refreshEvents(); });
+        row.querySelector(".eve_save").addEventListener("click", function () {
+          var note = (row.querySelector(".eve_note").value || "").trim();
+          if (!note) { alert("Впиши бележка."); return; }
+          var kinds = []; row.querySelectorAll(".evchip.on").forEach(function (c) { kinds.push(c.getAttribute("data-kind")); });
+          sb.rpc("update_phe_event", { token: token, p_event_id: id, p_event_date: row.querySelector(".eve_date").value, p_kinds: kinds, p_note: note })
+            .then(function (res) { if (res.error) throw res.error; refreshEvents(); })
+            .catch(function () { alert("Неуспешно. Опитай пак."); });
+        });
       });
     });
   }
