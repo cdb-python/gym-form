@@ -381,6 +381,9 @@
   var recipes = []; // кеш на рецептите на клиента (смятани на живо от базата)
   var events = []; // кеш на здравните бележки (родителски канал, PIN)
   var evEditMode = false; // режим редакция на здравните бележки (молив → редактирай/трий)
+  // SVG икони за молив/отметка (модулно ниво — ползват се и в „Днес", и в „Здравни бележки")
+  var pencilSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
+  var checkSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
   var autoScrollReady = false; // авто-скролът при отваряне на карта важи чак след рендиране (не при рефреш)
   var parentUnlocked = false; // отключена ли е родителската секция (само в паметта — рефреш заключва пак)
 
@@ -568,8 +571,6 @@
     var body = arr.length
       ? arr.map(function (e) { return entryLine(e, todayEditMode); }).join("")
       : '<p style="color:var(--muted);font-size:14px;margin:6px 0 4px">Още няма записи за днес.</p>';
-    var pencilSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>';
-    var checkSvg = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
     var editIc = arr.length
       ? '<button type="button" id="today_edit" class="today-edit-ic' + (todayEditMode ? ' on' : '') + '" title="Поправи">' + (todayEditMode ? checkSvg : pencilSvg) + '</button>'
       : '';
