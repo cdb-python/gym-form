@@ -542,17 +542,6 @@
       + '</div>';
   }
 
-  function renderPendingFoods(rows) {
-    if (!rows || !rows.length) return "";
-    var lines = rows.map(function (r) {
-      var label = r.custom_unit_text
-        ? esc(r.food_text) + " — мярка „" + esc(r.custom_unit_text) + "“" + (r.custom_qty != null ? " ×" + r.custom_qty : "")
-        : esc(r.food_text);
-      return '<div class="pendrow"><span>' + label + '</span></div>';
-    }).join("");
-    return '<div class="card"><div class="t">⏳ Чакащи изчисление</div><p class="hint" style="margin:0 0 8px">Тези записи чакат да им бъде изчислен фениланинът — ще стане скоро.</p>' + lines + '</div>';
-  }
-
   function dayLabel(dStr, today) {
     if (dStr === today) return "Днес";
     var d = new Date(dStr + "T00:00:00"), t = new Date(today + "T00:00:00");
@@ -562,7 +551,7 @@
   }
 
   function entryLine(e, withDel) {
-    var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : "чака ⏳";
+    var amt = e.phe_mg != null ? Math.round(e.phe_mg) + " mg" : "не в базата чака ⏳";
     var qtyLabel = e.custom_unit_text ? (" (" + e.custom_qty + "× " + e.custom_unit_text + ")") : (e.grams != null && e.grams > 0 ? " (" + e.grams + "г)" : "");
     var del = withDel ? '<button type="button" class="ent-del" data-id="' + esc(e.id) + '" title="Изтрий">🗑</button>' : '';
     return '<div class="logitem' + (withDel ? ' editing' : '') + '"><span><span class="tm">' + esc(fmtTime(e.created_at)) + '</span> ' + esc(e.food_text) + qtyLabel + '</span><span class="amt">' + esc(amt) + '</span>' + del + '</div>';
@@ -931,7 +920,7 @@
           '<p>За смесени ястия или храна, която още я няма в списъка. Натисни „✍ Свободно" и опиши със свои думи какво е яла (например „шепа ориз + 2 филии хляб с масло").</p>'
           + '<p>Записът влиза като „⏳ чака" и фениланинът му се смята малко по-късно.</p>')
       + helpItem("📏 Ако мярката я няма?",
-          '<p>В „Храни", до мерките, има поле „друга мярка". Ако търсената я няма (например „шепа малини") — напиши я със свои думи + числото. И тя влиза в „Чакащи", за да ѝ се сложи стойност.</p>')
+          '<p>В „Храни", до мерките, има поле „друга мярка". Ако търсената я няма (например „шепа малини") — напиши я със свои думи + числото. Записът се отбелязва с „не в базата чака ⏳", за да ѝ се сложи стойност после.</p>')
       + helpItem("📊 Числата горе: Днес · Седмица · Месец",
           '<p><b>Днес</b> — сборът фениланин за днешния ден.</p>'
           + '<p><b>Седмица</b> и <b>Месец</b> — колко е <b>средно на ден</b> за последните 7 и 30 дни. Средните вървят успоредно с кръвните и заглаждат „днес много, утре малко".</p>'
@@ -946,8 +935,10 @@
       + helpItem("📅 Историята",
           '<p>Пази всеки минал ден, подредено по месеци. Докосни месец → после ден → за да видиш какво е яла. До всеки месец и ден пише сборът/средното.</p>'
           + '<p>Така страницата остава къса, колкото и дни да се натрупат.</p>')
-      + helpItem("⏳ Чакащи изчисление",
-          '<p>Тук стоят записите от „Свободно" или нови храни, които още нямат стойност фениланин. Скоро им се смята и влизат в числата.</p>')
+      + helpItem('⏳ Какво значи „не в базата чака"?',
+          '<p>Когато храната още я няма в списъка (записана през „Свободно" или нова храна), записът се отбелязва с <b>„не в базата чака ⏳"</b> — още няма стойност фениланин.</p>'
+          + '<p>Какво става после: фениланинът се смята малко по-късно и записът влиза в числата. Ако храната е нова, тя се <b>добавя в списъка</b> — така следващия път се смята сама и важи за всички.</p>'
+          + '<p>Докато има такива записи, дневната сума показва „+" (например „880+ mg") = „поне толкова".</p>')
       + helpItem("🍳 Създаване на рецепти (за родителя)",
           '<p>Картата „Въведи рецепта" е заключена с PIN — за родителя. Там ястие се сглобява <b>веднъж</b> от съставките му и се казва на колко порции излиза.</p>'
           + '<p>После се появява в бутона „Рецепти" и всеки може да го записва по брой порции — без PIN.</p>')
@@ -991,7 +982,7 @@
     loading.style.display = "none";
     content.innerHTML = '<div id="sec_bar">' + renderBar(log) + '</div>'
       + renderAddForm()
-      + '<div id="sec_log">' + renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + '</div>'
+      + '<div id="sec_log">' + renderToday(log, todayStr()) + renderHistory(log, todayStr()) + '</div>'
       + renderHelp() + renderRecipeCard(recipes, today.has_pin) + renderBlood(blood, today.has_pin);
     wireAdd();
     wireRecipe(recipes, today.has_pin);
@@ -1724,7 +1715,7 @@
       var bar = document.getElementById("sec_bar");
       var seclog = document.getElementById("sec_log");
       if (bar) bar.innerHTML = renderBar(log);
-      if (seclog) seclog.innerHTML = renderPendingFoods(pending) + renderToday(log, todayStr()) + renderHistory(log, todayStr());
+      if (seclog) seclog.innerHTML = renderToday(log, todayStr()) + renderHistory(log, todayStr());
     }).catch(function () {});
   }
 
