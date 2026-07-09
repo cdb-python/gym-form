@@ -899,8 +899,8 @@
       + '<div class="hist-body">' + form + list + '</div></details>';
   }
 
-  function helpItem(title, body) {
-    return '<details class="daycard"><summary><span>' + title + '</span></summary>'
+  function helpItem(title, body, id) {
+    return '<details class="daycard"' + (id ? ' id="' + id + '"' : '') + '><summary><span>' + title + '</span></summary>'
       + '<div class="dbody" style="font-size:14.5px;line-height:1.55;color:#3a4753;">' + body + '</div></details>';
   }
 
@@ -920,6 +920,11 @@
       + helpItem("🍳 Записване на рецепта",
           '<p>Натисни бутона „🍳 Рецепти" — излиза списък с готовите ястия (например палачинки). Докосни ястието и въведи само <b>колко порции</b> е изяла.</p>'
           + '<p>Фениланинът се смята сам — не се въвеждат съставки всеки път.</p>')
+      + helpItem("🔎 Как да добавя храна (провери първо!)",
+          '<p><b>Първо провери дали храната вече я има в списъка „🍎 Храни".</b> Търси <b>простото име</b>, не марката: „кашкавал“ (не „Верея кашкавал“), „мляко“ (не „Верея 3.7%“), „хляб“. Повечето храни са там под общото си име.</p>'
+          + '<p><b>Наистина я няма?</b> Чак тогава „✍ Свободно“ — опиши със свои думи. Записът чака и се смята после, а новата храна се добавя в списъка за всички.</p>'
+          + '<p><b>Ядете едно и също ястие от няколко храни редовно?</b> (например макарони със сметана и кашкавал) — направете го <b>веднъж</b> като „🍳 Рецепта“ (за родителя, с PIN). После се записва само по брой порции, смята се само, без чакане.</p>'
+          + '<p>Колкото по-често се ползват списъкът и рецептите — толкова по-точни числа и по-малко чакане.</p>', "help-addfood")
       + helpItem("✍ Кога да ползвам Свободно?",
           '<p>За смесени ястия или храна, която още я няма в списъка. Натисни „✍ Свободно" и опиши със свои думи какво е яла (например „шепа ориз + 2 филии хляб с масло").</p>'
           + '<p>Записът влиза като „⏳ чака" и фениланинът му се смята малко по-късно.</p>')
@@ -956,7 +961,7 @@
       + helpItem("⚠️ Важно",
           '<p>Приложението помага да следите лесно — но <b>дозата на лекарството, изследванията и храненето остават с лекарите и клиниката</b>. Тук само записвате и наблюдавате; числата помагат на вас и на тях.</p>');
 
-    return '<details class="hist-outer">'
+    return '<details class="hist-outer" id="helpSec">'
       + '<summary><span>❓ Как се ползва (помощ)</span></summary>'
       + '<div class="hist-body">' + items + '</div></details>';
   }
@@ -1078,6 +1083,11 @@
         var t = foodEl.value.trim();
         setMode("free");
         if (t) { freeEl.value = t; }
+      } else if (e.target && e.target.id === "helpAddFoodLink") {
+        var hs = document.getElementById("helpSec");
+        var hi = document.getElementById("help-addfood");
+        if (hs) hs.setAttribute("open", "");
+        if (hi) { hi.setAttribute("open", ""); try { hi.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e2) {} }
       }
     });
 
@@ -1223,8 +1233,8 @@
         // храна извън базата → в „От списъка" е забранена; насочваме към Свободен текст
         listBlocked = true;
         metaEl.innerHTML = "&nbsp;";
-        newfoodEl.innerHTML = '<div class="newfood">Тази храна не е в базата. За да я запишеш, използвай „✍ Свободен текст“.'
-          + '<button type="button" class="ghost" id="toFreeBtn" style="width:auto;margin:8px 0 0;padding:7px 11px;font-size:13px;">→ Премести в свободен текст</button></div>';
+        newfoodEl.innerHTML = '<div class="newfood"><b>Не е намерена в базата.</b> Провери изписването — потърси <b>простото име</b> (напр. „кашкавал“, не марката; „мляко“, не „Верея 3.7%“).'
+          + '<div style="margin-top:6px;font-size:12.5px;opacity:.9;">Наистина я няма? Запиши я през <span id="toFreeBtn" style="text-decoration:underline;cursor:pointer;color:#b06f22;font-weight:600;">✍ Свободно</span> (смята се после). Ако редовно ядеш цяло ястие от няколко храни — направи го веднъж като „🍳 Рецепта“. Подробно: <span id="helpAddFoodLink" style="text-decoration:underline;cursor:pointer;color:#b06f22;font-weight:600;">❓ Как да добавя храна</span>.</div></div>';
         previewEl.textContent = "";
         return;
       }
