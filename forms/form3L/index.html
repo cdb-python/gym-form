@@ -298,7 +298,7 @@
     var sorted = msgs.slice().sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
     var cards = sorted.map(function (m, i) {
       var dStr = m.entry_date || (m.created_at ? String(m.created_at).slice(0, 10) : "");
-      var body = esc(m.text).replace(/\n/g, "<br>");
+      var body = esc(m.text).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#2f6f4f;font-weight:600;word-break:break-all">$1</a>').replace(/\n/g, "<br>");
       // само най-новото (i===0) е отворено; старите са затворени отдолу
       return '<div class="card coachmsg' + (i === 0 ? " open" : "") + '">'
         + '<div class="t"><span class="lbl">Съобщение от Chris</span><span class="ttl">' + esc(fmtDate(dStr)) + "</span></div>"

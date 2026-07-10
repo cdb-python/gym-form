@@ -262,7 +262,7 @@
         return '<div class="card logcard coachcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(ckey) + '">'
           + '<div class="date">' + esc(cwhen) + "</div>"
           + '<div class="t" style="color:#2f6f4f">Съобщение от Chris</div>'
-          + '<div class="body">' + esc(e.note || "").replace(/\n/g, "<br>") + "</div></div>";
+          + '<div class="body">' + esc(e.note || "").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#2f6f4f;font-weight:600;word-break:break-all">$1</a>').replace(/\n/g, "<br>") + "</div></div>";
       }
       var meas = logSummary(e);
       var note = e.note ? String(e.note) : "";
@@ -280,7 +280,7 @@
         var rwhen = fmtDate(e.reply_at) + (fmtTime(e.reply_at) ? ", " + fmtTime(e.reply_at) : "");
         body += '<div style="margin-top:10px;padding:8px 11px;border-left:3px solid #2f6f4f;background:#eef4f0;border-radius:6px">'
           + '<div style="color:#2f6f4f;font-weight:600;font-size:13px;margin-bottom:3px">Отговор от Chris' + (rwhen ? " · " + esc(rwhen) : "") + "</div>"
-          + '<div style="font-size:14px">' + esc(reply).replace(/\n/g, "<br>") + "</div></div>";
+          + '<div style="font-size:14px">' + esc(reply).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#2f6f4f;font-weight:600;word-break:break-all">$1</a>').replace(/\n/g, "<br>") + "</div></div>";
       }
       var key = "log_" + (e.created_at || ("i" + idx));
       return '<div class="card logcard' + (idx === 0 ? " open" : "") + (replyUnread ? " hasreply" : "") + '" data-key="' + esc(key) + '">'
