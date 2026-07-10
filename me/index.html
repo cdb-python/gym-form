@@ -135,6 +135,8 @@
   .card.coachcard { border-left: 3px solid var(--accent); background: var(--soft); }
   .msgbanner { position: sticky; top: 0; z-index: 50; background: var(--gold); color: #fff; border-radius: 0 0 12px 12px; padding: 13px 14px; margin: 0 -14px 8px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
   .msgbanner b { font-size: 17px; }
+  .logcard.hasreply:not(.open) { border-color: #e0821e; box-shadow: 0 0 0 2px rgba(224,130,30,0.30); background: #fff7ef; }
+  .logcard .rbadge { display: inline-block; margin-left: 7px; padding: 1px 8px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; vertical-align: middle; }
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
   .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
@@ -273,6 +275,7 @@
         body = '<span class="m">Само мерки — без бележка.</span>';
       }
       var reply = e.reply ? String(e.reply) : "";
+      var replyUnread = reply && isUnreadTs(String(e.reply_at || ""));
       if (reply) {
         var rwhen = fmtDate(e.reply_at) + (fmtTime(e.reply_at) ? ", " + fmtTime(e.reply_at) : "");
         body += '<div style="margin-top:10px;padding:8px 11px;border-left:3px solid #2f6f4f;background:#eef4f0;border-radius:6px">'
@@ -280,15 +283,22 @@
           + '<div style="font-size:14px">' + esc(reply).replace(/\n/g, "<br>") + "</div></div>";
       }
       var key = "log_" + (e.created_at || ("i" + idx));
-      return '<div class="card logcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(key) + '">'
+      return '<div class="card logcard' + (idx === 0 ? " open" : "") + (replyUnread ? " hasreply" : "") + '" data-key="' + esc(key) + '">'
         + '<div class="date">' + esc(when) + "</div>"
-        + '<div class="t">' + esc(title) + "</div>"
+        + '<div class="t">' + esc(title) + (replyUnread ? '<span class="rbadge">отговор</span>' : "") + "</div>"
         + '<div class="body">' + body + "</div></div>";
     }
     function renderLogList(arr) {
       if (!arr || !arr.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи.</p>';
       return arr.map(renderLogCard).join("");
     }
+    var coachMsgs = (data.log || []).filter(function (e) { return e.kind === "coach"; });
+    var SEEN_KEY = "diary_seen_coach_" + token;
+    var seenTs = null; try { seenTs = localStorage.getItem(SEEN_KEY); } catch (e) {}
+    // последна КЛИЕНТСКА активност — ако е писала СЛЕД съобщението, видяла го е (robust кросс-устройство)
+    var lastClientAt = "";
+    (data.log || []).forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
+    function isUnreadTs(ts) { return !!(ts && ts > lastClientAt && (!seenTs || ts > seenTs)); }
     var logHtml = '<div class="sec"><h2>Моят прогрес</h2>'
       + '<div class="card open" data-key="log_form"><div class="t">Впиши днешното</div><div class="body lf">'
       + '<p style="color:#6b7886;font-size:13px;margin:0 0 6px">По желание — попълни каквото следиш. Датата се добавя автоматично.</p>'
@@ -308,13 +318,11 @@
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
       + '<div class="sec"><h2>Минали записи</h2><div id="logList">'
       + renderLogList(data.log || []) + "</div></div>";
-    var coachMsgs = (data.log || []).filter(function (e) { return e.kind === "coach"; });
-    var SEEN_KEY = "diary_seen_coach_" + token;
-    var seenTs = null; try { seenTs = localStorage.getItem(SEEN_KEY); } catch (e) {}
-    // последна КЛИЕНТСКА активност — ако е писала СЛЕД съобщението, видяла го е (robust кросс-устройство)
-    var lastClientAt = "";
-    (data.log || []).forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
-    var unread = coachMsgs.filter(function (m) { return m.created_at && m.created_at > lastClientAt && (!seenTs || m.created_at > seenTs); });
+    // всички съобщения от Chris = coach карти + inline отговори; банерът брои непрочетените
+    var msgEvents = [];
+    coachMsgs.forEach(function (m) { if (m.created_at) msgEvents.push(String(m.created_at)); });
+    (data.log || []).forEach(function (e) { if (e.kind !== "coach" && e.reply && e.reply_at) msgEvents.push(String(e.reply_at)); });
+    var unread = msgEvents.filter(isUnreadTs);
     var bannerHtml = "";
     if (unread.length) {
       var nb = unread.length;
@@ -325,9 +333,9 @@
 
     var msgBanner = document.getElementById("msgBanner");
     if (msgBanner) {
-      var newestCoach = coachMsgs.reduce(function (a, m) { return (m.created_at && (!a || m.created_at > a)) ? m.created_at : a; }, null);
+      var newestMsg = msgEvents.reduce(function (a, ts) { return (ts && (!a || ts > a)) ? ts : a; }, null);
       msgBanner.addEventListener("click", function () {
-        try { localStorage.setItem(SEEN_KEY, newestCoach); } catch (e) {}
+        try { localStorage.setItem(SEEN_KEY, newestMsg); } catch (e) {}
         msgBanner.style.display = "none";
         var ll = document.getElementById("logList");
         if (ll) ll.scrollIntoView({ behavior: "smooth", block: "start" });
