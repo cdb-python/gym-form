@@ -178,8 +178,7 @@
   .row2 > * { flex: 1; }
   .row3 { display: flex; gap: 8px; }
   .row3 > #f_qty { flex: 0 0 64px; }                    /* число — колкото за „999", не повече */
-  .row3 > select { flex: 1 1 0; min-width: 0; }          /* мярка */
-  .row3 > #f_custom_unit { flex: 1 1 0; min-width: 0; }  /* друга мярка — двете делят остатъка по равно */
+  .row3 > select { flex: 1 1 0; min-width: 0; }          /* мярка — заема остатъка */
 
   /* PIN екран за родителската секция */
   .pinbox { text-align: center; padding: 6px 0 2px; }
@@ -526,7 +525,6 @@
       +   '<div class="row3">'
       +   '<input type="text" id="f_qty" inputmode="decimal" autocomplete="off" autocorrect="off" data-lpignore="true" value="1" placeholder="брой">'
       +   '<select id="f_unit"><option value="g">г (грам)</option></select>'
-      +   '<input type="text" id="f_custom_unit" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" data-lpignore="true" placeholder="друга мярка...">'
       +   '</div>'
       +   '<p class="hint" id="f_preview">Избери или впиши храна отгоре</p>'
       +   '<div id="f_newfood"></div>'
@@ -929,7 +927,7 @@
           '<p>За смесени ястия или храна, която още я няма в списъка. Натисни „✍ Свободно" и опиши със свои думи какво е яла (например „шепа ориз + 2 филии хляб с масло").</p>'
           + '<p>Записът влиза като „⏳ чака" и фениланинът му се смята малко по-късно.</p>')
       + helpItem("📏 Ако мярката я няма?",
-          '<p>В „Храни", до мерките, има поле „друга мярка". Ако търсената я няма (например „шепа малини") — напиши я със свои думи + числото. Записът се отбелязва с „не в базата чака ⏳", за да ѝ се сложи стойност после.</p>')
+          '<p>В „Храни", до храната има списък с мерки. Ако точната я няма, избери <b>„г (грам)"</b> и впиши колко грама. За смесено ястие ползвай „✍ Свободно".</p>')
       + helpItem("📊 Числата горе: Днес · Седмица · Месец",
           '<p><b>Днес</b> — сборът фениланин за днешния ден.</p>'
           + '<p><b>Седмица</b> и <b>Месец</b> — колко е <b>средно на ден</b> за последните 7 и 30 дни. Средните вървят успоредно с кръвните и заглаждат „днес много, утре малко".</p>'
@@ -1034,7 +1032,6 @@
     var metaEl = document.getElementById("f_meta");
     var unitSel = document.getElementById("f_unit");
     var qtyEl = document.getElementById("f_qty");
-    var customEl = document.getElementById("f_custom_unit");
     var previewEl = document.getElementById("f_preview");
     var newfoodEl = document.getElementById("f_newfood");
     var saveBtn = document.getElementById("saveBtn");
@@ -1154,7 +1151,13 @@
       var q = (query || "").trim().toLowerCase();
       if (!q) { hideAc(); return; }
       var recM = recipes.filter(function (r) { return r.name.toLowerCase().indexOf(q) !== -1; }).slice(0, 4);
-      var foodM = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; }).slice(0, 6);
+      var foodM = phedb.filter(function (f) { return f.food_name.toLowerCase().indexOf(q) !== -1; })
+        .sort(function (a, b) {
+          var an = a.food_name.toLowerCase(), bn = b.food_name.toLowerCase();
+          function rank(n) { if (n === q) return 0; if (n.indexOf(q) === 0) return 1; if (n.indexOf(" " + q) !== -1) return 2; return 3; }
+          var ra = rank(an), rb = rank(bn);
+          return ra !== rb ? ra - rb : an.length - bn.length;
+        }).slice(0, 10);
       if (!recM.length && !foodM.length) { hideAc(); return; }
       acList.innerHTML =
         recM.map(function (r) {
@@ -1205,7 +1208,6 @@
     // при рецепта скриваме мярка/друга мярка — броим порции
     function setRecipeMode(on) {
       unitSel.style.display = on ? "none" : "";
-      customEl.style.display = on ? "none" : "";
     }
 
     function updatePreview() {
@@ -1226,7 +1228,6 @@
       var name = foodEl.value.trim();
       var f = findFood(name);
       var qty = parseFloat(qtyEl.value);
-      var customUnit = customEl.value.trim();
       listBlocked = false;
       if (!name) { previewEl.textContent = "Избери или впиши храна отгоре"; metaEl.innerHTML = "&nbsp;"; newfoodEl.innerHTML = ""; return; }
       if (!f) {
@@ -1242,14 +1243,6 @@
       metaEl.innerHTML = esc(f.food_name) + estBadge;
       newfoodEl.innerHTML = "";
 
-      if (customUnit) {
-        unitSel.disabled = true;
-        previewEl.textContent = isFinite(qty) && qty > 0
-          ? "Ще се запише: " + qty + " × „" + customUnit + "“ — Chris ще добави грамажа/фениланина по-късно."
-          : "Впиши брой";
-        return;
-      }
-      unitSel.disabled = false;
       if (!isFinite(qty) || qty <= 0) { previewEl.textContent = "Впиши брой"; return; }
       var grams = qty * currentGramsPerUnit();
       var phe = (grams / 100) * f.phe_mg_per_100g;
@@ -1269,11 +1262,10 @@
     foodEl.addEventListener("focus", function () { if (foodEl.value.trim()) showAc(foodEl.value); });
     unitSel.addEventListener("change", updatePreview);
     qtyEl.addEventListener("input", updatePreview);
-    customEl.addEventListener("input", updatePreview);
     refreshUnitOptions(null);
 
     function resetForm() {
-      foodEl.value = ""; qtyEl.value = "1"; customEl.value = ""; selectedRecipe = null;
+      foodEl.value = ""; qtyEl.value = "1"; selectedRecipe = null;
       hideAc();
       setRecipeMode(false);
       refreshUnitOptions(null);
@@ -1330,7 +1322,6 @@
       }
 
       var name = foodEl.value.trim();
-      var customUnit = customEl.value.trim();
       if (!name) { okMsg.textContent = "Впиши храна."; okMsg.className = "ok show err"; return; }
       if (listBlocked || !findFood(name)) {
         okMsg.textContent = "Храната не е в базата — премини на „✍ Свободен текст“."; okMsg.className = "ok show err"; return;
@@ -1338,9 +1329,7 @@
       if (!isFinite(qty) || qty <= 0) { okMsg.textContent = "Впиши брой."; okMsg.className = "ok show err"; return; }
       saveBtn.disabled = true; saveBtn.textContent = "Записване…";
 
-      var call = customUnit
-        ? sb.rpc("add_phe_custom_unit", { token: token, p_food_text: name, p_custom_unit: customUnit, p_qty: qty })
-        : sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
+      var call = sb.rpc("add_phe_entry", { token: token, p_food_text: name, p_grams: qty * currentGramsPerUnit(), p_phe_mg: null });
 
       call.then(function (res) {
           if (res.error) throw res.error;
