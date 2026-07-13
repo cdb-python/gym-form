@@ -89,6 +89,8 @@
     content: "\258C"; color: #5f6a73;
     animation: twblink 1s step-end infinite; margin-left: 1px; font-weight: 700;
   }
+  .card.verdict .tw-reveal { animation: twfade .45s ease both; }
+  @keyframes twfade { from { opacity: 0; } to { opacity: 1; } }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
   .card .body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 8px 0; font-size: 13.5px; }
@@ -278,37 +280,67 @@
     function clearSpacer() { var sp = document.getElementById("tw-spacer"); if (sp) sp.style.height = "0px"; }
 
     // ── Typewriter за тялото на карта-присъда (тръгва при отваряне) ──
+    // Тялото се гради ПРОГРЕСИВНО (DOM-огледало): неизписаните <br>/блокове/бутони
+    // още не съществуват → нула резервирано място → никаква празнина (бъгът Ваня/Анна).
     var TW_SPEED = 30;   // ms на буква
-    var twNodes = null, twTimer = null, twStarted = false, twDone = false;
+    var twTimer = null, twStarted = false, twDone = false;
+    var twBody = null, twOps = null, twOriginalHTML = "";
 
-    function twPrepare() {                            // изчиства тялото ВЕДНАГА (мерим празно)
+    function twBuildOps(parent) {
+      var ops = [];
+      [].slice.call(parent.childNodes).forEach(function (n) {
+        if (n.nodeType === 3) { ops.push({ t: "text", s: n.nodeValue }); return; }
+        if (n.nodeType !== 1) return;
+        var tag = n.tagName.toLowerCase();
+        var isCta = (tag === "button" || tag === "a");
+        // писателят ПРОПУСКА: CTA бутоните (появяват се накрая) + сертификатите
+        // (цялата .cert плочка с банера — добавя се наготово, не се изписва)
+        var isCert = n.classList && (n.classList.contains("cert") || n.classList.contains("cert-pop"));
+        if (isCta || isCert) { ops.push({ t: "full", clone: n.cloneNode(true), cta: isCta }); return; }
+        ops.push({ t: "open", clone: n.cloneNode(false) });
+        ops = ops.concat(twBuildOps(n));
+        ops.push({ t: "close" });
+      });
+      return ops;
+    }
+    function twPrepare() {
       if (twStarted || !verdictCard) return;
       twStarted = true;
-      var bodyEl = verdictCard.querySelector(".body");
-      if (!bodyEl) { twDone = true; return; }
-      var walker = document.createTreeWalker(bodyEl, NodeFilter.SHOW_TEXT, null);
-      twNodes = []; var n;
-      while ((n = walker.nextNode())) { twNodes.push({ node: n, text: n.nodeValue }); n.nodeValue = ""; }
+      twBody = verdictCard.querySelector(".body");
+      if (!twBody) { twDone = true; return; }
+      twOriginalHTML = twBody.innerHTML;              // за принт/fast-forward (токенът вече е вложен)
+      twOps = twBuildOps(twBody);
+      twBody.innerHTML = "";                           // чистим → градим прогресивно
       verdictCard.classList.add("typing");
     }
+    function twFinish() {
+      verdictCard.classList.remove("typing");
+      twDone = true; twTimer = null;
+      rewireCerts(twBody);                             // клонингите нямат listener-и → окабеляваме наново
+      setSpacer();
+    }
     function twRun() {
-      if (!twNodes) return;
-      var i = 0, ci = 0;
+      if (!twOps) return;
+      var oi = 0, ci = 0, cur = twBody, stack = [], txt = null, tstr = "";
       function step() {
-        if (i >= twNodes.length) { verdictCard.classList.remove("typing"); twDone = true; twTimer = null; setSpacer(); return; }
-        var cur = twNodes[i];
-        if (/^\s*$/.test(cur.text)) { cur.node.nodeValue = cur.text; i++; ci = 0; step(); return; }
-        if (ci < cur.text.length) {
-          cur.node.nodeValue += cur.text.charAt(ci); ci++;
-          twTimer = setTimeout(step, TW_SPEED);
-        } else { i++; ci = 0; step(); }
+        if (oi >= twOps.length) { twFinish(); return; }
+        var op = twOps[oi];
+        if (op.t === "open") { cur.appendChild(op.clone); stack.push(cur); cur = op.clone; oi++; return step(); }
+        if (op.t === "close") { cur = stack.pop() || twBody; oi++; return step(); }
+        if (op.t === "full") { if (op.cta) op.clone.classList.add("tw-reveal"); cur.appendChild(op.clone); oi++; return step(); }
+        if (txt === null) {
+          if (/^\s*$/.test(op.s)) { cur.appendChild(document.createTextNode(op.s)); oi++; return step(); }
+          txt = document.createTextNode(""); cur.appendChild(txt); tstr = op.s; ci = 0;
+        }
+        if (ci < tstr.length) { txt.nodeValue += tstr.charAt(ci); ci++; twTimer = setTimeout(step, TW_SPEED); return; }
+        txt = null; oi++; return step();
       }
       step();
     }
-    function twComplete() {                           // принт/PDF → пълен текст, без анимация
+    function twComplete() {                           // принт/PDF → пълно тяло, без анимация
       if (twTimer) { clearTimeout(twTimer); twTimer = null; }
       twStarted = true;
-      if (twNodes) twNodes.forEach(function (it) { it.node.nodeValue = it.text; });
+      if (twBody && twOriginalHTML) { twBody.innerHTML = twOriginalHTML; rewireCerts(twBody); }
       if (verdictCard) verdictCard.classList.remove("typing");
       twDone = true;
     }
@@ -352,9 +384,10 @@
       else { pop.style.top = (cr.bottom + 8) + "px"; pop.classList.add("below"); }
       pop.style.setProperty("--arrow-shift", (center - (left + pr.width / 2)) + "px");
     }
-    var certs = [].slice.call(content.querySelectorAll(".cert"));
+    var certs = [];
     function closeCerts(except) { certs.forEach(function (o) { if (o !== except) o.classList.remove("open"); }); }
-    certs.forEach(function (cert) {
+    function wireCert(cert) {
+      if (cert._wired) return; cert._wired = true; certs.push(cert);
       cert.addEventListener("mouseenter", function () { closeCerts(cert); cert.classList.add("open"); placeCert(cert); });
       cert.addEventListener("mouseleave", function () { cert.classList.remove("open"); });
       cert.addEventListener("click", function (e) {
@@ -363,7 +396,9 @@
         closeCerts(cert);
         if (!wasOpen) { cert.classList.add("open"); placeCert(cert); } else { cert.classList.remove("open"); }
       });
-    });
+    }
+    function rewireCerts(scope) { [].slice.call((scope || content).querySelectorAll(".cert")).forEach(wireCert); }
+    rewireCerts(content);
     document.addEventListener("click", function () { closeCerts(null); });
     window.addEventListener("scroll", function () { closeCerts(null); }, true);
   }
