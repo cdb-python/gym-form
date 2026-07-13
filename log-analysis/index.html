@@ -11,11 +11,11 @@
     --card: #ffffff;
     --ink: #1c2733;
     --muted: #6b7886;
-    --accent: #8a5a00;
-    --accent-dark: #6a531f;
+    --accent: #5f6a73;
+    --accent-dark: #454e56;
     --gold: #b8862f;
     --border: #d8dee5;
-    --soft: #fff8ec;
+    --soft: #eef1f4;
   }
   * { box-sizing: border-box; }
   body {
@@ -72,6 +72,23 @@
   .card.l4 { border-left: 5px solid #129e90; }
   .card.l5 { border-left: 5px solid #b8862f; }
   .card.lx { border-left: 5px solid #8a5a00; }
+  /* УВОД — перманентно отворена, извън пирамидата, леко сиво */
+  .card.intro .t { background: #e8ebee; color: #454e56; cursor: default; }
+  .card.intro .t::after { content: "" !important; }
+  .card.intro { border-left-color: #b9c0c7; }
+  /* ПРИСЪДА — призрачна по подразбиране (тънък сив аутлайн + сив надпис), отваряема */
+  .card.verdict { border: 1px solid #e4e7ea; background: transparent; }
+  .card.verdict .t { background: transparent; color: #99a0a7; justify-content: flex-start; }
+  .card.verdict .t::after { content: "\2192"; color: #99a0a7; }
+  .card.verdict.open { border-color: #5f6a73; background: var(--card); }
+  .card.verdict.open .t { background: #5f6a73; color: #fff; }
+  .card.verdict.open .t::after { content: "\2192"; color: #fff; }
+  /* карта-присъда: изписване (typewriter) — мигащо каре */
+  @keyframes twblink { 50% { opacity: 0; } }
+  .card.typing .body::after {
+    content: "\258C"; color: #5f6a73;
+    animation: twblink 1s step-end infinite; margin-left: 1px; font-weight: 700;
+  }
   .card .body p { margin: 0 0 8px; }
   .card .body p:last-child { margin-bottom: 0; }
   .card .body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 8px 0; font-size: 13.5px; }
@@ -99,7 +116,7 @@
   }
   .pdfbtn:active { background: var(--soft); }
   @media print {
-    .no-print, .loading { display: none !important; }
+    .no-print, .loading, #tw-spacer { display: none !important; }
     .card .body { display: block !important; }
     .card .t { cursor: default; break-after: avoid; }
     .card .t::after { content: "" !important; }
@@ -200,11 +217,124 @@
       a.href += (a.href.indexOf("?") >= 0 ? "&" : "?") + "t=" + encodeURIComponent(token);
     });
 
+    // ── ПОВЕДЕНИЕ: bookends (увод/присъда извън пирамидата) + typewriter ──
+    var allCards = [].slice.call(content.querySelectorAll(".card"));
+    var lxCards = allCards.filter(function (c) { return c.classList.contains("lx"); });
+    var introCard = lxCards.length ? lxCards[0] : null;
+    var verdictCard = lxCards.length > 1 ? lxCards[lxCards.length - 1] : null;
+
+    // Увод: перманентно отворена (леко сиво). Присъда: отваряема, призрачна.
+    if (introCard) introCard.classList.add("intro", "open");
+    if (verdictCard) verdictCard.classList.add("verdict");
+
+    function docHeight() {
+      return Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    }
+    // Плавен скрол — еднакъв на Android и iOS. Ползва native smooth където се
+    // поддържа (Android · iOS 15.4+ · десктоп); rAF fallback за стари iOS Safari,
+    // където native scrollTo({behavior:"smooth"}) мълчи и не мърда.
+    var supportsSmooth = ("scrollBehavior" in document.documentElement.style);
+    var scrollRAF = null;
+    function smoothScrollTo(targetY) {
+      var maxY = docHeight() - window.innerHeight;
+      var endY = Math.max(0, Math.min(targetY, maxY < 0 ? 0 : maxY));
+      if (supportsSmooth) {
+        try { window.scrollTo({ top: endY, behavior: "smooth" }); return; } catch (e) {}
+      }
+      var startY = window.pageYOffset || document.documentElement.scrollTop || 0;
+      var dist = endY - startY, dur = 520;
+      if (scrollRAF) cancelAnimationFrame(scrollRAF);
+      if (Math.abs(dist) < 2) { window.scrollTo(0, endY); return; }
+      var t0 = null;
+      function ease(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
+      function frame(ts) {
+        if (t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / dur);
+        window.scrollTo(0, Math.round(startY + dist * ease(p)));
+        if (p < 1) scrollRAF = requestAnimationFrame(frame); else scrollRAF = null;
+      }
+      scrollRAF = requestAnimationFrame(frame);
+    }
+    function alignCardTop(el) {
+      var top = el.getBoundingClientRect().top +
+                (window.pageYOffset || document.documentElement.scrollTop || 0) - 10;
+      smoothScrollTo(top < 0 ? 0 : top);
+    }
+
+    // ── Спейсър: гарантира, че заглавието на присъдата стига върха и ОСТАВА там ──
+    function setSpacer() {
+      var sp = document.getElementById("tw-spacer");
+      if (sp) sp.style.height = "0px";              // нулирай за чисто мерене
+      if (!verdictCard) return 0;
+      var y = (window.pageYOffset || document.documentElement.scrollTop || 0);
+      var vtop = verdictCard.getBoundingClientRect().top + y;
+      var need = (vtop - 10 + window.innerHeight) - docHeight();
+      if (need > 0) {
+        if (!sp) { sp = document.createElement("div"); sp.id = "tw-spacer"; content.appendChild(sp); }
+        sp.style.height = Math.ceil(need) + "px";
+      }
+      return vtop;
+    }
+    function clearSpacer() { var sp = document.getElementById("tw-spacer"); if (sp) sp.style.height = "0px"; }
+
+    // ── Typewriter за тялото на карта-присъда (тръгва при отваряне) ──
+    var TW_SPEED = 30;   // ms на буква
+    var twNodes = null, twTimer = null, twStarted = false, twDone = false;
+
+    function twPrepare() {                            // изчиства тялото ВЕДНАГА (мерим празно)
+      if (twStarted || !verdictCard) return;
+      twStarted = true;
+      var bodyEl = verdictCard.querySelector(".body");
+      if (!bodyEl) { twDone = true; return; }
+      var walker = document.createTreeWalker(bodyEl, NodeFilter.SHOW_TEXT, null);
+      twNodes = []; var n;
+      while ((n = walker.nextNode())) { twNodes.push({ node: n, text: n.nodeValue }); n.nodeValue = ""; }
+      verdictCard.classList.add("typing");
+    }
+    function twRun() {
+      if (!twNodes) return;
+      var i = 0, ci = 0;
+      function step() {
+        if (i >= twNodes.length) { verdictCard.classList.remove("typing"); twDone = true; twTimer = null; setSpacer(); return; }
+        var cur = twNodes[i];
+        if (/^\s*$/.test(cur.text)) { cur.node.nodeValue = cur.text; i++; ci = 0; step(); return; }
+        if (ci < cur.text.length) {
+          cur.node.nodeValue += cur.text.charAt(ci); ci++;
+          twTimer = setTimeout(step, TW_SPEED);
+        } else { i++; ci = 0; step(); }
+      }
+      step();
+    }
+    function twComplete() {                           // принт/PDF → пълен текст, без анимация
+      if (twTimer) { clearTimeout(twTimer); twTimer = null; }
+      twStarted = true;
+      if (twNodes) twNodes.forEach(function (it) { it.node.nodeValue = it.text; });
+      if (verdictCard) verdictCard.classList.remove("typing");
+      twDone = true;
+    }
+
+    window.addEventListener("beforeprint", function () {
+      if (verdictCard) { verdictCard.classList.add("open"); twComplete(); }
+    });
+
     content.addEventListener("click", function (e) {
       if (e.target.closest(".cert")) return;
       if (e.target.closest(".body")) return;
       var card = e.target.closest(".card");
-      if (card) { card.classList.toggle("open"); }
+      if (!card) return;
+      if (card === introCard) return;                 // увод: без тоглер
+      card.classList.toggle("open");
+      if (card === verdictCard) {
+        if (!card.classList.contains("open")) { clearSpacer(); return; }
+        var firstOpen = !twStarted;
+        if (firstOpen) twPrepare();                   // изчисти тялото ПРЕДИ мерене
+        var vtop = setSpacer();                       // резервирай място → заглавието горе
+        smoothScrollTo(Math.max(0, vtop - 10));
+        if (firstOpen) setTimeout(twRun, 550);        // след скрола → тръгва изписването
+        return;
+      }
+      if (!card.classList.contains("open")) return;
+      alignCardTop(card);
     });
 
     function placeCert(cert) {
