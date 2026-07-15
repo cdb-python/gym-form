@@ -99,10 +99,26 @@
     margin: 16px 0 4px; padding: 11px 13px; background: #f9f3e0; border: 1px solid var(--border); border-left: 5px solid #34376f; border-radius: 10px; font-weight: 400;
   }
   .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  /* Бутонът е НАКРАЯ (не лепне) — вместо него горе стои лентата „Запазено". */
   .actions {
-    position: sticky; bottom: 0; background: linear-gradient(transparent, var(--bg) 22%);
     padding: 18px 14px 8px; max-width: 640px; margin: 0 auto;
   }
+  .sendhint { text-align: center; color: #6b7280; font-size: 13.5px; margin: 0 0 10px; }
+  /* Лента „Запазено" — залепена горе, вижда се през цялото скролване */
+  .savebar {
+    position: sticky; top: 0; z-index: 50; display: none;
+    background: #eef0f7; border-bottom: 1px solid #c3c9e6;
+    color: #34376f; font-size: 13px; font-weight: 700;
+    text-align: center; padding: 7px 12px;
+  }
+  .savebar.show { display: block; }
+  .savebar.saving { color: #6b7280; }
+  /* Банер при връщане към запазена чернова */
+  #resumeNote {
+    display: none; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 10px;
+    padding: 10px 13px; margin: 14px 0 0; font-weight: 700; color: #1d5c3a; text-align: center;
+  }
+  #resumeNote.show { display: block; }
   button {
     width: 100%; padding: 16px; font-size: 18px; font-weight: 700; color: #fff;
     background: #34376f; border: none; border-radius: 12px; cursor: pointer;
@@ -133,13 +149,18 @@
   </div>
 </header>
 
+<div class="savebar" id="saveBar"></div>
+
 <div class="wrap">
 
   <div class="intro">
     Попълни <b>основните данни</b> горе, после отвори и попълни само секциите, които те засягат —
-    <b>здраве, хранене, тренировки, сън</b>. Където не знаеш, остави празно; накрая натисни <b>„Изпрати"</b>.
+    <b>здраве, хранене, тренировки, сън</b>. Където не знаеш, остави празно.
+    <br><br><b>Попълненото се запазва автоматично</b> — може да спреш и да продължиш по-късно от същия линк. Изпращаш когато прецениш.
     <br><br>Епикризи и изследвания се изпращат <b>по Viber на треньора</b>.
   </div>
+
+  <div id="resumeNote">Продължаваш оттам, докъдето беше. Попълненото е запазено.</div>
 
   <form id="form">
 
@@ -882,6 +903,7 @@
 </div>
 
 <div class="actions">
+  <div class="sendhint" id="sendHint">Изпрати чак когато си готов(а) — дотогава всичко се пази.</div>
   <button type="button" id="sendBtn">Изпрати</button>
   <div class="ok" id="okMsg">Отговорите бяха изпратени. Въз основа на тях ще бъде изготвен личен план; ще получиш линк към личния си дневник.</div>
   <div class="reqnote" id="sendErr"></div>
@@ -1279,6 +1301,112 @@
     }, function () { /* без връзка → името остава за ръчно попълване */ });
   })();
 
+  // ══ ЧЕРНОВА: авто-запазване + продължаване по-късно (хибрид) ══
+  // Сървър (Supabase, по токен) = истината → продължава и от друго устройство.
+  // localStorage = мигновен кеш + резерв (за без токен / без връзка).
+  var TOKEN = new URLSearchParams(location.search).get("t") || "";
+  var DRAFT_KEY = "cdbgym_intake_draft" + (TOKEN ? "_" + TOKEN : "");
+  var saveBar = document.getElementById("saveBar");
+  var resumeNote = document.getElementById("resumeNote");
+  var restoring = false, saveTimer = null;
+
+  function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function setBar(state) {
+    saveBar.classList.add("show");
+    if (state === "saving") { saveBar.classList.add("saving"); saveBar.textContent = "Запазва се…"; return; }
+    saveBar.classList.remove("saving");
+    saveBar.textContent = (state === "local")
+      ? "✓ Запазено на това устройство " + hhmm()
+      : "✓ Запазено " + hhmm();
+  }
+
+  // Ключ за чекбокс (нямат id) — стабилен между сесиите
+  function cbKey(el) {
+    if (el.hasAttribute("data-area")) return "area|" + el.getAttribute("data-area");
+    if (el.id) return "id|" + el.id;
+    var sc = el.closest("[data-check]");
+    if (sc) return "chk|" + sc.getAttribute("data-check") + "|" + el.value;
+    return "";
+  }
+  function controls() { return document.querySelectorAll("#form input, #form textarea, #form select"); }
+
+  function snapshot() {
+    var s = { v: {}, r: {}, c: [] };
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "radio") { if (el.checked && el.name) s.r[el.name] = el.value; }
+      else if (el.type === "checkbox") { if (el.checked) { var k = cbKey(el); if (k) s.c.push(k); } }
+      else if (el.id && el.value !== "") s.v[el.id] = el.value;
+    });
+    return s;
+  }
+
+  function fire(el) {
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+    el.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  function applySnap(s) {
+    if (!s || typeof s !== "object") return false;
+    restoring = true;
+    var touched = 0;
+    Object.keys(s.v || {}).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.type !== "checkbox" && el.type !== "radio") { el.value = s.v[id]; fire(el); touched++; }
+    });
+    Object.keys(s.r || {}).forEach(function (nm) {
+      var el = document.querySelector('input[name="' + nm + '"][value="' + String(s.r[nm]).replace(/"/g, '\\"') + '"]');
+      if (el) { el.checked = true; fire(el); touched++; }
+    });
+    (s.c || []).forEach(function (k) {
+      var parts = k.split("|"), el = null;
+      if (parts[0] === "area") el = document.querySelector('input[data-area="' + parts[1] + '"]');
+      else if (parts[0] === "id") el = document.getElementById(parts[1]);
+      else if (parts[0] === "chk") {
+        var sc = document.querySelector('[data-check="' + parts[1] + '"]');
+        if (sc) el = sc.querySelector('input[value="' + String(parts.slice(2).join("|")).replace(/"/g, '\\"') + '"]');
+      }
+      if (el) { el.checked = true; fire(el); touched++; }
+    });
+    restoring = false;
+    if (touched) { resumeNote.classList.add("show"); setBar(TOKEN ? "saved" : "local"); }
+    return touched > 0;
+  }
+
+  function doSave() {
+    var snap = snapshot();
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), data: snap })); } catch (e) {}
+    if (!TOKEN) { setBar("local"); return; }
+    sb.rpc("save_intake_draft", { p_token: TOKEN, p_payload: snap }).then(
+      function (res) { setBar(res && res.error ? "local" : "saved"); },
+      function () { setBar("local"); }
+    );
+  }
+  function scheduleSave() {
+    if (restoring) return;
+    setBar("saving");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(doSave, 1200);
+  }
+  var formEl = document.getElementById("form");
+  formEl.addEventListener("input", scheduleSave);
+  formEl.addEventListener("change", scheduleSave);
+
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+    if (TOKEN) { try { sb.rpc("delete_intake_draft", { p_token: TOKEN }); } catch (e) {} }
+  }
+
+  // Възстановяване при отваряне: сървърът бие локалното (за токенизираните)
+  (function () {
+    var loc = null;
+    try { var raw = localStorage.getItem(DRAFT_KEY); if (raw) loc = JSON.parse(raw); } catch (e) {}
+    if (!TOKEN) { if (loc && loc.data) applySnap(loc.data); return; }
+    sb.rpc("get_intake_draft", { p_token: TOKEN }).then(function (res) {
+      var d = (res && res.data) ? res.data : null;
+      if (d && (Object.keys(d.v || {}).length || Object.keys(d.r || {}).length || (d.c || []).length)) applySnap(d);
+      else if (loc && loc.data) applySnap(loc.data);
+    }, function () { if (loc && loc.data) applySnap(loc.data); });
+  })();
+
   // ── Валидация: ТВЪРД блок на противоречия · МЕК confirm на аномални мерки ──
   // Модел: банер до конкретното поле (като „нужно"), по една зона наведнъж, скрол дотам.
   var VZONES = ["vnCikyl", "vnBrem", "vnAgeHt", "vnWt", "vnMeas"];
@@ -1393,6 +1521,9 @@
     sb.from("submissions").insert({ form_type: "intake", payload: data, raw_block: text })
       .then(function (res) {
         if (res.error) { throw res.error; }
+        clearDraft();                                   // подадено → черновата отпада
+        saveBar.classList.remove("show");
+        var sh = document.getElementById("sendHint"); if (sh) sh.style.display = "none";
         okMsg.classList.add("show");
         okMsg.scrollIntoView({ behavior: "smooth", block: "nearest" });
         btn.textContent = "Изпратено ✓";
