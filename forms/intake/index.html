@@ -109,10 +109,18 @@
     position: sticky; top: 0; z-index: 50; display: none;
     background: #eef0f7; border-bottom: 1px solid #c3c9e6;
     color: #34376f; font-size: 13px; font-weight: 700;
-    text-align: center; padding: 7px 12px;
+    text-align: center; padding: 6px 12px;
   }
-  .savebar.show { display: block; }
-  .savebar.saving { color: #6b7280; }
+  .savebar.show { display: flex; align-items: center; justify-content: center; }
+  .savebar.saving #saveTxt { color: #6b7280; }
+  .savebar > span { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .clearbtn {
+    border: 1px solid #c3c9e6; background: #fff; color: #6b7280;
+    border-radius: 7px; font-size: 12px; font-weight: 700;
+    padding: 3px 9px; cursor: pointer; flex: none;
+  }
+  .clearbtn:active { background: #e8ebf3; }
+  .clearbtn.danger { border-color: #c43d3d; color: #c43d3d; }
   /* Банер при връщане към запазена чернова */
   #resumeNote {
     display: none; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 10px;
@@ -149,7 +157,17 @@
   </div>
 </header>
 
-<div class="savebar" id="saveBar"></div>
+<div class="savebar" id="saveBar">
+  <span id="saveState">
+    <span id="saveTxt"></span>
+    <button type="button" class="clearbtn" id="clearBtn">Изчисти</button>
+  </span>
+  <span id="clearAsk" style="display:none;">
+    Да се изтрие ли попълненото?
+    <button type="button" class="clearbtn danger" id="clearYes">Да, изтрий</button>
+    <button type="button" class="clearbtn" id="clearNo">Отказ</button>
+  </span>
+</div>
 
 <div class="wrap">
 
@@ -1310,12 +1328,14 @@
   var resumeNote = document.getElementById("resumeNote");
   var restoring = false, saveTimer = null;
 
+  var saveTxt = document.getElementById("saveTxt");
   function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
   function setBar(state) {
     saveBar.classList.add("show");
-    if (state === "saving") { saveBar.classList.add("saving"); saveBar.textContent = "Запазва се…"; return; }
+    askOff();
+    if (state === "saving") { saveBar.classList.add("saving"); saveTxt.textContent = "Запазва се…"; return; }
     saveBar.classList.remove("saving");
-    saveBar.textContent = (state === "local")
+    saveTxt.textContent = (state === "local")
       ? "✓ Запазено на това устройство " + hhmm()
       : "✓ Запазено " + hhmm();
   }
@@ -1392,8 +1412,47 @@
 
   function clearDraft() {
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
-    if (TOKEN) { try { sb.rpc("delete_intake_draft", { p_token: TOKEN }); } catch (e) {} }
+    // ⚠️ supabase-js v2: rpc() е lazy builder — БЕЗ .then() заявката НЕ се праща.
+    if (TOKEN) { try { sb.rpc("delete_intake_draft", { p_token: TOKEN }).then(function () {}, function () {}); } catch (e) {} }
   }
+
+  // ── „Изчисти" — пълно нулиране, с потвърждение в самата лента ──
+  var saveState = document.getElementById("saveState");
+  var clearAsk = document.getElementById("clearAsk");
+  function askOn() { saveState.style.display = "none"; clearAsk.style.display = "flex"; }
+  function askOff() { clearAsk.style.display = "none"; saveState.style.display = "flex"; }
+
+  function resetForm() {
+    restoring = true;                    // да не тригерне запис по време на чистенето
+    clearTimeout(saveTimer);
+    var keepName = (TOKEN && imeEl.readOnly) ? imeEl.value : "";   // името от токена остава
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+      else el.value = "";
+    });
+    Array.prototype.forEach.call(document.querySelectorAll(".reveal"), function (r) { r.classList.remove("show"); });
+    Array.prototype.forEach.call(document.querySelectorAll("details.sec"), function (d) { d.classList.remove("filled"); d.open = false; });
+    clearNotes(); vAcked = {};
+    imeReqNote.classList.remove("show");
+    ztReq.classList.remove("show");
+    sendErr.classList.remove("show");
+    resumeNote.classList.remove("show");
+    if (keepName) imeEl.value = keepName;
+    clearDraft();                        // трие и локалната, И сървърната чернова
+    restoring = false;
+    askOff();
+    saveBar.classList.remove("saving");
+    saveTxt.textContent = "Формата е изчистена";
+    document.getElementById("clearBtn").style.display = "none";
+    setTimeout(function () {
+      saveBar.classList.remove("show");
+      document.getElementById("clearBtn").style.display = "";
+    }, 2500);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.getElementById("clearBtn").addEventListener("click", askOn);
+  document.getElementById("clearNo").addEventListener("click", askOff);
+  document.getElementById("clearYes").addEventListener("click", resetForm);
 
   // Възстановяване при отваряне: сървърът бие локалното (за токенизираните)
   (function () {
