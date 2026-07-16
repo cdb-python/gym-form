@@ -163,8 +163,8 @@
     <button type="button" class="clearbtn" id="clearBtn">Изчисти</button>
   </span>
   <span id="clearAsk" style="display:none;">
-    Да се изтрие ли попълненото?
-    <button type="button" class="clearbtn danger" id="clearYes">Да, изтрий</button>
+    Да изчистя ли формата?
+    <button type="button" class="clearbtn danger" id="clearYes">Да, изчисти</button>
     <button type="button" class="clearbtn" id="clearNo">Отказ</button>
   </span>
 </div>
@@ -1003,13 +1003,10 @@
   });
   function isArea(key) { var cb = document.querySelector('input[data-area="' + key + '"]'); return !!(cb && cb.checked); }
 
-  // ---- Изборът отваря секции ----
-  function openSec(name) { var d = document.querySelector('details.sec[data-sec="' + name + '"]'); if (d) d.open = true; }
-  document.getElementById("izhodGroup").addEventListener("change", function () {
-    var s = checks("izhod"), all = s.indexOf("Цялостен подход") > -1;
-    if (all || s.indexOf("Хранителен режим") > -1) openSec("nutrition");
-    if (all || s.indexOf("Тренировъчна програма") > -1) openSec("training");
-  });
+  // ---- Секциите НЕ се отварят сами. Никога. (решение на Chris, 16.07.2026) ----
+  // И четирите стоят затворени → човекът вижда ПИРАМИДАТА и отваря всяка, щом стигне до нея.
+  // Махнато: „какво търсиш" отваряше Хранене+Тренировки, а Здраве (основата) и Сън — никога.
+  // Прецедент Силвия: избра „Цялостен подход", видя 2 от 4 отворени, пропусна Здраве → подаде втори път.
 
   // ---- „Попълнено ✓" badge на секциите ----
   function sectionFilled(d) {
@@ -1065,7 +1062,7 @@
       L.push("");
       L.push("[ХОРМОНАЛНО (жени)]");
       L.push(line("Цикъл", radio("cikyl")));
-      L.push(line("Перименопауза/менопауза", radio("menopauza")));
+      L.push(line("Перименопауза/менопауза симптоми", radio("menopauza")));
       L.push(line("Бременност/кърмене/планира", radio("bremennost")));
       L.push(line("Хормонална терапия/контрацепция", val("hormonalna")));
     }
@@ -1327,6 +1324,7 @@
   var saveBar = document.getElementById("saveBar");
   var resumeNote = document.getElementById("resumeNote");
   var restoring = false, saveTimer = null;
+  var sealed = false;   // подадено → никакъв запис повече (иначе късен запис възкресява черновата)
 
   var saveTxt = document.getElementById("saveTxt");
   function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
@@ -1393,15 +1391,24 @@
 
   function doSave() {
     var snap = snapshot();
-    try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), data: snap })); } catch (e) {}
+    // pending = записано ТУК, но още НЕ стигнало до сървъра (офлайн/паднала мрежа).
+    // Това е флагът, по който при отваряне познаваме чия чернова е истината — без
+    // сравняване на часовници (часът на телефона може да е крив; „стигнало ли е" не може).
+    var rec = { at: Date.now(), data: snap, pending: !!TOKEN };
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {}
     if (!TOKEN) { setBar("local"); return; }
+    function synced() {
+      rec.pending = false;
+      try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {}
+      setBar("saved");
+    }
     sb.rpc("save_intake_draft", { p_token: TOKEN, p_payload: snap }).then(
-      function (res) { setBar(res && res.error ? "local" : "saved"); },
-      function () { setBar("local"); }
+      function (res) { if (res && res.error) setBar("local"); else synced(); },
+      function () { setBar("local"); }   // остава pending → печели при следващо отваряне
     );
   }
   function scheduleSave() {
-    if (restoring) return;
+    if (restoring || sealed) return;
     setBar("saving");
     clearTimeout(saveTimer);
     saveTimer = setTimeout(doSave, 1200);
@@ -1410,10 +1417,13 @@
   formEl.addEventListener("input", scheduleSave);
   formEl.addEventListener("change", scheduleSave);
 
-  function clearDraft() {
+  // „Изчисти" чисти САМО тук (екран + това устройство). На сървъра черновата ОСТАВА.
+  // Така погрешният тап не коства 110 полета: презарежда → връща се от сървъра.
+  // Иска ли наистина начисто — пише, и първата дума презаписва сървъра с новото.
+  // (Решение на Chris 16.07: „може ли бутона да чисти само при него, а на сървъра да стои".)
+  function clearLocalDraft() {
+    clearTimeout(saveTimer);   // чакащ дебоунс би записал изчистената форма
     try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
-    // ⚠️ supabase-js v2: rpc() е lazy builder — БЕЗ .then() заявката НЕ се праща.
-    if (TOKEN) { try { sb.rpc("delete_intake_draft", { p_token: TOKEN }).then(function () {}, function () {}); } catch (e) {} }
   }
 
   // ── „Изчисти" — пълно нулиране, с потвърждение в самата лента ──
@@ -1438,7 +1448,7 @@
     sendErr.classList.remove("show");
     resumeNote.classList.remove("show");
     if (keepName) imeEl.value = keepName;
-    clearDraft();                        // трие и локалната, И сървърната чернова
+    clearLocalDraft();                   // само тук — сървърът пази (виж clearLocalDraft)
     restoring = false;
     askOff();
     saveBar.classList.remove("saving");
@@ -1454,16 +1464,21 @@
   document.getElementById("clearNo").addEventListener("click", askOff);
   document.getElementById("clearYes").addEventListener("click", resetForm);
 
-  // Възстановяване при отваряне: сървърът бие локалното (за токенизираните)
+  // Възстановяване при отваряне: сървърът бие локалното — ОСВЕН когато локалното е
+  // неизпратено (pending). Тогава то е работа, която сървърът НИКОГА не е виждал
+  // (писал е офлайн) → тя печели, иначе се губи тихо под по-старото от сървъра.
   (function () {
     var loc = null;
     try { var raw = localStorage.getItem(DRAFT_KEY); if (raw) loc = JSON.parse(raw); } catch (e) {}
-    if (!TOKEN) { if (loc && loc.data) applySnap(loc.data); return; }
+    var hasLoc = !!(loc && loc.data);
+    if (!TOKEN) { if (hasLoc) applySnap(loc.data); return; }
+    function full(d) { return !!(d && (Object.keys(d.v || {}).length || Object.keys(d.r || {}).length || (d.c || []).length)); }
     sb.rpc("get_intake_draft", { p_token: TOKEN }).then(function (res) {
       var d = (res && res.data) ? res.data : null;
-      if (d && (Object.keys(d.v || {}).length || Object.keys(d.r || {}).length || (d.c || []).length)) applySnap(d);
-      else if (loc && loc.data) applySnap(loc.data);
-    }, function () { if (loc && loc.data) applySnap(loc.data); });
+      if (hasLoc && loc.pending) applySnap(loc.data);   // неизпратена офлайн работа → тя е истината
+      else if (full(d)) applySnap(d);
+      else if (hasLoc) applySnap(loc.data);
+    }, function () { if (hasLoc) applySnap(loc.data); });
   })();
 
   // ── Валидация: ТВЪРД блок на противоречия · МЕК confirm на аномални мерки ──
@@ -1478,15 +1493,15 @@
   // Всяка находка: {zone, key, type:'block'|'warn', msg, focus}
   function computeIssues() {
     var out = [];
-    var cel = radio("cel"), men = radio("menopauza"), cik = radio("cikyl"), brem = radio("bremennost");
+    var cel = radio("cel"), cik = radio("cikyl"), brem = radio("bremennost");
     var t = numOf("teglo"), z = numOf("zhelano_teglo"), h = numOf("visochina"),
         ta = numOf("taliya"), ha = numOf("hansh"), yr = numOf("godina_razhdane");
     var bT = bmiOf(t, h), bZ = bmiOf(z, h);
     // Противоречия (блок)
-    if (men === "Да" && (cik === "Редовен" || cik === "Нередовен"))
-      out.push({ zone: "vnCikyl", key: "men_cik", type: "block", msg: "Отбелязана е менопауза „Да“, но цикълът е „" + cik + "“. Двете не се връзват — избери кое е вярното." });
-    if (brem === "Бременна" && men === "Да")
-      out.push({ zone: "vnBrem", key: "brem_men", type: "block", msg: "Отбелязано е „бременна“ и едновременно менопауза „Да“ — провери кое е вярното." });
+    // Полето „menopauza" пита за СИМПТОМИ, не за статус: симптоми + наличен цикъл = перименопауза,
+    // не противоречие. Статусът менопауза живее единствено в cikyl="Спрял (менопауза)".
+    if (brem === "Бременна" && cik === "Спрял (менопауза)")
+      out.push({ zone: "vnBrem", key: "brem_men", type: "block", msg: "Отбелязано е „бременна“ и едновременно цикъл „Спрял (менопауза)“ — провери кое е вярното." });
     if (cel === "Сваляне на килограми" && t != null && z != null && z >= t)
       out.push({ zone: "vnWt", key: "cel_dir", type: "block", focus: "zhelano_teglo", msg: "Целта е „сваляне на килограми“, а желаното тегло (" + z + " кг) не е по-малко от сегашното (" + t + " кг). Провери числата." });
     if (cel === "Качване на мускулна маса" && t != null && z != null && z < t)
@@ -1580,7 +1595,12 @@
     sb.from("submissions").insert({ form_type: "intake", payload: data, raw_block: text })
       .then(function (res) {
         if (res.error) { throw res.error; }
-        clearDraft();                                   // подадено → черновата отпада
+        // Черновата НЕ се трие — СТАВА подаденото. Върне ли се, вижда формата си цяла
+        // и допълва, вместо да я пише от нула. (Прецедент Силвия 15.07: празна форма при
+        // второто отваряне → прати само 12 полета → две парчета за сливане.)
+        clearTimeout(saveTimer);                        // чакащият дебоунс е излишен — пишем сега
+        doSave();                                       // черновата = подаденото
+        sealed = true;                                  // след това никакви записи (виж scheduleSave)
         saveBar.classList.remove("show");
         var sh = document.getElementById("sendHint"); if (sh) sh.style.display = "none";
         okMsg.classList.add("show");

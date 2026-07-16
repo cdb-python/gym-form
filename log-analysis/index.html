@@ -64,14 +64,16 @@
   .card.l3 .t { background: #245fb0; }
   .card.l4 .t { background: #129e90; }
   .card.l5 .t { background: #b8862f; }
-  .card.lx .t { background: #fff8ec; color: #6a531f; }
-  .card.lx .t::after { color: #6a531f; }
+  /* lx = извънпирамидна карта (bookend). Днес и двете (увод/присъда) се презаписват
+     от .intro/.verdict по-долу; това е резервният вид за евентуална трета — сив, не златен. */
+  .card.lx .t { background: var(--soft); color: var(--accent-dark); }
+  .card.lx .t::after { color: var(--accent-dark); }
   .card.l1 { border-left: 5px solid #c43d3d; }
   .card.l2 { border-left: 5px solid #34376f; }
   .card.l3 { border-left: 5px solid #245fb0; }
   .card.l4 { border-left: 5px solid #129e90; }
   .card.l5 { border-left: 5px solid #b8862f; }
-  .card.lx { border-left: 5px solid #8a5a00; }
+  .card.lx { border-left: 5px solid #b9c0c7; }
   /* УВОД — перманентно отворена, извън пирамидата, леко сиво */
   .card.intro .t { background: #e8ebee; color: #454e56; cursor: default; }
   .card.intro .t::after { content: "" !important; }
