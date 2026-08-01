@@ -189,7 +189,7 @@
 <body>
 <header>
   <div class="wrap" style="padding:0 4px;">
-    <h1>Хранителен лог — 15 дни</h1>
+    <h1 id="hdrTitle">Хранителен лог — 15 дни</h1>
     <p id="who">&nbsp;</p>
   </div>
 </header>
@@ -323,22 +323,56 @@
     var done = loggedDays >= WINDOW_DAYS;
     var pct = Math.min(100, Math.round((loggedDays / WINDOW_DAYS) * 100));
 
-    // наградата е вградена ВЪТРЕ в прогрес картата (под бара) — само докато логът тече
-    var rewardLine = '<div class="reward-in">Тук записваш 📝 каквото наистина ядеш. В края тези дни стават <b>твоят личен анализ</b> 📊 — истината за храненето ти и ясната посока напред 🎯.</div>';
+    // ⭐ РЕЖИМ НА ЛОГА (per клиент, от clients.log_mode):
+    //   'sprint' (по подразбиране) = 15-дневен спринт → анализ  [непроменено поведение]
+    //   'open'   = безсрочно проследяване (напр. дете/дългосрочен клиент) — седмичен ритъм, без край
+    var isOpen = (data.log_mode === "open");
 
-    // 15-сегментна скала (попълва се с записаните дни) на един ред
-    var segs = "";
-    for (var si = 0; si < WINDOW_DAYS; si++) segs += '<i class="' + (si < loggedDays ? "on" : "") + '"></i>';
-    var scaleHtml = '<div class="dayscale"><span class="dlbl">Прогрес</span>'
-      + '<span class="segs">' + segs + '</span>'
-      + '<span class="num">' + (done ? "15/15 ✓" : (loggedDays + "/15")) + '</span></div>';
+    // при безсрочен режим „— 15 дни“ в заглавието е подвеждащо
+    if (isOpen) {
+      var ht = document.getElementById("hdrTitle");
+      if (ht) ht.textContent = "Хранителен лог";
+      document.title = "Хранителен лог";
+    }
 
     var progressHtml;
-    if (done) {
-      progressHtml = '<div class="progress">' + scaleHtml
-        + '<div class="sub">Картината ти е готова — анализът идва скоро.</div></div>';
+
+    if (isOpen) {
+      // последните 7 календарни дни (включително днес) — ползва СЪЩИЯ CSS като спринта
+      var wSegs = "", wCount = 0;
+      for (var wi = 6; wi >= 0; wi--) {
+        var d = new Date();
+        d.setDate(d.getDate() - wi);
+        var key = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0")
+                + "-" + String(d.getDate()).padStart(2, "0");
+        var has = !!distinct[key];
+        if (has) wCount++;
+        wSegs += '<i class="' + (has ? "on" : "") + '"></i>';
+      }
+      var openScale = '<div class="dayscale"><span class="dlbl">Тази седмица</span>'
+        + '<span class="segs">' + wSegs + '</span>'
+        + '<span class="num">' + wCount + '/7</span></div>';
+      progressHtml = '<div class="progress">' + openScale
+        + '<div class="sub">Общо записани дни: <b>' + loggedDays + '</b> — логът върви, '
+        + 'обратната връзка идва периодично.</div></div>';
+
     } else {
-      progressHtml = '<div class="progress">' + scaleHtml + rewardLine + '</div>';
+      // наградата е вградена ВЪТРЕ в прогрес картата (под бара) — само докато логът тече
+      var rewardLine = '<div class="reward-in">Тук записваш 📝 каквото наистина ядеш. В края тези дни стават <b>твоят личен анализ</b> 📊 — истината за храненето ти и ясната посока напред 🎯.</div>';
+
+      // 15-сегментна скала (попълва се с записаните дни) на един ред
+      var segs = "";
+      for (var si = 0; si < WINDOW_DAYS; si++) segs += '<i class="' + (si < loggedDays ? "on" : "") + '"></i>';
+      var scaleHtml = '<div class="dayscale"><span class="dlbl">Прогрес</span>'
+        + '<span class="segs">' + segs + '</span>'
+        + '<span class="num">' + (done ? "15/15 ✓" : (loggedDays + "/15")) + '</span></div>';
+
+      if (done) {
+        progressHtml = '<div class="progress">' + scaleHtml
+          + '<div class="sub">Картината ти е готова — анализът идва скоро.</div></div>';
+      } else {
+        progressHtml = '<div class="progress">' + scaleHtml + rewardLine + '</div>';
+      }
     }
 
     var infoHtml = '<div class="sec">'
@@ -400,7 +434,9 @@
       + "<p><b>3. Тегло:</b> сутрин на гладно, едно число. Всеки ден (или поне през ден) — колкото повече, толкова по-точно.</p>"
       + "<p><b>4. Поправка.</b> Преди всеки запис излиза проверка „потвърди / поправи“ — там оправяш. След запис не се трие (за честна картина); сбъркаш ли все пак, добави нов ред „поправка: …“.</p>"
       + "<p><b>5. Пиши честно — тук няма грешно.</b> Реалната картина зависи изцяло от това.</p>"
-      + "<p><b>6. Нужни са 15 записани дни.</b> За да се извади анализът — реалните ти калории, макроси и хранителни навици — трябват поне 15 дни с лог на храна.</p>"
+      + (isOpen
+          ? "<p><b>6. Логът върви без краен срок.</b> Колкото по-редовно се записва, толкова по-ясно се вижда какво работи. Обратната връзка идва периодично — тук, в съобщенията.</p>"
+          : "<p><b>6. Нужни са 15 записани дни.</b> За да се извади анализът — реалните ти калории, макроси и хранителни навици — трябват поне 15 дни с лог на храна.</p>")
       + "<p><b>7. Кога се сменя денят.</b> Денят в лога върви по <b>българско време</b> и се завърта в <b>полунощ (00:00)</b>. Всичко, което впишеш до 23:59, влиза в текущия ден; първото нещо след полунощ започва новия ден. Часът на всеки запис се запазва автоматично — не го въвеждаш ти. Затова е добре да вписваш храната веднага щом я хапнеш (или поне преди полунощ), за да попадне в правилния ден.</p>"
       + "</div></div></div>";
 
