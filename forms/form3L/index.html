@@ -145,6 +145,11 @@
   }
   .lf textarea { min-height: 170px; resize: vertical; }
   .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+  /* талия + ръст на ЕДИН ред — за да не се разпъва страницата (реш. 13.08).
+     flex-basis 0 дава РАВНИ половини; min-width пази срещу смачкване на тесен екран. */
+  .lf .row2f { display: flex; gap: 10px; }
+  .lf .row2f > div { flex: 1 1 0; min-width: 120px; }
+  .lf .row2f label { margin-top: 12px; }
   .lf button {
     width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700;
     color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer;
@@ -259,8 +264,9 @@
     var parts = [];
     if (e.text) parts.push(esc(e.text));
     if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
-    // талията се показва САМО когато е попълнена (мери се седмично, не всеки ден)
+    // талия/ръст се показват САМО когато са попълнени (седмично / месечно, не всеки ден)
     if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(e.waist) + " см</span>");
+    if (e.height != null && e.height !== "") parts.push('<span class="wt">📐 ръст ' + esc(e.height) + " см</span>");
     return '<div class="logitem' + (e.text ? " food" : "") + '"><span class="tm">' + esc(tm) + "</span>" + parts.join(" · ") + "</div>";
   }
 
@@ -420,9 +426,13 @@
       //    (за 2 седмици не мърда) и всяко излишно поле пречи на основното — храната.
       //    Незадължително: празно поле не се записва. Бланката на спринт-клиентите е НЕПОКЪТНАТА.
       + (isOpen
-          ? '<label>Талия (см) <span style="font-weight:400;opacity:.7">— по избор</span></label>'
-            + '<input type="number" id="f_waist" inputmode="decimal" step="0.5" placeholder="напр. 89">'
-            + '<p class="hint"><b>веднъж седмично стига</b> — не всеки ден. сутрин, преди закуска, метър на нивото на пъпа, коремът отпуснат (не изпънат, не всмукан).</p>'
+          ? '<div class="row2f">'
+            + '<div><label>Талия (см)</label>'
+            +   '<input type="number" id="f_waist" inputmode="decimal" step="0.5" placeholder="напр. 89"></div>'
+            + '<div><label>Ръст (см)</label>'
+            +   '<input type="number" id="f_height" inputmode="decimal" step="0.5" placeholder="напр. 146"></div>'
+            + '</div>'
+            + '<p class="hint">и двете са <b>по избор</b>. <b>талия — веднъж седмично</b>: сутрин преди закуска, метър на нивото на пъпа, коремът отпуснат (не изпънат, не всмукан). <b>ръст — веднъж месечно</b>: бос, петите до стената, гърбът изправен, поглед право напред; книга на главата хоризонтално.</p>'
           : '')
       + '<button type="button" id="saveBtn">Запиши</button>'
       + '<div class="confirm" id="confirm"><p class="q">Верни ли са храните и количествата?</p>'
@@ -492,8 +502,9 @@
   function wireForm(data, today) {
     var textEl = document.getElementById("f_text");
     var wEl = document.getElementById("f_weight");
-    // ⚠️ null при спринт-режим (полето не се рендерира) → всяко ползване е защитено
+    // ⚠️ null при спринт-режим (полетата не се рендерират) → всяко ползване е защитено
     var waistEl = document.getElementById("f_waist");
+    var heightEl = document.getElementById("f_height");
     var saveBtn = document.getElementById("saveBtn");
     var confirm = document.getElementById("confirm");
     var confirmWhat = document.getElementById("confirmWhat");
@@ -537,12 +548,14 @@
       var t = textEl.value.trim();
       var w = wEl.value.trim();
       var wa = waistEl ? waistEl.value.trim() : "";
-      if (!t && !w && !wa) { msg("Впиши храна, тегло или талия.", true); return; }
+      var ht = heightEl ? heightEl.value.trim() : "";
+      if (!t && !w && !wa && !ht) { msg("Впиши храна, тегло, талия или ръст.", true); return; }
       clearMsg();
       var bits = [];
       if (t) bits.push(esc(t));
       if (w) bits.push('<span class="w">⚖ ' + esc(w) + " кг</span>");
       if (wa) bits.push('<span class="w">📏 талия ' + esc(wa) + " см</span>");
+      if (ht) bits.push('<span class="w">📐 ръст ' + esc(ht) + " см</span>");
       var wWarn = weightWarning(w);
       lastWeightWarn = !!wWarn;
       if (wWarn) bits.push('<span style="color:#8a5a00;font-weight:700;">⚠ ' + esc(wWarn) + "</span>");
@@ -563,14 +576,16 @@
       var t = textEl.value.trim();
       var w = wEl.value.trim();
       var wa = waistEl ? waistEl.value.trim() : "";
+      var ht = heightEl ? heightEl.value.trim() : "";
       var weight = w ? parseFloat(w) : null;
       var waist = wa ? parseFloat(wa) : null;
+      var height = ht ? parseFloat(ht) : null;
       confirmBtn.disabled = true; confirmBtn.textContent = "Записване…";
-      sb.rpc("add_food_entry", { p_token: token, p_text: t || null, p_weight: weight, p_waist: waist })
+      sb.rpc("add_food_entry", { p_token: token, p_text: t || null, p_weight: weight, p_waist: waist, p_height: height })
         .then(function (res) {
           if (res.error || res.data === false) throw (res.error || new Error("fail"));
           // оптимистично добавяне в списъка
-          var rec = { text: t || null, weight: weight, waist: waist, entry_date: today, created_at: new Date().toISOString() };
+          var rec = { text: t || null, weight: weight, waist: waist, height: height, entry_date: today, created_at: new Date().toISOString() };
           var list = document.getElementById("histList");
           var firstDay = list.querySelector('.card[data-key="day_' + today + '"]');
           if (firstDay) {
@@ -587,7 +602,8 @@
             list.insertAdjacentHTML("afterbegin",
               '<div class="card open" data-key="day_' + esc(today) + '"><div class="t"><span class="lbl">Моят лог</span><span class="ttl">Днес</span><span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
           }
-          textEl.value = ""; wEl.value = ""; if (waistEl) waistEl.value = "";
+          textEl.value = ""; wEl.value = "";
+          if (waistEl) waistEl.value = ""; if (heightEl) heightEl.value = "";
           confirm.classList.remove("show");
           saveBtn.style.display = "";
           confirmBtn.disabled = false; confirmBtn.textContent = "Потвърди";
@@ -628,10 +644,11 @@
   function maybeReload() {
     if (document.visibilityState === "hidden") return;
     var t = document.getElementById("f_text"), w = document.getElementById("f_weight"), conf = document.getElementById("confirm");
-    var wa = document.getElementById("f_waist");
+    var wa = document.getElementById("f_waist"), ht = document.getElementById("f_height");
     if (t && t.value.trim()) return;
     if (w && w.value.trim()) return;
-    if (wa && wa.value.trim()) return;   // недовършена талия също спира презареждането
+    if (wa && wa.value.trim()) return;   // недовършена талия/ръст също спират презареждането
+    if (ht && ht.value.trim()) return;
     if (conf && conf.classList.contains("show")) return;
     if (reloadBusy) return;
     reloadBusy = true;
