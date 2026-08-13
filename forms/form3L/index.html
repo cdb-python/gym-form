@@ -259,6 +259,8 @@
     var parts = [];
     if (e.text) parts.push(esc(e.text));
     if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
+    // талията се показва САМО когато е попълнена (мери се седмично, не всеки ден)
+    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(e.waist) + " см</span>");
     return '<div class="logitem' + (e.text ? " food" : "") + '"><span class="tm">' + esc(tm) + "</span>" + parts.join(" · ") + "</div>";
   }
 
@@ -414,6 +416,14 @@
       + '<label>Тегло (кг)</label>'
       + '<input type="number" id="f_weight" inputmode="decimal" step="0.1" placeholder="напр. 84.2">'
       + '<p class="hint">сутрин на гладно, след тоалетна, при еднакви условия. препоръчително всеки ден — теглото е <b>проверката</b> на лога.</p>'
+      // ⭐ ТАЛИЯ — само при безсрочен лог (log_mode='open'). При 15-дневния спринт няма смисъл
+      //    (за 2 седмици не мърда) и всяко излишно поле пречи на основното — храната.
+      //    Незадължително: празно поле не се записва. Бланката на спринт-клиентите е НЕПОКЪТНАТА.
+      + (isOpen
+          ? '<label>Талия (см) <span style="font-weight:400;opacity:.7">— по избор</span></label>'
+            + '<input type="number" id="f_waist" inputmode="decimal" step="0.5" placeholder="напр. 89">'
+            + '<p class="hint"><b>веднъж седмично стига</b> — не всеки ден. сутрин, преди закуска, метър на нивото на пъпа, коремът отпуснат (не изпънат, не всмукан).</p>'
+          : '')
       + '<button type="button" id="saveBtn">Запиши</button>'
       + '<div class="confirm" id="confirm"><p class="q">Верни ли са храните и количествата?</p>'
       + '<div class="what" id="confirmWhat"></div>'
@@ -482,6 +492,8 @@
   function wireForm(data, today) {
     var textEl = document.getElementById("f_text");
     var wEl = document.getElementById("f_weight");
+    // ⚠️ null при спринт-режим (полето не се рендерира) → всяко ползване е защитено
+    var waistEl = document.getElementById("f_waist");
     var saveBtn = document.getElementById("saveBtn");
     var confirm = document.getElementById("confirm");
     var confirmWhat = document.getElementById("confirmWhat");
@@ -524,11 +536,13 @@
     saveBtn.addEventListener("click", function () {
       var t = textEl.value.trim();
       var w = wEl.value.trim();
-      if (!t && !w) { msg("Впиши храна или тегло.", true); return; }
+      var wa = waistEl ? waistEl.value.trim() : "";
+      if (!t && !w && !wa) { msg("Впиши храна, тегло или талия.", true); return; }
       clearMsg();
       var bits = [];
       if (t) bits.push(esc(t));
       if (w) bits.push('<span class="w">⚖ ' + esc(w) + " кг</span>");
+      if (wa) bits.push('<span class="w">📏 талия ' + esc(wa) + " см</span>");
       var wWarn = weightWarning(w);
       lastWeightWarn = !!wWarn;
       if (wWarn) bits.push('<span style="color:#8a5a00;font-weight:700;">⚠ ' + esc(wWarn) + "</span>");
@@ -548,13 +562,15 @@
     confirmBtn.addEventListener("click", function () {
       var t = textEl.value.trim();
       var w = wEl.value.trim();
+      var wa = waistEl ? waistEl.value.trim() : "";
       var weight = w ? parseFloat(w) : null;
+      var waist = wa ? parseFloat(wa) : null;
       confirmBtn.disabled = true; confirmBtn.textContent = "Записване…";
-      sb.rpc("add_food_entry", { p_token: token, p_text: t || null, p_weight: weight })
+      sb.rpc("add_food_entry", { p_token: token, p_text: t || null, p_weight: weight, p_waist: waist })
         .then(function (res) {
           if (res.error || res.data === false) throw (res.error || new Error("fail"));
           // оптимистично добавяне в списъка
-          var rec = { text: t || null, weight: weight, entry_date: today, created_at: new Date().toISOString() };
+          var rec = { text: t || null, weight: weight, waist: waist, entry_date: today, created_at: new Date().toISOString() };
           var list = document.getElementById("histList");
           var firstDay = list.querySelector('.card[data-key="day_' + today + '"]');
           if (firstDay) {
@@ -571,7 +587,7 @@
             list.insertAdjacentHTML("afterbegin",
               '<div class="card open" data-key="day_' + esc(today) + '"><div class="t"><span class="lbl">Моят лог</span><span class="ttl">Днес</span><span class="daycount">1 запис</span></div><div class="body">' + entryLine(rec) + "</div></div>");
           }
-          textEl.value = ""; wEl.value = "";
+          textEl.value = ""; wEl.value = ""; if (waistEl) waistEl.value = "";
           confirm.classList.remove("show");
           saveBtn.style.display = "";
           confirmBtn.disabled = false; confirmBtn.textContent = "Потвърди";
@@ -612,8 +628,10 @@
   function maybeReload() {
     if (document.visibilityState === "hidden") return;
     var t = document.getElementById("f_text"), w = document.getElementById("f_weight"), conf = document.getElementById("confirm");
+    var wa = document.getElementById("f_waist");
     if (t && t.value.trim()) return;
     if (w && w.value.trim()) return;
+    if (wa && wa.value.trim()) return;   // недовършена талия също спира презареждането
     if (conf && conf.classList.contains("show")) return;
     if (reloadBusy) return;
     reloadBusy = true;
