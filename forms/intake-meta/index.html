@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Въпросник — хранене и движение</title>
+<title>Въпросник — за режима</title>
 <style>
   :root {
     --bg: #f4f6f8; --card: #fff; --ink: #1c2733; --muted: #6b7886;
@@ -86,14 +86,14 @@
 </div>
 
 <header>
-  <h1>Въпросник — хранене и движение</h1>
+  <h1>Въпросник — за режима</h1>
   <p>cdb-Gym</p>
 </header>
 
 <div class="wrap">
   <div class="intro">
-    Кръвните са прегледани и състоянието е ясно. Тук се попълва само това, което липсва,
-    за да се изготви режимът: как минава денят и как се храниш в момента.
+    Кръвните са прегледани и състоянието е ясно. Тук се пита само това, което липсва,
+    за да се изготви режимът.
     <br><br><b>Попълненото се запазва автоматично</b> — може да спреш и да продължиш по-късно от същия линк.
   </div>
   <div id="hello"></div>
@@ -104,7 +104,6 @@
 
   <fieldset>
     <legend>Мерки</legend>
-    <div class="seclead">Три числа. Талията при диабет казва повече от кантара.</div>
 
     <label class="q">Обиколка на талията (см)
       <span class="hint">Около пъпа, сутрин преди закуска. Коремът отпуснат — не изпънат и не всмукан.</span></label>
@@ -112,23 +111,11 @@
 
     <label class="q">Тегло сега (кг)</label>
     <input type="number" id="teglo_sega" inputmode="decimal" step="0.1" placeholder="напр. 76">
-
-    <label class="q">Тегло преди диагнозата през октомври 2025 (кг)</label>
-    <input type="number" id="teglo_predi" inputmode="decimal" step="0.1" placeholder="напр. 80">
-
-    <label class="q">Как се промени теглото преди диагнозата?</label>
-    <div class="opts" data-radio="svalyane">
-      <label><input type="radio" name="svalyane" value="Свалих рязко за кратко"> Свалих рязко за кратко</label>
-      <label><input type="radio" name="svalyane" value="Свалих постепенно"> Свалих постепенно</label>
-      <label><input type="radio" name="svalyane" value="Теглото ми беше същото"> Теглото ми беше същото</label>
-      <label><input type="radio" name="svalyane" value="Качих тегло"> Качих тегло</label>
-      <label><input type="radio" name="svalyane" value="Не помня"> Не помня</label>
-    </div>
   </fieldset>
 
   <fieldset>
     <legend>Денят ти</legend>
-    <div class="seclead">Определя в кои часове ще са храненията и колко да са калориите.</div>
+    <div class="seclead">Определя в кои часове ще са храненията и колко храна ти трябва.</div>
 
     <label class="q">Графикът ти</label>
     <div class="opts" data-radio="grafik">
@@ -154,8 +141,8 @@
   </fieldset>
 
   <fieldset>
-    <legend>Хранене — как е СЕГА</legend>
-    <div class="seclead">Най-важната част. Пиши каквото реално ядеш, не каквото трябва.</div>
+    <legend>Как се храниш сега</legend>
+    <div class="seclead">Пиши каквото реално ядеш, не каквото трябва. Оттам тръгва режимът.</div>
 
     <label class="q">Колко пъти на ден се храниш?</label>
     <div class="opts" data-radio="broi">
@@ -182,31 +169,12 @@
     <label class="q">Между храненията хапваш ли нещо?</label>
     <input type="text" id="mezhdu" placeholder="напр. плод, бисквити, ядки, нищо">
 
-    <label class="q">Кой готви вкъщи?</label>
-    <div class="opts" data-radio="gotvi">
-      <label><input type="radio" name="gotvi" value="Аз"> Аз</label>
-      <label><input type="radio" name="gotvi" value="Друг вкъщи"> Друг вкъщи</label>
-      <label><input type="radio" name="gotvi" value="Готова храна"> Купуваме готово</label>
-      <label><input type="radio" name="gotvi" value="Заведение"> Храня се навън</label>
-      <label><input type="radio" name="gotvi" value="Смесено"> Смесено</label>
-    </div>
-
-    <label class="q">Колко време има за готвене?</label>
-    <div class="opts" data-radio="vreme">
-      <label><input type="radio" name="vreme" value="Има време"> Има време, готви се редовно</label>
-      <label><input type="radio" name="vreme" value="Малко"> Малко — само бързи неща</label>
-      <label><input type="radio" name="vreme" value="Няма"> Практически няма</label>
-    </div>
-
-    <label class="q">Кои храни не ядеш?
-      <span class="hint">Не ти понасят, не ти се ядат или не ги обичаш.</span></label>
+    <label class="q">Кои храни НЕ ядеш?
+      <span class="hint">Важно е — за да не влязат в режима. Не ти понасят, не ти се ядат или не ги обичаш.</span></label>
     <input type="text" id="ne_yade" placeholder="напр. риба, извара, гъби">
 
     <label class="q">Вода на ден</label>
     <input type="text" id="voda" placeholder="напр. 1 литър, 2 литра, не следя">
-
-    <label class="q">Кафе на ден</label>
-    <input type="text" id="kafe" placeholder="напр. 2 кафета, със захар или без">
 
     <label class="q">Алкохол</label>
     <div class="opts" data-radio="alkohol">
@@ -218,40 +186,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>Движение</legend>
-    <div class="seclead">Мускулът е мястото, където отива захарта от кръвта. Затова тренировките са част от режима.</div>
-
-    <label class="q">Тренираш ли в момента?</label>
-    <div class="opts" data-radio="trenira">
-      <label><input type="radio" name="trenira" value="Да, редовно"> Да, редовно</label>
-      <label><input type="radio" name="trenira" value="Понякога"> Понякога</label>
-      <label><input type="radio" name="trenira" value="Не"> Не</label>
-    </div>
-
-    <label class="q">Ако тренираш — какво и колко пъти седмично?</label>
-    <input type="text" id="kakvo_trenira" placeholder="напр. ходене 3 пъти, колело">
-
-    <label class="q">Тренирал ли си с тежести някога?</label>
-    <div class="opts" data-radio="opit">
-      <label><input type="radio" name="opit" value="Да, имам опит"> Да, имам опит</label>
-      <label><input type="radio" name="opit" value="Малко, отдавна"> Малко, отдавна</label>
-      <label><input type="radio" name="opit" value="Никога"> Никога</label>
-    </div>
-
-    <label class="q">Къде би тренирал?</label>
-    <div class="opts" data-radio="kade">
-      <label><input type="radio" name="kade" value="Фитнес"> Във фитнес</label>
-      <label><input type="radio" name="kade" value="Вкъщи"> Вкъщи</label>
-      <label><input type="radio" name="kade" value="Навън"> Навън</label>
-      <label><input type="radio" name="kade" value="Още не знам"> Още не знам</label>
-    </div>
-
-    <label class="q">Има ли нещо, което те спира или те боли при движение?</label>
-    <input type="text" id="spira" placeholder="напр. коляно, кръст, нищо">
-  </fieldset>
-
-  <fieldset>
-    <legend>Лекарства, добавки, измерване</legend>
+    <legend>Лекарства и добавки</legend>
 
     <label class="q">Други лекарства освен Синджарди?
       <span class="hint">Каквото и да е — за кръвно, за сърце, обезболяващи, всичко.</span></label>
@@ -265,13 +200,6 @@
       <label><input type="radio" name="glukomer" value="Имам"> Имам</label>
       <label><input type="radio" name="glukomer" value="Ще си взема"> Нямам, ще си взема</label>
       <label><input type="radio" name="glukomer" value="Нямам"> Нямам</label>
-    </div>
-
-    <label class="q">Мериш ли си кръвното вкъщи?</label>
-    <div class="opts" data-radio="kravno">
-      <label><input type="radio" name="kravno" value="Редовно"> Редовно</label>
-      <label><input type="radio" name="kravno" value="Понякога"> Понякога</label>
-      <label><input type="radio" name="kravno" value="Не"> Не</label>
     </div>
 
     <label class="q">Нещо друго, което трябва да се знае?</label>
@@ -414,9 +342,9 @@
     }, function () { if (hasLoc) applySnap(loc.data); });
   })();
 
-  var IDS = ["ime","talia","teglo_sega","teglo_predi","smeni","dvizhenie","chasove","zakuska","obyad","vechera",
-             "mezhdu","ne_yade","voda","kafe","kakvo_trenira","spira","lekarstva","dobavki","drugo"];
-  var RADIOS = ["svalyane","grafik","rabota_vid","broi","gotvi","vreme","alkohol","trenira","opit","kade","glukomer","kravno"];
+  var IDS = ["ime","talia","teglo_sega","smeni","dvizhenie","chasove","zakuska","obyad","vechera",
+             "mezhdu","ne_yade","voda","lekarstva","dobavki","drugo"];
+  var RADIOS = ["grafik","rabota_vid","broi","alkohol","glukomer"];
 
   function gather() {
     var o = { forma: "intake_meta" };
@@ -426,11 +354,10 @@
   }
   function build() {
     var d = gather(); var L = [];
-    L.push("=== ВЪПРОСНИК cdb-Gym / МЕТАБОЛИТЕН (intake_meta) ==="); L.push("");
+    L.push("=== ВЪПРОСНИК cdb-Gym / ЗА РЕЖИМА (intake_meta) ==="); L.push("");
     L.push("Име: " + d.ime); L.push("");
     L.push("[МЕРКИ]");
-    L.push("Талия: " + d.talia + " см · Тегло сега: " + d.teglo_sega + " кг · Тегло преди диагнозата: " + d.teglo_predi + " кг");
-    L.push("Промяна преди диагнозата: " + d.svalyane); L.push("");
+    L.push("Талия: " + d.talia + " см · Тегло сега: " + d.teglo_sega + " кг"); L.push("");
     L.push("[ДЕНЯТ]");
     L.push("График: " + d.grafik + " · Смени: " + d.smeni);
     L.push("Работен ден: " + d.rabota_vid + " · Движение извън работа: " + d.dvizhenie); L.push("");
@@ -440,17 +367,12 @@
     L.push("Обяд: " + d.obyad);
     L.push("Вечер: " + d.vechera);
     L.push("Между храненията: " + d.mezhdu);
-    L.push("Готви: " + d.gotvi + " · Време за готвене: " + d.vreme);
-    L.push("Не яде: " + d.ne_yade);
-    L.push("Вода: " + d.voda + " · Кафе: " + d.kafe + " · Алкохол: " + d.alkohol); L.push("");
-    L.push("[ДВИЖЕНИЕ]");
-    L.push("Тренира сега: " + d.trenira + " · Какво: " + d.kakvo_trenira);
-    L.push("Опит с тежести: " + d.opit + " · Къде би тренирал: " + d.kade);
-    L.push("Спира/боли: " + d.spira); L.push("");
-    L.push("[ЛЕКАРСТВА И ИЗМЕРВАНЕ]");
+    L.push("НЕ яде: " + d.ne_yade);
+    L.push("Вода: " + d.voda + " · Алкохол: " + d.alkohol); L.push("");
+    L.push("[ЛЕКАРСТВА И ДОБАВКИ]");
     L.push("Други лекарства: " + d.lekarstva);
     L.push("Добавки: " + d.dobavki);
-    L.push("Глюкомер: " + d.glukomer + " · Мери кръвно: " + d.kravno); L.push("");
+    L.push("Глюкомер: " + d.glukomer); L.push("");
     L.push("[ДРУГО]"); L.push(d.drugo);
     L.push(""); L.push("=== КРАЙ ===");
     return L.join("\n");
