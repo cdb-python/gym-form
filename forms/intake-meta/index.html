@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Въпросник — хранене и движение</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #fff; --ink: #1c2733; --muted: #6b7886;
+    --border: #d8dee5; --hint: #8a96a3; --soft: #eef4f1;
+    --chrome: #2e7d5b; --chrome-dark: #235e45;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.5; padding: 0 0 40px; }
+  header { background: var(--chrome); color: #fff; padding: 24px 18px 20px; text-align: center; }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.93; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  .intro { background: var(--soft); border: 1px solid #cbe0d5; border-left: 5px solid var(--chrome);
+    border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 14.5px; color: var(--chrome-dark); }
+  fieldset { background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--chrome);
+    border-radius: 12px; margin: 16px 0; padding: 14px 16px 18px; }
+  legend { float: left; width: 100%; margin: 0 0 6px; padding: 0; font-weight: 700; font-size: 18px; color: var(--chrome-dark); }
+  fieldset > legend + * { clear: both; }
+  .seclead { font-size: 13.5px; color: var(--muted); margin: 0 0 6px; font-weight: 400; }
+  label.q { display: block; margin: 14px 0 6px; font-weight: 600; }
+  .hint { display: block; font-weight: 400; font-size: 13px; color: var(--hint); margin-top: 2px; }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
+    border-radius: 9px; background: #fff; color: var(--ink); font-family: inherit; }
+  textarea { min-height: 62px; resize: vertical; }
+  textarea.big { min-height: 96px; }
+  .opts { margin-top: 6px; }
+  .opts label { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-weight: 400; cursor: pointer; }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: end; }
+  .row2 > div { flex: 1; display: flex; flex-direction: column; }
+  .row2 > div label.q { flex: 1; margin-bottom: 6px; }
+  .row2 > div input { margin-top: auto; }
+  .reqnote { display: none; margin-top: 10px; padding: 12px 14px; background: #fff4e5;
+    border: 1px solid #f0c891; border-radius: 10px; color: #8a5a00; font-size: 14px; }
+  .reqnote.show { display: block; }
+  .measnote { background: var(--soft); border: 1px solid #cbe0d5; border-radius: 10px; padding: 11px 13px; margin: 6px 0 4px; font-size: 13.5px; color: var(--chrome-dark); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: #8a5a00;
+    margin: 16px 0 4px; padding: 11px 13px; background: #f9f3e0; border: 1px solid var(--border);
+    border-left: 5px solid var(--chrome); border-radius: 10px; }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .savebar { position: sticky; top: 0; z-index: 50; display: none; background: #e7f1ec;
+    border-bottom: 1px solid #b9dcc9; color: var(--chrome-dark); font-size: 13px; font-weight: 700;
+    text-align: center; padding: 6px 12px; }
+  .savebar.show { display: flex; align-items: center; justify-content: center; }
+  .savebar.saving #saveTxt { color: #6b7280; }
+  .savebar > span { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .clearbtn { border: 1px solid #b9dcc9; background: #fff; color: #6b7280; border-radius: 7px;
+    font-size: 12px; font-weight: 700; padding: 3px 9px; cursor: pointer; flex: none; }
+  .clearbtn:active { background: #e8f1eb; }
+  .clearbtn.danger { border-color: #c43d3d; color: #c43d3d; }
+  #resumeNote { display: none; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 10px;
+    padding: 10px 13px; margin: 14px 0 0; font-weight: 700; color: #1d5c3a; text-align: center; }
+  #resumeNote.show { display: block; }
+  .actions { padding: 18px 14px 8px; max-width: 640px; margin: 0 auto; }
+  .sendhint { text-align: center; color: #6b7280; font-size: 13.5px; margin: 0 0 10px; }
+  button.send { width: 100%; padding: 15px; font-size: 17px; font-weight: 700; color: #fff;
+    background: var(--chrome); border: none; border-radius: 11px; cursor: pointer; }
+  button.send:active { background: var(--chrome-dark); }
+  .ok { display: none; margin: 14px 0 0; padding: 14px 16px; background: #e7f1ec;
+    border: 1px solid #b9dcc9; border-radius: 11px; color: var(--chrome-dark); font-weight: 600; }
+  .ok.show { display: block; }
+  .err { display: none; margin: 12px 0 0; padding: 12px 14px; background: #fdeaea;
+    border: 1px solid #f0b8b8; border-radius: 10px; color: #7a1a1a; font-size: 14px; }
+  .err.show { display: block; }
+  #outBox { display: none; margin-top: 10px; } #outBox.show { display: block; }
+  #hello { display: none; margin: 14px 0 0; font-weight: 600; color: var(--chrome-dark); }
+</style>
+</head>
+<body>
+
+<div class="savebar" id="saveBar">
+  <span id="saveState"><span id="saveTxt">Запазено</span>
+    <button type="button" class="clearbtn" id="clearBtn">Изчисти</button></span>
+  <span id="clearAsk" style="display:none">Да изчистя ли попълненото?
+    <button type="button" class="clearbtn danger" id="clearYes">Да</button>
+    <button type="button" class="clearbtn" id="clearNo">Не</button></span>
+</div>
+
+<header>
+  <h1>Въпросник — хранене и движение</h1>
+  <p>cdb-Gym</p>
+</header>
+
+<div class="wrap">
+  <div class="intro">
+    Кръвните са прегледани и състоянието е ясно. Тук се попълва само това, което липсва,
+    за да се изготви режимът: как минава денят и как се храниш в момента.
+    <br><br><b>Попълненото се запазва автоматично</b> — може да спреш и да продължиш по-късно от същия линк.
+  </div>
+  <div id="hello"></div>
+  <div id="resumeNote">Продължаваш оттам, докъдето беше. Попълненото е запазено.</div>
+
+  <form id="form">
+  <input type="hidden" id="ime">
+
+  <fieldset>
+    <legend>Мерки</legend>
+    <div class="seclead">Три числа. Талията при диабет казва повече от кантара.</div>
+
+    <label class="q">Обиколка на талията (см)
+      <span class="hint">Около пъпа, сутрин преди закуска. Коремът отпуснат — не изпънат и не всмукан.</span></label>
+    <input type="number" id="talia" inputmode="decimal" step="0.5" placeholder="напр. 84">
+
+    <label class="q">Тегло сега (кг)</label>
+    <input type="number" id="teglo_sega" inputmode="decimal" step="0.1" placeholder="напр. 76">
+
+    <label class="q">Тегло преди диагнозата през октомври 2025 (кг)</label>
+    <input type="number" id="teglo_predi" inputmode="decimal" step="0.1" placeholder="напр. 80">
+
+    <label class="q">Как се промени теглото преди диагнозата?</label>
+    <div class="opts" data-radio="svalyane">
+      <label><input type="radio" name="svalyane" value="Свалих рязко за кратко"> Свалих рязко за кратко</label>
+      <label><input type="radio" name="svalyane" value="Свалих постепенно"> Свалих постепенно</label>
+      <label><input type="radio" name="svalyane" value="Теглото ми беше същото"> Теглото ми беше същото</label>
+      <label><input type="radio" name="svalyane" value="Качих тегло"> Качих тегло</label>
+      <label><input type="radio" name="svalyane" value="Не помня"> Не помня</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Денят ти</legend>
+    <div class="seclead">Определя в кои часове ще са храненията и колко да са калориите.</div>
+
+    <label class="q">Графикът ти</label>
+    <div class="opts" data-radio="grafik">
+      <label><input type="radio" name="grafik" value="Постоянен"> Постоянен — всеки ден по едно и също време</label>
+      <label><input type="radio" name="grafik" value="На смени"> На смени</label>
+      <label><input type="radio" name="grafik" value="Различно"> Различно, няма правило</label>
+    </div>
+
+    <label class="q">Ако си на смени — какви са и как се редуват?
+      <span class="hint">Например: 07–19 и 19–07, два дни работа и два почивка.</span></label>
+    <input type="text" id="smeni" placeholder="ако не си на смени, остави празно">
+
+    <label class="q">През работния ден</label>
+    <div class="opts" data-radio="rabota_vid">
+      <label><input type="radio" name="rabota_vid" value="На крак"> На крак, в движение</label>
+      <label><input type="radio" name="rabota_vid" value="Седнал"> Седнал по цял ден</label>
+      <label><input type="radio" name="rabota_vid" value="Смесено"> Смесено</label>
+    </div>
+
+    <label class="q">Движение извън работата
+      <span class="hint">Разходки, градина, ремонти — каквото те кара да се движиш.</span></label>
+    <input type="text" id="dvizhenie" placeholder="напр. разходка 30 мин вечер, градина в събота">
+  </fieldset>
+
+  <fieldset>
+    <legend>Хранене — как е СЕГА</legend>
+    <div class="seclead">Най-важната част. Пиши каквото реално ядеш, не каквото трябва.</div>
+
+    <label class="q">Колко пъти на ден се храниш?</label>
+    <div class="opts" data-radio="broi">
+      <label><input type="radio" name="broi" value="2"> 2 пъти</label>
+      <label><input type="radio" name="broi" value="3"> 3 пъти</label>
+      <label><input type="radio" name="broi" value="4"> 4 пъти</label>
+      <label><input type="radio" name="broi" value="5 или повече"> 5 или повече</label>
+      <label><input type="radio" name="broi" value="Различно"> Различно всеки ден</label>
+    </div>
+
+    <label class="q">В кои часове?
+      <span class="hint">Например: 8:00, 13:00, 20:00</span></label>
+    <input type="text" id="chasove" placeholder="напр. 8:00, 13:00, 20:00">
+
+    <label class="q">Сутрин — какво ядеш?</label>
+    <textarea id="zakuska" placeholder="напр. две филии с масло и сирене, кафе с мляко"></textarea>
+
+    <label class="q">На обяд — какво ядеш?</label>
+    <textarea id="obyad" placeholder="напр. супа, ориз с пиле, салата"></textarea>
+
+    <label class="q">Вечер — какво ядеш?</label>
+    <textarea id="vechera" placeholder="напр. салата с месо, хляб, кисело мляко"></textarea>
+
+    <label class="q">Между храненията хапваш ли нещо?</label>
+    <input type="text" id="mezhdu" placeholder="напр. плод, бисквити, ядки, нищо">
+
+    <label class="q">Кой готви вкъщи?</label>
+    <div class="opts" data-radio="gotvi">
+      <label><input type="radio" name="gotvi" value="Аз"> Аз</label>
+      <label><input type="radio" name="gotvi" value="Друг вкъщи"> Друг вкъщи</label>
+      <label><input type="radio" name="gotvi" value="Готова храна"> Купуваме готово</label>
+      <label><input type="radio" name="gotvi" value="Заведение"> Храня се навън</label>
+      <label><input type="radio" name="gotvi" value="Смесено"> Смесено</label>
+    </div>
+
+    <label class="q">Колко време има за готвене?</label>
+    <div class="opts" data-radio="vreme">
+      <label><input type="radio" name="vreme" value="Има време"> Има време, готви се редовно</label>
+      <label><input type="radio" name="vreme" value="Малко"> Малко — само бързи неща</label>
+      <label><input type="radio" name="vreme" value="Няма"> Практически няма</label>
+    </div>
+
+    <label class="q">Кои храни не ядеш?
+      <span class="hint">Не ти понасят, не ти се ядат или не ги обичаш.</span></label>
+    <input type="text" id="ne_yade" placeholder="напр. риба, извара, гъби">
+
+    <label class="q">Вода на ден</label>
+    <input type="text" id="voda" placeholder="напр. 1 литър, 2 литра, не следя">
+
+    <label class="q">Кафе на ден</label>
+    <input type="text" id="kafe" placeholder="напр. 2 кафета, със захар или без">
+
+    <label class="q">Алкохол</label>
+    <div class="opts" data-radio="alkohol">
+      <label><input type="radio" name="alkohol" value="Не пия"> Не пия</label>
+      <label><input type="radio" name="alkohol" value="Рядко"> Рядко, по празници</label>
+      <label><input type="radio" name="alkohol" value="Няколко пъти седмично"> Няколко пъти седмично</label>
+      <label><input type="radio" name="alkohol" value="Почти всеки ден"> Почти всеки ден</label>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Движение</legend>
+    <div class="seclead">Мускулът е мястото, където отива захарта от кръвта. Затова тренировките са част от режима.</div>
+
+    <label class="q">Тренираш ли в момента?</label>
+    <div class="opts" data-radio="trenira">
+      <label><input type="radio" name="trenira" value="Да, редовно"> Да, редовно</label>
+      <label><input type="radio" name="trenira" value="Понякога"> Понякога</label>
+      <label><input type="radio" name="trenira" value="Не"> Не</label>
+    </div>
+
+    <label class="q">Ако тренираш — какво и колко пъти седмично?</label>
+    <input type="text" id="kakvo_trenira" placeholder="напр. ходене 3 пъти, колело">
+
+    <label class="q">Тренирал ли си с тежести някога?</label>
+    <div class="opts" data-radio="opit">
+      <label><input type="radio" name="opit" value="Да, имам опит"> Да, имам опит</label>
+      <label><input type="radio" name="opit" value="Малко, отдавна"> Малко, отдавна</label>
+      <label><input type="radio" name="opit" value="Никога"> Никога</label>
+    </div>
+
+    <label class="q">Къде би тренирал?</label>
+    <div class="opts" data-radio="kade">
+      <label><input type="radio" name="kade" value="Фитнес"> Във фитнес</label>
+      <label><input type="radio" name="kade" value="Вкъщи"> Вкъщи</label>
+      <label><input type="radio" name="kade" value="Навън"> Навън</label>
+      <label><input type="radio" name="kade" value="Още не знам"> Още не знам</label>
+    </div>
+
+    <label class="q">Има ли нещо, което те спира или те боли при движение?</label>
+    <input type="text" id="spira" placeholder="напр. коляно, кръст, нищо">
+  </fieldset>
+
+  <fieldset>
+    <legend>Лекарства, добавки, измерване</legend>
+
+    <label class="q">Други лекарства освен Синджарди?
+      <span class="hint">Каквото и да е — за кръвно, за сърце, обезболяващи, всичко.</span></label>
+    <textarea id="lekarstva" placeholder="ако няма, напиши: няма"></textarea>
+
+    <label class="q">Взимаш ли добавки или витамини?</label>
+    <textarea id="dobavki" placeholder="напр. витамин D, магнезий — или: няма"></textarea>
+
+    <label class="q">Глюкомер</label>
+    <div class="opts" data-radio="glukomer">
+      <label><input type="radio" name="glukomer" value="Имам"> Имам</label>
+      <label><input type="radio" name="glukomer" value="Ще си взема"> Нямам, ще си взема</label>
+      <label><input type="radio" name="glukomer" value="Нямам"> Нямам</label>
+    </div>
+
+    <label class="q">Мериш ли си кръвното вкъщи?</label>
+    <div class="opts" data-radio="kravno">
+      <label><input type="radio" name="kravno" value="Редовно"> Редовно</label>
+      <label><input type="radio" name="kravno" value="Понякога"> Понякога</label>
+      <label><input type="radio" name="kravno" value="Не"> Не</label>
+    </div>
+
+    <label class="q">Нещо друго, което трябва да се знае?</label>
+    <textarea id="drugo" class="big" placeholder="каквото прецениш"></textarea>
+  </fieldset>
+
+  <label class="consent">
+    <input type="checkbox" id="consent">
+    <span>Съгласен съм данните да се ползват за изготвяне на моя режим.</span>
+  </label>
+  <div class="reqnote" id="consentNote">Отбележи съгласието, за да се изпрати.</div>
+  </form>
+</div>
+
+<div class="actions">
+  <p class="sendhint" id="sendHint">Празните полета не пречат — прати каквото знаеш.</p>
+  <button type="button" class="send" id="sendBtn">Изпрати</button>
+  <div class="err" id="sendErr"></div>
+  <div class="ok" id="okMsg">Получено. Режимът се изготвя и ще стане ясно какво следва.</div>
+  <textarea id="outBox" rows="10"></textarea>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+  var imeEl = document.getElementById("ime");
+
+  function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
+  function radio(n) { var e = document.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : ""; }
+
+  var TOKEN = new URLSearchParams(location.search).get("t") || "";
+  var DRAFT_KEY = "cdbgym_meta_draft" + (TOKEN ? "_" + TOKEN : "");
+
+  if (TOKEN) {
+    sb.rpc("get_client_name", { p_token: TOKEN }).then(function (res) {
+      var nm = (res && res.data) ? String(res.data).trim() : "";
+      if (!nm) return;
+      imeEl.value = nm;
+      var h = document.getElementById("hello");
+      if (h) { h.textContent = "Здравей, " + nm + ". Попълни каквото знаеш, със свои думи."; h.style.display = "block"; }
+    }, function () {});
+  }
+
+  var saveBar = document.getElementById("saveBar");
+  var resumeNote = document.getElementById("resumeNote");
+  var restoring = false, saveTimer = null, sealed = false;
+  var saveTxt = document.getElementById("saveTxt");
+  var formEl = document.getElementById("form");
+
+  function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function setBar(state) {
+    saveBar.classList.add("show"); askOff();
+    if (state === "saving") { saveBar.classList.add("saving"); saveTxt.textContent = "Запазва се…"; return; }
+    saveBar.classList.remove("saving");
+    saveTxt.textContent = (state === "local") ? "\u2713 Запазено на това устройство " + hhmm() : "\u2713 Запазено " + hhmm();
+  }
+  function controls() { return document.querySelectorAll("#form input, #form textarea, #form select"); }
+
+  function snapshot() {
+    var s = { v: {}, r: {}, c: [] };
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "radio") { if (el.checked && el.name) s.r[el.name] = el.value; }
+      else if (el.type === "checkbox") { if (el.checked && el.id) s.c.push("id|" + el.id); }
+      else if (el.id && el.value !== "") s.v[el.id] = el.value;
+    });
+    return s;
+  }
+  function fire(el) { el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); }
+  function applySnap(s) {
+    if (!s || typeof s !== "object") return false;
+    restoring = true; var touched = 0;
+    Object.keys(s.v || {}).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.type !== "checkbox" && el.type !== "radio") { if (id === "ime") return; el.value = s.v[id]; fire(el); touched++; }
+    });
+    Object.keys(s.r || {}).forEach(function (nm) {
+      var el = document.querySelector('input[name="' + nm + '"][value="' + String(s.r[nm]).replace(/"/g, '\\"') + '"]');
+      if (el) { el.checked = true; fire(el); touched++; }
+    });
+    (s.c || []).forEach(function (k) {
+      var parts = k.split("|"); if (parts[0] === "id") { var el = document.getElementById(parts[1]); if (el) { el.checked = true; fire(el); touched++; } }
+    });
+    restoring = false;
+    if (touched) { resumeNote.classList.add("show"); setBar(TOKEN ? "saved" : "local"); }
+    return touched > 0;
+  }
+
+  function doSave() {
+    var snap = snapshot();
+    var rec = { at: Date.now(), data: snap, pending: !!TOKEN };
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {}
+    if (!TOKEN) { setBar("local"); return; }
+    function synced() { rec.pending = false; try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {} setBar("saved"); }
+    sb.rpc("save_intake_draft", { p_token: TOKEN, p_payload: snap }).then(
+      function (res) { if (res && res.error) setBar("local"); else synced(); },
+      function () { setBar("local"); }
+    );
+  }
+  function scheduleSave() { if (restoring || sealed) return; setBar("saving"); clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 1200); }
+  formEl.addEventListener("input", scheduleSave);
+  formEl.addEventListener("change", scheduleSave);
+
+  function clearLocalDraft() { clearTimeout(saveTimer); try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+  var saveState = document.getElementById("saveState"), clearAsk = document.getElementById("clearAsk");
+  function askOn() { saveState.style.display = "none"; clearAsk.style.display = "flex"; }
+  function askOff() { clearAsk.style.display = "none"; saveState.style.display = "flex"; }
+  function resetForm() {
+    restoring = true; clearTimeout(saveTimer);
+    var keepName = imeEl.value;
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "checkbox" || el.type === "radio") el.checked = false; else el.value = "";
+    });
+    document.getElementById("consentNote").classList.remove("show");
+    document.getElementById("sendErr").classList.remove("show");
+    resumeNote.classList.remove("show");
+    imeEl.value = keepName;
+    clearLocalDraft(); restoring = false; askOff();
+    saveBar.classList.remove("saving"); saveTxt.textContent = "Формата е изчистена";
+    document.getElementById("clearBtn").style.display = "none";
+    setTimeout(function () { saveBar.classList.remove("show"); document.getElementById("clearBtn").style.display = ""; }, 2500);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.getElementById("clearBtn").addEventListener("click", askOn);
+  document.getElementById("clearNo").addEventListener("click", askOff);
+  document.getElementById("clearYes").addEventListener("click", resetForm);
+
+  (function () {
+    var loc = null; try { var raw = localStorage.getItem(DRAFT_KEY); if (raw) loc = JSON.parse(raw); } catch (e) {}
+    var hasLoc = !!(loc && loc.data);
+    if (!TOKEN) { if (hasLoc) applySnap(loc.data); return; }
+    function full(d) { return !!(d && (Object.keys(d.v || {}).length || Object.keys(d.r || {}).length || (d.c || []).length)); }
+    sb.rpc("get_intake_draft", { p_token: TOKEN }).then(function (res) {
+      var d = (res && res.data) ? res.data : null;
+      if (hasLoc && loc.pending) applySnap(loc.data);
+      else if (full(d)) applySnap(d);
+      else if (hasLoc) applySnap(loc.data);
+    }, function () { if (hasLoc) applySnap(loc.data); });
+  })();
+
+  var IDS = ["ime","talia","teglo_sega","teglo_predi","smeni","dvizhenie","chasove","zakuska","obyad","vechera",
+             "mezhdu","ne_yade","voda","kafe","kakvo_trenira","spira","lekarstva","dobavki","drugo"];
+  var RADIOS = ["svalyane","grafik","rabota_vid","broi","gotvi","vreme","alkohol","trenira","opit","kade","glukomer","kravno"];
+
+  function gather() {
+    var o = { forma: "intake_meta" };
+    IDS.forEach(function (id) { o[id] = val(id); });
+    RADIOS.forEach(function (n) { o[n] = radio(n); });
+    return o;
+  }
+  function build() {
+    var d = gather(); var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / МЕТАБОЛИТЕН (intake_meta) ==="); L.push("");
+    L.push("Име: " + d.ime); L.push("");
+    L.push("[МЕРКИ]");
+    L.push("Талия: " + d.talia + " см · Тегло сега: " + d.teglo_sega + " кг · Тегло преди диагнозата: " + d.teglo_predi + " кг");
+    L.push("Промяна преди диагнозата: " + d.svalyane); L.push("");
+    L.push("[ДЕНЯТ]");
+    L.push("График: " + d.grafik + " · Смени: " + d.smeni);
+    L.push("Работен ден: " + d.rabota_vid + " · Движение извън работа: " + d.dvizhenie); L.push("");
+    L.push("[ХРАНЕНЕ СЕГА]");
+    L.push("Брой хранения: " + d.broi + " · Часове: " + d.chasove);
+    L.push("Сутрин: " + d.zakuska);
+    L.push("Обяд: " + d.obyad);
+    L.push("Вечер: " + d.vechera);
+    L.push("Между храненията: " + d.mezhdu);
+    L.push("Готви: " + d.gotvi + " · Време за готвене: " + d.vreme);
+    L.push("Не яде: " + d.ne_yade);
+    L.push("Вода: " + d.voda + " · Кафе: " + d.kafe + " · Алкохол: " + d.alkohol); L.push("");
+    L.push("[ДВИЖЕНИЕ]");
+    L.push("Тренира сега: " + d.trenira + " · Какво: " + d.kakvo_trenira);
+    L.push("Опит с тежести: " + d.opit + " · Къде би тренирал: " + d.kade);
+    L.push("Спира/боли: " + d.spira); L.push("");
+    L.push("[ЛЕКАРСТВА И ИЗМЕРВАНЕ]");
+    L.push("Други лекарства: " + d.lekarstva);
+    L.push("Добавки: " + d.dobavki);
+    L.push("Глюкомер: " + d.glukomer + " · Мери кръвно: " + d.kravno); L.push("");
+    L.push("[ДРУГО]"); L.push(d.drugo);
+    L.push(""); L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  document.getElementById("consent").addEventListener("change", function () {
+    if (this.checked) document.getElementById("consentNote").classList.remove("show");
+  });
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (!document.getElementById("consent").checked) {
+      var cn = document.getElementById("consentNote");
+      cn.classList.add("show");
+      cn.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    var data = gather();
+    if (TOKEN) data.token = TOKEN;
+    var text = build();
+    btn.disabled = true; btn.textContent = "Изпращане…";
+    sb.from("submissions").insert({ form_type: "intake_meta", payload: data, raw_block: text }).then(function (res) {
+      if (res.error) throw res.error;
+      clearTimeout(saveTimer); doSave();
+      sealed = true;
+      saveBar.classList.remove("show");
+      var sh = document.getElementById("sendHint"); if (sh) sh.style.display = "none";
+      var ok = document.getElementById("okMsg"); ok.classList.add("show"); ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      btn.textContent = "Изпратено \u2713";
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Изпрати";
+      var er = document.getElementById("sendErr");
+      er.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+      er.classList.add("show");
+      var ob = document.getElementById("outBox"); ob.value = text; ob.classList.add("show"); ob.focus();
+    });
+  });
+})();
+</script>
+</body>
+</html>
