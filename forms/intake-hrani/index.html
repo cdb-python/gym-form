@@ -134,6 +134,10 @@
       <span class="hint">Разходки, градина, домакинство, спорт — каквото те кара да се движиш. Ако няма, напиши „няма".</span></label>
     <textarea id="dvizhenie" rows="2" placeholder="напр. разходка с кучето 20 мин вечер"></textarea>
 
+    <label class="q">В колко часа обикновено си лягаш?
+      <span class="hint">От това зависи в колко часа да е последното хранене за деня.</span></label>
+    <input type="text" id="lyagane" placeholder="напр. 22:30">
+
     <label class="q">Колко часа спиш обикновено?</label>
     <input type="text" id="sun_chasa" placeholder="напр. 6-7">
 
@@ -387,7 +391,7 @@
     }, function () { if (hasLoc) applySnap(loc.data); });
   })();
 
-  var IDS = ["ime","talia","kravno","teglo_sega","rabota_chasove","dvizhenie","sun_chasa",
+  var IDS = ["ime","talia","kravno","teglo_sega","rabota_chasove","dvizhenie","lyagane","sun_chasa",
              "chasove","zakuska","obyad","vechera","mezhdu","sladko","technosti",
              "ne_yade","obicha","gotvi_kak","vreme_gotvene","obyad_rabota","gotova_hrana",
              "dobavki","drugo"];
@@ -408,7 +412,7 @@
     L.push("[ДЕНЯТ]");
     L.push("Работно време: " + d.rabota_chasove + " · На работа: " + d.rabota_vid);
     L.push("Движение извън работа: " + d.dvizhenie);
-    L.push("Сън: " + d.sun_chasa + " ч · Качество: " + d.sun_kak); L.push("");
+    L.push("Ляга в: " + d.lyagane + " · Сън: " + d.sun_chasa + " ч · Качество: " + d.sun_kak); L.push("");
     L.push("[ХРАНЕНЕ СЕГА]");
     L.push("Брой хранения: " + d.broi + " · Часове: " + d.chasove);
     L.push("Сутрин: " + d.zakuska);
