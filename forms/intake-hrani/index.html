@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="bg">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Въпросник — за режима</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #fff; --ink: #1c2733; --muted: #6b7886;
+    --border: #d8dee5; --hint: #8a96a3; --soft: #eef4f1;
+    --chrome: #2e7d5b; --chrome-dark: #235e45;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px; line-height: 1.5; padding: 0 0 40px; }
+  header { background: var(--chrome); color: #fff; padding: 24px 18px 20px; text-align: center; }
+  header h1 { margin: 0 0 6px; font-size: 22px; }
+  header p { margin: 0; font-size: 14px; opacity: 0.93; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  .intro { background: var(--soft); border: 1px solid #cbe0d5; border-left: 5px solid var(--chrome);
+    border-radius: 12px; padding: 14px 16px; margin: 16px 0; font-size: 14.5px; color: var(--chrome-dark); }
+  fieldset { background: var(--card); border: 1px solid var(--border); border-left: 5px solid var(--chrome);
+    border-radius: 12px; margin: 16px 0; padding: 14px 16px 18px; }
+  legend { float: left; width: 100%; margin: 0 0 6px; padding: 0; font-weight: 700; font-size: 18px; color: var(--chrome-dark); }
+  fieldset > legend + * { clear: both; }
+  .seclead { font-size: 13.5px; color: var(--muted); margin: 0 0 6px; font-weight: 400; }
+  label.q { display: block; margin: 14px 0 6px; font-weight: 600; }
+  .hint { display: block; font-weight: 400; font-size: 13px; color: var(--hint); margin-top: 2px; }
+  input[type=text], input[type=number], input[type=date], textarea, select {
+    width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border);
+    border-radius: 9px; background: #fff; color: var(--ink); font-family: inherit; }
+  textarea { min-height: 62px; resize: vertical; }
+  textarea.big { min-height: 96px; }
+  .opts { margin-top: 6px; }
+  .opts label { display: flex; align-items: center; gap: 10px; padding: 8px 4px; font-weight: 400; cursor: pointer; }
+  .opts input { width: 20px; height: 20px; flex: none; }
+  .row2 { display: flex; gap: 10px; align-items: end; }
+  .row2 > div { flex: 1; display: flex; flex-direction: column; }
+  .row2 > div label.q { flex: 1; margin-bottom: 6px; }
+  .row2 > div input { margin-top: auto; }
+  .reqnote { display: none; margin-top: 10px; padding: 12px 14px; background: #fff4e5;
+    border: 1px solid #f0c891; border-radius: 10px; color: #8a5a00; font-size: 14px; }
+  .reqnote.show { display: block; }
+  .measnote { background: var(--soft); border: 1px solid #cbe0d5; border-radius: 10px; padding: 11px 13px; margin: 6px 0 4px; font-size: 13.5px; color: var(--chrome-dark); }
+  .consent { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: #8a5a00;
+    margin: 16px 0 4px; padding: 11px 13px; background: #f9f3e0; border: 1px solid var(--border);
+    border-left: 5px solid var(--chrome); border-radius: 10px; }
+  .consent input { width: 20px; height: 20px; flex: none; margin-top: 1px; }
+  .savebar { position: sticky; top: 0; z-index: 50; display: none; background: #e7f1ec;
+    border-bottom: 1px solid #b9dcc9; color: var(--chrome-dark); font-size: 13px; font-weight: 700;
+    text-align: center; padding: 6px 12px; }
+  .savebar.show { display: flex; align-items: center; justify-content: center; }
+  .savebar.saving #saveTxt { color: #6b7280; }
+  .savebar > span { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+  .clearbtn { border: 1px solid #b9dcc9; background: #fff; color: #6b7280; border-radius: 7px;
+    font-size: 12px; font-weight: 700; padding: 3px 9px; cursor: pointer; flex: none; }
+  .clearbtn:active { background: #e8f1eb; }
+  .clearbtn.danger { border-color: #c43d3d; color: #c43d3d; }
+  #resumeNote { display: none; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 10px;
+    padding: 10px 13px; margin: 14px 0 0; font-weight: 700; color: #1d5c3a; text-align: center; }
+  #resumeNote.show { display: block; }
+  .actions { padding: 18px 14px 8px; max-width: 640px; margin: 0 auto; }
+  .sendhint { text-align: center; color: #6b7280; font-size: 13.5px; margin: 0 0 10px; }
+  button.send { width: 100%; padding: 15px; font-size: 17px; font-weight: 700; color: #fff;
+    background: var(--chrome); border: none; border-radius: 11px; cursor: pointer; }
+  button.send:active { background: var(--chrome-dark); }
+  .ok { display: none; margin: 14px 0 0; padding: 14px 16px; background: #e7f1ec;
+    border: 1px solid #b9dcc9; border-radius: 11px; color: var(--chrome-dark); font-weight: 600; }
+  .ok.show { display: block; }
+  .err { display: none; margin: 12px 0 0; padding: 12px 14px; background: #fdeaea;
+    border: 1px solid #f0b8b8; border-radius: 10px; color: #7a1a1a; font-size: 14px; }
+  .err.show { display: block; }
+  #outBox { display: none; margin-top: 10px; } #outBox.show { display: block; }
+  #hello { display: none; margin: 14px 0 0; font-weight: 600; color: var(--chrome-dark); }
+</style>
+</head>
+<body>
+
+<div class="savebar" id="saveBar">
+  <span id="saveState"><span id="saveTxt">Запазено</span>
+    <button type="button" class="clearbtn" id="clearBtn">Изчисти</button></span>
+  <span id="clearAsk" style="display:none">Да изчистя ли попълненото?
+    <button type="button" class="clearbtn danger" id="clearYes">Да</button>
+    <button type="button" class="clearbtn" id="clearNo">Не</button></span>
+</div>
+
+<header>
+  <h1>Въпросник — хранене и навици</h1>
+  <p>cdb-Gym</p>
+</header>
+
+<div class="wrap">
+  <div class="intro">
+    Кръвните са прегледани и посоката е ясна. Тук се пита само това, което липсва,
+    за да се изготви планът — и най-вече <b>как минава денят ти реално</b>.
+    <br><br>Няма правилни и грешни отговори — пиши каквото е, със свои думи.
+    Ако нещо е различно всеки ден, така и напиши.
+    <br><br><b>Попълненото се запазва автоматично</b> — може да спреш и да продължиш по-късно от същия линк.
+  </div>
+  <div id="hello"></div>
+  <div id="resumeNote">Продължаваш оттам, докъдето беше. Попълненото е запазено.</div>
+
+  <form id="form">
+  <input type="hidden" id="ime">
+
+  <fieldset>
+    <legend>Мерки</legend>
+    <div class="seclead">Двете, които липсват от изследванията.</div>
+
+    <label class="q">Обиколка на талията (см)
+      <span class="hint">Около пъпа, сутрин преди закуска. Коремът отпуснат — не изпънат и не всмукан.</span></label>
+    <input type="number" id="talia" inputmode="decimal" step="0.5" placeholder="напр. 96">
+
+    <label class="q">Кръвно налягане
+      <span class="hint">Ако имаш апарат — мери сутрин, седнала, след 5 минути покой. Ако нямаш, напиши „нямам".</span></label>
+    <input type="text" id="kravno" placeholder="напр. 130/85 или „нямам апарат&quot;">
+
+    <label class="q">Тегло сега (кг)</label>
+    <input type="number" id="teglo_sega" inputmode="decimal" step="0.1" placeholder="напр. 90">
+  </fieldset>
+
+  <fieldset>
+    <legend>Денят ти</legend>
+    <div class="seclead">Определя в кои часове ще са храненията.</div>
+
+    <label class="q">Работно време</label>
+    <input type="text" id="rabota_chasove" placeholder="напр. 8:30 – 17:00">
+
+    <label class="q">През работния ден си</label>
+    <label class="opt"><input type="radio" name="rabota_vid" value="седнала по цял ден"> Седнала по цял ден</label>
+    <label class="opt"><input type="radio" name="rabota_vid" value="смесено"> Смесено</label>
+    <label class="opt"><input type="radio" name="rabota_vid" value="на крак"> Повече на крак, в движение</label>
+
+    <label class="q">Движение извън работата
+      <span class="hint">Разходки, градина, домакинство, спорт — каквото те кара да се движиш. Ако няма, напиши „няма".</span></label>
+    <textarea id="dvizhenie" rows="2" placeholder="напр. разходка с кучето 20 мин вечер"></textarea>
+
+    <label class="q">Колко часа спиш обикновено?</label>
+    <input type="text" id="sun_chasa" placeholder="напр. 6-7">
+
+    <label class="q">Как спиш?</label>
+    <label class="opt"><input type="radio" name="sun_kak" value="добре, без събуждания"> Добре, без събуждания</label>
+    <label class="opt"><input type="radio" name="sun_kak" value="събуждам се през нощта"> Събуждам се през нощта</label>
+    <label class="opt"><input type="radio" name="sun_kak" value="трудно заспивам"> Трудно заспивам</label>
+    <label class="opt"><input type="radio" name="sun_kak" value="ставам неотпочинала"> Ставам неотпочинала</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Как се храниш сега</legend>
+    <div class="seclead">Най-важната част. Пиши как е реално, не как би трябвало.</div>
+
+    <label class="q">Колко пъти на ден се храниш?</label>
+    <label class="opt"><input type="radio" name="broi" value="1-2"> 1-2 пъти</label>
+    <label class="opt"><input type="radio" name="broi" value="3"> 3 пъти</label>
+    <label class="opt"><input type="radio" name="broi" value="4"> 4 пъти</label>
+    <label class="opt"><input type="radio" name="broi" value="5+"> 5 или повече</label>
+    <label class="opt"><input type="radio" name="broi" value="различно"> Различно всеки ден</label>
+
+    <label class="q">В кои часове?</label>
+    <input type="text" id="chasove" placeholder="напр. 8:00, 13:00, 20:00">
+
+    <label class="q">Сутрин — какво ядеш?
+      <span class="hint">Ако не закусваш, така напиши.</span></label>
+    <textarea id="zakuska" rows="2" placeholder="напр. кафе с мляко и филия с масло"></textarea>
+
+    <label class="q">На обяд — какво ядеш?</label>
+    <textarea id="obyad" rows="2"></textarea>
+
+    <label class="q">Вечер — какво ядеш?</label>
+    <textarea id="vechera" rows="2"></textarea>
+
+    <label class="q">Между храненията хапваш ли нещо?
+      <span class="hint">Каквото и да е — плод, бисквита, ядки, сандвич.</span></label>
+    <textarea id="mezhdu" rows="2"></textarea>
+
+    <label class="q">Сладко — колко често и какво?
+      <span class="hint">Шоколад, торта, бисквити, мед, захар в кафето.</span></label>
+    <textarea id="sladko" rows="2"></textarea>
+
+    <label class="q">Какво пиеш през деня освен вода?
+      <span class="hint">Сокове, газирано, чай с мед, айран, лимонада — и приблизително колко.</span></label>
+    <textarea id="technosti" rows="2"></textarea>
+
+    <label class="q">Кафе</label>
+    <label class="opt"><input type="radio" name="kafe" value="не пия"> Не пия</label>
+    <label class="opt"><input type="radio" name="kafe" value="1-2 без захар"> 1-2 на ден, без захар</label>
+    <label class="opt"><input type="radio" name="kafe" value="1-2 със захар"> 1-2 на ден, със захар</label>
+    <label class="opt"><input type="radio" name="kafe" value="3+ на ден"> 3 или повече</label>
+
+    <label class="q">Алкохол</label>
+    <label class="opt"><input type="radio" name="alkohol" value="не пия"> Не пия</label>
+    <label class="opt"><input type="radio" name="alkohol" value="рядко, по празници"> Рядко, по празници</label>
+    <label class="opt"><input type="radio" name="alkohol" value="през уикендите"> През уикендите</label>
+    <label class="opt"><input type="radio" name="alkohol" value="няколко пъти седмично"> Няколко пъти седмично</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Кой готви и кой пазарува</legend>
+    <div class="seclead">Това решава дали планът ще е с готови менюта и грамажи,
+      или ръководство за пазаруване и принципи. И двете работят — важното е да пасне на живота ти.</div>
+
+    <label class="q">Готвиш ли си сама?</label>
+    <label class="opt"><input type="radio" name="gotvi" value="да, почти всеки ден"> Да, почти всеки ден</label>
+    <label class="opt"><input type="radio" name="gotvi" value="няколко пъти седмично"> Няколко пъти седмично</label>
+    <label class="opt"><input type="radio" name="gotvi" value="рядко"> Рядко</label>
+    <label class="opt"><input type="radio" name="gotvi" value="друг готви вкъщи"> Друг готви вкъщи</label>
+
+    <label class="q">Как готвиш обикновено?
+      <span class="hint">Варено, печено, пържено, на фурна, еърфрайър — каквото ползваш.</span></label>
+    <textarea id="gotvi_kak" rows="2"></textarea>
+
+    <label class="q">Колко време имаш за готвене?
+      <span class="hint">Например: половин час вечер · готвя за няколко дни в неделя · почти нямам време.</span></label>
+    <textarea id="vreme_gotvene" rows="2"></textarea>
+
+    <label class="q">Кой пазарува храната?</label>
+    <label class="opt"><input type="radio" name="pazaruva" value="аз"> Аз</label>
+    <label class="opt"><input type="radio" name="pazaruva" value="аз и друг"> Аз и друг човек</label>
+    <label class="opt"><input type="radio" name="pazaruva" value="друг"> Друг</label>
+
+    <label class="q">На работа какво ядеш?
+      <span class="hint">Носиш ли си от вкъщи, купуваш ли, има ли микровълнова?</span></label>
+    <textarea id="obyad_rabota" rows="2"></textarea>
+
+    <label class="q">Колко често ядеш готова храна или навън?
+      <span class="hint">Ресторант, заведение, готово от магазина, доставка.</span></label>
+    <textarea id="gotova_hrana" rows="2"></textarea>
+
+    <label class="q">Готова ли си да теглиш храната на кантар?
+      <span class="hint">Няма правилен отговор — само за да се прецени какъв вид план ще ти върши работа.</span></label>
+    <label class="opt"><input type="radio" name="tegli" value="да, не ми пречи"> Да, не ми пречи</label>
+    <label class="opt"><input type="radio" name="tegli" value="в началото да, после ще ми омръзне"> В началото да, после ще ми омръзне</label>
+    <label class="opt"><input type="radio" name="tegli" value="предпочитам без кантар"> Предпочитам без кантар</label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Храни</legend>
+
+    <label class="q">Кои храни НЕ ядеш?
+      <span class="hint">Важно е — за да не влязат в плана. Алергия, не ти понася, не ти се яде или не го обичаш.</span></label>
+    <textarea id="ne_yade" rows="3"></textarea>
+
+    <label class="q">Кои храни обичаш и не искаш да отпадат?
+      <span class="hint">Полезно е — режим без нищо любимо не се кара дълго.</span></label>
+    <textarea id="obicha" rows="3"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>Добавки</legend>
+
+    <label class="q">Взимаш ли добавки или витамини в момента?
+      <span class="hint">Ако си започнала витамин D — напиши колко.</span></label>
+    <textarea id="dobavki" rows="2"></textarea>
+
+    <label class="q">Нещо друго, което трябва да се знае?</label>
+    <textarea id="drugo" rows="3"></textarea>
+  </fieldset>
+
+  <label class="consent"><input type="checkbox" id="consent">
+    Съгласна съм данните да се ползват за изготвяне на моя план.</label>
+  <div class="note" id="consentNote">Моля, отбележи съгласието, за да се изпрати.</div>
+
+  <button type="button" class="send" id="sendBtn">Изпрати</button>
+  <div class="hint" id="sendHint" style="text-align:center;margin-top:8px">
+    Може да се изпрати и непълно — довършва се после от същия линк.</div>
+  <div class="note" id="sendErr"></div>
+  <div class="ok" id="okMsg">Получено. Планът се изготвя.</div>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+  var imeEl = document.getElementById("ime");
+
+  function val(id) { var e = document.getElementById(id); return e ? e.value.trim() : ""; }
+  function radio(n) { var e = document.querySelector('input[name="' + n + '"]:checked'); return e ? e.value : ""; }
+
+  var TOKEN = new URLSearchParams(location.search).get("t") || "";
+  var DRAFT_KEY = "cdbgym_hrani_draft" + (TOKEN ? "_" + TOKEN : "");
+
+  if (TOKEN) {
+    sb.rpc("get_client_name", { p_token: TOKEN }).then(function (res) {
+      var nm = (res && res.data) ? String(res.data).trim() : "";
+      if (!nm) return;
+      imeEl.value = nm;
+      var h = document.getElementById("hello");
+      if (h) { h.textContent = "Здравей, " + nm + ". Попълни каквото знаеш, със свои думи."; h.style.display = "block"; }
+    }, function () {});
+  }
+
+  var saveBar = document.getElementById("saveBar");
+  var resumeNote = document.getElementById("resumeNote");
+  var restoring = false, saveTimer = null, sealed = false;
+  var saveTxt = document.getElementById("saveTxt");
+  var formEl = document.getElementById("form");
+
+  function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
+  function setBar(state) {
+    saveBar.classList.add("show"); askOff();
+    if (state === "saving") { saveBar.classList.add("saving"); saveTxt.textContent = "Запазва се…"; return; }
+    saveBar.classList.remove("saving");
+    saveTxt.textContent = (state === "local") ? "\u2713 Запазено на това устройство " + hhmm() : "\u2713 Запазено " + hhmm();
+  }
+  function controls() { return document.querySelectorAll("#form input, #form textarea, #form select"); }
+
+  function snapshot() {
+    var s = { v: {}, r: {}, c: [] };
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "radio") { if (el.checked && el.name) s.r[el.name] = el.value; }
+      else if (el.type === "checkbox") { if (el.checked && el.id) s.c.push("id|" + el.id); }
+      else if (el.id && el.value !== "") s.v[el.id] = el.value;
+    });
+    return s;
+  }
+  function fire(el) { el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); }
+  function applySnap(s) {
+    if (!s || typeof s !== "object") return false;
+    restoring = true; var touched = 0;
+    Object.keys(s.v || {}).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el && el.type !== "checkbox" && el.type !== "radio") { if (id === "ime") return; el.value = s.v[id]; fire(el); touched++; }
+    });
+    Object.keys(s.r || {}).forEach(function (nm) {
+      var el = document.querySelector('input[name="' + nm + '"][value="' + String(s.r[nm]).replace(/"/g, '\\"') + '"]');
+      if (el) { el.checked = true; fire(el); touched++; }
+    });
+    (s.c || []).forEach(function (k) {
+      var parts = k.split("|"); if (parts[0] === "id") { var el = document.getElementById(parts[1]); if (el) { el.checked = true; fire(el); touched++; } }
+    });
+    restoring = false;
+    if (touched) { resumeNote.classList.add("show"); setBar(TOKEN ? "saved" : "local"); }
+    return touched > 0;
+  }
+
+  function doSave() {
+    var snap = snapshot();
+    var rec = { at: Date.now(), data: snap, pending: !!TOKEN };
+    try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {}
+    if (!TOKEN) { setBar("local"); return; }
+    function synced() { rec.pending = false; try { localStorage.setItem(DRAFT_KEY, JSON.stringify(rec)); } catch (e) {} setBar("saved"); }
+    sb.rpc("save_intake_draft", { p_token: TOKEN, p_payload: snap }).then(
+      function (res) { if (res && res.error) setBar("local"); else synced(); },
+      function () { setBar("local"); }
+    );
+  }
+  function scheduleSave() { if (restoring || sealed) return; setBar("saving"); clearTimeout(saveTimer); saveTimer = setTimeout(doSave, 1200); }
+  formEl.addEventListener("input", scheduleSave);
+  formEl.addEventListener("change", scheduleSave);
+
+  function clearLocalDraft() { clearTimeout(saveTimer); try { localStorage.removeItem(DRAFT_KEY); } catch (e) {} }
+  var saveState = document.getElementById("saveState"), clearAsk = document.getElementById("clearAsk");
+  function askOn() { saveState.style.display = "none"; clearAsk.style.display = "flex"; }
+  function askOff() { clearAsk.style.display = "none"; saveState.style.display = "flex"; }
+  function resetForm() {
+    restoring = true; clearTimeout(saveTimer);
+    var keepName = imeEl.value;
+    Array.prototype.forEach.call(controls(), function (el) {
+      if (el.type === "checkbox" || el.type === "radio") el.checked = false; else el.value = "";
+    });
+    document.getElementById("consentNote").classList.remove("show");
+    document.getElementById("sendErr").classList.remove("show");
+    resumeNote.classList.remove("show");
+    imeEl.value = keepName;
+    clearLocalDraft(); restoring = false; askOff();
+    saveBar.classList.remove("saving"); saveTxt.textContent = "Формата е изчистена";
+    document.getElementById("clearBtn").style.display = "none";
+    setTimeout(function () { saveBar.classList.remove("show"); document.getElementById("clearBtn").style.display = ""; }, 2500);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  document.getElementById("clearBtn").addEventListener("click", askOn);
+  document.getElementById("clearNo").addEventListener("click", askOff);
+  document.getElementById("clearYes").addEventListener("click", resetForm);
+
+  (function () {
+    var loc = null; try { var raw = localStorage.getItem(DRAFT_KEY); if (raw) loc = JSON.parse(raw); } catch (e) {}
+    var hasLoc = !!(loc && loc.data);
+    if (!TOKEN) { if (hasLoc) applySnap(loc.data); return; }
+    function full(d) { return !!(d && (Object.keys(d.v || {}).length || Object.keys(d.r || {}).length || (d.c || []).length)); }
+    sb.rpc("get_intake_draft", { p_token: TOKEN }).then(function (res) {
+      var d = (res && res.data) ? res.data : null;
+      if (hasLoc && loc.pending) applySnap(loc.data);
+      else if (full(d)) applySnap(d);
+      else if (hasLoc) applySnap(loc.data);
+    }, function () { if (hasLoc) applySnap(loc.data); });
+  })();
+
+  var IDS = ["ime","talia","kravno","teglo_sega","rabota_chasove","dvizhenie","sun_chasa",
+             "chasove","zakuska","obyad","vechera","mezhdu","sladko","technosti",
+             "ne_yade","obicha","gotvi_kak","vreme_gotvene","obyad_rabota","gotova_hrana",
+             "dobavki","drugo"];
+  var RADIOS = ["rabota_vid","broi","gotvi","pazaruva","tegli","alkohol","kafe","sun_kak"];
+
+  function gather() {
+    var o = { forma: "intake_hrani" };
+    IDS.forEach(function (id) { o[id] = val(id); });
+    RADIOS.forEach(function (n) { o[n] = radio(n); });
+    return o;
+  }
+  function build() {
+    var d = gather(); var L = [];
+    L.push("=== ВЪПРОСНИК cdb-Gym / ХРАНЕНЕ И НАВИЦИ (intake_hrani) ==="); L.push("");
+    L.push("Име: " + d.ime); L.push("");
+    L.push("[МЕРКИ]");
+    L.push("Талия: " + d.talia + " см · Тегло: " + d.teglo_sega + " кг · Кръвно: " + d.kravno); L.push("");
+    L.push("[ДЕНЯТ]");
+    L.push("Работно време: " + d.rabota_chasove + " · На работа: " + d.rabota_vid);
+    L.push("Движение извън работа: " + d.dvizhenie);
+    L.push("Сън: " + d.sun_chasa + " ч · Качество: " + d.sun_kak); L.push("");
+    L.push("[ХРАНЕНЕ СЕГА]");
+    L.push("Брой хранения: " + d.broi + " · Часове: " + d.chasove);
+    L.push("Сутрин: " + d.zakuska);
+    L.push("Обяд: " + d.obyad);
+    L.push("Вечер: " + d.vechera);
+    L.push("Между храненията: " + d.mezhdu);
+    L.push("Сладко: " + d.sladko);
+    L.push("Течности през деня: " + d.technosti);
+    L.push("Кафе: " + d.kafe + " · Алкохол: " + d.alkohol); L.push("");
+    L.push("[ЛОГИСТИКА — кой готви, кой пазарува]");
+    L.push("Готви ли си сама: " + d.gotvi);
+    L.push("Как готви: " + d.gotvi_kak);
+    L.push("Време за готвене: " + d.vreme_gotvene);
+    L.push("Кой пазарува: " + d.pazaruva);
+    L.push("Обяд на работа: " + d.obyad_rabota);
+    L.push("Готова храна / навън: " + d.gotova_hrana);
+    L.push("Готова ли е да тегли храната: " + d.tegli); L.push("");
+    L.push("[ХРАНИ]");
+    L.push("НЕ яде: " + d.ne_yade);
+    L.push("Обича / не може без: " + d.obicha); L.push("");
+    L.push("[ДОБАВКИ]");
+    L.push("Добавки сега: " + d.dobavki); L.push("");
+    L.push("[ДРУГО]"); L.push(d.drugo);
+    L.push(""); L.push("=== КРАЙ ===");
+    return L.join("\n");
+  }
+
+  document.getElementById("consent").addEventListener("change", function () {
+    if (this.checked) document.getElementById("consentNote").classList.remove("show");
+  });
+
+  document.getElementById("sendBtn").addEventListener("click", function () {
+    var btn = this;
+    if (!document.getElementById("consent").checked) {
+      var cn = document.getElementById("consentNote");
+      cn.classList.add("show");
+      cn.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    var data = gather();
+    if (TOKEN) data.token = TOKEN;
+    var text = build();
+    btn.disabled = true; btn.textContent = "Изпращане…";
+    sb.from("submissions").insert({ form_type: "intake_hrani", payload: data, raw_block: text }).then(function (res) {
+      if (res.error) throw res.error;
+      clearTimeout(saveTimer); doSave();
+      sealed = true;
+      saveBar.classList.remove("show");
+      var sh = document.getElementById("sendHint"); if (sh) sh.style.display = "none";
+      var ok = document.getElementById("okMsg"); ok.classList.add("show"); ok.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      btn.textContent = "Изпратено \u2713";
+    }).catch(function () {
+      btn.disabled = false; btn.textContent = "Изпрати";
+      var er = document.getElementById("sendErr");
+      er.textContent = "Изпращането не успя (връзка?). Копирай текста долу и го прати по Viber.";
+      er.classList.add("show");
+      var ob = document.getElementById("outBox"); ob.value = text; ob.classList.add("show"); ob.focus();
+    });
+  });
+})();
+</script>
+</body>
+</html>
