@@ -141,6 +141,16 @@
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
   .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
+  .card .body .qa .qi { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--border); }
+  .card .body .qa .qi:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
+  .card .body .qa .qq { font-weight: 700; font-size: 15px; margin: 0 0 6px; }
+  .card .body .qa textarea { width: 100%; min-height: 54px; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; }
+  .card .body .qa .qst { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); }
+  .card .body .qa .qst.pend { color: #a0701c; }
+  .card .body .qa .qabtn { width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
+  .card .body .qa .qabtn:active { background: var(--accent-dark); }
+  .card .body .qa .qaok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .card .body .qa .qaok.show { display: block; }
 </style>
 </head>
 <body>
@@ -369,6 +379,93 @@
           lgBtn.disabled = false; lgBtn.textContent = "Запиши";
         })
         .catch(function () { lgBtn.disabled = false; lgBtn.textContent = "Запиши"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
+    });
+
+    // Въпросник в карта (31.10.2026): <div class="qa" data-qa="Заглавие"> + <div class="qi" data-n="1"><div class="qq">1. …</div><textarea></textarea></div> … + .qabtn + .qaok
+    // Отговорите влизат като бележка в client_log (add_log_entry, без промяна по базата) → виждат се в „Минали записи“,
+    // а картата ги чете обратно оттам: последният изпратен отговор стои В полето (поправя/допълва се и се праща пак — пращат се
+    // само променените). Неизпратеното се пази на устройството до изпращане.
+    var QA_HEAD = "📋 Отговори — ";
+    function qaNorm(s) { return String(s || "").replace(/\r/g, "").replace(/\n\s*\n+/g, "\n").trim(); }
+    function qaGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+    function qaSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+    function qaStatus(qi, sent, ta) {
+      var st = qi.querySelector(".qst");
+      if (!st) { st = document.createElement("div"); st.className = "qst"; qi.appendChild(st); }
+      var v = qaNorm(ta.value), txt = "", pend = false;
+      if (sent && v === sent.text) txt = "✓ Изпратено · " + fmtDate(sent.date) + (fmtTime(sent.at) ? ", " + fmtTime(sent.at) : "");
+      else if (v) { txt = sent ? "✎ Променено — още не е изпратено" : "✎ Още не е изпратено"; pend = true; }
+      else if (sent) { txt = "Празно поле не се изпраща — изпратеният отговор остава."; pend = true; }
+      st.textContent = txt; st.className = "qst" + (pend ? " pend" : ""); st.style.display = txt ? "" : "none";
+    }
+    function qaParse(log, title) {
+      var head = QA_HEAD + title + "\n", ans = {};
+      (log || []).slice().reverse().forEach(function (e) {
+        var n = String(e.note || "");
+        if (e.kind === "coach" || n.indexOf(head) !== 0) return;
+        n.slice(head.length).split(/\n\s*\n/).forEach(function (blk) {
+          var m = /^(\d+)\.[^\n]*\n→ ([\s\S]+)$/.exec(blk.trim());
+          if (m) ans[m[1]] = { text: m[2].trim(), date: e.entry_date, at: e.created_at };
+        });
+      });
+      return ans;
+    }
+    Array.prototype.forEach.call(content.querySelectorAll(".qa"), function (qa) {
+      var title = qa.getAttribute("data-qa") || "Въпроси";
+      var items = qa.querySelectorAll(".qi");
+      var sentMap = qaParse(data.log, title);
+      function lkey(n) { return "diary_qa_" + token + "_" + title + "_" + n; }
+      Array.prototype.forEach.call(items, function (qi) {
+        var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea");
+        if (!ta) return;
+        var loc = qaGet(lkey(n)), sent = sentMap[n];
+        if (loc != null && sent && qaNorm(loc) === sent.text) { qaSet(lkey(n), null); loc = null; }
+        ta.value = loc != null ? loc : (sent ? sent.text : "");
+        qaStatus(qi, sent, ta);
+        ta.addEventListener("input", function () {
+          var s = sentMap[n], v = qaNorm(ta.value);
+          qaSet(lkey(n), (s ? v !== s.text : !!v) ? ta.value : null);
+          qaStatus(qi, s, ta);
+        });
+      });
+      var btn = qa.querySelector(".qabtn"), ok = qa.querySelector(".qaok");
+      if (!btn || !ok) return;
+      btn.addEventListener("click", function () {
+        var parts = [], got = [];
+        Array.prototype.forEach.call(items, function (qi) {
+          var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea");
+          var v = ta ? qaNorm(ta.value) : "";
+          if (!v || (sentMap[n] && v === sentMap[n].text)) return;
+          var qt = (qi.querySelector(".qq") || {}).textContent || "";
+          qt = qt.replace(/^\s*\d+\.\s*/, "").replace(/\s+/g, " ").trim();
+          parts.push(n + ". " + qt + "\n→ " + v);
+          got.push([qi, n, ta, v]);
+        });
+        if (!parts.length) {
+          ok.textContent = Object.keys(sentMap).length ? "Няма промени за изпращане." : "Напиши поне един отговор.";
+          ok.classList.add("show"); return;
+        }
+        var note = QA_HEAD + title + "\n\n" + parts.join("\n\n");
+        btn.disabled = true; btn.textContent = "Изпращане…";
+        sb.rpc("add_log_entry", { p_token: token, p_note: note })
+          .then(function (res) {
+            if (res.error || res.data === false) throw (res.error || new Error("fail"));
+            var now = new Date().toISOString();
+            var rec = { note: note, entry_date: now.slice(0, 10), created_at: now };
+            got.forEach(function (g) {
+              sentMap[g[1]] = { text: g[3], date: rec.entry_date, at: now };
+              g[2].value = g[3]; qaSet(lkey(g[1]), null); qaStatus(g[0], sentMap[g[1]], g[2]);
+            });
+            var list = document.getElementById("logList");
+            if (list) {
+              if (!list.querySelector(".logcard")) list.innerHTML = "";
+              list.insertAdjacentHTML("afterbegin", renderLogCard(rec, 0));
+            }
+            ok.textContent = "Изпратено. Благодаря!"; ok.classList.add("show");
+            btn.disabled = false; btn.textContent = "Изпрати отговорите";
+          })
+          .catch(function () { btn.disabled = false; btn.textContent = "Изпрати отговорите"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
+      });
     });
 
     content.addEventListener("click", function (e) {
