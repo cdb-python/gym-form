@@ -133,7 +133,10 @@
   .logitem:last-child { border-bottom: none; }
   .logitem .d { font-weight: 700; }
   .logitem .m { color: #6b7886; }
-  .chat { position: relative; max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
+  .chatwrap { position: relative; }
+  .chat { position: relative; max-height: 65vh; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
+  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
+  .cdown.show { display: block; }
   .cempty { margin: 6px 0; color: var(--muted); font-size: 14px; text-align: center; }
   .cday { text-align: center; margin: 8px 0 10px; }
   .cday span { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
@@ -369,7 +372,8 @@
       + '</details>'
       + '<button type="button" id="lgBtn">Запиши</button>'
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
-      + '<div class="sec" id="chatSec"><h2>Разговор</h2><div class="chat" id="chatBox">' + chatHtml(data.log) + "</div>"
+      + '<div class="sec" id="chatSec"><h2>Разговор</h2><div class="chatwrap"><div class="chat" id="chatBox">' + chatHtml(data.log) + "</div>"
+      + '<button type="button" class="cdown" id="cDown" aria-label="Към последното съобщение">↓</button></div>'
       + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">✕</button></div>'
       + '<div class="crow"><textarea id="cText" rows="2" placeholder="Напиши съобщение…"></textarea><button type="button" id="cSend">Изпрати</button></div>'
       + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div></div></div>';
@@ -389,16 +393,32 @@
     var msgBanner = document.getElementById("msgBanner");
     if (msgBanner) {
       var newestMsg = msgEvents.reduce(function (a, ts) { return (ts && (!a || ts > a)) ? ts : a; }, null);
-      msgBanner.addEventListener("click", function () {
+      var cs = document.getElementById("chatSec");
+      function bannerDone() {
         try { localStorage.setItem(SEEN_KEY, newestMsg); } catch (e) {}
         msgBanner.style.display = "none";
-        var cs = document.getElementById("chatSec");
+      }
+      msgBanner.addEventListener("click", function () {
+        bannerDone();
         if (cs) cs.scrollIntoView({ behavior: "smooth", block: "start" });
       });
+      // стигне ли чатът на екрана, съобщението е видяно — стикерът само би пречил при скрол (Chris, Android 04.11)
+      if (cs && "IntersectionObserver" in window) {
+        new IntersectionObserver(function (es, obs) {
+          if (es[0].isIntersecting) { bannerDone(); obs.disconnect(); }
+        }, { threshold: 0.2 }).observe(cs);
+      }
     }
 
     var chatBox = document.getElementById("chatBox");
-    function chatBottom() { if (chatBox) chatBox.scrollTop = chatBox.scrollHeight; }
+    var cDown = document.getElementById("cDown");
+    // стрелката надолу (като Viber): вижда се само когато си нагоре в историята
+    function chatArrow() {
+      if (chatBox && cDown) cDown.classList.toggle("show", chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight > 80);
+    }
+    function chatBottom() { if (chatBox) { chatBox.scrollTop = chatBox.scrollHeight; chatArrow(); } }
+    if (chatBox) chatBox.addEventListener("scroll", chatArrow, { passive: true });
+    if (cDown) cDown.addEventListener("click", chatBottom);
     function chatRefresh() {
       return sb.rpc("get_client_diary", { p_token: token }).then(function (res) {
         if (res.error || !res.data || !chatBox) return;
