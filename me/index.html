@@ -133,11 +133,39 @@
   .logitem:last-child { border-bottom: none; }
   .logitem .d { font-weight: 700; }
   .logitem .m { color: #6b7886; }
-  .card.coachcard { border-left: 3px solid var(--accent); background: var(--soft); }
+  .chat { position: relative; max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
+  .cempty { margin: 6px 0; color: var(--muted); font-size: 14px; text-align: center; }
+  .cday { text-align: center; margin: 8px 0 10px; }
+  .cday span { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
+  .csys { margin: 0 8px 10px; text-align: center; color: var(--muted); font-size: 12.5px; }
+  .cmsg { display: flex; flex-direction: column; max-width: 86%; margin: 0 0 10px; }
+  .cmsg.me { margin-left: auto; align-items: flex-end; }
+  .cmsg.them { margin-right: auto; align-items: flex-start; }
+  .cb { padding: 8px 11px; border-radius: 14px; font-size: 15.5px; line-height: 1.45; overflow-wrap: anywhere; }
+  .cmsg.me .cb { background: #d9efe3; border-bottom-right-radius: 4px; }
+  .cmsg.them .cb { background: var(--soft); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .cwho { margin-bottom: 2px; color: var(--accent-dark); font-size: 13px; font-weight: 700; }
+  .cq { margin-bottom: 6px; padding: 4px 8px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(0,0,0,0.05); color: var(--muted); font-size: 13px; cursor: pointer; }
+  .cq b { display: block; color: var(--accent-dark); font-size: 12px; }
+  .cm { color: var(--muted); font-size: 13px; }
+  .cb a { color: var(--accent-dark); font-weight: 600; word-break: break-all; }
+  .cmeta { display: flex; align-items: center; gap: 10px; padding: 2px 4px 0; color: var(--muted); font-size: 12px; }
+  .cnew { padding: 0 7px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; }
+  .crep { padding: 0; border: none; background: none; color: var(--accent); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .cflash .cb { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .cform { margin-top: 10px; }
+  .creply { display: none; align-items: center; gap: 8px; margin-bottom: 6px; padding: 5px 9px; border-left: 3px solid var(--accent); border-radius: 6px; background: var(--soft); font-size: 13px; }
+  .creply.show { display: flex; }
+  .creply .crt { flex: 1; min-width: 0; color: var(--muted); overflow-wrap: anywhere; }
+  .creply button { flex: none; padding: 2px 6px; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; }
+  .crow { display: flex; align-items: flex-end; gap: 8px; }
+  .crow textarea { flex: 1; min-width: 0; min-height: 46px; padding: 10px 11px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: vertical; }
+  .crow button { flex: none; padding: 12px 14px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .crow button:active { background: var(--accent-dark); }
+  .cerr { display: none; margin-top: 6px; color: #a0701c; font-size: 13.5px; text-align: center; }
+  .cerr.show { display: block; }
   .msgbanner { position: sticky; top: 0; z-index: 50; background: var(--gold); color: #fff; border-radius: 0 0 12px 12px; padding: 13px 14px; margin: 0 -14px 8px; font-size: 15px; font-weight: 600; cursor: pointer; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.18); }
   .msgbanner b { font-size: 17px; }
-  .logcard.hasreply:not(.open) { border-color: #e0821e; box-shadow: 0 0 0 2px rgba(224,130,30,0.30); background: #fff7ef; }
-  .logcard .rbadge { display: inline-block; margin-left: 7px; padding: 1px 8px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; vertical-align: middle; }
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
   .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
@@ -266,53 +294,68 @@
       t = String(t || "").replace(/\s+/g, " ").trim();
       return t.length > 50 ? t.slice(0, 50) + "…" : t;
     }
-    function renderLogCard(e, idx) {
-      if (e.kind === "coach") {
-        var cwhen = fmtDate(e.entry_date) + (fmtTime(e.created_at) ? ", " + fmtTime(e.created_at) : "");
-        var ckey = "log_" + (e.created_at || ("i" + idx));
-        return '<div class="card logcard coachcard' + (idx === 0 ? " open" : "") + '" data-key="' + esc(ckey) + '">'
-          + '<div class="date">' + esc(cwhen) + "</div>"
-          + '<div class="t" style="color:#2f6f4f">Съобщение от Chris</div>'
-          + '<div class="body">' + esc(e.note || "").replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#2f6f4f;font-weight:600;word-break:break-all">$1</a>').replace(/\n/g, "<br>") + "</div></div>";
-      }
-      var meas = logSummary(e);
-      var note = e.note ? String(e.note) : "";
-      var title = note ? notePreview(note) : (meas || "Запис");
-      var when = fmtDate(e.entry_date) + (fmtTime(e.created_at) ? ", " + fmtTime(e.created_at) : "");
-      var body;
-      if (note) {
-        body = (meas ? '<span class="m">' + esc(meas) + "</span><br>" : "") + esc(note).replace(/\n/g, "<br>");
-      } else {
-        body = '<span class="m">Само мерки — без бележка.</span>';
-      }
-      var reply = e.reply ? String(e.reply) : "";
-      var replyUnread = reply && isUnreadTs(String(e.reply_at || ""));
-      if (reply) {
-        var rwhen = fmtDate(e.reply_at) + (fmtTime(e.reply_at) ? ", " + fmtTime(e.reply_at) : "");
-        body += '<div style="margin-top:10px;padding:8px 11px;border-left:3px solid #2f6f4f;background:#eef4f0;border-radius:6px">'
-          + '<div style="color:#2f6f4f;font-weight:600;font-size:13px;margin-bottom:3px">Отговор от Chris' + (rwhen ? " · " + esc(rwhen) : "") + "</div>"
-          + '<div style="font-size:14px">' + esc(reply).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:#2f6f4f;font-weight:600;word-break:break-all">$1</a>').replace(/\n/g, "<br>") + "</div></div>";
-      }
-      var key = "log_" + (e.created_at || ("i" + idx));
-      return '<div class="card logcard' + (idx === 0 ? " open" : "") + (replyUnread ? " hasreply" : "") + '" data-key="' + esc(key) + '">'
-        + '<div class="date">' + esc(when) + "</div>"
-        + '<div class="t">' + esc(title) + (replyUnread ? '<span class="rbadge">отговор</span>' : "") + "</div>"
-        + '<div class="body">' + body + "</div></div>";
+    // Разговорът (04.11.2026, реш. Chris): като Viber — старото горе, новото долу; балони; отговор на дадено съобщение
+    // (client_log.reply_to) носи цитат, без него е ново. Старите отговори вътре в бележка (client_log.reply) се показват
+    // като съобщения от Chris в своя час. Отговорите на въпросника се четат от картата — тук остава само един сив ред.
+    var QA_HEAD = "📋 Отговори — ";
+    function isQaNote(t) { return String(t || "").indexOf(QA_HEAD) === 0; }
+    function msgHtml(s) {
+      return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, "<br>");
     }
-    function renderLogList(arr) {
-      if (!arr || !arr.length) return '<p style="color:#6b7886;font-size:14px">Още няма записи.</p>';
-      return arr.map(renderLogCard).join("");
+    function tsNum(ts) { var n = Date.parse(ts || ""); return isNaN(n) ? 0 : n; }
+    function dayLabel(ts) {
+      try { return new Date(ts).toLocaleDateString("bg-BG", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Sofia" }); }
+      catch (e) { return ""; }
+    }
+    function quoteText(e) {
+      if (isQaNote(e.note)) return "Отговорите на въпросника";
+      return notePreview(e.note) || logSummary(e);
+    }
+    function chatItems(log) {
+      var items = [];
+      (log || []).forEach(function (e) {
+        var note = e.note ? String(e.note) : "", meas = logSummary(e), coach = e.kind === "coach";
+        if (!coach && isQaNote(note)) items.push({ sys: "📋 Отговорите на въпросника са изпратени", ts: e.created_at, id: e.id });
+        else if (note) items.push({ ts: e.created_at, id: e.id, mine: !coach, note: note, meas: meas, to: e.reply_to, ans: e.id });
+        else if (meas) items.push({ sys: meas, ts: e.created_at, id: e.id });
+        if (e.reply) items.push({ ts: e.reply_at || e.created_at, mine: false, note: String(e.reply), to: e.id, ans: e.id });
+      });
+      items.sort(function (a, b) { return tsNum(a.ts) - tsNum(b.ts); });
+      return items;
+    }
+    function chatHtml(log) {
+      var items = chatItems(log), byId = {}, out = "", day = "";
+      if (!items.length) return '<p class="cempty">Още няма съобщения. Напиши първото отдолу.</p>';
+      (log || []).forEach(function (e) { if (e.id) byId[e.id] = e; });
+      items.forEach(function (m) {
+        var d = dayLabel(m.ts), time = fmtTime(m.ts), idAttr = m.id ? ' data-id="' + esc(m.id) + '"' : "";
+        if (d && d !== day) { day = d; out += '<div class="cday"><span>' + esc(d) + "</span></div>"; }
+        if (m.sys) { out += '<div class="csys"' + idAttr + ">" + esc(m.sys) + (time ? " · " + esc(time) : "") + "</div>"; return; }
+        var p = m.to && byId[m.to];
+        out += '<div class="cmsg ' + (m.mine ? "me" : "them") + '"' + idAttr + '><div class="cb">'
+          + (m.mine ? "" : '<div class="cwho">Chris</div>')
+          + (p ? '<div class="cq" data-goto="' + esc(m.to) + '"><b>' + (p.kind === "coach" ? "Chris" : "Ти") + "</b>" + esc(quoteText(p)) + "</div>" : "")
+          + (m.meas ? '<div class="cm">' + esc(m.meas) + "</div>" : "")
+          + msgHtml(m.note) + '</div><div class="cmeta"><span>' + esc(time) + "</span>"
+          + (!m.mine && isUnreadTs(String(m.ts || "")) ? '<span class="cnew">ново</span>' : "")
+          + (m.ans ? '<button type="button" class="crep" data-reply="' + esc(m.ans) + '">Отговори</button>' : "")
+          + "</div></div>";
+      });
+      return out;
     }
     var coachMsgs = (data.log || []).filter(function (e) { return e.kind === "coach"; });
     var SEEN_KEY = "diary_seen_coach_" + token;
     var seenTs = null; try { seenTs = localStorage.getItem(SEEN_KEY); } catch (e) {}
     // последна КЛИЕНТСКА активност — ако е писала СЛЕД съобщението, видяла го е (robust кросс-устройство)
     var lastClientAt = "";
-    (data.log || []).forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
+    function computeLastClient() {
+      (data.log || []).forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
+    }
+    computeLastClient();
     function isUnreadTs(ts) { return !!(ts && ts > lastClientAt && (!seenTs || ts > seenTs)); }
     var logHtml = '<div class="sec"><h2>Моят прогрес</h2>'
-      + '<div class="card open" data-key="log_form"><div class="t">Впиши днешното</div><div class="body lf">'
-      + '<p style="color:#6b7886;font-size:13px;margin:0 0 6px">По желание — попълни каквото следиш. Датата се добавя автоматично.</p>'
+      + '<div class="card" data-key="log_form"><div class="t">Впиши тегло и обиколки</div><div class="body lf">'
+      + '<p style="color:#6b7886;font-size:13px;margin:0 0 6px">По желание — попълни каквото следиш. Датата се добавя автоматично. За бележка или въпрос пиши в „Разговор“ отдолу.</p>'
       + '<label>Тегло (кг)</label><input type="number" id="lg_weight" inputmode="decimal">'
       + '<details class="meas"><summary>+ Обиколки (см) — по желание</summary>'
       + '<div class="row2"><div><label>Врат</label><input type="number" id="lg_neck" inputmode="decimal"></div>'
@@ -324,12 +367,13 @@
       + '<div class="row2"><div><label>Прасец</label><input type="number" id="lg_calf" inputmode="decimal"></div>'
       + '<div></div></div>'
       + '</details>'
-      + '<label>Бележка — как се чувстваш или въпрос</label><textarea id="lg_note"></textarea>'
       + '<button type="button" id="lgBtn">Запиши</button>'
       + '<div class="ok" id="lgOk">Записано. Благодаря!</div></div></div></div>'
-      + '<div class="sec"><h2>Минали записи</h2><div id="logList">'
-      + renderLogList(data.log || []) + "</div></div>";
-    // всички съобщения от Chris = coach карти + inline отговори; банерът брои непрочетените
+      + '<div class="sec" id="chatSec"><h2>Разговор</h2><div class="chat" id="chatBox">' + chatHtml(data.log) + "</div>"
+      + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">✕</button></div>'
+      + '<div class="crow"><textarea id="cText" rows="2" placeholder="Напиши съобщение…"></textarea><button type="button" id="cSend">Изпрати</button></div>'
+      + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div></div></div>';
+    // всички съобщения от Chris = coach редове + стари отговори вътре в бележка; банерът брои непрочетените
     var msgEvents = [];
     coachMsgs.forEach(function (m) { if (m.created_at) msgEvents.push(String(m.created_at)); });
     (data.log || []).forEach(function (e) { if (e.kind !== "coach" && e.reply && e.reply_at) msgEvents.push(String(e.reply_at)); });
@@ -348,44 +392,90 @@
       msgBanner.addEventListener("click", function () {
         try { localStorage.setItem(SEEN_KEY, newestMsg); } catch (e) {}
         msgBanner.style.display = "none";
-        var ll = document.getElementById("logList");
-        if (ll) ll.scrollIntoView({ behavior: "smooth", block: "start" });
+        var cs = document.getElementById("chatSec");
+        if (cs) cs.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
+
+    var chatBox = document.getElementById("chatBox");
+    function chatBottom() { if (chatBox) chatBox.scrollTop = chatBox.scrollHeight; }
+    function chatRefresh() {
+      return sb.rpc("get_client_diary", { p_token: token }).then(function (res) {
+        if (res.error || !res.data || !chatBox) return;
+        data.log = res.data.log || [];
+        computeLastClient();
+        chatBox.innerHTML = chatHtml(data.log);
+        chatBottom();
+      });
+    }
+    chatBottom();
+    var replyTo = null;
+    var CHAT_DRAFT = "diary_chat_draft_" + token;
+    var cText = document.getElementById("cText"), cSend = document.getElementById("cSend"), cErr = document.getElementById("cErr");
+    var cReply = document.getElementById("cReply"), cReplyTxt = document.getElementById("cReplyTxt");
+    function setReply(id) {
+      var src = null;
+      (data.log || []).forEach(function (e) { if (e.id === id) src = e; });
+      replyTo = src ? id : null;
+      cReplyTxt.textContent = src ? "Отговор на: " + quoteText(src) : "";
+      cReply.classList.toggle("show", !!src);
+    }
+    cText.value = qaGet(CHAT_DRAFT) || "";
+    cText.addEventListener("input", function () { qaSet(CHAT_DRAFT, cText.value.trim() ? cText.value : null); });
+    document.getElementById("cReplyX").addEventListener("click", function () { setReply(null); });
+    chatBox.addEventListener("click", function (e) {
+      var rep = e.target.closest(".crep");
+      if (rep) { setReply(rep.getAttribute("data-reply")); cText.focus(); return; }
+      var q = e.target.closest(".cq");
+      if (!q) return;
+      var tgt = chatBox.querySelector('[data-id="' + q.getAttribute("data-goto") + '"]');
+      if (!tgt) return;
+      chatBox.scrollTop = Math.max(0, tgt.offsetTop - 40);
+      tgt.classList.add("cflash");
+      setTimeout(function () { tgt.classList.remove("cflash"); }, 1500);
+    });
+    cSend.addEventListener("click", function () {
+      var txt = cText.value.trim();
+      if (!txt) return;
+      var args = { p_token: token, p_note: txt };
+      if (replyTo) args.p_reply_to = replyTo;
+      cSend.disabled = true; cErr.classList.remove("show");
+      sb.rpc("add_log_entry", args)
+        .then(function (res) {
+          if (res.error || res.data === false) throw (res.error || new Error("fail"));
+          cText.value = ""; qaSet(CHAT_DRAFT, null); setReply(null);
+          cSend.disabled = false;
+          return chatRefresh();
+        })
+        .catch(function () { cSend.disabled = false; cErr.classList.add("show"); });
+    });
 
     var lgBtn = document.getElementById("lgBtn");
     if (lgBtn) lgBtn.addEventListener("click", function () {
       function val(id) { var el = document.getElementById(id); return el ? el.value.trim() : ""; }
       function num(id) { var v = val(id); return v ? parseFloat(v) : null; }
       var fields = { weight: "lg_weight", waist: "lg_waist", hip: "lg_hip", neck: "lg_neck", chest: "lg_chest", arm: "lg_arm", thigh: "lg_thigh", calf: "lg_calf" };
-      var nt = val("lg_note");
       var ok = document.getElementById("lgOk");
-      var rec = { note: nt || null };
-      var any = !!nt, k;
+      var rec = {};
+      var any = false, k;
       for (k in fields) { var n = num(fields[k]); rec[k] = n; if (n != null) any = true; }
       if (!any) { ok.textContent = "Попълни поне едно поле."; ok.classList.add("show"); return; }
       lgBtn.disabled = true; lgBtn.textContent = "Записване…";
-      sb.rpc("add_log_entry", { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_note: rec.note, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf })
+      sb.rpc("add_log_entry", { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf })
         .then(function (res) {
           if (res.error || res.data === false) throw (res.error || new Error("fail"));
           ok.textContent = "Записано. Благодаря!"; ok.classList.add("show");
-          var list = document.getElementById("logList");
-          if (!list.querySelector(".logcard")) list.innerHTML = "";
-          rec.entry_date = new Date().toISOString().slice(0, 10);
-          rec.created_at = new Date().toISOString();
-          list.insertAdjacentHTML("afterbegin", renderLogCard(rec, 0));
           for (k in fields) { var el = document.getElementById(fields[k]); if (el) el.value = ""; }
-          document.getElementById("lg_note").value = "";
           lgBtn.disabled = false; lgBtn.textContent = "Запиши";
+          return chatRefresh();
         })
         .catch(function () { lgBtn.disabled = false; lgBtn.textContent = "Запиши"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
     });
 
     // Въпросник в карта (31.10.2026): <div class="qa" data-qa="Заглавие"> + <div class="qi" data-n="1"><div class="qq">1. …</div><textarea></textarea></div> … + .qabtn + .qaok
-    // Отговорите влизат като бележка в client_log (add_log_entry, без промяна по базата) → виждат се в „Минали записи“,
-    // а картата ги чете обратно оттам: последният изпратен отговор стои В полето (поправя/допълва се и се праща пак — пращат се
+    // Отговорите влизат като бележка в client_log (add_log_entry, без промяна по базата); в „Разговор“ стои само сив ред,
+    // а картата ги чете обратно от бележката: последният изпратен отговор стои В полето (поправя/допълва се и се праща пак — пращат се
     // само променените). Неизпратеното се пази на устройството до изпращане.
-    var QA_HEAD = "📋 Отговори — ";
     function qaNorm(s) { return String(s || "").replace(/\r/g, "").replace(/\n\s*\n+/g, "\n").trim(); }
     function qaGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
     function qaSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
@@ -451,18 +541,13 @@
           .then(function (res) {
             if (res.error || res.data === false) throw (res.error || new Error("fail"));
             var now = new Date().toISOString();
-            var rec = { note: note, entry_date: now.slice(0, 10), created_at: now };
             got.forEach(function (g) {
-              sentMap[g[1]] = { text: g[3], date: rec.entry_date, at: now };
+              sentMap[g[1]] = { text: g[3], date: now.slice(0, 10), at: now };
               g[2].value = g[3]; qaSet(lkey(g[1]), null); qaStatus(g[0], sentMap[g[1]], g[2]);
             });
-            var list = document.getElementById("logList");
-            if (list) {
-              if (!list.querySelector(".logcard")) list.innerHTML = "";
-              list.insertAdjacentHTML("afterbegin", renderLogCard(rec, 0));
-            }
             ok.textContent = "Изпратено. Благодаря!"; ok.classList.add("show");
             btn.disabled = false; btn.textContent = "Изпрати отговорите";
+            return chatRefresh();
           })
           .catch(function () { btn.disabled = false; btn.textContent = "Изпрати отговорите"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
       });
