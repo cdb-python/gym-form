@@ -346,6 +346,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   details.qacard .qc-sub { flex: none; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
   details.qacard .qc-body { padding: 4px 16px 10px; }
   details.qacard .qc-body .lrows { margin: 0; }
+  /* Т23: вътре в хронология — леки редове: без рамка и цветна лента, тънка линия между тях; ▸/▾ и плавният цикъл (Т20) остават.
+     Хронология, вложена в панел (Изследвания, Промени във формата), също е лек ред — рамката е само на най-външната карта. */
+  .card.hist .acc > .card.hm, .card.hist .acc > details.qacard, .card.panel .card.panel.hist {
+    border: none; border-top: 1px solid var(--border); border-radius: 0; background: transparent; margin: 0; overflow: visible; }
+  .card.hist .acc > :first-child { border-top: none; }
+  .card.hist .card.hm > .ch, .card.hist .card.hm.open > .ch, .card.panel .card.panel.hist > .ch, .card.panel .card.panel.hist.open > .ch { padding: 12px 2px; background: none; border-bottom: none; }
+  .card.hist .card.hm > .body { margin: 0; padding: 0 0 4px 12px; background: none; }
+  .card.hist details.qacard > summary { padding: 10px 2px; min-height: 0; }
+  .card.hist details.qacard[open] > summary { border-bottom: none; }
+  .card.hist details.qacard .qc-body { padding: 0 2px 10px; }
+  .card.panel .card.panel.hist { margin: 10px 0 0; }
+  .card.panel .card.panel.hist > .body { padding: 0 0 4px 12px; background: none; }
+  .card.hist .card.hm > .ch .ndot, .card.hist details.qacard > summary .ndot, .card.panel .card.panel.hist > .ch .ndot { right: 2.5px; }
   details.qacard .iold { color: var(--muted); text-decoration: line-through; }
   .qcqa .qa .qi:first-child { margin-top: 8px; }
   .hempty { margin: 0 0 12px; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 14.5px; }
