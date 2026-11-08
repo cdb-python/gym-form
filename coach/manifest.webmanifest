@@ -3,7 +3,7 @@
   "short_name": "cdb треньор",
   "id": "./",
   "start_url": "./",
-  "scope": "./",
+  "scope": "../",
   "display": "standalone",
   "orientation": "portrait",
   "lang": "bg",
