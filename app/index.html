@@ -626,19 +626,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т9/Т13: червена точка горе вдясно на иконата; числото на Разговор — малка червена значка; тънък бял ръб върху цветното хапче.
      Т36: над маркера и над иконата (z-index 2); върху белия маркер червеното личи само.
      Т37: в горния десен ъгъл на бутона — точката 2,5 / 2,5, значката 1,5 / 1,5 → с белия ръб остават вътре; точките не покриват иконата. */
-  nav.tabs .tdot, nav.tabs .badge { position: absolute; z-index: 2; top: 4.5px; right: 4.5px; width: 4px; height: 4px; padding: 0; border-radius: 50%; background: #e5383b; display: none; pointer-events: none; }   /* Т39: 4 px, само червена */
+  nav.tabs .tdot, nav.tabs .badge { position: absolute; z-index: 2; top: 4.5px; right: 4.5px; width: 4px; height: 4px; padding: 0; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1px #fff; display: none; pointer-events: none; }   /* Т39: 4 px; Т40: белият ръб се връща — 1 px (при 8 px беше 1,5) */
   nav.tabs .tdot.show { display: block; }
   /* Т39: значката на Разговор е точка като другите (без число) — правилото е горе, заедно с .tdot */
   nav.tabs .badge.show { display: block; }
   @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
   @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none; } }   /* маркерът скача, не се плъзга */
   .card, details.qacard { position: relative; }
-  /* Т39: точката „ново“ — 4 px, само червена. Вертикално: в средата на заглавния ред = на линията на стрелката (▸/+ е центрирана в реда);
-     хоризонтално: по средата между стрелката и десния ръб на видимата карта — `right` го смята placeDots() от отстъпите (заглавието е
-     позиционирано → точката се мери от него, независимо колко реда е заглавието). */
-  .card > .ch, details.qacard > summary { position: relative; }
-  .ndot { position: absolute; top: 50%; right: 0; width: 4px; height: 4px; margin: -2px 0 0; border-radius: 50%; background: #e5383b; pointer-events: none; }
-  details.qday > summary::after { align-self: center; }   /* Т39: стрелката на реда-ден — в средата на реда (беше по базовата линия), за да е на една линия с точката */
+  /* Т39: точката „ново“ — 4 px, само червена, без ръб.
+     Т40: горе вдясно, в центъра на закръглението на ъгъла: центърът е на R от горния и на R от десния външен ръб на видимата рамка
+     (R = border-radius; .card — 12) → луфтът до двете стени и до дъгата е еднакъв: R − 2. Ред без своя рамка/радиус (месец, ден,
+     вложена хронология) — 12/12 от горния десен ъгъл на реда. top/right ги смята placeDots() от радиуса и рамката (отстъпите на
+     абсолютното са от вътрешния ръб на рамката); стойностите тук са за .card (12 − 2 − 1). Мери се от картата/реда (position: relative). */
+  .ndot { position: absolute; top: 9px; right: 9px; width: 4px; height: 4px; margin: 0; border-radius: 50%; background: #e5383b; pointer-events: none; }
+  /* Т40: стрелката на реда-ден — пак по базовата линия (както преди Т39): точката вече не е на нейната линия */
 </style>
 </head>
 <body>
@@ -1009,20 +1010,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!on && d) d.parentNode.removeChild(d);
     });
   }
-  // Т39: точката по средата между стрелката и десния ръб на видимата карта. Стрелката е последна в заглавния ред → десният ѝ край е
-  // десният край на съдържанието на заглавието (без отстъпа му). Ръбът на картата — първият предшественик с рамка отдясно. Смята се от
-  // изчислените отстъпи/рамки/полета (без мерене на кутии) → работи и в скрит раздел; при смяна на ширината — наново.
+  // Т40: точката — в центъра на закръглението на горния десен ъгъл на реда, чието е заглавието (карта, въпросник, месец, ден):
+  // центърът е на R от външния горен и десен ръб, R = border-radius на видимата му рамка; ред без своя рамка или радиус → R = 12
+  // (като картата), от горния десен ъгъл на реда. Абсолютното се мери от вътрешния ръб на рамката → R − 2 − рамката. Смята се от
+  // изчислените стилове (без мерене на кутии) → работи и в скрит раздел.
   function placeDot(d) {
     var h = d.parentElement && d.parentElement.closest(".ch, summary"); if (!h) return;
-    var cs = getComputedStyle(h), padR = parseFloat(cs.paddingRight) || 0, E = parseFloat(cs.marginRight) || 0, el = h.parentElement;
-    while (el && el !== document.body) {
-      var st = getComputedStyle(el), br = st.borderRightStyle !== "none" ? parseFloat(st.borderRightWidth) || 0 : 0;
-      E += (parseFloat(st.paddingRight) || 0) + br;
-      if (br > 0) break;
-      E += parseFloat(st.marginRight) || 0;
-      el = el.parentElement;
-    }
-    d.style.right = ((padR - E) / 2 - 2) + "px";   // центърът на 4-те px = средата между (−padR) и (+E) от десния край на заглавието
+    var row = h.parentElement, st = getComputedStyle(row);
+    var bt = st.borderTopStyle !== "none" ? parseFloat(st.borderTopWidth) || 0 : 0, br = st.borderRightStyle !== "none" ? parseFloat(st.borderRightWidth) || 0 : 0;
+    var R = parseFloat(st.borderTopRightRadius) || 0;
+    if (!(R > 0 && br > 0)) R = 12;   // без своя рамка/радиус → същото отстояние като на картата
+    d.style.top = (R - 2 - bt) + "px"; d.style.right = (R - 2 - br) + "px";
   }
   function placeDots(root) { Array.prototype.forEach.call((root || document).querySelectorAll(".ndot"), placeDot); }
   (function () {
