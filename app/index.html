@@ -75,7 +75,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   * { box-sizing: border-box; }
   /* Една колона с ширината на телефон: на десктоп е центрирана (знак, хедър, съдържание, лента, поле за писане);
      на телефон (≤480 px) — пълна ширина, без рамка. */
-  html { -webkit-text-size-adjust: 100%; background: #e8ecef; }
+  /* Т18: мястото на скролбара е запазено винаги (Windows/компютър). Иначе при смяна на бутон или отваряне на акордеон страницата
+     минава от „по-къса от екрана“ към „по-дълга“, скролбарът (15 px) се появява/изчезва и колоната прескача с 7,5 px — „премигването“.
+     На телефона скролбарът е върху съдържанието → тук няма ефект. Стар браузър без scrollbar-gutter → винаги видим скролбар. */
+  html { -webkit-text-size-adjust: 100%; background: #e8ecef; scrollbar-gutter: stable; }
+  @supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
   body {
     margin: 0 auto;
     max-width: 480px;
