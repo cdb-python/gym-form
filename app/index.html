@@ -158,6 +158,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body details.fx[open] > summary { border-bottom: 1px solid var(--border); }
   .card .body details.fx[open] > summary::after { content: "\2212"; }
   .card .body details.fx > .fxb { padding: 11px 14px 13px; font-size: 15px; }
+  /* Т42: групите на интейка — иконката в клетка с еднаква ширина → текстът започва на една линия при всичките 8 */
+  .igt { display: flex; align-items: baseline; gap: 0; min-width: 0; }
+  .igi { flex: none; width: 1.6em; text-align: left; font-weight: 400; }
+  .igx { min-width: 0; }
   .card .body details.fx > .fxb p:first-child { margin-top: 0; }
   .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
   .flash { outline: 2px solid var(--gold); outline-offset: 2px; transition: outline-color 0.4s; }
@@ -604,7 +608,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   nav.tabs { --navic: 40px; position: fixed; bottom: calc(var(--navgap) + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; margin: 0 auto; width: -moz-fit-content; width: fit-content; max-width: calc(100% - 20px); z-index: 60;
     display: flex; gap: 8px; align-items: center; transition: opacity .25s ease; }
   nav.tabs.dim { opacity: 0.4; }   /* притъмнява при скрол надолу; остава тапваема */
-  nav.tabs .nav-pill { position: relative; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
+  nav.tabs .nav-pill { position: static; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
   nav.tabs button { position: relative; flex: 1 0 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center; place-content: center;   /* Т37: и по-висока от бутона иконата остава в средата */
     color: #fff; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: color 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
@@ -613,13 +617,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      червените точки вътре в бутона и НЕ върху иконата. Т39: точките са 4 px без ръб → 40 минава и на ≤ 360 px (бутон 52, Данни 52) —
      един размер навсякъде. Значката на Разговор вече е точка като другите. */
   nav.tabs .nav-ic svg { width: var(--navic); height: var(--navic); display: block; }
-  /* Т36: маркерът — един за главното хапче; JS (doSwitch) му дава translateX(i × 100 %); под иконите (идва преди бутоните в DOM, без z-index) */
-  nav.tabs .nav-slide { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 4); border-radius: 22px; background: #fff; pointer-events: none;
-    transition: transform 220ms cubic-bezier(.4,0,.2,1); }
-  nav.tabs.side-on .nav-slide { display: none; }   /* Данни е активен → в главното хапче няма какво да се маркира */
+  /* Т41: ЕДИН маркер за петте бутона — в общия контейнер на лентата (слоят е първи в нея, позициониран → над фона на хапчетата,
+     които не са позиционирани; бутоните идват след него → иконите и точките са отгоре). Слоят е изрязан по двете хапчета
+     (clip-path: path(…) — смята го navClip() от кутиите им) → в процепа маркерът минава „под“ него и не се вижда.
+     JS (navSlide) дава translateX и ширината от целевия бутон; времето — 220 ms + 30 ms на всяка следваща стъпка (до 340). */
+  nav.tabs .nav-mlayer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; }
+  nav.tabs .nav-slide { position: absolute; left: 0; top: 4px; height: 40px; width: 56px; border-radius: 22px; background: #fff; pointer-events: none;
+    transition: transform 220ms cubic-bezier(.4,0,.2,1), width 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-side { width: 68px; height: 48px; box-sizing: border-box; flex: 0 0 auto; }
   nav.tabs .nav-side button { flex: 1 1 auto; width: 100%; }
-  nav.tabs .nav-side button.on { background: #fff; }   /* вътрешният маркер на Данни: inset 4, радиус 22, без плъзгане */
   /* Т35: иконите на дизайнера (tools/app/icons/nav/*.svg), вградени 1:1 — оптичното изравняване е вътрешният им <g transform>;
      наш scale няма. Точките на Разговор и буквите „KG“ на Мерки са fill="currentColor" → бели / в --accent-dark като линиите. */
   nav.tabs button.on { color: var(--accent-dark); }   /* Т36: без фон — белият е маркерът */
@@ -631,7 +637,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т39: значката на Разговор е точка като другите (без число) — правилото е горе, заедно с .tdot */
   nav.tabs .badge.show { display: block; }
   @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
-  @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none; } }   /* маркерът скача, не се плъзга */
+  @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none !important; } }   /* маркерът скача, не се плъзга (и при времето по стъпки) */
   .card, details.qacard { position: relative; }
   /* Т39: точката „ново“ — 4 px, само червена, без ръб.
      Т40: горе вдясно, в центъра на закръглението на ъгъла: центърът е на R от горния и на R от десния външен ръб на видимата рамка
@@ -661,8 +667,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </div>
 
 <nav class="tabs" id="tabs" aria-label="Раздели">
+ <span class="nav-mlayer" id="navLayer" aria-hidden="true"><span class="nav-slide" id="navSlide"></span></span>
  <div class="nav-pill nav-main">
-  <span class="nav-slide" id="navSlide" aria-hidden="true"></span>
   <button type="button" data-tab="nachalo" aria-label="Начало" title="Начало"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.077" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.855 0.693) scale(0.929)"><path d="M12 3.15c.49 0 .96.16 1.35.46l6.5 5.06c.6.46.95 1.17.95 1.93v8.2a2.4 2.4 0 0 1-2.4 2.4H5.6a2.4 2.4 0 0 1-2.4-2.4v-8.2c0-.76.35-1.47.95-1.93l6.5-5.06c.39-.3.86-.46 1.35-.46Z"></path><path d="M9.15 21.2v-4.55a2.85 2.85 0 0 1 5.7 0v4.55"></path></g></svg></span><span class="tdot" id="tdot_nachalo"></span></button>
   <button type="button" data-tab="hrana" aria-label="Храна" title="Храна"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.075" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(-0.208 0.838) scale(0.93)"><path d="M4.4 2.9v3.6a1.75 1.75 0 0 0 3.5 0V2.9"></path><path d="M6.15 2.9v3.6M6.15 8.25V21.1"></path><circle cx="12.4" cy="12" r="3.6"></circle><path d="M8.6 6.3a6.4 6.4 0 0 1 7.6 0"></path><path d="M8.6 17.7a6.4 6.4 0 0 0 7.6 0"></path><path d="M19.6 2.9c1.45 1.75 2.25 3.95 2.25 6.25v3.4h-4.5V9.15c0-2.3.8-4.5 2.25-6.25Z"></path><path d="M19.6 12.55V21.1"></path></g></svg></span><span class="tdot" id="tdot_hrana"></span></button>
   <button type="button" data-tab="merki" aria-label="Мерки" title="Мерки"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.074" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.824 0.777) scale(0.931)"><circle cx="12" cy="6.81" r="2.87"></circle><path d="M9.57 8.33H7.44Q5.42 8.33 4.86 10.28L2.32 19.17Q2.04 20.14 3.05 20.14H20.95Q21.96 20.14 21.68 19.17L19.14 10.28Q18.58 8.33 16.56 8.33H14.43"></path><path d="M13.9 12.38L14.95 12.34L15.28 12.44L15.92 12.8L16.33 13.41L16.33 13.54L16.18 13.65L15.38 13.85L15.25 13.81L15.08 13.56L14.85 13.37L14.45 13.27L14.04 13.37L13.82 13.48L13.52 13.77L13.31 14.49L13.32 15.06L13.49 15.66L13.66 15.91L13.9 16.09L14.21 16.2L14.62 16.22L15.02 16.12L15.23 15.99L15.25 15.5L15.19 15.39L14.62 15.37L14.51 15.31L14.51 14.51L14.7 14.45L16.29 14.47L16.35 14.66L16.34 16.6L16.29 16.71L15.78 16.96L15.28 17.13L14.79 17.15L14.53 17.23L13.79 17.13L13.19 16.88L12.89 16.68L12.68 16.47L12.4 15.99L12.23 15.49L12.13 14.91L12.13 14.58L12.31 13.75L12.59 13.18L13.06 12.72L13.62 12.44L13.9 12.38ZM7.5 12.48L7.7 12.42L8.54 12.42L8.65 12.48L8.67 13.98L8.71 14.08L9.76 13.05L10.19 12.47L10.4 12.42L11.58 12.42L11.67 12.47L10.44 13.73L10.06 14.2L10.02 14.32L10.23 14.7L11.83 16.98L11.81 17.05L10.65 17.06L10.44 17.02L9.55 15.55L9.24 15.1L9.14 15.06L8.68 15.52L8.65 17L8.46 17.06L7.61 17.06L7.5 17L7.5 12.48Z" fill="currentColor" stroke="none" fill-rule="evenodd"></path></g></svg></span><span class="tdot" id="tdot_merki"></span></button>
@@ -832,7 +838,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     F.entries.forEach(function (e) {
       if (e.kind === "coach" && e.text) items.push({ ts: e.created_at, mine: isMine(true), coach: true, note: String(e.text), src: "food", legacy: true });
     });
-    intakeChangeItems().forEach(function (x) { items.push(x); });   // „Промени отговор във Формата за данни: …" (по ден)
+    intakeChangeItems().forEach(function (x) { items.push(x); });   // „Промени отговор във „Форма за данни“: …" (по ден)
     items.sort(function (a, b) { return tsNum(a.ts) - tsNum(b.ts); });
     // „видяно" (режим треньор): под последния балон на треньора преди следващото действие на клиента
     if (COACH) items.forEach(function (m, i) {
@@ -1492,11 +1498,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ════════ ДАННИ ════════
   // Въпросите на интейка — текстовете от tools/forms/intake/ (извлечени 08.11). Ключовете = полетата в submissions.payload.
+  // Т42: заглавието на група — иконката (първата дума, ако е знак, а не буква) в клетка с еднаква ширина, после текстът
+  function igTitle(t) {
+    var m = /^(\S+)\s+([\s\S]*)$/.exec(String(t));
+    if (!m || /[0-9A-Za-zА-Яа-яЁё]/.test(m[1])) return esc(t);
+    return '<span class="igt"><span class="igi" aria-hidden="true">' + esc(m[1]) + '</span><span class="igx">' + esc(m[2]) + "</span></span>";
+  }
   var INTAKE_Q = [
-    ["Какво търсиш и каква е целта", [["zhelan_izhod", "Какво искаш да получиш?"], ["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]]],
-    ["Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]]],
-    ["Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]]],
-    ["Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]]],
+    ["🎯 Какво търсиш и каква е целта", [["zhelan_izhod", "Какво искаш да получиш?"], ["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]]],
+    ["🪪 Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]]],
+    ["🚶 Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]]],
+    ["☕ Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]]],
     ["🩺 Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]]],
     ["🍎 Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"]]],
     ["🏋 Тренировки", [["trenira", "В момента тренираш ли?"], ["dni", "Кои дни тренираш сега?"], ["vreme_min", "Минути"], ["chas", "В колко часа?"], ["kade_kakvo", "Къде и какво?"], ["staj", "От колко време тренираш с тежести/съпротивление?"], ["staj_sega", "Как изглежда тренировката ти сега?"], ["staj_orientiri", "Текущи ориентири на основните движения?"], ["dvizhenia", "Кои движения познаваш и изпълняваш уверено?"], ["s_programa", "Тренирал(а) ли си по програма досега?"], ["s_programa_opis", "Каква и как мина?"], ["cel_programa", "Какво искаш да постигне програмата?"], ["sila_orientir", "Ориентир на силата"], ["sport_detail", "Кой спорт, на какво ниво и в кой сезон си?"], ["cel_programa_opis", "С две думи — нещо конкретно?"], ["kade", "Къде ще тренираш предимно?"], ["oborudvane", "Какво оборудване имаш на разположение?"], ["oborudvane_drugo", "Друго оборудване или уточнения?"], ["dni_sedmica", "Колко дни седмично реално можеш да тренираш?"], ["grafik", "Графикът позволява ли редовни дни, или варира?"], ["grafik_opis", "Кога реално можеш да тренираш?"], ["minuti", "Колко време на тренировка?"], ["chasove_dni", "Предпочитани дни и часове"], ["klek_ok", "Можеш ли да клекнеш дълбоко без болка?"], ["ruce_glava", "Можеш ли да вдигнеш ръце над глава свободно?"], ["zatrudnenia", "Има ли движения, които те затрудняват или избягваш?"], ["stil", "Какъв стил на тренировка предпочиташ?"], ["nt_intensitet", "Кое ти допада повече?"], ["nt_raznoobrazie", "Предпочиташ ли разнообразие?"], ["nt_plan", "Как тренираш по-добре?"], ["lyubimi_nelyubimi", "Любими или нелюбими упражнения?"], ["drugo_tren", "Нещо друго важно за тренировките?"]]],
@@ -1589,7 +1601,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var html = '<div class="iform" id="intakeForm">' + head;
     INTAKE_Q.forEach(function (g, gi) {
       var c = intakeCount(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + esc(g[0]) + '<span class="cnt" id="igc_' + gi + '">' + c[0] + " от " + c[1] + "</span></summary>"
+      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0]) + '<span class="cnt" id="igc_' + gi + '">' + c[0] + " от " + c[1] + "</span></summary>"
         + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], q[1]); }).join("") + "</div></details>";
     });
     return html + "</div>";
@@ -1702,7 +1714,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     return order.map(function (d) {
       var g = byDay[d];
-      return { sys: "✎ Промени отговор във Формата за данни: " + g.keys.map(function (k) { return QLABEL[k] || k; }).join(" · "), ts: g.ts, go: "danni:iq_" + g.keys[0], ich: 1 };
+      return { sys: "✎ Промени отговор във „Форма за данни“: " + g.keys.map(function (k) { return QLABEL[k] || k; }).join(" · "), ts: g.ts, go: "danni:iq_" + g.keys[0], ich: 1 };
     });
   }
   // ════════ ИЗСЛЕДВАНИЯ (Т7) — модел Victus LabsScreen, но СНИМКАТА НЕ СЕ ПАЗИ: препис → таблица ════════
@@ -1833,7 +1845,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       : '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма допълнителни въпроси.") + "</p>";
     if (sentN) qaInner += qaSentHtml();
     var ic = intakeCount(intakeKeys()), nch = (IN.changes || []).length;
-    html += panelHtml("intake", "📝", "Формата за данни", "попълнено " + ic[0] + " от " + ic[1],
+    html += panelHtml("intake", "📝", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
       + (IN.on ? ichgHistHtml() : "")
       + "</div></div>", true);
@@ -2417,18 +2429,38 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var h = document.getElementById("hdr"), dr = document.getElementById("draft"), va = document.getElementById("viewAs");
     document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight + (va ? va.offsetHeight : 0)) + "px");
   }
-  // Т36: маркерът в главното хапче — translateX(i × 100 %) върху i-тия бутон (равни са); при Данни се скрива (display: none →
-  // при връщане се появява направо на мястото си, без да се плъзга отнякъде). Първото поставяне е без анимация.
-  var NAV_MAIN = ["nachalo", "hrana", "merki", "razgovor"], navSlidePlaced = false;
-  function navSlide(tab) {
-    var el = document.getElementById("navSlide"), nav = document.getElementById("tabs"), i = NAV_MAIN.indexOf(tab);
-    if (!el || !nav) return;
-    nav.classList.toggle("side-on", i < 0);
-    if (i < 0) return;
-    if (!navSlidePlaced) el.style.transition = "none";
-    el.style.transform = "translateX(" + (i * 100) + "%)";
-    if (!navSlidePlaced) { void el.offsetWidth; el.style.transition = ""; navSlidePlaced = true; }
+  // Т41: един маркер за петте бутона, все едно двете хапчета са едно. Позиция и ширина — от кутията на целевия бутон спрямо лентата;
+  // времето расте със стъпките (220 ms за съседен, +30 ms на всяка следваща, до 340). Първото поставяне и смяната на ширината на
+  // екрана са без анимация. Слоят е изрязан по двете хапчета (navClip).
+  var NAV_ORDER = ["nachalo", "hrana", "merki", "razgovor", "danni"], navCur = -1, navSlidePlaced = false;
+  function navClip() {
+    var nav = document.getElementById("tabs"), layer = document.getElementById("navLayer"); if (!nav || !layer) return;
+    var nr = nav.getBoundingClientRect(), d = "";
+    Array.prototype.forEach.call(nav.querySelectorAll(".nav-pill"), function (p) {
+      var r = p.getBoundingClientRect(), x = r.left - nr.left, y = r.top - nr.top, w = r.width, h = r.height;
+      var k = Math.min(parseFloat(getComputedStyle(p).borderTopLeftRadius) || 0, w / 2, h / 2);
+      d += "M" + (x + k) + " " + y + "H" + (x + w - k) + "A" + k + " " + k + " 0 0 1 " + (x + w) + " " + (y + k) + "V" + (y + h - k)
+        + "A" + k + " " + k + " 0 0 1 " + (x + w - k) + " " + (y + h) + "H" + (x + k) + "A" + k + " " + k + " 0 0 1 " + x + " " + (y + h - k)
+        + "V" + (y + k) + "A" + k + " " + k + " 0 0 1 " + (x + k) + " " + y + "Z";
+    });
+    layer.style.clipPath = d ? 'path("' + d + '")' : "";
   }
+  function navDur(steps) { return Math.min(340, 220 + 30 * Math.max(0, steps - 1)); }
+  function navSlide(tab) {
+    var el = document.getElementById("navSlide"), nav = document.getElementById("tabs"), i = NAV_ORDER.indexOf(tab);
+    var b = nav && nav.querySelector('button[data-tab="' + tab + '"]');
+    if (!el || !b || i < 0 || !b.offsetWidth) return;
+    var nr = nav.getBoundingClientRect(), br = b.getBoundingClientRect(), x = br.left - nr.left, w = br.width;
+    if (!navSlidePlaced) el.style.transition = "none";
+    else { var ms = navDur(navCur < 0 ? 1 : Math.abs(i - navCur)) + "ms"; el.style.transitionDuration = ms + ", " + ms; }
+    el.style.transform = "translateX(" + x + "px)"; el.style.width = w + "px";
+    if (!navSlidePlaced) { void el.offsetWidth; el.style.transition = ""; el.style.transitionDuration = ""; navSlidePlaced = true; navClip(); }
+    navCur = i;
+  }
+  window.addEventListener("resize", function () {   // ширината на екрана (≤ 360 px: 52 / 52) → ново място и изрязване, без анимация
+    var on = document.querySelector("nav.tabs button.on"); if (!on) return;
+    navSlidePlaced = false; navSlide(on.getAttribute("data-tab"));
+  });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
     if (!TABS[tab]) tab = "nachalo";
