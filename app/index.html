@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Твоят дневник</title>
+<!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
+<meta name="theme-color" content="#2e7d5b">
+<link rel="icon" href="../me/icon-192.png">
+<link rel="apple-touch-icon" href="../me/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Дневник">
+<script>
+(function () {
+  // iOS урокът (PLATFORM.md §4, 06.07): <link rel=manifest> НЕ стои в HTML-а; добавя се през JS само за не-iOS.
+  // На iOS без manifest иконата на екрана пази ТЕКУЩИЯ URL с токена. Логиката е 1:1 от tools/me/.
+  // ⚠ В черновата tools/app/ още няма manifest.webmanifest и sw.js → PWA_FILES_READY = false (нищо не се зарежда).
+  var PWA_FILES_READY = false;
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (PWA_FILES_READY && !isIOS) {
+    var lnk = document.createElement("link");
+    lnk.rel = "manifest"; lnk.href = "manifest.webmanifest";
+    document.head.appendChild(lnk);
+  }
+  // Токенът се пази локално → инсталираното приложение (start_url без токен) само се връща на личната страница.
+  try {
+    var t = new URLSearchParams(location.search).get("t");
+    if (t) { localStorage.setItem("cdbgym_app_token", t); }
+    else {
+      var saved = localStorage.getItem("cdbgym_app_token");
+      if (saved) { location.replace(location.pathname + "?t=" + saved + location.hash); return; }
+    }
+  } catch (e) {}
+  if (PWA_FILES_READY && "serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+})();
+</script>
+<style>
+  :root {
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --ink: #1c2733;
+    --muted: #6b7886;
+    --accent: #2e7d5b;
+    --accent-dark: #235e45;
+    --gold: #b8862f;
+    --border: #d8dee5;
+    --soft: #eef4f1;
+    --warn: #a0701c;
+    --navh: 62px;
+    --top: 0px;
+  }
+  * { box-sizing: border-box; }
+  /* Една колона с ширината на телефон: на десктоп е центрирана (знак, хедър, съдържание, лента, поле за писане);
+     на телефон (≤480 px) — пълна ширина, без рамка. */
+  html { -webkit-text-size-adjust: 100%; background: #e8ecef; }
+  body {
+    margin: 0 auto;
+    max-width: 480px;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    padding: 0 0 calc(var(--navh) + env(safe-area-inset-bottom, 0px) + 24px);
+    overflow-x: hidden;
+  }
+  /* ЧЕРНОВА — голям знак горе */
+  .draft {
+    background: repeating-linear-gradient(135deg, #c43d3d 0 14px, #b13434 14px 28px);
+    color: #fff; text-align: center; padding: 8px 12px 7px;
+  }
+  .draft b { display: block; font-size: 24px; letter-spacing: 0.22em; line-height: 1.15; }
+  .draft span { display: block; font-size: 12.5px; font-weight: 600; opacity: 0.95; }
+  header { background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
+  header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  .pane { display: none; }
+  .pane.on { display: block; }
+  .sec { margin: 18px 0 6px; }
+  .sec h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-dark); margin: 0 0 8px; padding-left: 2px; }
+  .lead { color: var(--muted); font-size: 14px; margin: 14px 2px 0; }
+
+  /* карти (като в me/) */
+  .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+  .card > .ch { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .card > .ch::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
+  .card.open > .ch::after { content: "▾"; }
+  .card > .ch .chip { flex: none; margin-left: auto; padding: 1px 8px; border-radius: 999px; background: #e6f4ec; color: var(--accent-dark); font-size: 12px; font-weight: 700; }
+  .card > .ch .chip.pend { background: #fbf0dc; color: var(--warn); }
+  .card > .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
+  .card > .body { font-size: 15.5px; margin-top: 8px; display: none; overflow-x: auto; }
+  .card.open > .body { display: block; }
+  .card .body p { margin: 0 0 8px; }
+  .card .body p:last-child { margin-bottom: 0; }
+  .card .body ul { margin: 6px 0; padding-left: 20px; }
+  .card .body table { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 8px 0; font-size: 13.5px; }
+  .card .body th, .card .body td { border: 1px solid var(--border); padding: 6px 7px; text-align: left; word-break: break-word; vertical-align: top; }
+  .card .body th { background: var(--soft); color: var(--accent-dark); }
+  .card .body td:first-child, .card .body th:first-child { width: 40%; }
+  .card .body details.fx { border: 1px solid var(--border); border-radius: 10px; background: #fff; margin: 8px 0; }
+  .card .body details.fx > summary { list-style: none; cursor: pointer; padding: 12px 14px; font-weight: 700; font-size: 15px; color: var(--accent-dark); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .card .body details.fx > summary::-webkit-details-marker { display: none; }
+  .card .body details.fx > summary::after { content: "+"; color: var(--accent); font-size: 20px; font-weight: 400; line-height: 1; flex: none; }
+  .card .body details.fx[open] > summary { border-bottom: 1px solid var(--border); }
+  .card .body details.fx[open] > summary::after { content: "\2212"; }
+  .card .body details.fx > .fxb { padding: 11px 14px 13px; font-size: 15px; }
+  .card .body details.fx > .fxb p:first-child { margin-top: 0; }
+  .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: rgba(46,125,91,0.4); text-underline-offset: 2px; cursor: pointer; }
+  .flash { outline: 2px solid var(--gold); outline-offset: 2px; transition: outline-color 0.4s; }
+
+  /* панели (акордеон от първо ниво в Храна и Данни) */
+  .card.panel { border-left-width: 5px; padding: 0; overflow: hidden; }
+  .card.panel > .ch { padding: 14px 16px; font-size: 16.5px; }
+  .card.panel > .ch .ico { flex: none; font-size: 19px; }
+  .card.panel > .ch .ttl { flex: 1; min-width: 0; }
+  .card.panel > .ch .sub { display: block; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .card.panel.open > .ch { border-bottom: 1px solid var(--border); background: var(--soft); }
+  .card.panel > .body { margin: 0; padding: 12px 12px 4px; background: #fafbfc; }
+  .card.panel > .body > .card { border-left-width: 3px; }
+
+  /* Ново за теб */
+  .now { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; }
+  .now h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: #8a5a00; }
+  .now a { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--border); text-decoration: none; color: var(--ink); font-weight: 600; font-size: 15px; }
+  .now a:first-of-type { border-top: none; }
+  .now a .i { flex: none; width: 22px; text-align: center; }
+  .now a .x { flex: 1; min-width: 0; }
+  .now a::after { content: "›"; flex: none; color: var(--accent); font-size: 20px; line-height: 1; }
+
+  .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
+  .loading { text-align: center; color: var(--muted); padding: 30px 0; }
+  .empty { color: var(--muted); font-size: 14px; margin: 4px 0 10px; }
+  .ro { margin: 8px 0 0; padding: 7px 10px; border-radius: 8px; background: #fbf0dc; color: var(--warn); font-size: 13px; font-weight: 600; text-align: center; }
+
+  /* формите (мерки, свободен лог, „Изядох") */
+  .lf label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
+  .lf input, .lf textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .lf textarea { min-height: 110px; resize: vertical; }
+  .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
+  .lf .row2 { display: flex; gap: 10px; }
+  .lf .row2 > div { flex: 1 1 0; min-width: 0; }
+  .lf button, .btn { width: 100%; margin-top: 12px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; }
+  .lf button:active, .btn:active { background: var(--accent-dark); }
+  .lf button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
+  button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .lf .ok.show { display: block; }
+  .lf .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
+  .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
+  .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
+  .lf details.meas summary::-webkit-details-marker { display: none; }
+  .confirm { display: none; margin-top: 12px; padding: 13px 14px; background: var(--soft); border: 1px solid #bcd9c9; border-radius: 10px; }
+  .confirm.show { display: block; }
+  .confirm .q { font-weight: 700; color: var(--accent-dark); margin: 0 0 8px; }
+  .confirm .what { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 15px; margin: 0 0 10px; word-break: break-word; }
+  .confirm .row2 button { margin-top: 0; }
+  .eat { margin-top: 12px; padding: 10px 12px; border: 1px solid #bcd9c9; border-radius: 10px; background: var(--soft); }
+  .eat .er { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .eat .er label { margin: 0; font-size: 14px; font-weight: 600; flex: none; }
+  .eat .er input { width: 132px; flex: none; padding: 9px 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; background: #fff; color: var(--ink); }
+  .eat .er button { flex: 1 1 100%; margin: 0; padding: 12px 10px; white-space: nowrap; }
+  .eat .eh { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
+  .eat .eok { display: none; margin-top: 8px; font-size: 13.5px; font-weight: 700; color: var(--accent-dark); }
+  .eat .eok.show { display: block; }
+  .eat .eok.err { color: #9a3b3b; }
+  .logitem { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
+  .logitem:last-child { border-bottom: none; }
+  .logitem .tm { color: var(--muted); font-size: 13px; margin-right: 6px; }
+  .logitem .wt { color: var(--accent-dark); font-weight: 600; }
+  .logitem.ate { color: var(--accent-dark); font-weight: 600; }
+  .daycount { color: var(--muted); font-weight: 600; font-size: 13px; }
+  .dayscale { display: flex; align-items: center; gap: 8px; margin: 2px 0 10px; }
+  .dayscale .dlbl { font-size: 12px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+  .dayscale .segs { display: flex; gap: 2px; flex: 1; min-width: 0; }
+  .dayscale .segs > i { flex: 1; height: 8px; border-radius: 2px; background: #dfe6e2; }
+  .dayscale .segs > i.on { background: var(--accent); }
+  .dayscale .num { font-size: 12px; font-weight: 800; color: var(--accent-dark); white-space: nowrap; }
+
+  /* въпросници (.qa — механизмът от me/) */
+  .card .body .qa .qi { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--border); }
+  .card .body .qa .qi:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
+  .card .body .qa .qq { font-weight: 700; font-size: 15px; margin: 0 0 6px; }
+  .card .body .qa textarea { width: 100%; min-height: 54px; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; }
+  .card .body .qa .qst { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); }
+  .card .body .qa .qst.pend { color: var(--warn); }
+  .card .body .qa .qabtn { width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
+  .card .body .qa .qaok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .card .body .qa .qaok.show { display: block; }
+
+  /* интейк — само четене */
+  .sample { margin: 0 0 10px; padding: 8px 11px; border: 1px dashed #c43d3d; border-radius: 9px; background: #fdf1f1; color: #9a3b3b; font-size: 13.5px; font-weight: 700; text-align: center; }
+  .iq { padding: 8px 0; border-top: 1px solid var(--border); }
+  .iq:first-child { border-top: none; padding-top: 2px; }
+  .iq .k { font-size: 13.5px; font-weight: 700; color: var(--accent-dark); }
+  .iq .v { font-size: 15px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .iq .v.none { color: var(--muted); font-style: italic; font-size: 14px; }
+  .card .body details.fx > summary .cnt { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+
+  /* изследвания — качване (етап 2, само изглед) */
+  .up { border: 2px dashed #bcd9c9; border-radius: 12px; padding: 16px 14px; text-align: center; background: #fff; }
+  .up .btn { margin-top: 0; }
+  .up p { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+
+  /* анализът (като log-analysis) */
+  .an .card { border-left-width: 5px; padding: 0; overflow: hidden; }
+  .an .card > .ch { padding: 12px 14px; color: #fff; background: #5f6a73; font-size: 15px; }
+  .an .card > .ch::after { content: "+"; color: #fff; font-size: 19px; }
+  .an .card.open > .ch::after { content: "\2212"; }
+  .an .card > .body { margin: 0; padding: 12px 14px; }
+  .an .card.l1 { border-left-color: #c43d3d; } .an .card.l1 > .ch { background: #c43d3d; }
+  .an .card.l2 { border-left-color: #34376f; } .an .card.l2 > .ch { background: #34376f; }
+  .an .card.l3 { border-left-color: #245fb0; } .an .card.l3 > .ch { background: #245fb0; }
+  .an .card.l4 { border-left-color: #129e90; } .an .card.l4 > .ch { background: #129e90; }
+  .an .card.l5 { border-left-color: #b8862f; } .an .card.l5 > .ch { background: #b8862f; }
+  .an .card.lx { border-left-color: #b9c0c7; } .an .card.lx > .ch { background: #e8ebee; color: #454e56; }
+  .an .card.lx > .ch::after { color: #454e56; }
+  .an .cert { color: #5f6a73; border-bottom: 1px dotted #5f6a73; font-weight: 700; }
+  .an .cert-pop { display: none; }
+
+  /* разговорът (от me/) — на цял екран */
+  .chatwrap { position: relative; }
+  .chat { position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
+  #p-razgovor.on { display: flex; flex-direction: column; height: calc(100vh - var(--top) - var(--navh) - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - var(--navh) - env(safe-area-inset-bottom, 0px)); padding-top: 10px; padding-bottom: 10px; }
+  #p-razgovor .chatwrap { flex: 1; min-height: 0; display: flex; }
+  #p-razgovor .chat { flex: 1; min-height: 0; }
+  body.chat-on { padding-bottom: 0; }
+  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
+  .cdown.show { display: block; }
+  .cempty { margin: 6px 0; color: var(--muted); font-size: 14px; text-align: center; }
+  .cday { text-align: center; margin: 8px 0 10px; }
+  .cday span { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
+  .csys { margin: 0 8px 10px; text-align: center; color: var(--muted); font-size: 12.5px; }
+  .csys[data-go] { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(107,120,134,0.45); text-underline-offset: 2px; }
+  .cmsg { display: flex; flex-direction: column; max-width: 86%; margin: 0 0 10px; }
+  .cmsg.me { margin-left: auto; align-items: flex-end; }
+  .cmsg.them { margin-right: auto; align-items: flex-start; }
+  .cb { padding: 8px 11px; border-radius: 14px; font-size: 15.5px; line-height: 1.45; overflow-wrap: anywhere; }
+  .cmsg.me .cb { background: #d9efe3; border-bottom-right-radius: 4px; }
+  .cmsg.them .cb { background: var(--soft); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .cwho { margin-bottom: 2px; color: var(--accent-dark); font-size: 13px; font-weight: 700; }
+  .cq { margin-bottom: 6px; padding: 4px 8px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(0,0,0,0.05); color: var(--muted); font-size: 13px; cursor: pointer; }
+  .cq b { display: block; color: var(--accent-dark); font-size: 12px; }
+  .cm { color: var(--muted); font-size: 13px; }
+  .cb a { color: var(--accent-dark); font-weight: 600; word-break: break-all; }
+  .cmeta { display: flex; align-items: center; gap: 10px; padding: 2px 4px 0; color: var(--muted); font-size: 12px; }
+  .cnew { padding: 0 7px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; }
+  .crep { padding: 0; border: none; background: none; color: var(--accent); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .cflash .cb { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .cform { margin-top: 10px; flex: none; }
+  .creply { display: none; align-items: center; gap: 8px; margin-bottom: 6px; padding: 5px 9px; border-left: 3px solid var(--accent); border-radius: 6px; background: var(--soft); font-size: 13px; }
+  .creply.show { display: flex; }
+  .creply .crt { flex: 1; min-width: 0; color: var(--muted); overflow-wrap: anywhere; }
+  .creply button { flex: none; padding: 2px 6px; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; }
+  .crow { display: flex; align-items: flex-end; gap: 8px; }
+  .crow textarea { flex: 1; min-width: 0; min-height: 46px; max-height: 30vh; padding: 10px 11px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: none; }
+  .crow button { flex: none; padding: 12px 14px; border: none; border-radius: 12px; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .crow button:active { background: var(--accent-dark); }
+  .cerr { display: none; margin-top: 6px; color: var(--warn); font-size: 13.5px; text-align: center; }
+  .cerr.show { display: block; }
+
+  /* долната лента */
+  @media (min-width: 481px) {
+    body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); }
+    nav.tabs { border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+  }
+  nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 480px; z-index: 60; display: flex; background: #fff; border-top: 1px solid var(--border); box-shadow: 0 -2px 10px rgba(0,0,0,0.06); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  nav.tabs button { position: relative; flex: 1 1 0; min-width: 0; height: var(--navh); border: none; background: none; padding: 6px 2px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; color: var(--muted); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; }
+  nav.tabs button .e { font-size: 22px; line-height: 1.1; filter: grayscale(0.55); opacity: 0.8; }
+  nav.tabs button.on { color: var(--accent-dark); font-weight: 800; }
+  nav.tabs button.on .e { filter: none; opacity: 1; }
+  nav.tabs button.on::before { content: ""; position: absolute; top: 0; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--accent); }
+  nav.tabs .badge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11.5px; font-weight: 800; line-height: 19px; text-align: center; display: none; }
+  nav.tabs .badge.show { display: block; }
+</style>
+</head>
+<body>
+<div class="draft" id="draft"><b>ЧЕРНОВА</b><span id="draftSub">само за преглед</span></div>
+<header id="hdr">
+  <div class="wrap" style="padding:0 4px;">
+    <h1 id="paneTitle">Начало</h1>
+    <p id="who">&nbsp;</p>
+  </div>
+</header>
+
+<div class="wrap" id="main">
+  <div class="loading" id="loading">Зарежда…</div>
+  <section class="pane" id="p-nachalo"></section>
+  <section class="pane" id="p-hrana"></section>
+  <section class="pane" id="p-danni"></section>
+  <section class="pane" id="p-razgovor"></section>
+</div>
+
+<nav class="tabs" id="tabs" aria-label="Раздели">
+  <button type="button" data-tab="nachalo"><span class="e">🏠</span>Начало</button>
+  <button type="button" data-tab="hrana"><span class="e">🍽</span>Храна</button>
+  <button type="button" data-tab="danni"><span class="e">🗂</span>Данни</button>
+  <button type="button" data-tab="razgovor"><span class="e">💬</span>Разговор<span class="badge" id="chatBadge"></span></button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+  var TABS = { nachalo: "Начало", hrana: "Храна", danni: "Данни", razgovor: "Разговор" };
+  // Начало: всички раздели без nutrition (той е в Храна). Редът = SECTIONS на tools/me/ (SSOT), без nutrition.
+  var HOME_SECTIONS = [
+    { key: "info", label: "Информация" },
+    { key: "training", label: "Тренировки" },
+    { key: "supplements", label: "Добавки" },
+    { key: "labs", label: "Изследвания" },
+    { key: "instruction", label: "Указания" }
+  ];
+  var QA_HEAD = "📋 Отговори — ";
+  var WINDOW_DAYS = 15;
+
+  var loading = document.getElementById("loading");
+  var who = document.getElementById("who");
+  var paneTitle = document.getElementById("paneTitle");
+  var P = {
+    nachalo: document.getElementById("p-nachalo"), hrana: document.getElementById("p-hrana"),
+    danni: document.getElementById("p-danni"), razgovor: document.getElementById("p-razgovor")
+  };
+
+  // ── помощни ──
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function fmtDate(s) { if (!s) return ""; var p = String(s).slice(0, 10).split("-"); return p.length === 3 ? (p[2] + "." + p[1] + "." + p[0]) : s; }
+  function fmtTime(s) {
+    if (!s) return "";
+    try { return new Date(s).toLocaleTimeString("bg-BG", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Sofia" }); } catch (e) { return ""; }
+  }
+  function nowHM() {
+    try { return new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Sofia" }); }
+    catch (e) { var d = new Date(); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); }
+  }
+  function todayStr() { try { return new Date().toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }); } catch (e) { return new Date().toISOString().slice(0, 10); } }
+  function sofiaDay(ts) { try { return new Date(ts).toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }); } catch (e) { return String(ts || "").slice(0, 10); } }
+  function dayDiff(a, b) { return Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000); }
+  function tsNum(ts) { var n = Date.parse(ts || ""); return isNaN(n) ? 0 : n; }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+  function showState(msg) {
+    loading.style.display = "none";
+    P.nachalo.innerHTML = '<div class="state">' + esc(msg) + "</div>";
+    P.nachalo.classList.add("on");
+    document.getElementById("tabs").style.display = "none";
+  }
+  function showMissingToken(storageKey) {
+    var saved = lsGet(storageKey) ? "да" : "не";
+    var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    showState("");
+    P.nachalo.innerHTML = '<div class="state">Липсва код в линка. Отвори линка, който получи.'
+      + '<div style="margin-top:14px;padding:10px;border:1px dashed #d8dee5;border-radius:8px;font-size:11.5px;color:#6b7886;text-align:left;word-break:break-all;line-height:1.55;">'
+      + '<b>Диагностика (за Chris):</b><br>URL: ' + esc(location.href)
+      + '<br>Запазен код: ' + saved
+      + '<br>Режим: ' + (standalone ? "приложение (standalone)" : "браузър")
+      + '<br>iOS: ' + (ios ? "да" : "не") + '</div></div>';
+  }
+
+  var token = new URLSearchParams(location.search).get("t");
+  if (!token) { showMissingToken("cdbgym_app_token"); return; }
+
+  // ── ЗАЩИТА ЗА ЗАПИС (чернова): записва се само при клиент, чието име започва с „DEV". Иначе — само четене. ──
+  var CAN_WRITE = false;
+  var RO_NOTE = '<div class="ro">Чернова — записът е изключен</div>';
+  function wr(name, args) {
+    if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
+    return sb.rpc(name, args);
+  }
+
+  // ── състояние ──
+  var D = { name: "", content: [], log: [] };     // get_client_diary
+  var F = { entries: [], log_mode: "sprint" };    // get_food_log
+  var A = { cards: [] };                           // get_analysis
+  var INTAKE = null;                               // ⚠ няма RPC → само mock (window.CDB_INTAKE_MOCK)
+  var current = null, scrollMem = {};
+  var SEEN_KEY = "diary_seen_coach_" + token;      // същият ключ като в me/ → прочетеното не свети пак
+
+  function isQaCard(r) { return /class="qa"|class='qa'/.test(String(r.body || "")); }
+  function cardKey(r) { return r.section + "_" + r.sort; }
+
+  // ── Разговор: логика 1:1 от me/ + съобщенията от Chris в храна-лога + сив ред-линк към въпросника ──
+  function logSummary(e) {
+    var bits = [];
+    function add(v, label, unit) { if (v != null && v !== "") bits.push(label + " " + v + unit); }
+    add(e.weight, "тегло", " кг"); add(e.neck, "врат", " см"); add(e.chest, "гръд", " см"); add(e.arm, "ръка", " см");
+    add(e.waist, "талия", " см"); add(e.hip, "ханш", " см"); add(e.thigh, "бедро", " см"); add(e.calf, "прасец", " см");
+    return bits.join(" · ");
+  }
+  function notePreview(t) { t = String(t || "").replace(/\s+/g, " ").trim(); return t.length > 50 ? t.slice(0, 50) + "…" : t; }
+  function isQaNote(t) { return String(t || "").indexOf(QA_HEAD) === 0; }
+  function qaTitleOf(t) { var s = String(t || ""); if (!isQaNote(s)) return ""; return s.slice(QA_HEAD.length).split("\n")[0].trim(); }
+  function msgHtml(s) { return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, "<br>"); }
+  function dayLabelChat(ts) { try { return new Date(ts).toLocaleDateString("bg-BG", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Sofia" }); } catch (e) { return ""; } }
+  function quoteText(e) { if (isQaNote(e.note)) return "Отговорите на въпросника"; return notePreview(e.note) || logSummary(e); }
+  var qaKeyByTitle = {};
+  function chatItems() {
+    var items = [], seenQa = {};
+    D.log.slice().sort(function (a, b) { return tsNum(a.created_at) - tsNum(b.created_at); }).forEach(function (e) {
+      var note = e.note ? String(e.note) : "", meas = logSummary(e), coach = e.kind === "coach";
+      if (!coach && isQaNote(note)) {
+        var tl = qaTitleOf(note), again = !!seenQa[tl]; seenQa[tl] = 1;
+        items.push({ sys: again ? "✎ Променен отговор във „" + tl + "“ — виж в Данни" : "📋 Отговорите на „" + tl + "“ са изпратени — виж в Данни", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa" });
+      }
+      else if (note) items.push({ ts: e.created_at, id: e.id, mine: !coach, note: note, meas: meas, to: e.reply_to, ans: e.id });
+      else if (meas) items.push({ sys: meas, ts: e.created_at, id: e.id });
+      if (e.reply) items.push({ ts: e.reply_at || e.created_at, mine: false, note: String(e.reply), to: e.id, ans: e.id });
+    });
+    // съобщения от Chris, писани в храна-лога (food_log kind='coach') — показват се тук; нямат „Отговори" (друга таблица)
+    F.entries.forEach(function (e) {
+      if (e.kind === "coach" && e.text) items.push({ ts: e.created_at, mine: false, note: String(e.text), src: "food" });
+    });
+    items.sort(function (a, b) { return tsNum(a.ts) - tsNum(b.ts); });
+    return items;
+  }
+  var lastClientAt = "", seenTs = null;
+  function computeLastClient() {
+    lastClientAt = "";
+    // както в me/: писала ли е СЛЕД съобщението (разговор/мерки/въпросник) → видяла го е. Храна-логът НЕ се брои —
+    // в app-а тя може да отбелязва храна, без да е отваряла „Разговор".
+    D.log.forEach(function (e) { if (e.kind !== "coach") { var c = String(e.created_at || ""); if (c > lastClientAt) lastClientAt = c; } });
+    seenTs = lsGet(SEEN_KEY);
+  }
+  function isUnreadTs(ts) { return !!(ts && ts > lastClientAt && (!seenTs || ts > seenTs)); }
+  function coachEvents() {
+    var ev = [];
+    D.log.forEach(function (e) {
+      if (e.kind === "coach" && e.created_at) ev.push(String(e.created_at));
+      if (e.kind !== "coach" && e.reply && e.reply_at) ev.push(String(e.reply_at));
+    });
+    F.entries.forEach(function (e) { if (e.kind === "coach" && e.created_at) ev.push(String(e.created_at)); });
+    return ev;
+  }
+  function unreadCount() { return coachEvents().filter(isUnreadTs).length; }
+  function updateBadge() {
+    var n = unreadCount(), b = document.getElementById("chatBadge");
+    b.textContent = n > 9 ? "9+" : String(n);
+    b.classList.toggle("show", n > 0);
+  }
+  function markChatRead() {
+    var newest = coachEvents().reduce(function (a, ts) { return (!a || ts > a) ? ts : a; }, null);
+    if (newest) { lsSet(SEEN_KEY, newest); seenTs = newest; }
+    updateBadge();
+  }
+  function chatHtml() {
+    var items = chatItems(), byId = {}, out = "", day = "";
+    if (!items.length) return '<p class="cempty">Още няма съобщения. Напиши първото отдолу.</p>';
+    D.log.forEach(function (e) { if (e.id) byId[e.id] = e; });
+    items.forEach(function (m) {
+      var d = dayLabelChat(m.ts), time = fmtTime(m.ts), idAttr = m.id ? ' data-id="' + esc(m.id) + '"' : "";
+      if (d && d !== day) { day = d; out += '<div class="cday"><span>' + esc(d) + "</span></div>"; }
+      if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + ">" + esc(m.sys) + (time ? " · " + esc(time) : "") + "</div>"; return; }
+      var p = m.to && byId[m.to];
+      out += '<div class="cmsg ' + (m.mine ? "me" : "them") + '"' + idAttr + '><div class="cb">'
+        + (m.mine ? "" : '<div class="cwho">Chris</div>')
+        + (p ? '<div class="cq" data-goto="' + esc(m.to) + '"><b>' + (p.kind === "coach" ? "Chris" : "Ти") + "</b>" + esc(quoteText(p)) + "</div>" : "")
+        + (m.meas ? '<div class="cm">' + esc(m.meas) + "</div>" : "")
+        + msgHtml(m.note) + '</div><div class="cmeta"><span>' + esc(time) + "</span>"
+        + (!m.mine && isUnreadTs(String(m.ts || "")) ? '<span class="cnew">ново</span>' : "")
+        + (m.ans ? '<button type="button" class="crep" data-reply="' + esc(m.ans) + '">Отговори</button>' : "")
+        + "</div></div>";
+    });
+    return out;
+  }
+
+  // ── въпросници: механизмът от me/ (отговорите = бележка в client_log; последният изпратен стои в полето) ──
+  function qaNorm(s) { return String(s || "").replace(/\r/g, "").replace(/\n\s*\n+/g, "\n").trim(); }
+  function qaParse(title) {
+    var head = QA_HEAD + title + "\n", ans = {};
+    D.log.slice().sort(function (a, b) { return tsNum(a.created_at) - tsNum(b.created_at); }).forEach(function (e) {
+      var n = String(e.note || "");
+      if (e.kind === "coach" || n.indexOf(head) !== 0) return;
+      n.slice(head.length).split(/\n\s*\n/).forEach(function (blk) {
+        var m = /^(\d+)\.[^\n]*\n→ ([\s\S]+)$/.exec(blk.trim());
+        if (m) ans[m[1]] = { text: m[2].trim(), date: e.entry_date, at: e.created_at };
+      });
+    });
+    return ans;
+  }
+  function qaCounts(r) {
+    var tmp = document.createElement("div"); tmp.innerHTML = r.body || "";
+    var qa = tmp.querySelector(".qa"); if (!qa) return { n: 0, open: 0, title: "" };
+    var title = qa.getAttribute("data-qa") || "Въпроси", sent = qaParse(title), n = 0, open = 0;
+    Array.prototype.forEach.call(qa.querySelectorAll(".qi"), function (qi) { n++; if (!sent[qi.getAttribute("data-n")]) open++; });
+    return { n: n, open: open, title: title };
+  }
+
+  // ── карта ──
+  function cardHtml(r, open, extraBody, chip) {
+    var key = cardKey(r);
+    return '<div class="card' + (open ? " open" : "") + '" data-key="' + esc(key) + '">'
+      + (r.entry_date ? '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>" : "")
+      + '<div class="ch"><span>' + esc(r.title || "Виж") + "</span>" + (chip || "") + "</div>"
+      + '<div class="body">' + (r.body || "") + (extraBody || "") + "</div></div>";
+  }
+  function panelHtml(key, ico, title, sub, inner, open) {
+    return '<div class="card panel' + (open ? " open" : "") + '" data-key="' + key + '">'
+      + '<div class="ch"><span class="ico">' + ico + '</span><span class="ttl">' + esc(title) + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span></div>"
+      + '<div class="body">' + inner + "</div></div>";
+  }
+
+  // ════════ НАЧАЛО ════════
+  function lastWeight() {
+    var best = null;
+    D.log.forEach(function (e) { if (e.kind !== "coach" && e.weight != null && e.weight !== "") { if (!best || String(e.created_at) > String(best.at)) best = { w: e.weight, at: e.created_at }; } });
+    F.entries.forEach(function (e) { if (e.kind !== "coach" && e.weight != null && e.weight !== "") { if (!best || String(e.created_at) > String(best.at)) best = { w: e.weight, at: e.created_at }; } });
+    return best;
+  }
+  function nowRows() {
+    var rows = [], nU = unreadCount();
+    if (nU) rows.push(["✉", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + " от Chris", "razgovor"]);
+    D.content.forEach(function (r) {
+      if (!isQaCard(r)) return;
+      var c = qaCounts(r);
+      if (c.open) rows.push(["📋", "„" + c.title + "“ — " + (c.open === c.n ? (c.n === 1 ? "1 въпрос чака отговор" : c.n + " въпроса чакат отговор") : c.open + " от " + c.n + " без отговор"), "danni:" + cardKey(r)]);
+    });
+    var news = D.content.filter(function (r) { return r.section === "info" && /какво е новото/i.test(r.title || "") && r.entry_date; })[0];
+    if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["📌", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
+    if (A.cards.length && !lsGet("app_seen_analysis_" + token)) rows.push(["📊", "Анализът на храненето ти е готов", "hrana:analysis"]);
+    var w = lastWeight();
+    rows.push(w ? ["⚖", "Последно тегло: " + w.w + " кг · " + fmtDate(sofiaDay(w.at)), "hrana:meas"] : ["⚖", "Още няма записано тегло", "hrana:meas"]);
+    return rows;
+  }
+  function renderNachalo() {
+    var html = "", rows = nowRows();
+    if (rows.length) {
+      html += '<div class="now"><h3>Ново за теб</h3>';
+      rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"><span class="i">' + r[0] + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
+      html += "</div>";
+    }
+    var firstOpen = true, any = false;
+    HOME_SECTIONS.forEach(function (sec) {
+      var list = D.content.filter(function (r) { return r.section === sec.key && !isQaCard(r); });
+      if (!list.length) return;
+      any = true;
+      if (sec.key === "instruction") list.sort(function (a, b) { return String(b.entry_date || "").localeCompare(String(a.entry_date || "")); });
+      html += '<div class="sec"><h2>' + esc(sec.label) + "</h2>";
+      list.forEach(function (r) { html += cardHtml(r, firstOpen); firstOpen = false; });
+      html += "</div>";
+    });
+    if (!any) html += '<div class="state">Планът ти още се подготвя. Скоро тук ще има съдържание.</div>';
+    P.nachalo.innerHTML = html;
+  }
+
+  // ════════ ХРАНА ════════
+  // „Изядох" стои само на картите-хранения (заглавие с хранене/вариант), не на обясняващите карти.
+  // ⚠ Евристика за черновата; за живото — изричен маркер в картата (напр. data-meal в тялото).
+  function isMealCard(r) {
+    var t = String(r.title || "");
+    if (/data-meal/.test(String(r.body || ""))) return true;
+    if (/(как работи|правила|защо|числата|какво отпада|емоционал)/i.test(t)) return false;
+    return /(закуска|обяд|вечеря|шейк|следобед|хранене \d|меню|вариант|твоят ден)/i.test(t);
+  }
+  function foodClient() { return F.entries.filter(function (e) { return e.kind !== "coach"; }); }
+  function eatenToday(title) {
+    var head = "✅ " + title + " — ядено ", today = todayStr(), out = [];
+    foodClient().forEach(function (e) {
+      var t = String(e.text || "");
+      if (t.indexOf(head) === 0 && (e.entry_date || sofiaDay(e.created_at)) === today) out.push(t.slice(head.length).trim());
+    });
+    return out;
+  }
+  function eatBox(r) {
+    var key = cardKey(r);
+    return '<div class="eat" data-eat="' + esc(key) + '"><div class="er"><label for="eat_' + esc(key) + '">Час</label>'
+      + '<input type="time" id="eat_' + esc(key) + '" value="' + nowHM() + '">'
+      + '<button type="button" class="eatbtn"' + (CAN_WRITE ? "" : " disabled") + '>✓ Изядох</button></div>'
+      + '<p class="eh">Часът е сега — смени го, ако отбелязваш по-късно.</p>'
+      + '<div class="eok"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>";
+  }
+  function entryLine(e) {
+    var parts = [], t = String(e.text || "");
+    if (t) parts.push(esc(t));
+    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
+    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(e.waist) + " см</span>");
+    if (e.height != null && e.height !== "") parts.push('<span class="wt">📐 ръст ' + esc(e.height) + " см</span>");
+    return '<div class="logitem' + (t.indexOf("✅ ") === 0 ? " ate" : "") + '"><span class="tm">' + esc(fmtTime(e.created_at)) + "</span>" + parts.join(" · ") + "</div>";
+  }
+  function historyHtml() {
+    var entries = foodClient().slice().sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); });
+    if (!entries.length) return '<p class="empty">Още няма записи. Първото, което хапнеш или пиеш днес — впиши го горе.</p>';
+    var order = [], groups = {}, today = todayStr();
+    entries.forEach(function (e) { var k = e.entry_date || sofiaDay(e.created_at); if (!groups[k]) { groups[k] = []; order.push(k); } groups[k].push(e); });
+    return order.map(function (k, i) {
+      var d = dayDiff(k, today), lbl = d === 0 ? "Днес" : d === 1 ? "Вчера" : fmtDate(k), n = groups[k].length;
+      return '<div class="card' + (i === 0 ? " open" : "") + '" data-key="day_' + esc(k) + '"><div class="ch"><span>' + esc(lbl)
+        + ' <span class="daycount">' + n + (n === 1 ? " запис" : " записа") + "</span></span></div>"
+        + '<div class="body">' + groups[k].map(entryLine).join("") + "</div></div>";
+    }).join("");
+  }
+  function scaleHtml() {
+    var distinct = {};
+    foodClient().forEach(function (e) { var k = e.entry_date || sofiaDay(e.created_at); if (k) distinct[k] = 1; });
+    var n = Object.keys(distinct).length;
+    if (F.log_mode === "open") return '<p class="hint" style="margin:0 0 10px">Записани дни: <b>' + n + "</b> — логът върви без краен срок.</p>";
+    var segs = ""; for (var i = 0; i < WINDOW_DAYS; i++) segs += '<i class="' + (i < n ? "on" : "") + '"></i>';
+    return '<div class="dayscale"><span class="dlbl">Записани дни</span><span class="segs">' + segs + '</span><span class="num">' + (n >= WINDOW_DAYS ? "15/15 ✓" : n + "/15") + "</span></div>";
+  }
+  function freeLogHtml() {
+    return '<div class="lf"><div id="f_scale">' + scaleHtml() + "</div>"
+      + '<label for="f_text">Какво хапна и пи?</label>'
+      + '<textarea id="f_text" placeholder="напр.: половин кофичка кисело мляко 4% + 2 лъжици мед · 1 филия с масло · кафе с 2 бучки захар"></textarea>'
+      + '<p class="hint"><b>количество + вид</b> — чаша, лъжица, шепа, длан, половин/четвърт. Пиши и дребното: сос, олио, захар.</p>'
+      + '<label for="f_weight">Тегло (кг) — по желание</label><input type="number" id="f_weight" inputmode="decimal" step="0.1" placeholder="напр. 64.2">'
+      + '<p class="hint">сутрин на гладно, след тоалетна, при еднакви условия.</p>'
+      + '<button type="button" id="f_save"' + (CAN_WRITE ? "" : " disabled") + '>Запиши</button>'
+      + '<div class="confirm" id="f_confirm"><p class="q">Верни ли са храните и количествата?</p><div class="what" id="f_what"></div>'
+      + '<div class="row2"><div><button type="button" class="ghost" id="f_edit">Поправи</button></div><div><button type="button" id="f_ok">Потвърди</button></div></div></div>'
+      + '<div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
+      + '<div class="sec"><h2>Моят лог</h2><div id="f_hist">' + historyHtml() + "</div></div>";
+  }
+  function measList() {
+    var rows = D.log.filter(function (e) { return e.kind !== "coach" && logSummary(e); })
+      .sort(function (a, b) { return String(b.created_at || "").localeCompare(String(a.created_at || "")); }).slice(0, 6);
+    if (!rows.length) return '<p class="empty">Още няма записани мерки.</p>';
+    return rows.map(function (e) { return '<div class="logitem"><span class="tm">' + esc(fmtDate(e.entry_date || sofiaDay(e.created_at))) + "</span>" + esc(logSummary(e)) + "</div>"; }).join("");
+  }
+  function measHtml() {
+    function inp(id, lbl) { return '<div><label for="' + id + '">' + lbl + '</label><input type="number" id="' + id + '" inputmode="decimal"></div>'; }
+    return '<div class="lf"><p class="hint" style="margin:0 0 6px">Попълни каквото следиш. Датата се добавя автоматично.</p>'
+      + '<label for="lg_weight">Тегло (кг)</label><input type="number" id="lg_weight" inputmode="decimal">'
+      + '<details class="meas"><summary>+ Обиколки (см) — по желание</summary>'
+      + '<div class="row2">' + inp("lg_neck", "Врат") + inp("lg_chest", "Гръд") + "</div>"
+      + '<div class="row2">' + inp("lg_arm", "Ръка (бицепс)") + inp("lg_waist", "Талия") + "</div>"
+      + '<div class="row2">' + inp("lg_hip", "Ханш") + inp("lg_thigh", "Бедро") + "</div>"
+      + '<div class="row2">' + inp("lg_calf", "Прасец") + "<div></div></div></details>"
+      + '<button type="button" id="lgBtn"' + (CAN_WRITE ? "" : " disabled") + '>Запиши</button><div class="ok" id="lgOk"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
+      + '<div class="sec"><h2>Последни мерки</h2><div id="lgList">' + measList() + "</div></div>";
+  }
+  function analysisHtml() {
+    var cards = A.cards.slice(), html = '<div class="an">';
+    var lx = 0;
+    cards.forEach(function (r, i) {
+      var t = String(r.title || "Виж");
+      var cls = /Количество/.test(t) ? "l1" : /Макроси/.test(t) ? "l2" : /Качество/.test(t) ? "l3" : /Тайминг/.test(t) ? "l4" : /Добавки/.test(t) ? "l5" : "lx";
+      var open = (cls === "lx" && lx++ === 0 && i === 0); // уводът (първата карта извън пирамидата) стои отворен
+      html += '<div class="card ' + cls + (open ? " open" : "") + '" data-key="an_' + esc(r.sort) + '"><div class="ch"><span>' + esc(t) + "</span></div>"
+        + '<div class="body">' + (r.body || "") + "</div></div>";
+    });
+    return html + "</div>";
+  }
+  function renderHrana() {
+    var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); });
+    var html = "", first = true;
+    if (menus.length) {
+      var inner = '<p class="hint" style="margin:0 0 10px;font-size:13.5px;color:#6b7886">Отвори храненето и натисни „Изядох“ — денят и часът се записват.</p>';
+      menus.forEach(function (r) {
+        var meal = isMealCard(r), done = meal ? eatenToday(r.title) : [];
+        var chip = done.length ? '<span class="chip">✓ днес ' + esc(done[done.length - 1]) + "</span>" : "";
+        inner += cardHtml(r, false, meal ? eatBox(r) : "", chip);
+      });
+      html += panelHtml("menu", "🍽", "Режимът", "менютата — отбележи какво изяде", inner, first); first = false;
+    }
+    html += panelHtml("log", "📝", "Свободен лог", menus.length ? "всичко извън менюто" : "впиши какво хапна и пи", freeLogHtml(), first); first = false;
+    html += panelHtml("meas", "⚖", "Мерки", "тегло и обиколки", measHtml(), false);
+    if (A.cards.length) html += panelHtml("analysis", "📊", "Анализ", "какво показа храната ти", analysisHtml(), false);
+    P.hrana.innerHTML = html;
+    wireFreeLog(); wireMeas(); wireEat();
+  }
+
+  // ════════ ДАННИ ════════
+  // Въпросите на интейка — текстовете от tools/forms/intake/ (извлечени 08.11). Ключовете = полетата в submissions.payload.
+  var INTAKE_Q = [
+    ["Какво търсиш и каква е целта", [["zhelan_izhod", "Какво искаш да получиш?"], ["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]]],
+    ["Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]]],
+    ["Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]]],
+    ["Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]]],
+    ["🩺 Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]]],
+    ["🍎 Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"]]],
+    ["🏋 Тренировки", [["trenira", "В момента тренираш ли?"], ["dni", "Кои дни тренираш сега?"], ["vreme_min", "Минути"], ["chas", "В колко часа?"], ["kade_kakvo", "Къде и какво?"], ["staj", "От колко време тренираш с тежести/съпротивление?"], ["staj_sega", "Как изглежда тренировката ти сега?"], ["staj_orientiri", "Текущи ориентири на основните движения?"], ["dvizhenia", "Кои движения познаваш и изпълняваш уверено?"], ["s_programa", "Тренирал(а) ли си по програма досега?"], ["s_programa_opis", "Каква и как мина?"], ["cel_programa", "Какво искаш да постигне програмата?"], ["sila_orientir", "Ориентир на силата"], ["sport_detail", "Кой спорт, на какво ниво и в кой сезон си?"], ["cel_programa_opis", "С две думи — нещо конкретно?"], ["kade", "Къде ще тренираш предимно?"], ["oborudvane", "Какво оборудване имаш на разположение?"], ["oborudvane_drugo", "Друго оборудване или уточнения?"], ["dni_sedmica", "Колко дни седмично реално можеш да тренираш?"], ["grafik", "Графикът позволява ли редовни дни, или варира?"], ["grafik_opis", "Кога реално можеш да тренираш?"], ["minuti", "Колко време на тренировка?"], ["chasove_dni", "Предпочитани дни и часове"], ["klek_ok", "Можеш ли да клекнеш дълбоко без болка?"], ["ruce_glava", "Можеш ли да вдигнеш ръце над глава свободно?"], ["zatrudnenia", "Има ли движения, които те затрудняват или избягваш?"], ["stil", "Какъв стил на тренировка предпочиташ?"], ["nt_intensitet", "Кое ти допада повече?"], ["nt_raznoobrazie", "Предпочиташ ли разнообразие?"], ["nt_plan", "Как тренираш по-добре?"], ["lyubimi_nelyubimi", "Любими или нелюбими упражнения?"], ["drugo_tren", "Нещо друго важно за тренировките?"]]],
+    ["😴 Сън и възстановяване", [["syn_promenliv", "Сънят ти еднакъв ли е всеки ден, или варира?"], ["chas_lyagane", "В колко часа обикновено си лягаш?"], ["syn_chasove", "Колко часа спиш на нощ?"], ["syn_kachestvo", "Как е сънят?"], ["stres", "Ниво на стрес в момента?"], ["energiya", "Енергия през деня?"], ["vyzstanovyavane", "Възстановяваш ли се добре между натоварвания?"], ["syn_tochno", "Среден сън — точно"], ["puls_pokoy", "Пулс в покой"]]]
+  ];
+  // ИЗМИСЛЕН примерен интейк („Мария“, без реални данни) — само за DEV клиент и само докато няма RPC за интейка.
+  // Същият като в tools/app/test/build_mock.py. За всеки друг клиент → празно състояние.
+  var SAMPLE_INTAKE = { created_at: "2026-10-15T12:00:00+00:00", payload: {
+    zhelan_izhod: ["Хранителен режим", "Тренировки"], cel: "Сваляне на килограми", motivaciya: "",
+    ime: "Мария", pol: "Жена", godina_razhdane: "1984", visochina: "168", teglo: "66", zhelano_teglo: "60",
+    taliya: "80", hansh: "100", teglo_trend: "Качва се бавно", teglo_promyana: "от 2 години, след смяна на работата",
+    cikyl: "Редовен", menopauza: "Не", bremennost: "Не", hormonalna: "",
+    rabota: "Офис — седя по цял ден", smeni: "Не", na_krak: "1–3 часа", dvizhenie: "4–7 хил. крачки",
+    pushene: "Не", alkohol: "Рядко", gazirani: "Рядко", kafe: "2 на ден",
+    oblasti: [{ key: "shtitovidna", label: "Щитовидна жлеза", otkoga: "2021", diagnoza: "по-бавна функция", lechenie: "според лекаря", ogranichava: "Не" }],
+    lekarstva: "по назначение на лекаря", lek_klas: [], dobavki: "витамин D понякога",
+    tip_hranene: "Всеядна", izklyucheni: "дроб", proteini: ["Пиле", "Яйца", "Риба"], hranenia_broy: "3",
+    zakuska: "Понякога", den_zakuska: "кафе и кифла", den_obyad: "от стола", den_vecherya: "вкъщи, готвено",
+    sladko: "Често", vecher_hapvane: "Понякога", emo_hapvane: "При стрес", voda: "1–1.5 л",
+    trenira: "Не", staj: "Под 6 месеца", kade: "В залата", dni_sedmica: "3", minuti: "45–60 мин",
+    klek_ok: "Да", ruce_glava: "Да", stil: "Сила с тежести",
+    syn_promenliv: "Еднакъв", chas_lyagane: "23:30", syn_chasove: "6–7", syn_kachestvo: "Средно", stres: "Средно", energiya: "Пада следобед"
+  } };
+  var INTAKE_IS_SAMPLE = false;
+  function intakeVal(k, p) {
+    var v = p[k];
+    if (k === "oblasti") {
+      if (!v || !v.length) return "";
+      return v.map(function (o) {
+        var bits = [];
+        if (o.ime) bits.push(o.ime);
+        if (o.otkoga) bits.push("от " + o.otkoga);
+        if (o.diagnoza) bits.push("диагноза: " + o.diagnoza);
+        if (o.lechenie) bits.push("лечение: " + o.lechenie);
+        if (o.stoynosti) bits.push("стойности: " + o.stoynosti);
+        if (o.bp) bits.push("кръвно: " + o.bp);
+        if (o.ogranichava) bits.push("ограничава: " + o.ogranichava);
+        return "• " + (o.label || o.key) + (bits.length ? " — " + bits.join("; ") : "");
+      }).join("\n");
+    }
+    if (Array.isArray(v)) return v.join(", ");
+    if (v === true) return "да";
+    if (v === false || v == null) return "";
+    return String(v).trim();
+  }
+  function intakeHtml() {
+    if (!INTAKE || !INTAKE.payload) {
+      return '<p class="empty">Отговорите от формата за данни ще се виждат тук.</p>';
+    }
+    var p = INTAKE.payload, html = (INTAKE_IS_SAMPLE ? '<p class="sample" id="intakeSample">Примерни отговори (измислени) — истинските ще идват от базата</p>' : "")
+      + '<p class="hint" style="margin:0 0 8px;font-size:13.5px;color:#6b7886">Попълнено на ' + esc(fmtDate(sofiaDay(INTAKE.created_at)))
+      + ". За промяна или допълнение — пиши в <a data-go=\"razgovor\" style=\"color:#235e45;font-weight:700\">Разговор</a>.</p>";
+    INTAKE_Q.forEach(function (g) {
+      var got = 0, body = "";
+      g[1].forEach(function (q) {
+        var v = intakeVal(q[0], p);
+        if (v) got++;
+        body += '<div class="iq"><div class="k">' + esc(q[1]) + '</div><div class="v' + (v ? "" : " none") + '">' + esc(v || "без отговор") + "</div></div>";
+      });
+      html += '<details class="fx"><summary>' + esc(g[0]) + '<span class="cnt">' + got + " от " + g[1].length + '</span></summary><div class="fxb">' + body + "</div></details>";
+    });
+    return html;
+  }
+  function renderDanni() {
+    var qas = D.content.filter(isQaCard), html = "";
+    var qaInner = "", openQa = 0;
+    if (qas.length) {
+      qas.forEach(function (r) {
+        var c = qaCounts(r); openQa += c.open;
+        var chip = c.open ? '<span class="chip pend">' + c.open + " без отговор</span>" : '<span class="chip">✓ отговорено</span>';
+        qaInner += cardHtml(r, false, "", chip);
+      });
+    } else qaInner = '<p class="empty">В момента няма въпроси към теб.</p>';
+    html += panelHtml("intake", "📝", "Формата за данни", "твоите отговори от началото", '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml() + "</div></div>", true);
+    html += panelHtml("qa", "📋", "Въпроси към теб", openQa ? openQa + " чакат отговор" : "отговорите стигат директно до Chris", qaInner, openQa > 0);
+    html += panelHtml("labs", "🧪", "Изследвания", "снимки и PDF на резултатите", '<div class="up"><button type="button" class="btn" id="upBtn">📎 Качи снимка или PDF</button>'
+      + '<p>Качването идва в следващата версия.</p></div><div class="sec"><h2>Качени файлове</h2><p class="empty">Още няма качени файлове.</p></div>', false);
+    P.danni.innerHTML = html;
+    wireQa();
+    document.getElementById("upBtn").addEventListener("click", function () { this.textContent = "Качването идва в следващата версия"; });
+  }
+
+  // ════════ РАЗГОВОР ════════
+  var replyTo = null;
+  function renderRazgovor() {
+    P.razgovor.innerHTML = '<div class="chatwrap"><div class="chat" id="chatBox">' + chatHtml() + "</div>"
+      + '<button type="button" class="cdown" id="cDown" aria-label="Към последното съобщение">↓</button></div>'
+      + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">✕</button></div>'
+      + '<div class="crow"><textarea id="cText" rows="2" placeholder="Напиши съобщение…"></textarea><button type="button" id="cSend"' + (CAN_WRITE ? "" : " disabled") + ">Изпрати</button></div>"
+      + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>";
+    wireChat();
+  }
+  function chatBottom() {
+    var box = document.getElementById("chatBox"), dn = document.getElementById("cDown");
+    if (!box) return;
+    box.scrollTop = box.scrollHeight;
+    if (dn) dn.classList.toggle("show", box.scrollHeight - box.scrollTop - box.clientHeight > 80);
+  }
+  function wireChat() {
+    var box = document.getElementById("chatBox"), dn = document.getElementById("cDown");
+    var cText = document.getElementById("cText"), cSend = document.getElementById("cSend"), cErr = document.getElementById("cErr");
+    var cReply = document.getElementById("cReply"), cReplyTxt = document.getElementById("cReplyTxt");
+    var DRAFT = "diary_chat_draft_" + token;
+    box.addEventListener("scroll", function () { dn.classList.toggle("show", box.scrollHeight - box.scrollTop - box.clientHeight > 80); }, { passive: true });
+    dn.addEventListener("click", chatBottom);
+    function setReply(id) {
+      var src = null; D.log.forEach(function (e) { if (e.id === id) src = e; });
+      replyTo = src ? id : null;
+      cReplyTxt.textContent = src ? "Отговор на: " + quoteText(src) : "";
+      cReply.classList.toggle("show", !!src);
+    }
+    cText.value = lsGet(DRAFT) || "";
+    cText.addEventListener("input", function () { lsSet(DRAFT, cText.value.trim() ? cText.value : null); });
+    document.getElementById("cReplyX").addEventListener("click", function () { setReply(null); });
+    box.addEventListener("click", function (e) {
+      var rep = e.target.closest(".crep");
+      if (rep) { setReply(rep.getAttribute("data-reply")); cText.focus(); return; }
+      var q = e.target.closest(".cq");
+      if (!q) return;
+      var tgt = box.querySelector('[data-id="' + q.getAttribute("data-goto") + '"]');
+      if (!tgt) return;
+      box.scrollTop = Math.max(0, tgt.offsetTop - 40);
+      tgt.classList.add("cflash"); setTimeout(function () { tgt.classList.remove("cflash"); }, 1500);
+    });
+    cSend.addEventListener("click", function () {
+      var txt = cText.value.trim();
+      if (!txt) return;
+      var args = { p_token: token, p_note: txt };
+      if (replyTo) args.p_reply_to = replyTo;
+      cSend.disabled = true; cErr.classList.remove("show");
+      wr("add_log_entry", args).then(function (res) {
+        if (res.error || res.data === false) throw (res.error || new Error("fail"));
+        cText.value = ""; lsSet(DRAFT, null); setReply(null); cSend.disabled = false;
+        return refreshDiary();
+      }).catch(function () { cSend.disabled = !CAN_WRITE; cErr.classList.add("show"); });
+    });
+  }
+  function refreshChat() {
+    var box = document.getElementById("chatBox");
+    if (!box) return;
+    box.innerHTML = chatHtml(); chatBottom();
+  }
+
+  // ── презареждане след запис ──
+  function refreshDiary() {
+    return sb.rpc("get_client_diary", { p_token: token }).then(function (res) {
+      if (res.error || !res.data) return;
+      D.log = res.data.log || []; computeLastClient();
+      refreshChat(); updateBadge();
+      var l = document.getElementById("lgList"); if (l) l.innerHTML = measList();
+      if (current === "razgovor") markChatRead();
+    });
+  }
+  function refreshFood() {
+    return sb.rpc("get_food_log", { p_token: token }).then(function (res) {
+      if (res.error || !res.data) return;
+      F.entries = res.data.entries || []; computeLastClient();
+      var h = document.getElementById("f_hist"); if (h) h.innerHTML = historyHtml();
+      var sc = document.getElementById("f_scale"); if (sc) sc.innerHTML = scaleHtml();
+      Array.prototype.forEach.call(P.hrana.querySelectorAll('.card[data-key^="nutrition_"]'), function (c) {
+        var r = D.content.filter(function (x) { return cardKey(x) === c.getAttribute("data-key"); })[0];
+        if (!r || !isMealCard(r)) return;
+        var done = eatenToday(r.title), ch = c.querySelector(".ch"), chip = ch.querySelector(".chip");
+        if (!done.length) return;
+        if (!chip) { chip = document.createElement("span"); chip.className = "chip"; ch.appendChild(chip); }
+        chip.textContent = "✓ днес " + done[done.length - 1];
+      });
+    });
+  }
+
+  // ── Храна: окабеляване ──
+  function wireEat() {
+    Array.prototype.forEach.call(P.hrana.querySelectorAll(".eat"), function (box) {
+      var key = box.getAttribute("data-eat"), inp = box.querySelector("input"), btn = box.querySelector(".eatbtn"), ok = box.querySelector(".eok");
+      var r = D.content.filter(function (x) { return cardKey(x) === key; })[0];
+      inp.addEventListener("input", function () { inp.setAttribute("data-user", "1"); });
+      btn.addEventListener("click", function () {
+        var hm = /^\d{2}:\d{2}$/.test(inp.value) ? inp.value : nowHM();
+        var text = "✅ " + r.title + " — ядено " + hm;
+        btn.disabled = true; ok.className = "eok";
+        wr("add_food_entry", { p_token: token, p_text: text, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
+          if (res.error || res.data === false) throw (res.error || new Error("fail"));
+          ok.textContent = "✓ Отбелязано · " + hm; ok.className = "eok show"; btn.disabled = false;
+          return refreshFood();
+        }).catch(function () { btn.disabled = !CAN_WRITE; ok.textContent = "Неуспешно. Опитай пак."; ok.className = "eok show err"; });
+      });
+    });
+  }
+  function refreshEatTimes() {
+    Array.prototype.forEach.call(P.hrana.querySelectorAll(".eat input"), function (inp) { if (!inp.getAttribute("data-user")) inp.value = nowHM(); });
+  }
+  function wireFreeLog() {
+    var t = document.getElementById("f_text"), w = document.getElementById("f_weight"), save = document.getElementById("f_save");
+    var conf = document.getElementById("f_confirm"), what = document.getElementById("f_what"), msg = document.getElementById("f_msg");
+    function say(s, err) { msg.textContent = s; msg.className = "ok show" + (err ? " err" : ""); }
+    save.addEventListener("click", function () {
+      var tv = t.value.trim(), wv = w.value.trim();
+      if (!tv && !wv) { say("Впиши храна или тегло.", true); return; }
+      msg.className = "ok";
+      what.innerHTML = [tv ? esc(tv) : "", wv ? "⚖ " + esc(wv) + " кг" : ""].filter(Boolean).join("<br>");
+      conf.classList.add("show"); save.style.display = "none";
+    });
+    document.getElementById("f_edit").addEventListener("click", function () { conf.classList.remove("show"); save.style.display = ""; t.focus(); });
+    document.getElementById("f_ok").addEventListener("click", function () {
+      var b = this, tv = t.value.trim(), wv = w.value.trim();
+      b.disabled = true;
+      wr("add_food_entry", { p_token: token, p_text: tv || null, p_weight: wv ? parseFloat(wv) : null, p_waist: null, p_height: null }).then(function (res) {
+        if (res.error || res.data === false) throw (res.error || new Error("fail"));
+        t.value = ""; w.value = ""; conf.classList.remove("show"); save.style.display = ""; b.disabled = false;
+        say("Записано ✓");
+        return refreshFood();
+      }).catch(function () { b.disabled = false; say("Неуспешно. Опитай пак.", true); });
+    });
+  }
+  function wireMeas() {
+    var btn = document.getElementById("lgBtn");
+    btn.addEventListener("click", function () {
+      var fields = { weight: "lg_weight", waist: "lg_waist", hip: "lg_hip", neck: "lg_neck", chest: "lg_chest", arm: "lg_arm", thigh: "lg_thigh", calf: "lg_calf" };
+      var ok = document.getElementById("lgOk"), rec = {}, any = false, k;
+      for (k in fields) { var v = document.getElementById(fields[k]).value.trim(); rec[k] = v ? parseFloat(v) : null; if (rec[k] != null) any = true; }
+      if (!any) { ok.textContent = "Попълни поне едно поле."; ok.className = "ok show err"; return; }
+      btn.disabled = true; btn.textContent = "Записване…";
+      wr("add_log_entry", { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf }).then(function (res) {
+        if (res.error || res.data === false) throw (res.error || new Error("fail"));
+        ok.textContent = "Записано. Благодаря!"; ok.className = "ok show";
+        for (k in fields) document.getElementById(fields[k]).value = "";
+        btn.disabled = false; btn.textContent = "Запиши";
+        return refreshDiary();
+      }).catch(function () { btn.disabled = !CAN_WRITE; btn.textContent = "Запиши"; ok.textContent = "Неуспешно. Опитай пак."; ok.className = "ok show err"; });
+    });
+  }
+
+  // ── Данни: въпросниците (1:1 механизмът от me/) ──
+  function wireQa() {
+    Array.prototype.forEach.call(P.danni.querySelectorAll(".qa"), function (qa) {
+      var title = qa.getAttribute("data-qa") || "Въпроси";
+      var items = qa.querySelectorAll(".qi"), sentMap = qaParse(title);
+      function lkey(n) { return "diary_qa_" + token + "_" + title + "_" + n; }
+      function status(qi, sent, ta) {
+        var st = qi.querySelector(".qst");
+        if (!st) { st = document.createElement("div"); st.className = "qst"; qi.appendChild(st); }
+        var v = qaNorm(ta.value), txt = "", pend = false;
+        if (sent && v === sent.text) txt = "✓ Изпратено · " + fmtDate(sent.date) + (fmtTime(sent.at) ? ", " + fmtTime(sent.at) : "");
+        else if (v) { txt = sent ? "✎ Променено — още не е изпратено" : "✎ Още не е изпратено"; pend = true; }
+        else if (sent) { txt = "Празно поле не се изпраща — изпратеният отговор остава."; pend = true; }
+        st.textContent = txt; st.className = "qst" + (pend ? " pend" : ""); st.style.display = txt ? "" : "none";
+      }
+      Array.prototype.forEach.call(items, function (qi) {
+        var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea");
+        if (!ta) return;
+        var loc = lsGet(lkey(n)), sent = sentMap[n];
+        if (loc != null && sent && qaNorm(loc) === sent.text) { lsSet(lkey(n), null); loc = null; }
+        ta.value = loc != null ? loc : (sent ? sent.text : "");
+        status(qi, sent, ta);
+        ta.addEventListener("input", function () {
+          var s = sentMap[n], v = qaNorm(ta.value);
+          lsSet(lkey(n), (s ? v !== s.text : !!v) ? ta.value : null);
+          status(qi, s, ta);
+        });
+      });
+      var btn = qa.querySelector(".qabtn"), ok = qa.querySelector(".qaok");
+      if (!btn || !ok) return;
+      if (!CAN_WRITE) { btn.disabled = true; btn.insertAdjacentHTML("afterend", RO_NOTE); }
+      btn.addEventListener("click", function () {
+        var parts = [], got = [];
+        Array.prototype.forEach.call(items, function (qi) {
+          var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea"), v = ta ? qaNorm(ta.value) : "";
+          if (!v || (sentMap[n] && v === sentMap[n].text)) return;
+          var qt = ((qi.querySelector(".qq") || {}).textContent || "").replace(/^\s*\d+\.\s*/, "").replace(/\s+/g, " ").trim();
+          parts.push(n + ". " + qt + "\n→ " + v); got.push([qi, n, ta, v]);
+        });
+        if (!parts.length) { ok.textContent = Object.keys(sentMap).length ? "Няма промени за изпращане." : "Напиши поне един отговор."; ok.classList.add("show"); return; }
+        btn.disabled = true; btn.textContent = "Изпращане…";
+        wr("add_log_entry", { p_token: token, p_note: QA_HEAD + title + "\n\n" + parts.join("\n\n") }).then(function (res) {
+          if (res.error || res.data === false) throw (res.error || new Error("fail"));
+          var now = new Date().toISOString();
+          got.forEach(function (g) { sentMap[g[1]] = { text: g[3], date: now.slice(0, 10), at: now }; g[2].value = g[3]; lsSet(lkey(g[1]), null); status(g[0], sentMap[g[1]], g[2]); });
+          ok.textContent = "Изпратено. Благодаря!"; ok.classList.add("show");
+          btn.disabled = false; btn.textContent = "Изпрати отговорите";
+          return refreshDiary();
+        }).catch(function () { btn.disabled = !CAN_WRITE; btn.textContent = "Изпрати отговорите"; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("show"); });
+      });
+    });
+  }
+
+  // ════════ НАВИГАЦИЯ ════════
+  function setTop() {
+    var h = document.getElementById("hdr"), dr = document.getElementById("draft");
+    document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight) + "px");
+  }
+  function switchTab(tab, noScroll) {
+    if (!TABS[tab]) tab = "nachalo";
+    if (current) scrollMem[current] = window.scrollY;
+    current = tab;
+    Object.keys(P).forEach(function (k) { P[k].classList.toggle("on", k === tab); });
+    Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function (b) {
+      var on = b.getAttribute("data-tab") === tab;
+      b.classList.toggle("on", on);
+      if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    });
+    paneTitle.textContent = TABS[tab];
+    document.body.classList.toggle("chat-on", tab === "razgovor");
+    try { history.replaceState(null, "", location.pathname + location.search + "#" + tab); } catch (e) {}
+    if (tab === "razgovor") { window.scrollTo(0, 0); setTop(); chatBottom(); markChatRead(); }
+    else if (!noScroll) window.scrollTo(0, scrollMem[tab] || 0);
+    if (tab === "hrana") refreshEatTimes();
+  }
+  function flash(el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1600); }
+  // Препратка: <a data-go="hrana:nutrition_21"> → бутонът + разгъната карта (и панелът ѝ). Без ключ → само бутонът.
+  function go(spec) {
+    var p = String(spec || "").split(":"), tab = p[0], key = p.slice(1).join(":");
+    switchTab(tab, !!key);
+    if (!key) return;
+    var el = P[tab] && P[tab].querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
+    if (!el) { window.scrollTo(0, 0); return; }
+    var c = el;
+    while (c && c !== P[tab]) { if (c.classList && c.classList.contains("card")) c.classList.add("open"); c = c.parentElement; }
+    if (key === "analysis") lsSet("app_seen_analysis_" + token, "1");
+    setTimeout(function () {
+      var y = el.getBoundingClientRect().top + window.scrollY - 10;
+      window.scrollTo(0, Math.max(0, y)); flash(el);
+    }, 30);
+  }
+  document.getElementById("tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-tab]");
+    if (b) switchTab(b.getAttribute("data-tab"));
+  });
+  document.getElementById("main").addEventListener("click", function (e) {
+    var g = e.target.closest("[data-go]");
+    if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
+    var ch = e.target.closest(".ch");
+    if (!ch) return;
+    var card = ch.parentElement;
+    if (!card || !card.classList.contains("card")) return;
+    card.classList.toggle("open");
+    if (card.getAttribute("data-key") === "analysis" && card.classList.contains("open")) lsSet("app_seen_analysis_" + token, "1");
+  });
+  window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
+  window.__app = { go: go, switchTab: switchTab, canWrite: function () { return CAN_WRITE; } };
+
+  // ════════ ЗАРЕЖДАНЕ ════════
+  function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
+  Promise.all([
+    safe(sb.rpc("get_client_diary", { p_token: token })),
+    safe(sb.rpc("get_food_log", { p_token: token })),
+    safe(sb.rpc("get_analysis", { p_token: token })),
+    safe(sb.rpc("get_client_name", { p_token: token }))
+  ]).then(function (rs) {
+    var dr = rs[0];
+    if (dr.error && !dr.data) { showState("Възникна грешка при зареждането. Опитай по-късно."); return; }
+    if (!dr.data) { showState("Линкът е невалиден или вече не е активен."); return; }
+    D = { name: dr.data.name || "", content: dr.data.content || [], log: dr.data.log || [] };
+    if (rs[1].data) F = { entries: rs[1].data.entries || [], log_mode: rs[1].data.log_mode || "sprint" };
+    if (rs[2].data) A = { cards: rs[2].data.cards || [] };
+    var nm = typeof rs[3].data === "string" ? rs[3].data : D.name;
+    CAN_WRITE = /^DEV/.test(String(nm || ""));
+    document.getElementById("draftSub").textContent = CAN_WRITE ? "тестов клиент — записът е включен" : "само за преглед — записът е изключен";
+    // ⚠ интейкът няма RPC за четене → mock от тестовете; иначе измисленият пример, но САМО за DEV клиент
+    INTAKE = window.CDB_INTAKE_MOCK || (CAN_WRITE ? SAMPLE_INTAKE : null);
+    INTAKE_IS_SAMPLE = !window.CDB_INTAKE_MOCK && CAN_WRITE;
+    D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
+    who.textContent = D.name;
+    computeLastClient();
+    loading.style.display = "none";
+    renderNachalo(); renderHrana(); renderDanni(); renderRazgovor();
+    updateBadge();
+    var h = (location.hash || "").slice(1);
+    if (h && h.indexOf(":") > 0) { switchTab("nachalo"); go(h); } else switchTab(h || "nachalo");
+    setTop();
+  });
+})();
+</script>
+</body>
+</html>
