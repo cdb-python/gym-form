@@ -79,7 +79,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --btn-off: #c5d0ca;          /* изключеният „Изпрати“ */
     --edge: #2e7d5b;             /* Т26: цветната лява страна на картите и панелите (декоративна) */
     --warn: #a0701c;
-    --navh: 52px;      /* Т34: височината на хапчето: 6 + 8 + 24 + 8 + 6 */
+    --navh: 48px;      /* Т36: височината на хапчето: 4 + 40 + 4 */
     --navgap: 14px;    /* отстоянието на плаващата лента от долния край */
     --top: 0px;
   }
@@ -594,31 +594,39 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   /* долната лента — Т34: като във ФКУ тракера (phe-tracker #botnav): плаваща, центрирана (fit-content), не по цялата ширина;
      основно хапче (Начало · Храна · Мерки · Разговор) + отделно хапче (Данни). ПЛЪТНИ в цвета на шапката (без блур/прозрачност),
-     бели силуети без надписи; активният се обръща (бяло хапче, иконата в --accent-dark). Притъмнява при скрол надолу (.dim). */
+     бели силуети без надписи. Притъмнява при скрол надолу (.dim).
+     Т36: активният е ЕДИН бял маркер, който се плъзга (като в Victus BottomPill): бутоните са равни (flex 1 0 56px, gap 0), затова
+     translateX(i × 100 %) ляга точно върху i-тия; видимият „ръб“ около маркера е само отстъпът на хапчето — 4 px от четирите страни.
+     Данни е сам → вътрешен маркер inset 4, без плъзгане; щом е активен, маркерът в главното хапче изчезва. */
   @media (min-width: 481px) {
     body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); }
   }
   nav.tabs { position: fixed; bottom: calc(var(--navgap) + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; margin: 0 auto; width: -moz-fit-content; width: fit-content; max-width: calc(100% - 20px); z-index: 60;
     display: flex; gap: 8px; align-items: center; transition: opacity .25s ease; }
   nav.tabs.dim { opacity: 0.4; }   /* притъмнява при скрол надолу; остава тапваема */
-  nav.tabs .nav-pill { display: flex; gap: 4px; padding: 6px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
-  nav.tabs button { position: relative; flex: 0 0 auto; margin: 0; padding: 8px 16px; background: none; border: none; border-radius: 22px; display: flex; align-items: center; justify-content: center;
-    color: #fff; cursor: pointer; font-family: inherit; transition: background .15s, color .15s; }
-  nav.tabs .nav-ic { height: 24px; display: flex; align-items: center; }
-  nav.tabs .nav-ic svg { width: 23px; height: 23px; display: block; }
-  /* оптично изравняване по маса √(Ш×В) на видимото съдържание (getBBox + линията), котва = къщичката (18,3) */
-  nav.tabs button[data-tab="hrana"] .nav-ic svg { transform: scale(1.01); }      /* 18,0 → 18,3 */
-  nav.tabs button[data-tab="merki"] .nav-ic svg { transform: scale(1.02); }      /* 17,9 → 18,3 */
-  nav.tabs button[data-tab="razgovor"] .nav-ic svg { transform: scale(1.02); }   /* 18,0 → 18,3 */
-  nav.tabs button[data-tab="danni"] .nav-ic svg { transform: scale(1.03); }      /* 17,7 → 18,3 */
-  nav.tabs button.on { color: var(--accent-dark); background: rgba(255,255,255,0.92); }
-  /* Т9/Т13: червена точка горе вдясно на иконата; числото на Разговор — малка червена значка; тънък бял ръб върху цветното хапче */
-  nav.tabs .tdot { position: absolute; top: 5px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; display: none; pointer-events: none; }
+  nav.tabs .nav-pill { position: relative; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
+  nav.tabs button { position: relative; flex: 1 0 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center;
+    color: #fff; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: color 220ms cubic-bezier(.4,0,.2,1); }
+  nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
+  nav.tabs .nav-ic svg { width: 28px; height: 28px; display: block; }   /* Т36: 28 (таван 30) — луфт до ръба на маркера */
+  /* Т36: маркерът — един за главното хапче; JS (doSwitch) му дава translateX(i × 100 %); под иконите (идва преди бутоните в DOM, без z-index) */
+  nav.tabs .nav-slide { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 4); border-radius: 22px; background: #fff; pointer-events: none;
+    transition: transform 220ms cubic-bezier(.4,0,.2,1); }
+  nav.tabs.side-on .nav-slide { display: none; }   /* Данни е активен → в главното хапче няма какво да се маркира */
+  nav.tabs .nav-side { width: 68px; height: 48px; box-sizing: border-box; flex: 0 0 auto; }
+  nav.tabs .nav-side button { flex: 1 1 auto; width: 100%; }
+  nav.tabs .nav-side button.on { background: #fff; }   /* вътрешният маркер на Данни: inset 4, радиус 22, без плъзгане */
+  /* Т35: иконите на дизайнера (tools/app/icons/nav/*.svg), вградени 1:1 — оптичното изравняване е вътрешният им <g transform>;
+     наш scale няма. Точките на Разговор и буквите „KG“ на Мерки са fill="currentColor" → бели / в --accent-dark като линиите. */
+  nav.tabs button.on { color: var(--accent-dark); }   /* Т36: без фон — белият е маркерът */
+  /* Т9/Т13: червена точка горе вдясно на иконата; числото на Разговор — малка червена значка; тънък бял ръб върху цветното хапче.
+     Т36: над маркера и над иконата (z-index 2); върху белия маркер червеното личи само. */
+  nav.tabs .tdot { position: absolute; z-index: 2; top: 4px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; display: none; pointer-events: none; }
   nav.tabs .tdot.show { display: block; }
-  nav.tabs .badge { position: absolute; top: 1px; right: 4px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; display: none; pointer-events: none; }
+  nav.tabs .badge { position: absolute; z-index: 2; top: 2px; right: 5px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; display: none; pointer-events: none; }
   nav.tabs .badge.show { display: block; }
-  @media (max-width: 359px) { nav.tabs button { padding: 8px 12px; } }
-  @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button { transition: none; } }
+  @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
+  @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none; } }   /* маркерът скача, не се плъзга */
   .card, details.qacard { position: relative; }
   /* точката е центрирана над стрелката: отстъп отдясно + половината стрелка − половината точка */
   .ndot { position: absolute; top: 5px; right: 16.5px; width: 8px; height: 8px; margin: 0; border-radius: 50%; background: #e5383b; pointer-events: none; }
@@ -645,14 +653,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </div>
 
 <nav class="tabs" id="tabs" aria-label="Раздели">
- <div class="nav-pill">
-  <button type="button" data-tab="nachalo" aria-label="Начало" title="Начало"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11.3 12 4.2l8.5 7.1"/><path d="M5.9 9.6V20h4.3v-5.4h3.6V20h4.3V9.6"/></svg></span><span class="tdot" id="tdot_nachalo"></span></button>
-  <button type="button" data-tab="hrana" aria-label="Храна" title="Храна"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7.5 3.5v17M5 3.5v4.6a2.5 2.5 0 0 0 5 0V3.5"/><path d="M17 20.5V3.6c2.1.9 3.3 3.3 3.3 6.2v4h-3.3"/></svg></span><span class="tdot" id="tdot_hrana"></span></button>
-  <button type="button" data-tab="merki" aria-label="Мерки" title="Мерки"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M8.3 10a4.6 4.6 0 0 1 7.4 0"/><path d="M12 11.2l1.5-2.2"/></svg></span><span class="tdot" id="tdot_merki"></span></button>
-  <button type="button" data-tab="razgovor" aria-label="Разговор" title="Разговор"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.4c0 3.9-3.8 7.1-8.5 7.1-1.2 0-2.3-.2-3.3-.6L4.2 19.5l1.2-3.5c-1.1-1.3-1.9-2.9-1.9-4.6 0-3.9 3.8-7.1 8.5-7.1s8.5 3.2 8.5 7.1z"/></svg></span><span class="badge" id="chatBadge"></span></button>
+ <div class="nav-pill nav-main">
+  <span class="nav-slide" id="navSlide" aria-hidden="true"></span>
+  <button type="button" data-tab="nachalo" aria-label="Начало" title="Начало"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.077" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.855 0.693) scale(0.929)"><path d="M12 3.15c.49 0 .96.16 1.35.46l6.5 5.06c.6.46.95 1.17.95 1.93v8.2a2.4 2.4 0 0 1-2.4 2.4H5.6a2.4 2.4 0 0 1-2.4-2.4v-8.2c0-.76.35-1.47.95-1.93l6.5-5.06c.39-.3.86-.46 1.35-.46Z"></path><path d="M9.15 21.2v-4.55a2.85 2.85 0 0 1 5.7 0v4.55"></path></g></svg></span><span class="tdot" id="tdot_nachalo"></span></button>
+  <button type="button" data-tab="hrana" aria-label="Храна" title="Храна"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.075" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(-0.208 0.838) scale(0.93)"><path d="M4.4 2.9v3.6a1.75 1.75 0 0 0 3.5 0V2.9"></path><path d="M6.15 2.9v3.6M6.15 8.25V21.1"></path><circle cx="12.4" cy="12" r="3.6"></circle><path d="M8.6 6.3a6.4 6.4 0 0 1 7.6 0"></path><path d="M8.6 17.7a6.4 6.4 0 0 0 7.6 0"></path><path d="M19.6 2.9c1.45 1.75 2.25 3.95 2.25 6.25v3.4h-4.5V9.15c0-2.3.8-4.5 2.25-6.25Z"></path><path d="M19.6 12.55V21.1"></path></g></svg></span><span class="tdot" id="tdot_hrana"></span></button>
+  <button type="button" data-tab="merki" aria-label="Мерки" title="Мерки"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.074" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.824 0.777) scale(0.931)"><circle cx="12" cy="6.81" r="2.87"></circle><path d="M9.57 8.33H7.44Q5.42 8.33 4.86 10.28L2.32 19.17Q2.04 20.14 3.05 20.14H20.95Q21.96 20.14 21.68 19.17L19.14 10.28Q18.58 8.33 16.56 8.33H14.43"></path><path d="M13.9 12.38L14.95 12.34L15.28 12.44L15.92 12.8L16.33 13.41L16.33 13.54L16.18 13.65L15.38 13.85L15.25 13.81L15.08 13.56L14.85 13.37L14.45 13.27L14.04 13.37L13.82 13.48L13.52 13.77L13.31 14.49L13.32 15.06L13.49 15.66L13.66 15.91L13.9 16.09L14.21 16.2L14.62 16.22L15.02 16.12L15.23 15.99L15.25 15.5L15.19 15.39L14.62 15.37L14.51 15.31L14.51 14.51L14.7 14.45L16.29 14.47L16.35 14.66L16.34 16.6L16.29 16.71L15.78 16.96L15.28 17.13L14.79 17.15L14.53 17.23L13.79 17.13L13.19 16.88L12.89 16.68L12.68 16.47L12.4 15.99L12.23 15.49L12.13 14.91L12.13 14.58L12.31 13.75L12.59 13.18L13.06 12.72L13.62 12.44L13.9 12.38ZM7.5 12.48L7.7 12.42L8.54 12.42L8.65 12.48L8.67 13.98L8.71 14.08L9.76 13.05L10.19 12.47L10.4 12.42L11.58 12.42L11.67 12.47L10.44 13.73L10.06 14.2L10.02 14.32L10.23 14.7L11.83 16.98L11.81 17.05L10.65 17.06L10.44 17.02L9.55 15.55L9.24 15.1L9.14 15.06L8.68 15.52L8.65 17L8.46 17.06L7.61 17.06L7.5 17L7.5 12.48Z" fill="currentColor" stroke="none" fill-rule="evenodd"></path></g></svg></span><span class="tdot" id="tdot_merki"></span></button>
+  <button type="button" data-tab="razgovor" aria-label="Разговор" title="Разговор"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.061" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.688 0.876) scale(0.943)"><path d="M15.4 7.4h3.8a2.2 2.2 0 0 1 2.2 2.2v5.4a2.2 2.2 0 0 1-2.2 2.2h-.4V20l-3.6-2.8h-3.6a2.2 2.2 0 0 1-2.2-2.2v-1.8"></path><path d="M4.8 3.6h8.4a2.2 2.2 0 0 1 2.2 2.2V11a2.2 2.2 0 0 1-2.2 2.2H8.6L5.2 16v-2.8h-.4A2.2 2.2 0 0 1 2.6 11V5.8a2.2 2.2 0 0 1 2.2-2.2Z"></path><circle cx="5.6" cy="8.4" r=".5" fill="currentColor"></circle><circle cx="9" cy="8.4" r=".5" fill="currentColor"></circle><circle cx="12.4" cy="8.4" r=".5" fill="currentColor"></circle></g></svg></span><span class="badge" id="chatBadge"></span></button>
  </div>
  <div class="nav-pill nav-side">
-  <button type="button" data-tab="danni" aria-label="Данни" title="Данни"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7.4a2 2 0 0 1 2-2h4.2l2.1 2.3h6.7a2 2 0 0 1 2 2v8.4a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></svg></span><span class="tdot" id="tdot_danni"></span></button>
+  <button type="button" data-tab="danni" aria-label="Данни" title="Данни"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.98" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(-0.25 -0.25) scale(1.021)"><rect x="3" y="4.7" width="18" height="14.6" rx="2.2"></rect><rect x="5.8" y="6.8" width="2.4" height="2.4" rx=".4"></rect><path d="M6.5 7.9l.7.7 1.9-2.3"></path><rect x="5.8" y="10.8" width="2.4" height="2.4" rx=".4"></rect><path d="M6.5 11.9l.7.7 1.9-2.3"></path><rect x="5.8" y="14.8" width="2.4" height="2.4" rx=".4"></rect><path d="M11 8H18M11 12H18M11 16H18"></path></g></svg></span><span class="tdot" id="tdot_danni"></span></button>
  </div>
 </nav>
 
@@ -2365,6 +2374,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var h = document.getElementById("hdr"), dr = document.getElementById("draft"), va = document.getElementById("viewAs");
     document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight + (va ? va.offsetHeight : 0)) + "px");
   }
+  // Т36: маркерът в главното хапче — translateX(i × 100 %) върху i-тия бутон (равни са); при Данни се скрива (display: none →
+  // при връщане се появява направо на мястото си, без да се плъзга отнякъде). Първото поставяне е без анимация.
+  var NAV_MAIN = ["nachalo", "hrana", "merki", "razgovor"], navSlidePlaced = false;
+  function navSlide(tab) {
+    var el = document.getElementById("navSlide"), nav = document.getElementById("tabs"), i = NAV_MAIN.indexOf(tab);
+    if (!el || !nav) return;
+    nav.classList.toggle("side-on", i < 0);
+    if (i < 0) return;
+    if (!navSlidePlaced) el.style.transition = "none";
+    el.style.transform = "translateX(" + (i * 100) + "%)";
+    if (!navSlidePlaced) { void el.offsetWidth; el.style.transition = ""; navSlidePlaced = true; }
+  }
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
     if (!TABS[tab]) tab = "nachalo";
@@ -2376,6 +2397,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       b.classList.toggle("on", on);
       if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
     });
+    navSlide(tab);
     paneTitle.textContent = TABS[tab];
     document.body.classList.toggle("chat-on", tab === "razgovor");
     try { history.replaceState(null, "", location.pathname + location.search + "#" + tab); } catch (e) {}
