@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Клиенти · треньор</title>
+<!-- ЧЕРНОВА (Т5, 08.11.2026): изгледът на треньора. Вход с Supabase Auth → списък → клиентът се отваря в ../app/?c=<client_id>.
+     Зависи от tools/app/sql/coach_proposal.sql (ПРЕДЛОЖЕНИЕ, още не е приложено) — на живо днес входът минава, но списъкът няма откъде да дойде. -->
+<meta name="theme-color" content="#2b3540">
+<link rel="icon" href="../me/icon-192.png">
+<style>
+  :root { --bg: #f4f6f8; --card: #fff; --ink: #1c2733; --muted: #6b7886; --accent: #2e7d5b; --accent-dark: #235e45; --gold: #b8862f; --border: #d8dee5; --soft: #eef4f1; --warn: #a0701c; --slate: #2b3540; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; background: #e8ecef; }
+  body { margin: 0 auto; max-width: 480px; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.5; overflow-x: hidden; }
+  @media (min-width: 481px) { body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); } }
+  .bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--slate); color: #fff; font-size: 13px; font-weight: 600; min-height: 34px; }
+  .bar span { flex: 1; min-width: 0; }
+  .bar button { flex: none; padding: 3px 10px; border: none; border-radius: 8px; background: rgba(255,255,255,0.14); color: #fff; font: inherit; font-size: 12.5px; cursor: pointer; display: none; }
+  header { background: var(--accent); color: #fff; padding: 12px 16px; text-align: center; }
+  header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
+  header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  .wrap { padding: 0 14px 30px; }
+  .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15px; }
+  .hidden { display: none !important; }
+
+  /* вход */
+  .login { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 22px 0; }
+  .login h2 { margin: 0 0 4px; font-size: 18px; }
+  .login p.sub { margin: 0 0 6px; color: var(--muted); font-size: 13.5px; }
+  .login label { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 14px; }
+  .login input { width: 100%; padding: 11px 12px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .btn { display: block; width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; text-align: center; text-decoration: none; }
+  .btn:disabled { opacity: 0.6; cursor: default; }
+  .err { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 9px; background: #fdecec; border: 1px solid #f3c2c2; color: #9a3b3b; font-size: 14px; text-align: center; }
+  .err.show { display: block; }
+
+  /* списъкът */
+  .tools { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
+  .tools .cnt { flex: 1; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .chipbtn { flex: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .chipbtn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .row { display: block; background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 0 0 10px; color: var(--ink); text-decoration: none; }
+  .row.new { border-left-color: #e0821e; }
+  .row .l1 { display: flex; align-items: baseline; gap: 8px; }
+  .row .nm { flex: 1; min-width: 0; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .when { flex: none; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .row .dev { flex: none; padding: 0 7px; border-radius: 6px; background: #e7eaee; color: #4b5866; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
+  .row .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .row .b { padding: 1px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+  .row .b.msg { background: #e0821e; color: #fff; }
+  .row .b.ans { background: #fbf0dc; color: var(--warn); }
+  .row .b.lab { background: #e7eef8; color: #2f5f8f; }
+  .row .l2 { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; color: var(--muted); font-size: 13px; }
+  .row .l2 b { color: var(--accent-dark); }
+  .row .pv { margin-top: 5px; color: #46525e; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="bar" id="bar"><span>Изглед на треньора</span><button type="button" id="outBtn">Изход</button></div>
+<header><h1 id="ttl">Клиенти</h1><p id="sub">&nbsp;</p></header>
+
+<div class="wrap">
+  <div class="state" id="loading">Зарежда…</div>
+
+  <form class="login hidden" id="login" autocomplete="on" novalidate>
+    <h2>Вход за треньора</h2>
+    <label for="em">Имейл</label>
+    <input type="email" id="em" autocomplete="username" inputmode="email" required>
+    <label for="pw">Парола</label>
+    <input type="password" id="pw" autocomplete="current-password" required>
+    <button type="submit" class="btn" id="inBtn">Влез</button>
+    <div class="err" id="inErr"></div>
+  </form>
+
+  <div class="hidden" id="list">
+    <div class="tools"><span class="cnt" id="cnt"></span><button type="button" class="chipbtn" id="onlyNew" aria-pressed="false">Само с ново</button></div>
+    <div id="rows"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function () {
+  var SB_URL = "https://ankqnxqxrhonlffhxabn.supabase.co";
+  var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
+  // Сесията се помни (supabase-js → localStorage) и важи и за ../app/ (същият произход, същият проект).
+  var sb = window.supabase.createClient(SB_URL, SB_KEY);
+  var APP_URL = window.CDB_APP_URL || "../app/";
+  var LOG_TARGET = 21;                       // същият праг като в tools/app (модел Victus)
+  var FILTER_KEY = "coach_only_new";
+
+  var $ = function (id) { return document.getElementById(id); };
+  var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), onlyNew = $("onlyNew");
+  var ROWS = [];
+
+  function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} }
+  function sofiaDay(ts) { try { return new Date(ts).toLocaleDateString("en-CA", { timeZone: "Europe/Sofia" }); } catch (e) { return String(ts || "").slice(0, 10); } }
+  function todayStr() { return sofiaDay(new Date().toISOString()); }
+  function dayDiff(a, b) { return Math.round((new Date(b + "T00:00:00") - new Date(a + "T00:00:00")) / 86400000); }
+  function ddmm(d) { var p = String(d || "").slice(0, 10).split("-"); return p.length === 3 ? p[2] + "." + p[1] : ""; }
+  function hm(ts) { try { return new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Sofia" }); } catch (e) { return ""; } }
+  function when(ts) {
+    if (!ts) return "";
+    var d = sofiaDay(ts), n = dayDiff(d, todayStr());
+    return n === 0 ? "днес " + hm(ts) : n === 1 ? "вчера " + hm(ts) : ddmm(d);
+  }
+  function show(view) {
+    loading.classList.toggle("hidden", view !== "loading");
+    login.classList.toggle("hidden", view !== "login");
+    list.classList.toggle("hidden", view !== "list");
+    outBtn.style.display = view === "list" || view === "denied" ? "block" : "none";
+    $("sub").textContent = view === "login" ? "вход" : view === "list" ? "изглед на треньора" : " ";
+  }
+  function state(msg) { loading.textContent = msg; show("loading"); }
+
+  // ── вход ──
+  login.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var em = $("em").value.trim(), pw = $("pw").value, err = $("inErr"), btn = $("inBtn");
+    err.classList.remove("show");
+    if (!em || !pw) { err.textContent = "Попълни имейл и парола."; err.classList.add("show"); return; }
+    btn.disabled = true; btn.textContent = "Влизане…";
+    sb.auth.signInWithPassword({ email: em, password: pw }).then(function (res) {
+      btn.disabled = false; btn.textContent = "Влез";
+      if (res.error || !res.data || !res.data.session) {
+        err.textContent = /invalid|credentials/i.test(String(res.error && res.error.message)) ? "Грешен имейл или парола." : "Входът не успя. Опитай пак.";
+        err.classList.add("show"); return;
+      }
+      $("pw").value = "";
+      loadList();
+    }, function () { btn.disabled = false; btn.textContent = "Влез"; err.textContent = "Няма връзка. Опитай пак."; err.classList.add("show"); });
+  });
+  outBtn.addEventListener("click", function () {
+    sb.auth.signOut().then(function () { ROWS = []; rowsEl.innerHTML = ""; show("login"); }, function () { show("login"); });
+  });
+
+  // ── списъкът ──
+  function isNew(r) { return (r.unread_msgs || 0) > 0 || (r.unread_answers || 0) > 0 || (r.pending_labs || 0) > 0; }
+  function rowHtml(r) {
+    var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
+    var tab = (r.unread_msgs || r.unread_answers) ? "razgovor" : "nachalo";
+    var badges = "";
+    if (r.unread_msgs) badges += '<span class="b msg">✉ ' + r.unread_msgs + (r.unread_msgs === 1 ? " ново съобщение" : " нови съобщения") + "</span>";
+    if (r.unread_answers) badges += '<span class="b ans">📋 нови отговори</span>';
+    if (r.pending_labs) badges += '<span class="b lab">🧪 ' + r.pending_labs + (r.pending_labs === 1 ? " за препис" : " за препис") + "</span>";
+    return '<a class="row' + (isNew(r) ? " new" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
+      + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (r.is_dev ? '<span class="dev">DEV</span>' : "")
+      + '<span class="when">' + esc(when(r.last_activity)) + "</span></div>"
+      + (badges ? '<div class="badges">' + badges + "</div>" : "")
+      + '<div class="l2"><span>Лог <b>' + cnt + "</b>" + (r.last_food_day ? " · последно " + ddmm(r.last_food_day) : " · още няма") + "</span>"
+      + "<span>Мерки " + (r.last_meas_day ? "<b>" + ddmm(r.last_meas_day) + "</b>" : "—") + "</span></div>"
+      + (r.last_client_msg ? '<div class="pv">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</div>" : "")
+      + "</a>";
+  }
+  function render() {
+    var only = lsGet(FILTER_KEY) === "1";
+    onlyNew.classList.toggle("on", only); onlyNew.setAttribute("aria-pressed", only ? "true" : "false");
+    var rows = ROWS.slice().sort(function (a, b) { return String(b.last_activity || "").localeCompare(String(a.last_activity || "")); });
+    var nNew = rows.filter(isNew).length;
+    onlyNew.textContent = "Само с ново" + (nNew ? " (" + nNew + ")" : "");
+    if (only) rows = rows.filter(isNew);
+    $("cnt").textContent = ROWS.length + (ROWS.length === 1 ? " клиент" : " клиента");
+    rowsEl.innerHTML = rows.length ? rows.map(rowHtml).join("")
+      : '<div class="state" id="emptyList">' + (only ? "Няма ново от клиентите." : "Няма клиенти.") + "</div>";
+  }
+  onlyNew.addEventListener("click", function () { lsSet(FILTER_KEY, lsGet(FILTER_KEY) === "1" ? null : "1"); render(); });
+
+  function loadList() {
+    if (!ROWS.length) state("Зарежда…");
+    return sb.rpc("coach_list_clients").then(function (res) {
+      if (res.error) { state(/forbidden|42501|permission/i.test(String(res.error.message || res.error.code)) ? "Този акаунт няма достъп до клиентите." : "Списъкът не се зареди. Опитай пак."); outBtn.style.display = "block"; return; }
+      ROWS = res.data || [];
+      show("list"); render();
+    }, function () { state("Няма връзка. Опитай пак."); });
+  }
+
+  // ── старт: има ли запомнена сесия ──
+  sb.auth.getSession().then(function (r) {
+    var s = r && r.data && r.data.session;
+    if (s) loadList(); else show("login");
+  }, function () { show("login"); });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && !list.classList.contains("hidden")) loadList(); });
+  window.__coach = { reload: loadList, rows: function () { return ROWS; } };
+})();
+</script>
+</body>
+</html>
