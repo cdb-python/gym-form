@@ -255,6 +255,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lwr { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
   .lf .lwr input, .eat2 .eattm { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
   .lf .lwr button, .eat2 .eatbtn { flex: 1 1 0; min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 360px) { .lf .lwr button, .eat2 .eatbtn { padding: 0 4px; font-size: 15px; } }   /* Т39: „Няма записи днес“ на един ред на 320 */
   .lwr span { flex: 1 1 150px; min-width: 0; font-size: 12.5px; color: var(--muted); }
   .lf button.idle:disabled { opacity: 1; background: var(--soft); color: var(--muted); border: 1px solid var(--border); font-size: 14.5px; }
   .lrows { margin-top: 10px; }
@@ -415,7 +416,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.hist details.qacard .qc-body { padding: 0 2px 10px; }
   .card.panel .card.panel.hist { margin: 10px 0 0; }
   .card.panel .card.panel.hist > .body { padding: 0 0 4px 12px; background: none; }
-  .card.hist .card.hm > .ch .ndot, .card.hist details.qacard > summary .ndot, .card.panel .card.panel.hist > .ch .ndot { right: 2.5px; }
   details.qacard .iold { color: var(--muted); text-decoration: line-through; }
   .qcqa .qa .qi:first-child { margin-top: 8px; }
   .hempty { margin: 0 0 12px; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 14.5px; }
@@ -610,8 +610,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
   /* Т37/Т38: размерът на иконите (един за петте; оптичното изравняване на дизайнера остава): Chris избра 40 px (Т38).
      Правила: видимото (getBBox + линията, след <g transform>) в маркера с луфт ≥ 3 горе/долу и ≥ 4 отстрани — пуска до 45 (Храна);
-     червените точки вътре в бутона и НЕ върху иконата → на ≤ 360 px (бутон 52, Данни 52) най-много 37 — ограничава Данни (37,5 вече стъпва).
-     Значката с число на Разговор може да застъпва ъгъла на чата (като на телефона) — остава вътре в бутона, с белия ръб. */
+     червените точки вътре в бутона и НЕ върху иконата. Т39: точките са 4 px без ръб → 40 минава и на ≤ 360 px (бутон 52, Данни 52) —
+     един размер навсякъде. Значката на Разговор вече е точка като другите. */
   nav.tabs .nav-ic svg { width: var(--navic); height: var(--navic); display: block; }
   /* Т36: маркерът — един за главното хапче; JS (doSwitch) му дава translateX(i × 100 %); под иконите (идва преди бутоните в DOM, без z-index) */
   nav.tabs .nav-slide { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 4); border-radius: 22px; background: #fff; pointer-events: none;
@@ -626,17 +626,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т9/Т13: червена точка горе вдясно на иконата; числото на Разговор — малка червена значка; тънък бял ръб върху цветното хапче.
      Т36: над маркера и над иконата (z-index 2); върху белия маркер червеното личи само.
      Т37: в горния десен ъгъл на бутона — точката 2,5 / 2,5, значката 1,5 / 1,5 → с белия ръб остават вътре; точките не покриват иконата. */
-  nav.tabs .tdot { position: absolute; z-index: 2; top: 2.5px; right: 2.5px; width: 8px; height: 8px; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; display: none; pointer-events: none; }
+  nav.tabs .tdot, nav.tabs .badge { position: absolute; z-index: 2; top: 4.5px; right: 4.5px; width: 4px; height: 4px; padding: 0; border-radius: 50%; background: #e5383b; display: none; pointer-events: none; }   /* Т39: 4 px, само червена */
   nav.tabs .tdot.show { display: block; }
-  nav.tabs .badge { position: absolute; z-index: 2; top: 1.5px; right: 1.5px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; display: none; pointer-events: none; }
+  /* Т39: значката на Разговор е точка като другите (без число) — правилото е горе, заедно с .tdot */
   nav.tabs .badge.show { display: block; }
-  @media (max-width: 360px) { nav.tabs { --navic: 37px; } nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
+  @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
   @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none; } }   /* маркерът скача, не се плъзга */
   .card, details.qacard { position: relative; }
-  /* точката е центрирана над стрелката: отстъп отдясно + половината стрелка − половината точка */
-  .ndot { position: absolute; top: 5px; right: 16.5px; width: 8px; height: 8px; margin: 0; border-radius: 50%; background: #e5383b; pointer-events: none; }
-  .card.hm > .ch .ndot, details.qacard > summary .ndot { right: 14.5px; }
-  .an .card > .ch .ndot { right: 15.5px; }
+  /* Т39: точката „ново“ — 4 px, само червена. Вертикално: в средата на заглавния ред = на линията на стрелката (▸/+ е центрирана в реда);
+     хоризонтално: по средата между стрелката и десния ръб на видимата карта — `right` го смята placeDots() от отстъпите (заглавието е
+     позиционирано → точката се мери от него, независимо колко реда е заглавието). */
+  .card > .ch, details.qacard > summary { position: relative; }
+  .ndot { position: absolute; top: 50%; right: 0; width: 4px; height: 4px; margin: -2px 0 0; border-radius: 50%; background: #e5383b; pointer-events: none; }
+  details.qday > summary::after { align-self: center; }   /* Т39: стрелката на реда-ден — в средата на реда (беше по базовата линия), за да е на една линия с точката */
 </style>
 </head>
 <body>
@@ -864,7 +866,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function unreadCount() { return COACH ? coachUnreadRows().length : coachEvents().filter(isUnreadTs).length; }
   function updateBadge() {
     var n = unreadCount(), b = document.getElementById("chatBadge");
-    b.textContent = n > 9 ? "9+" : String(n);
+    b.textContent = "";   // Т39: точка като другите — без число
+    b.setAttribute("data-n", String(n));
     b.classList.toggle("show", n > 0);
   }
   function markChatRead() {
@@ -1006,15 +1009,52 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!on && d) d.parentNode.removeChild(d);
     });
   }
+  // Т39: точката по средата между стрелката и десния ръб на видимата карта. Стрелката е последна в заглавния ред → десният ѝ край е
+  // десният край на съдържанието на заглавието (без отстъпа му). Ръбът на картата — първият предшественик с рамка отдясно. Смята се от
+  // изчислените отстъпи/рамки/полета (без мерене на кутии) → работи и в скрит раздел; при смяна на ширината — наново.
+  function placeDot(d) {
+    var h = d.parentElement && d.parentElement.closest(".ch, summary"); if (!h) return;
+    var cs = getComputedStyle(h), padR = parseFloat(cs.paddingRight) || 0, E = parseFloat(cs.marginRight) || 0, el = h.parentElement;
+    while (el && el !== document.body) {
+      var st = getComputedStyle(el), br = st.borderRightStyle !== "none" ? parseFloat(st.borderRightWidth) || 0 : 0;
+      E += (parseFloat(st.paddingRight) || 0) + br;
+      if (br > 0) break;
+      E += parseFloat(st.marginRight) || 0;
+      el = el.parentElement;
+    }
+    d.style.right = ((padR - E) / 2 - 2) + "px";   // центърът на 4-те px = средата между (−padR) и (+E) от десния край на заглавието
+  }
+  function placeDots(root) { Array.prototype.forEach.call((root || document).querySelectorAll(".ndot"), placeDot); }
+  (function () {
+    var pend = false;
+    function later() { if (pend) return; pend = true; requestAnimationFrame(function () { pend = false; placeDots(); }); }
+    new MutationObserver(function (ms) {
+      for (var i = 0; i < ms.length; i++) for (var j = 0; j < ms[i].addedNodes.length; j++) {
+        var n = ms[i].addedNodes[j];
+        if (n.nodeType === 1 && (n.classList.contains("ndot") || n.querySelector(".ndot"))) { placeDots(n.classList.contains("ndot") ? n.parentElement : n); }
+      }
+    }).observe(document.documentElement, { childList: true, subtree: true });
+    window.addEventListener("resize", later);
+  })();
   function coachMarkTab(tab) { if (COACH && /^(hrana|merki|danni)$/.test(tab)) { lsSet("coach_seen_" + tab + "_" + COACH_CID, new Date().toISOString()); updateDots(); } }
 
   // ── карта ──
+  // Т39: картите са един цвят — бели, за всички. Съдържанието в DB носи <style> с цвят на картата (.card[data-key="…"] — рамка, фон,
+  // заглавие, th: златистото „ново“ на Ваня/Поля, едно тюркоазено). Страницата ги пренебрегва: при показване се махат само тези правила
+  // (друг <style> остава). Данните не се пипат — затова и отпечатъкът за „ново“ не се сменя.
+  var CARD_RULE = /\.card\[data-key=(["']?)[^"'\]]*\1\][^{}]*\{[^{}]*\}/g;
+  function plainBody(html) {
+    return String(html || "").replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, function (m, css) {
+      var rest = css.replace(CARD_RULE, "").trim();
+      return rest ? m.slice(0, m.indexOf(">") + 1) + rest + "</style>" : "";
+    });
+  }
   function cardHtml(r, open, extraBody, chip) {
     var key = cardKey(r);
     return '<div class="card' + (open ? " open" : "") + '" data-key="' + esc(key) + '">'
       + (r.entry_date ? '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>" : "")
       + '<div class="ch"><span>' + esc(r.title || "Виж") + dot(key) + "</span>" + (chip || "") + "</div>"
-      + '<div class="body">' + (r.body || "") + (extraBody || "") + "</div></div>";
+      + '<div class="body">' + plainBody(r.body) + (extraBody || "") + "</div></div>";
   }
   function panelHtml(key, ico, title, sub, inner, open, chip) {
     return '<div class="card panel' + (open ? " open" : "") + '" data-key="' + key + '">'
@@ -1295,7 +1335,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var cls = /Количество/.test(t) ? "l1" : /Макроси/.test(t) ? "l2" : /Качество/.test(t) ? "l3" : /Тайминг/.test(t) ? "l4" : /Добавки/.test(t) ? "l5" : "lx";
       var open = (cls === "lx" && lx++ === 0 && i === 0); // уводът (първата карта извън пирамидата) стои отворен
       html += '<div class="card ' + cls + (open ? " open" : "") + '" data-key="an_' + esc(r.sort) + '"><div class="ch"><span>' + esc(t) + dot("an_" + r.sort) + "</span></div>"
-        + '<div class="body">' + (r.body || "") + "</div></div>";
+        + '<div class="body">' + plainBody(r.body) + "</div></div>";
     });
     return cleanAnalysis(html + "</div>");
   }
@@ -2205,7 +2245,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (x) {
         var qp = dayParts(x.day);
         return '<div class="qsent" data-key="' + esc(cardKey(x.r)) + '"><div class="qs-h"><span class="d-date">' + qp.date + '</span> <span class="d-wd">' + qp.wd + "</span> " + esc(x.c.title) + ' <span class="qs-sub">· ' + x.c.n + (x.c.n === 1 ? " отговор" : " отговора") + "</span></div>"
-          + '<div class="qcqa">' + (x.r.body || "") + "</div></div>";
+          + '<div class="qcqa">' + plainBody(x.r.body) + "</div></div>";
       }, function (x) { return [cardKey(x.r)]; }) + "</div>";
   }
   function labsHistHtml() {
