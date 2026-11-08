@@ -7,24 +7,39 @@
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#2e7d5b">
-<link rel="icon" href="../me/icon-192.png">
-<link rel="apple-touch-icon" href="../me/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Дневник">
 <script>
+window.PWA_BASE = "";   // папката на manifest-а и иконите спрямо страницата (тестовата обвивка я сменя)
 (function () {
-  // iOS урокът (PLATFORM.md §4, 06.07): <link rel=manifest> НЕ стои в HTML-а; добавя се през JS само за не-iOS.
-  // На iOS без manifest иконата на екрана пази ТЕКУЩИЯ URL с токена. Логиката е 1:1 от tools/me/.
-  // ⚠ В черновата tools/app/ още няма manifest.webmanifest и sw.js → PWA_FILES_READY = false (нищо не се зарежда).
-  var PWA_FILES_READY = false;
+  // Т17 — инсталиране (PWA). iOS урокът (PLATFORM.md §4, 06.07): <link rel=manifest> НЕ стои в HTML-а; добавя се през JS само за не-iOS.
+  // На iOS без manifest иконата на екрана пази ТЕКУЩИЯ URL с токена (?t=). Логиката е 1:1 от tools/me/ и Victus phe-tracker.
+  // ИМЕТО на приложението е на ЕДНО място: manifest.webmanifest (name / short_name). iOS не получава manifest-а →
+  // оттам се чете short_name за apple-mobile-web-app-title (без него iOS слага <title>).
+  var PWA_FILES_READY = true, MANIFEST = window.PWA_BASE + "manifest.webmanifest";
   var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
               (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   if (PWA_FILES_READY && !isIOS) {
     var lnk = document.createElement("link");
-    lnk.rel = "manifest"; lnk.href = "manifest.webmanifest";
+    lnk.rel = "manifest"; lnk.href = MANIFEST;
     document.head.appendChild(lnk);
+  }
+  if (PWA_FILES_READY && isIOS) {
+    try {
+      var x = new XMLHttpRequest();
+      x.open("GET", MANIFEST);
+      x.onload = function () {
+        try {
+          var m = JSON.parse(x.responseText), meta = document.createElement("meta");
+          meta.name = "apple-mobile-web-app-title"; meta.content = m.short_name || m.name;
+          document.head.appendChild(meta);
+        } catch (e) {}
+      };
+      x.send();
+    } catch (e) {}
   }
   // Токенът се пази локално → инсталираното приложение (start_url без токен) само се връща на личната страница.
   // Режим треньор (?c=<client_id> + сесия): токенът не се пипа и не се подменя със запазения.
@@ -73,6 +88,18 @@
     padding: 0 0 calc(var(--navh) + env(safe-area-inset-bottom, 0px) + 24px);
     overflow-x: hidden;
   }
+  /* Т17: iPhone, инсталирано (black-translucent): лента с цвета на иконата под часовника, за да не легне текст под него */
+  body::before { content: ""; display: block; height: env(safe-area-inset-top, 0px); background: #1a1c3e; }
+  /* Т17: „Инсталирай на телефона“ (Начало; само ако не е инсталирано; × скрива за 14 дни) */
+  .inst { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; margin: 14px 0 4px; padding: 12px 40px 12px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
+  .inst img { width: 40px; height: 40px; border-radius: 9px; display: block; }
+  .inst .ih { font-size: 15.5px; font-weight: 700; line-height: 1.3; }
+  .inst .ix { position: absolute; top: 4px; right: 4px; width: 34px; height: 34px; padding: 0; border: none; background: none; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
+  .inst .ib { grid-column: 1 / -1; }
+  .inst .ib .btn { margin-top: 6px; }
+  .inst ol { margin: 4px 0 0; padding-left: 22px; font-size: 14.5px; line-height: 1.6; }
+  .inst p { margin: 4px 0 0; font-size: 14.5px; }
+  .inst .shr { display: inline-block; width: 17px; height: 17px; vertical-align: -3px; margin-left: 2px; color: #1a7cf5; }
   /* ЧЕРНОВА — голям знак горе */
   .draft {
     background: repeating-linear-gradient(135deg, #c43d3d 0 14px, #b13434 14px 28px);
@@ -176,27 +203,26 @@
   /* логът (модел Victus LogScreen): брояч „N / 21“ → „∞“ · днес отгоре разгънат · миналите дни свити · групи по месеци · ред = час + текст */
   .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: #e6f4ec; color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .card.panel > .ch .lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
-  .linfo { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 0 0 12px; }
+  /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
+  .lhead .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(46,125,91,0.4); text-underline-offset: 2px; }
+  .linfo > .body { display: none; padding: 0 0 10px; }
+  .linfo.open > .body { display: block; }
+  .linfo .lin { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
   .linfo .ls { margin: 0; font-size: 14.5px; line-height: 1.5; }
-  .linfo .lm { display: inline-block; margin: 6px 0 0; padding: 0; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(46,125,91,0.4); text-underline-offset: 2px; }
-  .linfo .lb { display: none; margin-top: 4px; }
-  .linfo .ls { display: none; }
-  .linfo.open .ls { display: block; margin-top: 6px; }
-  .linfo:not(.open) { padding: 0; border: none; background: none; margin: 0 0 8px; }
-  .linfo:not(.open) .lm { margin: 0; }
-  .linfo.open .lb { display: block; }
+  .linfo .lb { margin-top: 4px; }
   .linfo .lb > div { margin: 10px 0 0; }
   .linfo .lb b { display: block; font-size: 14px; color: var(--accent-dark); }
   .linfo .lb p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; color: #46525e; }
   .linfo a[data-go] { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .ltoday { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 12px 6px; margin: 0 0 12px; }
   .lhead { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; }
-  .lhead b { flex: 1; font-size: 16px; }
+  .lhead b { flex: 1 1 auto; min-width: 0; font-size: 16px; }
   .lhead span { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
   .lw textarea { min-height: 70px; max-height: 170px; resize: none; overflow-y: auto; line-height: 1.45; }
-  .lwr { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; }
-  .lf .lwr label { margin: 0; font-size: 14px; flex: none; }
-  .lf .lwr input { width: 132px; flex: none; padding: 8px 10px; }
+  /* Т15: час + бутон на един ред — час ~40 %, бутон ~60 %, еднаква височина 42 px (като полето в Разговор), 8 px между тях */
+  .lwr { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
+  .lf .lwr input, .eat2 .eattm { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
+  .lf .lwr button, .eat2 .eatbtn { flex: 1 1 0; min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lwr span { flex: 1 1 150px; min-width: 0; font-size: 12.5px; color: var(--muted); }
   .lf button.idle:disabled { opacity: 1; background: var(--soft); color: var(--muted); border: 1px solid var(--border); font-size: 14.5px; }
   .lrows { margin-top: 10px; }
@@ -299,12 +325,12 @@
 
   /* Т8: „Изядох" по data-meal (ред под храненето) */
   .card .body tr.eatrow > td { padding: 5px 7px 8px; background: #fafcfb; }
-  .eat2 { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin: 6px 0 2px; }
+  .eat2 { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px 8px; margin: 6px 0 2px; }
   .card .body tr.eatrow .eat2 { margin: 0; }
-  .eat2 .eatbtn { flex: none; padding: 6px 12px; border: 1px solid var(--accent); border-radius: 999px; background: #fff; color: var(--accent-dark); font-family: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .eat2 .eatbtn { border: 1px solid var(--accent); background: #fff; color: var(--accent-dark); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
   .eat2 .eatbtn:active { background: var(--soft); }
-  .eat2 .eattm { flex: none; width: 104px; padding: 5px 8px; font-size: 15px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; color: var(--ink); background: #fff; }
-  .eat2 .eatok { font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+  .eat2 .eatok { flex: 1 1 100%; font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+  .eat2 .eatok:empty { display: none; }
   .eat2 .eatok.err { color: #9a3b3b; }
   .card .body tr.ate > td { background: #eaf6ef; }
   .card .body [data-meal].ate:not(tr) { background: #eaf6ef; border-radius: 8px; }
@@ -400,7 +426,7 @@
   /* разговорът (от me/) — на цял екран */
   .chatwrap { position: relative; }
   .chat { position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
-  #p-razgovor.on { display: flex; flex-direction: column; height: calc(100vh - var(--top) - var(--navh) - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - var(--navh) - env(safe-area-inset-bottom, 0px)); padding-top: 10px; padding-bottom: 10px; }
+  #p-razgovor.on { display: flex; flex-direction: column; height: calc(100vh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - env(safe-area-inset-bottom, 0px)); padding-top: 10px; padding-bottom: 10px; }
   #p-razgovor .chatwrap { flex: 1; min-height: 0; display: flex; }
   #p-razgovor .chat { flex: 1; min-height: 0; }
   body.chat-on { padding-bottom: 0; }
@@ -883,7 +909,7 @@
       + "</div>";
   }
   function renderNachalo() {
-    var html = "", rows = nowRows();
+    var html = '<div id="instHost"></div>', rows = nowRows();
     if (rows.length) {
       html += '<div class="now"><h3>Ново за теб</h3>';
       rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"><span class="i">' + r[0] + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
@@ -891,6 +917,7 @@
     }
     if (START) {
       P.nachalo.innerHTML = html + startHtml() + '<div class="state" id="startNote">Планът ти се подготвя. Когато е готов, ще го намериш тук.</div>';
+      renderInstall();
       return;
     }
     var firstOpen = true, any = false;
@@ -905,6 +932,61 @@
     });
     if (!any) html += '<div class="state">Планът ти още се подготвя. Скоро тук ще има съдържание.</div>';
     P.nachalo.innerHTML = html;
+    renderInstall();
+  }
+
+  // ════════ ИНСТАЛИРАНЕ (Т17) ════════
+  // Картата е в Начало само ако страницата НЕ е отворена като инсталирано приложение и е на телефон (iPhone/iPad/Android).
+  // × я скрива за 14 дни (localStorage). Android/Chrome: бутон през beforeinstallprompt; без него — 2 стъпки през ⋮.
+  // iPhone: в Safari — „Сподели“ → „Добави към началния екран“; в друг браузър — „Отвори този линк в Safari“.
+  var INST_KEY = "app_install_hidden", INST_DONE = "app_installed", INST_DAYS = 14, instPrompt = null, INST_ENV = null;
+  var SHARE_SVG = '<svg class="shr" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M8 7l4-4 4 4M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H17"/></svg>';
+  function pwaEnv() {
+    var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    return {
+      standalone: !!((window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true),
+      ios: ios,
+      // в друг браузър на iPhone „Добави към началния екран“ липсва или не пази линка → към Safari
+      iosSafari: ios && /Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|GSA\/|YaBrowser|DuckDuckGo|FBAN|FBAV|Instagram|Line\//.test(ua),
+      android: /Android/.test(ua),
+      prompt: !!instPrompt
+    };
+  }
+  function instHidden() {
+    if (lsGet(INST_DONE)) return true;
+    var t = +lsGet(INST_KEY) || 0;
+    return !!t && Date.now() - t < INST_DAYS * 864e5;
+  }
+  function installHtml(env) {
+    if (COACH || env.standalone || !(env.ios || env.android) || instHidden()) return "";
+    var body;
+    if (env.ios && !env.iosSafari) body = "<p>Отвори този линк в <b>Safari</b>.</p>";
+    else if (env.ios) body = "<ol><li><b>Сподели</b> " + SHARE_SVG + "</li><li><b>„Добави към началния екран“</b></li></ol>";
+    else if (env.prompt) body = '<button type="button" class="btn" id="instBtn">Инсталирай</button>';
+    else body = "<ol><li><b>⋮</b> горе вдясно</li><li><b>„Инсталирай приложението“</b> или <b>„Добави към началния екран“</b></li></ol>";
+    return '<div class="inst" id="instCard" data-kind="' + (env.ios ? (env.iosSafari ? "ios" : "ios-other") : env.prompt ? "prompt" : "android") + '">'
+      + '<img src="' + window.PWA_BASE + 'icons/icon-192.png" alt="">'
+      + '<div class="ih">Инсталирай на телефона</div>'
+      + '<button type="button" class="ix" id="instX" aria-label="Скрий">×</button>'
+      + '<div class="ib">' + body + "</div></div>";
+  }
+  function renderInstall() {
+    var host = document.getElementById("instHost");
+    if (host) host.innerHTML = installHtml(INST_ENV ? Object.assign({}, INST_ENV, { prompt: !!instPrompt }) : pwaEnv());   // prompt = дали Chrome е дал beforeinstallprompt
+  }
+  window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); instPrompt = e; renderInstall(); });
+  window.addEventListener("appinstalled", function () { instPrompt = null; lsSet(INST_DONE, "1"); renderInstall(); });
+  function instClick(e) {
+    if (e.target.closest("#instX")) { lsSet(INST_KEY, String(Date.now())); renderInstall(); return true; }
+    if (e.target.closest("#instBtn") && instPrompt) {
+      var p = instPrompt; instPrompt = null;
+      try {
+        p.prompt();
+        Promise.resolve(p.userChoice).then(function (r) { if (r && r.outcome === "accepted") lsSet(INST_DONE, "1"); renderInstall(); }, function () { renderInstall(); });
+      } catch (x) { renderInstall(); }
+      return true;
+    }
+    return false;
   }
 
   // ════════ ХРАНА ════════
@@ -921,8 +1003,8 @@
   }
   function mealCtl(name) {
     var done = eatenToday(name), dis = CAN_WRITE ? "" : " disabled";
-    return '<div class="eat2" data-meal-name="' + esc(name) + '"><button type="button" class="eatbtn"' + dis + ">✓ Изядох</button>"
-      + '<input type="time" class="eattm" value="' + nowHM() + '" aria-label="Час"' + dis + ">"
+    return '<div class="eat2" data-meal-name="' + esc(name) + '"><input type="time" class="eattm" value="' + nowHM() + '" aria-label="Час"' + dis + ">"
+      + '<button type="button" class="eatbtn"' + dis + ">✓ Изядох</button>"
       + '<span class="eatok">' + (done.length ? "✓ днес " + esc(done[done.length - 1]) : "") + "</span></div>";
   }
   function decorateMeals(root) {
@@ -995,29 +1077,31 @@
   var logInfoKey = "";
   function logInfoHtml(key) {
     var T = LOG_TXT[key];
-    return '<div class="linfo" id="logInfoBox" data-set="' + key + '">'
-      + '<button type="button" class="lm" id="logMore" aria-expanded="false">' + esc(T.more) + "</button>"
+    return '<div class="linfo" id="logInfoBox" data-set="' + key + '"><div class="body"><div class="lin">'
       + '<p class="ls">' + esc(T.short) + "</p>"
-      + '<div class="lb">' + T.blocks.map(function (b) { return "<div><b>" + esc(b[0]) + "</b><p>" + b[1] + "</p></div>"; }).join("") + "</div></div>";
+      + '<div class="lb">' + T.blocks.map(function (b) { return "<div><b>" + esc(b[0]) + "</b><p>" + b[1] + "</p></div>"; }).join("") + "</div></div></div></div>";
   }
   // Картата за писане: днес горе (брояч, полето, днешните редове). Миналите дни са в „История на храненето" (под-страница).
   function logCardHtml(closed) {
     var n = logDays();
-    return '<div class="ltoday" data-key="logtoday"><div class="lhead"><b>Днес</b><span id="logTodayN"></span>'
+    return '<div class="ltoday" data-key="logtoday"><div class="lhead"><b>Днес</b>'
+      + '<button type="button" class="lm" id="logMore" aria-expanded="false" aria-controls="logInfoBox"></button>'
       + '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span></div>"
       + '<div id="logInfo"></div>'
       + '<div class="lf lw' + (closed ? " closed" : "") + '" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво хапна или пи"></textarea>'
-      + '<div class="lwr"><label for="f_time">Час</label><input type="time" id="f_time" value="' + nowHM() + '"></div>'
-      + '<button type="button" id="f_save" class="idle" disabled></button><div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
+      + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
+      + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
       + '<div class="lrows" id="logToday"></div></div>';
   }
   function todayCount() { var t = todayStr(); return foodClient().filter(function (e) { return logDayOf(e) === t; }).length; }
+  // Т15: бутонът е 60 % от реда до часа → текстът трябва да се събира на един ред и на 320 px
+  function logIdleText(n) { return n ? entriesWord(n) + " днес" : "Няма записи днес"; }
   function logBtnState() {
     var t = document.getElementById("f_text"), b = document.getElementById("f_save");
     if (!t || !b) return;
     var has = !!t.value.trim(), n = todayCount();
-    b.textContent = has ? "Запиши" : (n ? entriesWord(n) + " днес" : "Още няма вписано днес");
+    b.textContent = has ? "Запиши" : logIdleText(n);
     b.classList.toggle("idle", !has);
     b.disabled = !has || !CAN_WRITE;
   }
@@ -1029,11 +1113,14 @@
     var cnt = document.getElementById("logCnt");
     if (cnt) { cnt.textContent = logCounter(n); cnt.classList.toggle("inf", n >= LOG_TARGET); }
     var box = document.getElementById("logInfo");
-    if (box && key !== logInfoKey) { box.innerHTML = logInfoHtml(key); logInfoKey = key; }
+    if (box && key !== logInfoKey) {
+      box.innerHTML = logInfoHtml(key); logInfoKey = key;
+      var mb = document.getElementById("logMore");
+      if (mb) { mb.textContent = LOG_TXT[key].more; mb.setAttribute("aria-expanded", "false"); }
+    }
     var groups = logGroups(), tg = groups.filter(function (g) { return g.day === today; })[0], past = groups.length - (tg ? 1 : 0);
-    var tEl = document.getElementById("logToday"), nEl = document.getElementById("logTodayN");
-    if (nEl) nEl.textContent = tg ? entriesWord(tg.rows.length) : "";
-    // без запис днес: бутонът вече казва „Още няма вписано днес“; приветливият ред е само за съвсем празен лог
+    var tEl = document.getElementById("logToday");   // днешният брой е на бутона (Т15) — в заглавния ред го няма (Т16, решение на CDB-GYM)
+    // без запис днес: бутонът вече казва „Няма записи днес“; приветливият ред е само за съвсем празен лог
     if (tEl) tEl.innerHTML = tg ? tg.rows.map(logLine).join("")
       : past ? "" : '<p class="lempty">Още няма нито един запис.</p>';
     var nr = document.querySelector('#p-hrana [data-key="h_food"] > .ch .sub');
@@ -2000,12 +2087,13 @@
     if (b) switchTab(b.getAttribute("data-tab"));
   });
   document.getElementById("main").addEventListener("click", function (e) {
+    if (instClick(e)) return;
     var g = e.target.closest("[data-go]");
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var more = e.target.closest("#logMore");
     if (more) {   // справка — не се помни (както в Victus): отваря се, прочиташ я, затваряш
-      var ib = document.getElementById("logInfoBox"), open = !ib.classList.contains("open");
-      ib.classList.toggle("open", open); more.setAttribute("aria-expanded", open ? "true" : "false");
+      var ib = document.getElementById("logInfoBox"), open = !wantOpen(ib);
+      animTo(ib, open); more.setAttribute("aria-expanded", open ? "true" : "false");
       more.textContent = open ? "Скрий" : LOG_TXT[ib.getAttribute("data-set")].more;
       return;
     }
@@ -2020,7 +2108,7 @@
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
