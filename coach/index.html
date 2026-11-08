@@ -43,9 +43,16 @@
   @supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
   body { margin: 0 auto; max-width: 480px; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.5; overflow-x: hidden; }
   @media (min-width: 481px) { body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); } }
-  .bar { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--slate); color: #fff; font-size: 13px; font-weight: 600; min-height: 34px; }
-  .bar span { flex: 1; min-width: 0; }
-  .bar button { flex: none; padding: 3px 10px; border: none; border-radius: 8px; background: rgba(255,255,255,0.14); color: #fff; font: inherit; font-size: 12.5px; cursor: pointer; display: none; }
+  /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
+  header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
+  header.h3 > .hmid { min-width: 0; }
+  header.h3 h1, header.h3 p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
+  .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
+  .hbtn.back { justify-self: start; width: 36px; padding: 0; font-size: 19px; }
+  .hbtn.out { justify-self: end; }
+  .hsp { justify-self: start; width: 36px; height: 36px; }
+  @media (max-width: 359px) { header.h3 { grid-template-columns: 36px minmax(0, 1fr) 36px; } .hbtn.out { width: 36px; padding: 0; } .hbtn.out span { display: none; } }
   header { background: var(--accent); color: #fff; padding: 12px 16px; text-align: center; }
   header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
@@ -86,8 +93,7 @@
 </style>
 </head>
 <body>
-<div class="bar" id="bar"><span>Изглед на треньора</span><button type="button" id="outBtn">Изход</button></div>
-<header><h1 id="ttl">Клиенти</h1><p id="sub">&nbsp;</p></header>
+<header class="h3"><span class="hsp" aria-hidden="true"></span><div class="hmid"><h1 id="ttl">Клиенти</h1><p id="sub">&nbsp;</p></div><button type="button" class="hbtn out" id="outBtn" aria-label="Изход" title="Изход" style="display:none"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg><span>Изход</span></button></header>
 
 <div class="wrap">
   <div class="state" id="loading">Зарежда…</div>
@@ -140,7 +146,7 @@
     loading.classList.toggle("hidden", view !== "loading");
     login.classList.toggle("hidden", view !== "login");
     list.classList.toggle("hidden", view !== "list");
-    outBtn.style.display = view === "list" || view === "denied" ? "block" : "none";
+    outBtn.style.display = view === "list" || view === "denied" ? "" : "none";
     $("sub").textContent = view === "login" ? "вход" : view === "list" ? "изглед на треньора" : " ";
   }
   function state(msg) { loading.textContent = msg; show("loading"); }
