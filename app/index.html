@@ -601,14 +601,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   @media (min-width: 481px) {
     body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); }
   }
-  nav.tabs { position: fixed; bottom: calc(var(--navgap) + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; margin: 0 auto; width: -moz-fit-content; width: fit-content; max-width: calc(100% - 20px); z-index: 60;
+  nav.tabs { --navic: 40px; position: fixed; bottom: calc(var(--navgap) + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; margin: 0 auto; width: -moz-fit-content; width: fit-content; max-width: calc(100% - 20px); z-index: 60;
     display: flex; gap: 8px; align-items: center; transition: opacity .25s ease; }
   nav.tabs.dim { opacity: 0.4; }   /* притъмнява при скрол надолу; остава тапваема */
   nav.tabs .nav-pill { position: relative; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
-  nav.tabs button { position: relative; flex: 1 0 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center;
+  nav.tabs button { position: relative; flex: 1 0 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center; place-content: center;   /* Т37: и по-висока от бутона иконата остава в средата */
     color: #fff; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: color 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
-  nav.tabs .nav-ic svg { width: 28px; height: 28px; display: block; }   /* Т36: 28 (таван 30) — луфт до ръба на маркера */
+  /* Т37/Т38: размерът на иконите (един за петте; оптичното изравняване на дизайнера остава): Chris избра 40 px (Т38).
+     Правила: видимото (getBBox + линията, след <g transform>) в маркера с луфт ≥ 3 горе/долу и ≥ 4 отстрани — пуска до 45 (Храна);
+     червените точки вътре в бутона и НЕ върху иконата → на ≤ 360 px (бутон 52, Данни 52) най-много 37 — ограничава Данни (37,5 вече стъпва).
+     Значката с число на Разговор може да застъпва ъгъла на чата (като на телефона) — остава вътре в бутона, с белия ръб. */
+  nav.tabs .nav-ic svg { width: var(--navic); height: var(--navic); display: block; }
   /* Т36: маркерът — един за главното хапче; JS (doSwitch) му дава translateX(i × 100 %); под иконите (идва преди бутоните в DOM, без z-index) */
   nav.tabs .nav-slide { position: absolute; left: 4px; top: 4px; bottom: 4px; width: calc((100% - 8px) / 4); border-radius: 22px; background: #fff; pointer-events: none;
     transition: transform 220ms cubic-bezier(.4,0,.2,1); }
@@ -620,12 +624,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      наш scale няма. Точките на Разговор и буквите „KG“ на Мерки са fill="currentColor" → бели / в --accent-dark като линиите. */
   nav.tabs button.on { color: var(--accent-dark); }   /* Т36: без фон — белият е маркерът */
   /* Т9/Т13: червена точка горе вдясно на иконата; числото на Разговор — малка червена значка; тънък бял ръб върху цветното хапче.
-     Т36: над маркера и над иконата (z-index 2); върху белия маркер червеното личи само. */
-  nav.tabs .tdot { position: absolute; z-index: 2; top: 4px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; display: none; pointer-events: none; }
+     Т36: над маркера и над иконата (z-index 2); върху белия маркер червеното личи само.
+     Т37: в горния десен ъгъл на бутона — точката 2,5 / 2,5, значката 1,5 / 1,5 → с белия ръб остават вътре; точките не покриват иконата. */
+  nav.tabs .tdot { position: absolute; z-index: 2; top: 2.5px; right: 2.5px; width: 8px; height: 8px; border-radius: 50%; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; display: none; pointer-events: none; }
   nav.tabs .tdot.show { display: block; }
-  nav.tabs .badge { position: absolute; z-index: 2; top: 2px; right: 5px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; display: none; pointer-events: none; }
+  nav.tabs .badge { position: absolute; z-index: 2; top: 1.5px; right: 1.5px; min-width: 15px; height: 15px; padding: 0 4px; border-radius: 999px; background: #e5383b; box-shadow: 0 0 0 1.5px #fff; color: #fff; font-size: 10.5px; font-weight: 800; line-height: 15px; text-align: center; display: none; pointer-events: none; }
   nav.tabs .badge.show { display: block; }
-  @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
+  @media (max-width: 360px) { nav.tabs { --navic: 37px; } nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
   @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none; } }   /* маркерът скача, не се плъзга */
   .card, details.qacard { position: relative; }
   /* точката е центрирана над стрелката: отстъп отдясно + половината стрелка − половината точка */
