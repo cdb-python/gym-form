@@ -7,7 +7,7 @@
 <title>Клиенти · треньор</title>
 <!-- ЧЕРНОВА (Т5, 08.11.2026): изгледът на треньора. Вход с Supabase Auth → списък → клиентът се отваря в ../app/?c=<client_id>.
      Зависи от tools/app/sql/coach_proposal.sql (ПРЕДЛОЖЕНИЕ, още не е приложено) — на живо днес входът минава, но списъкът няма откъде да дойде. -->
-<meta name="theme-color" content="#2b3540">
+<meta name="theme-color" content="#5f6b78">
 <!-- Т17: инсталиране. Тук няма токен в линка (входът е акаунт) → manifest-ът стои направо в HTML-а и за iOS.
      ИМЕТО е на ЕДНО място: manifest.webmanifest; за iOS short_name се чете оттам в apple-mobile-web-app-title. -->
 <link rel="manifest" href="manifest.webmanifest" id="mfLink">
@@ -42,7 +42,7 @@
      На телефона скролбарът е върху съдържанието → тук няма ефект. Стар браузър без scrollbar-gutter → винаги видим скролбар. */
   html { -webkit-text-size-adjust: 100%; background: #e8ecef; scrollbar-gutter: stable; }
   @supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
-  body { margin: 0 auto; max-width: 480px; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.5; overflow-x: hidden; }
+  body { font-variant-numeric: tabular-nums; margin: 0 auto; max-width: 480px; min-height: 100vh; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 16px; line-height: 1.5; overflow-x: hidden; }
   @media (min-width: 481px) { body { box-shadow: 0 0 0 1px var(--border), 0 8px 32px rgba(28,39,51,0.10); } }
   /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
   header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
@@ -88,7 +88,10 @@
   .row .b.msg { background: #e0821e; color: #fff; }
   .row .b.ans { background: #fbf0dc; color: var(--warn); }
   .row .b.lab { background: #e7eef8; color: #2f5f8f; }
-  .row .l2 { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; color: var(--muted); font-size: 13px; }
+  .row .l2 { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; color: var(--muted); font-size: 13px; }
+  /* Т30: колони с фиксирана ширина → числата и датите са едни под други между редовете */
+  .row .l2 .c1 { flex: none; width: 6.4em; } .row .l2 .c2 { flex: none; width: 8.2em; } .row .l2 .c3 { flex: none; }
+  .row .l2 .lg .n { display: inline-block; min-width: 2ch; text-align: right; }
   .row .l2 b { color: var(--accent-dark); }
   .row .pv { margin-top: 5px; color: #46525e; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
@@ -186,8 +189,9 @@
       + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (r.is_dev ? '<span class="dev">DEV</span>' : "")
       + '<span class="when">' + esc(when(r.last_activity)) + "</span></div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
-      + '<div class="l2"><span>Лог <b>' + cnt + "</b>" + (r.last_food_day ? " · последно " + ddmm(r.last_food_day) : " · още няма") + "</span>"
-      + "<span>Мерки " + (r.last_meas_day ? "<b>" + ddmm(r.last_meas_day) + "</b>" : "—") + "</span></div>"
+      + '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
+      + '<span class="c2">' + (r.last_food_day ? "последно " + ddmm(r.last_food_day) : "още няма") + "</span>"
+      + '<span class="c3">Мерки ' + (r.last_meas_day ? "<b>" + ddmm(r.last_meas_day) + "</b>" : "—") + "</span></div>"
       + (r.last_client_msg ? '<div class="pv">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</div>" : "")
       + "</a>";
   }

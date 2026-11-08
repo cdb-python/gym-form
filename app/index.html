@@ -91,6 +91,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   html { -webkit-text-size-adjust: 100%; background: #e8ecef; scrollbar-gutter: stable; }
   @supports not (scrollbar-gutter: stable) { html { overflow-y: scroll; } }
   body {
+    font-variant-numeric: tabular-nums;   /* Т30: цифрите с еднаква ширина — в колони десетиците са една под друга */
     margin: 0 auto;
     max-width: 480px;
     min-height: 100vh;
@@ -233,8 +234,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .card.panel > .ch .lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
   /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
-  .lmrow { margin: 0 0 8px; }
-  .lmrow .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
+  .lmrow { display: flex; justify-content: flex-end; margin: 0 0 8px; }   /* Т31: вдясно, над полето */
+  .lmrow .lm { flex: none; margin: -6px 0; padding: 6px 0; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
   .linfo > .body { display: none; padding: 0 0 10px; }
   .linfo.open > .body { display: block; }
   .linfo .lin { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
@@ -349,7 +350,57 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   details.qacard .qc-sub { flex: none; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
   details.qacard .qc-body { padding: 4px 16px 10px; }
   details.qacard .qc-body .lrows { margin: 0; }
-  .dbody { display: flow-root; }   /* Т25: общото тяло на <details> с няколко деца */
+  .dbody { display: flow-root; }
+  /* Т32: „Принтирай / запази като PDF“ в анализа */
+  .an .anprint { display: block; width: 100%; margin: 14px 0 4px; padding: 13px 16px; border: 1px solid var(--accent); border-radius: 11px; background: #fff; color: var(--accent-dark); font: inherit; font-size: 15.5px; font-weight: 700; cursor: pointer; }
+  /* печат изобщо: без нищо закрепено (лентата долу, менюта, резерва на акордеона) */
+  @media print {
+    nav.tabs, #accSpacer, .lmenu, .cdown, body::before { display: none !important; }
+    html, body { background: #fff !important; }
+    body { box-shadow: none !important; padding-bottom: 0 !important; }
+  }
+  /* Т32: печат САМО на анализа (body.print-an, слага се от бутона) */
+  @media print {
+    @page { size: A4; margin: 14mm 12mm; }
+    body.print-an { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+    body.print-an #draft, body.print-an #viewAs, body.print-an #hdr, body.print-an #loading, body.print-an .pane:not(#p-hrana),
+    body.print-an #p-hrana > :not(.card.panel[data-key="analysis"]), body.print-an .ndot, body.print-an .tdot, body.print-an .badge,
+    body.print-an .anprint, body.print-an .no-print, body.print-an .cert-pop { display: none !important; }
+    body.print-an #main { padding: 0 !important; max-width: none !important; }
+    body.print-an #p-hrana { display: block !important; }
+    body.print-an .card.panel[data-key="analysis"] { border: none !important; margin: 0 !important; box-shadow: none !important; }
+    body.print-an .card.panel[data-key="analysis"] > .ch { padding: 0 0 10px !important; background: none !important; border: none !important; font-size: 20px; }
+    body.print-an .card.panel[data-key="analysis"] > .ch::after, body.print-an .an .card > .ch::after { display: none !important; }
+    body.print-an .card.panel[data-key="analysis"] > .body { padding: 0 !important; background: none !important; display: block !important; height: auto !important; overflow: visible !important; }
+    body.print-an .an .card { display: block; break-inside: avoid; page-break-inside: avoid; margin: 0 0 10px; }
+    body.print-an .an .card > .body { display: block !important; height: auto !important; overflow: visible !important; }
+    body.print-an .an table, body.print-an .an tr { break-inside: avoid; page-break-inside: avoid; }
+    body.print-an, body.print-an * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; position: static !important; }
+  }
+  /* Т30: подравняване по запетаята в таблиците */
+  .vi { display: inline-block; text-align: right; white-space: nowrap; }
+  .vf { display: inline-block; text-align: left; }
+  /* Т30: ред-ден — мрежа с фиксирани колони; датата първа (tabular-nums), стойността дясно подравнена, разликата и „от лога“ в свои колони */
+  details.qday > summary { display: grid; grid-template-columns: 38px 34px minmax(0, 1fr) auto 10px; align-items: baseline; column-gap: 6px; }
+  details.qday.qd-meas > summary { grid-template-columns: 38px 34px minmax(0, 1fr) 58px 40px 50px 10px; column-gap: 5px; }
+  details.qday > summary::after { justify-self: end; }
+  .d-date { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; color: var(--accent-dark); white-space: nowrap; }
+  .d-wd { color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  .d-lab { min-width: 0; text-align: right; color: var(--muted); font-size: 10.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .d-val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; font-size: 14.5px; white-space: nowrap; color: var(--ink); }
+  .d-diff { font-variant-numeric: tabular-nums; font-size: 12.5px; font-weight: 700; white-space: nowrap; color: var(--muted); }
+  .d-diff.ddn, .d-diff.dup { color: var(--accent-dark); }
+  .d-src { white-space: nowrap; overflow: hidden; }
+  .d-src .mfrom { font-size: 10.5px; padding: 0 5px; }
+  .d-cnt { text-align: right; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .qs-h .d-date { font-size: 14.5px; margin-right: 2px; }
+  .qs-h .d-wd { margin-right: 4px; }
+  @media (max-width: 359px) {
+    details.qday > summary { grid-template-columns: 36px 31px minmax(0, 1fr) auto 10px; column-gap: 4px; }
+    details.qday.qd-meas > summary { grid-template-columns: 36px 31px minmax(0, 1fr) 54px 36px 46px 10px; column-gap: 4px; }
+    .d-date { font-size: 13.5px; } .d-wd { font-size: 11.5px; } .d-val { font-size: 13px; } .d-diff { font-size: 11.5px; } .d-src .mfrom { font-size: 9.5px; padding: 0 4px; }
+    .qd-meas .d-lab { visibility: hidden; }
+  }
   #accSpacer { pointer-events: none; }
   /* Т23: вътре в хронология — леки редове: без рамка и цветна лента, тънка линия между тях; ▸/▾ и плавният цикъл (Т20) остават.
      Хронология, вложена в панел (Изследвания, Промени във формата), също е лек ред — рамката е само на най-външната карта. */
@@ -967,7 +1018,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (A.cards.length && !lsGet("app_seen_analysis_" + KEY_ID)) rows.push(["📊", "Анализът на храненето ти е готов", "hrana:analysis"]);
     var w = lastWeight();
     if (START) return rows;   // ден 1: теглото е стъпка 3 в „Първи стъпки" — не се повтаря тук
-    rows.push(w ? ["⚖", "Последно тегло: " + w.w + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["⚖", "Още няма записано тегло", "merki"]);
+    rows.push(w ? ["⚖", "Последно тегло: " + num1(w.w) + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["⚖", "Още няма записано тегло", "merki"]);
     return rows;
   }
   // Ден 1 (още няма карти): какво следва, с препратки към мястото на всяка стъпка.
@@ -980,7 +1031,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<div class="start" id="startBox"><h3>Първи стъпки</h3>'
       + step("danni:intake", 1, false, "Попълни формата за данни", "", IN.on ? ic[0] + " от " + ic[1] : "")
       + step("hrana:log", 2, n >= LOG_TARGET, "Започни лога — 21 дни", "", logCounter(n))
-      + step("merki", 3, !!w, "Запиши тегло и талия", "", w ? w.w + " кг" : "")
+      + step("merki", 3, !!w, "Запиши тегло и талия", "", w ? num1(w.w) + " кг" : "")
       + "</div>";
   }
   function renderNachalo() {
@@ -1123,8 +1174,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function logLine(v) {
     var parts = [], e = v.e;
     if (v.text) parts.push(esc(v.text));
-    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(e.weight) + " кг</span>");
-    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(e.waist) + " см</span>");
+    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(num1(e.weight)) + " кг</span>");
+    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(num1(e.waist)) + " см</span>");
     if (e.height != null && e.height !== "") parts.push('<span class="wt">📐 ръст ' + esc(e.height) + " см</span>");
     return '<div class="lrow' + (v.ate ? " ate" : "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(" · ") + "</span></div>";
   }
@@ -1216,8 +1267,58 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       html += '<div class="card ' + cls + (open ? " open" : "") + '" data-key="an_' + esc(r.sort) + '"><div class="ch"><span>' + esc(t) + dot("an_" + r.sort) + "</span></div>"
         + '<div class="body">' + (r.body || "") + "</div></div>";
     });
-    return html + "</div>";
+    return cleanAnalysis(html + "</div>");
   }
+  // Т32: картите са писани за старата страница log-analysis (базата не се пипа). Тук, само при показване:
+  //  · „Път 2“ — махат се бутонът/линкът към офертата: <a>/<button> с текст „Път 2…“ или <a> с href към офертата/формата/интейка
+  //    (start-pyramid, /gym-form/start, intake, landing, оферт); пунктираните „треньор“/„диетолог“ (span.cert + span.cert-pop) и
+  //    всички <a>/<abbr> в абзаца „Път 2…“ стават обикновен текст. Текстът на абзаца остава.
+  //  · „Път 1 — Свали анализа (PDF)“ (button.pdfbtn / onclick=print / текст „Път 1“) → нашият бутон „Принтирай / запази като PDF“.
+  var OFFER_HREF = /start-pyramid|\/gym-form\/start|intake|landing|offer|оферт/i;
+  function cleanAnalysis(html) {
+    var box = document.createElement("div"); box.innerHTML = html;
+    function unwrap(el) { el.parentNode.replaceChild(document.createTextNode(el.textContent), el); }
+    Array.prototype.forEach.call(box.querySelectorAll("a, button"), function (el) {
+      var t = (el.textContent || "").trim();
+      if (/^Път\s*2\b/.test(t) || (el.tagName === "A" && OFFER_HREF.test(el.getAttribute("href") || ""))) { el.parentNode.removeChild(el); return; }
+      if (el.tagName === "BUTTON" && (el.classList.contains("pdfbtn") || /print/i.test(el.getAttribute("onclick") || "") || /^Път\s*1\b/.test(t))) {
+        var b = document.createElement("button"); b.type = "button"; b.className = "anprint"; b.textContent = "Принтирай / запази като PDF";
+        el.parentNode.replaceChild(b, el);
+      }
+    });
+    Array.prototype.forEach.call(box.querySelectorAll(".cert-pop"), function (el) { el.parentNode.removeChild(el); });
+    Array.prototype.forEach.call(box.querySelectorAll(".cert"), unwrap);
+    Array.prototype.forEach.call(box.querySelectorAll("p, li, div"), function (p) {
+      if (!/^\s*Път\s*2\b/.test(p.textContent || "")) return;
+      Array.prototype.forEach.call(p.querySelectorAll("a, abbr"), unwrap);
+    });
+    return box.innerHTML;
+  }
+  // Печат САМО на анализа: всички карти на анализа отворени (наведнъж, без височини от двигателя), body.print-an скрива всичко
+  // друго (@media print); след печат — акордеоните, бутонът и скролът се връщат точно както са били.
+  var PRINT_SAVE = null;
+  function printPrep(on) {
+    var panel = document.querySelector('#p-hrana .card.panel[data-key="analysis"]');
+    if (on) {
+      if (PRINT_SAVE || !panel) return false;
+      PRINT_SAVE = { y: window.scrollY, tab: current, opened: [] };
+      if (current !== "hrana") switchTab("hrana", true);
+      [panel].concat(Array.prototype.slice.call(panel.querySelectorAll(".an .card"))).forEach(function (c) {
+        if (!isOpen(c)) { accSet(c, true, { instant: true, noScroll: true }); PRINT_SAVE.opened.push(c); }
+      });
+      document.body.classList.add("print-an");
+      return true;
+    }
+    if (!PRINT_SAVE) return false;
+    document.body.classList.remove("print-an");
+    PRINT_SAVE.opened.slice().reverse().forEach(function (c) { accSet(c, false, { instant: true, noScroll: true }); });
+    if (PRINT_SAVE.tab !== current) switchTab(PRINT_SAVE.tab, true);
+    window.scrollTo(0, PRINT_SAVE.y);
+    PRINT_SAVE = null;
+    return true;
+  }
+  window.addEventListener("afterprint", function () { printPrep(false); });
+  try { var PQ = window.matchMedia("print"); (PQ.addEventListener ? PQ.addEventListener.bind(PQ, "change") : PQ.addListener.bind(PQ))(function (e) { if (!e.matches) printPrep(false); }); } catch (e) {}
   // Храна: режимът (ако го има) → логът (картата за писане) → „История на храненето ›" → анализът (последен).
   function renderHrana() {
     var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); });
@@ -1276,12 +1377,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   var FROM_LOG = '<span class="mfrom">от лога</span>';
-  function diffTxt(d) { if (d == null) return ""; if (d === 0) return " ="; return " " + (d < 0 ? "↓" : "↑") + String(Math.abs(d)).replace(".", ","); }
+  function diffTxt(d) { if (d == null) return ""; if (d === 0) return " ="; return " " + (d < 0 ? "↓" : "↑") + num1(Math.abs(d)); }   // Т30: един знак след запетаята
   function num(v) { return String(v).replace(".", ","); }
   function measLine(m) {
     var parts = MEAS_ALL.filter(function (f) { return m.e[f[0]] != null && m.e[f[0]] !== ""; }).map(function (f) {
       var d = m.diff[f[0]];
-      return '<span class="mv"><span class="ml">' + esc(f[1]) + "</span> <b>" + esc(num(m.e[f[0]])) + "</b> " + f[2]
+      return '<span class="mv"><span class="ml">' + esc(f[1]) + "</span> <b>" + esc(num1(m.e[f[0]])) + "</b> " + f[2]
         + (d != null ? '<span class="md' + (d < 0 ? " dn" : d > 0 ? " up" : "") + '">' + esc(diffTxt(d)) + "</span>" : "") + "</span>";
     });
     if (hasBp(m.e)) parts.push('<span class="mv mbpv"><span class="ml">Кръвно</span> <b>' + esc(m.e.bp_sys) + "/" + esc(m.e.bp_dia) + "</b></span>");
@@ -1613,7 +1714,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function renderLabs() {
     var body = document.querySelector('#p-danni .card.panel[data-key="labs"] > .body');
     if (!body) return;
-    body.innerHTML = labsHtml();
+    body.innerHTML = labsHtml(); alignAll(body);
     var sub = document.querySelector('#p-danni .card.panel[data-key="labs"] > .ch .sub'); if (sub) sub.textContent = labsSub();
     wireLabs();
   }
@@ -1940,6 +2041,57 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<details class="qacard"' + (attrs ? " " + attrs : "") + '><summary><span class="qc-t"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + '</span><span class="qc-sub">' + sub + "</span></summary>"
       + '<div class="qc-body">' + body + "</div></details>";
   }
+  // ── Т30: числа в колони — подравнени по десетичната запетая, БЕЗ да се сменя числото (важи и за преписаните резултати) ──
+  // Клетка, която е само число (+ мерна единица, ↑/↓): [префикс+цяла част — дясно, фиксирана ширина][,дробна — ляво][останалото].
+  // Ширините са по колона (в ch — цифрите са с еднаква ширина). Диапазони („3,9–6,1“) и текст („отрицателен“) не се пипат.
+  var NUMCELL = /^\s*([~≈<>≤≥]?\s*)(\d+)([.,]\d+)?(\s*(?:[^\d\s–—\-][^–—]*)?)$/;
+  function numParts(td) {
+    var t = td.textContent.replace(/\u00a0/g, " ");
+    var m = NUMCELL.exec(t);
+    if (!m || (m[4] || "").trim().length > 18) return null;
+    return { pre: m[1], int: m[2], frac: m[3] || "" };
+  }
+  function wrapNum(td, p, wi, wf) {
+    var w = document.createTreeWalker(td, NodeFilter.SHOW_TEXT, null), n, re = /([~≈<>≤≥]?\s*)(\d+)([.,]\d+)?/;
+    while ((n = w.nextNode())) {
+      var m = re.exec(n.nodeValue); if (!m) continue;
+      var after = n.splitText(m.index); var rest = after.splitText(m[0].length);
+      var vi = document.createElement("span"); vi.className = "vi"; vi.textContent = m[1] + m[2]; vi.style.minWidth = (wi + (m[1] ? 1 : 0)) + "ch";
+      var vf = document.createElement("span"); vf.className = "vf"; vf.textContent = m[3] || ""; vf.style.minWidth = wf ? (wf - 0.45) + "ch" : "0";
+      after.parentNode.replaceChild(vi, after); vi.parentNode.insertBefore(vf, rest);
+      return;
+    }
+  }
+  function alignCols(table) {
+    if (table.getAttribute("data-al")) return;
+    table.setAttribute("data-al", "1");
+    var rows = Array.prototype.slice.call(table.rows), ncol = 0;
+    rows.forEach(function (r) { ncol = Math.max(ncol, r.cells.length); });
+    for (var c = 0; c < ncol; c++) {
+      var cells = [];
+      rows.forEach(function (r) { var td = r.cells[c]; if (!td || td.tagName !== "TD" || td.colSpan > 1) return; var p = numParts(td); if (p) cells.push([td, p]); });
+      if (cells.length < 2) continue;
+      var wi = 0, wf = 0, pre = false;
+      cells.forEach(function (x) { wi = Math.max(wi, x[1].int.length); wf = Math.max(wf, x[1].frac.length); if (x[1].pre.trim()) pre = true; });
+      cells.forEach(function (x) { wrapNum(x[0], x[1], wi + (pre && !x[1].pre.trim() ? 1 : 0), wf); x[0].classList.add("tnum"); });
+    }
+  }
+  function alignAll(root) { Array.prototype.forEach.call((root || document).querySelectorAll("#main table"), alignCols); }
+  // Т30: ред-ден в хронология — мрежа: [ДД.ММ][ден/„днес“/„вчера“] … колоните вдясно (фиксирани) [▸]. Датата винаги първа.
+  var WD_SHORT = ["нд", "пн", "вт", "ср", "чт", "пт", "сб"];
+  function dayParts(k) {
+    var dd = dayDiff(k, todayStr()), wd = dd === 0 ? "днес" : dd === 1 ? "вчера" : WD_SHORT[new Date(k + "T12:00:00Z").getUTCDay()];
+    return { date: String(k).slice(8, 10) + "." + String(k).slice(5, 7), wd: wd };
+  }
+  function qday(k, kind, cells, body, attrs, keys) {
+    var p = dayParts(k);
+    return '<details class="qacard qday ' + kind + '"' + (attrs ? " " + attrs : "") + '><summary><span class="d-date"' + dkAttr(keys) + ">" + p.date + dotSpan(keys) + "</span>"
+      + '<span class="d-wd">' + p.wd + "</span>" + cells + "</summary>"
+      + '<div class="qc-body">' + body + "</div></details>";
+  }
+  function dayCount(t) { return '<span class="d-lab"></span><span class="d-cnt">' + esc(t) + "</span>"; }
+  function num1(v) { return Number(v).toFixed(1).replace(".", ","); }   // „55“ → „55,0“: запетаите една под друга
+  function diff1(d) { if (d == null) return ""; if (d === 0) return "="; return (d < 0 ? "↓" : "↑") + num1(Math.abs(d)); }
   function hEmpty(t) { return '<div class="hempty">' + esc(t) + "</div>"; }
   function monthsOf(days) {   // дати → [{ym, days}], най-новият месец първи
     var order = [], m = {};
@@ -1981,7 +2133,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var past = foodPastDays();
     var inner = !past.length ? hEmpty("Още няма минали дни.") : histMonths("hm_food_", past, function (g) { return g.day; },
       function (list) { return daysWord(list.length) + " · " + entriesWord(list.reduce(function (a, g) { return a + g.rows.length; }, 0)); },
-      function (g) { return qcard(logDayLabel(g.day), entriesWord(g.rows.length), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"'); });
+      function (g) { return qday(g.day, "qd-cnt", dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"'); });
     return histCard("h_food", "📈", "История на храненето", foodNavSub(), inner);
   }
   function measHistHtml() {
@@ -1989,8 +2141,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var inner = !past.length ? hEmpty("Още няма минали мерения.") : histMonths("hm_meas_", past, function (m) { return m.day; },
       function (list) { var n = measDays(list); return n + (n === 1 ? " мерене" : " мерения"); },
       function (m, i) {
-        var lead = hasVal(m.e.weight) ? num(m.e.weight) + " кг" + diffTxt(m.diff.weight) : hasVal(m.e.waist) ? "талия " + num(m.e.waist) + " см" : hasBp(m.e) ? "кръвно " + m.e.bp_sys + "/" + m.e.bp_dia : "";
-        return qcard(logDayLabel(m.day), esc(lead) + (m.food ? " " + FROM_LOG : ""), '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
+        // колоните: [етикет (само ако не е тегло)][стойност][разлика][„от лога“] — фиксирани ширини, стойността дясно подравнена
+        var lab = "", val = "", dif = null, dk = "";
+        if (hasVal(m.e.weight)) { val = num1(m.e.weight) + " кг"; dif = m.diff.weight; }
+        else if (hasVal(m.e.waist)) { lab = "талия"; val = num1(m.e.waist) + " см"; dif = m.diff.waist; }
+        else if (hasBp(m.e)) { lab = "кръвно"; val = esc(m.e.bp_sys) + "/" + esc(m.e.bp_dia); }
+        if (dif != null) dk = dif < 0 ? " ddn" : dif > 0 ? " dup" : "";
+        var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + diff1(dif) + '</span><span class="d-src">' + (m.food ? FROM_LOG : "") + "</span>";
+        return qday(m.day, "qd-meas", cells, '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
       });
     return histCard("h_meas", "📈", "История на мерките", measNavSub(), inner);
   }
@@ -2002,10 +2160,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (list) { return daysWord(list.length) + " · " + cnt(ch.filter(function (c) { return list.indexOf(sofiaDay(c.changed_at)) > -1; }).length); },
       function (d) {
         var l = ch.filter(function (c) { return sofiaDay(c.changed_at) === d; });
-        return qcard(logDayLabel(d), cnt(l.length), l.map(function (c) {
+        return qday(d, "qd-cnt", dayCount(cnt(l.length)), l.map(function (c) {
           return '<div class="lrow"><span class="tm">' + esc(nowHMof(c.changed_at)) + '</span><span class="tx"><b>' + esc(QLABEL[c.key] || c.key) + "</b><br>"
             + '<span class="iold">' + esc(ivShow(c.old_value)) + "</span> → " + esc(ivShow(c.new_value)) + "</span></div>";
-        }).join(""), 'data-day="' + d + '" data-key="hd_ichg_' + d + '"');
+        }).join(""), 'data-day="' + d + '" data-key="hd_ichg_' + d + '"');   // Т30: дата първа
       });
     return histCard("h_ichg", "📈", "Промени в отговорите", ch.length ? cnt(ch.length) : "още няма", inner);
   }
@@ -2015,7 +2173,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!s.length) return "";
     return '<div class="acc qmonths">' + histMonths("hm_qa_", s, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " въпросник" : " въпросника"); },
       function (x) {
-        return '<div class="qsent" data-key="' + esc(cardKey(x.r)) + '"><div class="qs-h">' + esc(x.c.title) + ' <span class="qs-sub">· ' + x.c.n + (x.c.n === 1 ? " отговор" : " отговора") + " · " + fmtDate(x.day).slice(0, 5) + "</span></div>"
+        var qp = dayParts(x.day);
+        return '<div class="qsent" data-key="' + esc(cardKey(x.r)) + '"><div class="qs-h"><span class="d-date">' + qp.date + '</span> <span class="d-wd">' + qp.wd + "</span> " + esc(x.c.title) + ' <span class="qs-sub">· ' + x.c.n + (x.c.n === 1 ? " отговор" : " отговора") + "</span></div>"
           + '<div class="qcqa">' + (x.r.body || "") + "</div></div>";
       }, function (x) { return [cardKey(x.r)]; }) + "</div>";
   }
@@ -2023,7 +2182,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var g = labDates();
     if (!g.length) return "";
     var inner = histMonths("hm_labs_", g, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " дата" : " дати"); },
-      function (x) { return qcard("Изследване от " + fmtDate(x.day).slice(0, 5), x.rows.length + (x.rows.length === 1 ? " показател" : " показателя"), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]); },
+      function (x) { return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]); },
       function (x) { return ["lab_" + x.day]; });
     return histCard("h_labs", "📈", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
   }
@@ -2177,6 +2336,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var tmp = document.createElement("div"); tmp.innerHTML = html;
     var nw = tmp.firstElementChild;
     old.parentNode.replaceChild(nw, old);
+    alignAll(nw);
     if (openKeys.indexOf(key) < 0) return;
     Array.prototype.forEach.call(nw.querySelectorAll(".card.hm.open"), function (c) { c.classList.remove("open"); });
     openKeys.forEach(function (k) { var n = k === key ? nw : nw.querySelector('[data-key="' + k + '"]'); if (n) setOpen(n, true); });
@@ -2229,6 +2389,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   document.getElementById("main").addEventListener("click", function (e) {
     if (instClick(e)) return;
+    if (e.target.closest(".anprint")) { if (printPrep(true)) { try { window.print(); } catch (x) { printPrep(false); } } return; }
     var g = e.target.closest("[data-go]");
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var more = e.target.closest("#logMore");
@@ -2249,7 +2410,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
@@ -2395,6 +2556,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     loading.style.display = "none";
     trackAll();
     renderNachalo(); renderHrana(); renderMerki(); renderDanni(); renderRazgovor();
+    alignAll();
     if (COACH) {   // само за четене: полетата извън чата не се пишат
       Array.prototype.forEach.call(document.querySelectorAll("#p-hrana input, #p-hrana textarea, #p-merki input, #p-danni input"), function (el) { el.disabled = true; });
     }
