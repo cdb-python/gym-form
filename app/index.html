@@ -77,6 +77,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --me: #d9efe3;               /* моите балони в Разговор */
     --accent-a40: rgba(46,125,91,0.4);   /* подчертаване на линковете */
     --btn-off: #c5d0ca;          /* изключеният „Изпрати“ */
+    --edge: #2e7d5b;             /* Т26: цветната лява страна на картите и панелите (декоративна) */
     --warn: #a0701c;
     --navh: 62px;
     --top: 0px;
@@ -120,10 +121,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   .draft b { display: block; font-size: 24px; letter-spacing: 0.22em; line-height: 1.15; }
   .draft span { display: block; font-size: 12.5px; font-weight: 600; opacity: 0.95; }
-  header { background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
+  header { position: relative; background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
   header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
+  #main { display: flow-root; }   /* Т25: долното поле на последната карта остава вътре → височината на съдържанието се мери точно */
   .pane { display: none; }
   .pane.on { display: block; }
   .sec { margin: 18px 0 6px; }
@@ -131,7 +133,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lead { color: var(--muted); font-size: 14px; margin: 14px 2px 0; }
 
   /* карти (като в me/) */
-  .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; padding: 14px 16px; margin: 0 0 12px; }
   .card > .ch { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .card > .ch::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
   .card.open > .ch::after { content: "▾"; }
@@ -231,7 +233,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .card.panel > .ch .lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
   /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
-  .lhead .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
+  .lmrow { margin: 0 0 8px; }
+  .lmrow .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
   .linfo > .body { display: none; padding: 0 0 10px; }
   .linfo.open > .body { display: block; }
   .linfo .lin { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
@@ -336,7 +339,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.hm > .ch .hsub { flex: none; color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
   .card.hm > .body { margin: 0; padding: 8px 8px 0; background: #fafbfc; }
   .acc > details.qacard { margin: 0 0 8px; }
-  details.qacard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; overflow: hidden; }
+  details.qacard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; overflow: hidden; }
   details.qacard > summary { list-style: none; cursor: pointer; padding: 12px 14px 12px 16px; min-height: 54px; display: flex; align-items: center; gap: 10px; }
   details.qacard > summary::-webkit-details-marker { display: none; }
   details.qacard > summary::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; line-height: 1; }
@@ -346,6 +349,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   details.qacard .qc-sub { flex: none; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
   details.qacard .qc-body { padding: 4px 16px 10px; }
   details.qacard .qc-body .lrows { margin: 0; }
+  .dbody { display: flow-root; }   /* Т25: общото тяло на <details> с няколко деца */
+  #accSpacer { pointer-events: none; }
   /* Т23: вътре в хронология — леки редове: без рамка и цветна лента, тънка линия между тях; ▸/▾ и плавният цикъл (Т20) остават.
      Хронология, вложена в панел (Изследвания, Промени във формата), също е лек ред — рамката е само на най-външната карта. */
   .card.hist .acc > .card.hm, .card.hist .acc > details.qacard, .card.panel .card.panel.hist {
@@ -374,14 +379,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eat2 .eatok.err { color: #9a3b3b; }
   .card .body tr.ate > td { background: var(--ate); }
   .card .body [data-meal].ate:not(tr) { background: var(--ate); border-radius: 8px; }
-  .offplan { display: block; width: 100%; margin: 4px 0 6px; padding: 11px 12px; border: 1px dashed var(--line); border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; text-align: left; cursor: pointer; }
-  .offplan b { color: var(--accent-dark); }
-  .lw.closed { display: none; }
   .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .lhead span.lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
 
   /* Т8: Мерки (самостоятелен бутон) */
-  .mcard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 12px; padding: 14px 14px 12px; margin: 16px 0 4px; }
+  .mcard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; padding: 14px 14px 12px; margin: 16px 0 4px; }
   .mhead { display: flex; align-items: baseline; gap: 8px; margin: 0 0 2px; }
   .mhead b { flex: 1; font-size: 17px; }
   .mhead span { color: var(--muted); font-size: 13.5px; font-weight: 600; white-space: nowrap; }
@@ -417,6 +419,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mth { margin-bottom: 2px; font-size: 12.5px; font-weight: 800; color: var(--accent-dark); text-transform: uppercase; letter-spacing: 0.04em; }
   .mrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; padding: 5px 0; font-size: 14.5px; }
   .mrow .tm { color: var(--muted); font-size: 13px; }
+  .mfrom { display: inline-block; padding: 0 6px; border-radius: 999px; background: #eef0f2; color: var(--muted); font-size: 11.5px; font-weight: 700; line-height: 1.6; vertical-align: 1px; white-space: nowrap; }
   .mv { white-space: nowrap; }
   .mv .ml { color: var(--muted); }
   .md { margin-left: 3px; color: var(--muted); font-size: 13px; font-weight: 700; }
@@ -494,12 +497,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cseen { color: var(--muted); font-size: 11.5px; }
   .cseen.on { color: #2f6fb0; font-weight: 700; }
   /* режим треньор: тънка лента вместо знака ЧЕРНОВА */
-  body.coach-on #draft { display: none; }   /* Т19: в режим треньор няма лента над шапката */
+  body.coach-on #draft { display: none; }
+  /* Т29: името на клиента в шапката на треньора → меню с линковете към неговата страница */
+  #whoBtn { padding: 2px 8px; margin: 0; border: none; border-radius: 8px; background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #whoBtn:hover, #whoBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); }
+  #whoBtn .ar { font-size: 12px; opacity: 0.9; }
+  .lmenu { position: absolute; z-index: 70; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 24px)); padding: 6px; background: #fff; color: var(--ink); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(28,39,51,0.18); text-align: left; }
+  .lmenu a, .lmenu button { display: block; width: 100%; padding: 11px 12px; border: none; border-radius: 9px; background: none; color: var(--accent-dark); font: inherit; font-size: 15px; font-weight: 700; text-align: left; text-decoration: none; cursor: pointer; }
+  .lmenu a:hover, .lmenu button:hover { background: var(--soft); }
+  .lmenu .lm-sep { height: 1px; margin: 4px 6px; background: var(--border); }
+  .lmenu .lm-note { padding: 8px 12px; color: var(--muted); font-size: 13px; }
+  .lmenu .lm-ok { color: var(--accent-dark); }
+  /* Т29: клиентската страница, отворена на устройство с вход на треньор (клиентът не е DEV) → само за преглед */
+  .viewas { padding: 5px 12px; background: #5f6b78; color: #fff; font-size: 13px; font-weight: 700; text-align: center; }   /* Т19: в режим треньор няма лента над шапката */
   /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо зеленото навсякъде; златното и червеното остават */
-  body.coach-on {
-    --accent: #2b3540; --accent-dark: #1f272f; --soft: #eef0f2;
-    --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --eatrow: #fafbfc; --me: #dde2e7;
-    --accent-a40: rgba(43,53,64,0.4); --btn-off: #c4c9cf;
+  body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
+    --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
+    --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --eatrow: #fafbfc; --me: #e3e7eb;
+    --accent-a40: rgba(95,107,120,0.4); --btn-off: #c4c9cf;
   }
   /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
   header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
@@ -681,7 +696,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // „Видяно": базата го поддържа, когато редовете на дневника имат ключ read_at (след coach_proposal.sql).
   var DB_SEEN = false;
   // Клиентски линк, отворен на устройство с вход на треньора (Chris гледа линка на клиента) → не маркира „видяно" вместо клиента.
-  var COACH_SESSION_HERE = false;
+  var COACH_SESSION_HERE = false, VIEWER = false, VIEW_AS = false;
   if (!COACH_CID && sb.auth && sb.auth.getSession) sb.auth.getSession().then(function (r) { COACH_SESSION_HERE = !!(r && r.data && r.data.session); }, function () {});
 
   // ── състояние ──
@@ -927,7 +942,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
 
   // ════════ НАЧАЛО ════════
+  // Т28: последното тегло по слятата поредица на Мерки (ден с мерене в client_log има предимство пред реда от лога)
   function lastWeight() {
+    var r = measRows().filter(function (m) { return hasVal(m.e.weight); })[0];
+    return r ? { w: r.e.weight, at: r.e.created_at } : null;
+  }
+  // „Първи стъпки“: има ли тегло отнякъде (client_log или храна-лога)
+  function anyWeight() {
     var best = null;
     D.log.forEach(function (e) { if (e.kind !== "coach" && e.weight != null && e.weight !== "") { if (!best || String(e.created_at) > String(best.at)) best = { w: e.weight, at: e.created_at }; } });
     F.entries.forEach(function (e) { if (e.kind !== "coach" && e.weight != null && e.weight !== "") { if (!best || String(e.created_at) > String(best.at)) best = { w: e.weight, at: e.created_at }; } });
@@ -951,7 +972,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // Ден 1 (още няма карти): какво следва, с препратки към мястото на всяка стъпка.
   function startHtml() {
-    var n = logDays(), w = lastWeight(), ic = intakeCount(intakeKeys());
+    var n = logDays(), w = anyWeight(), ic = intakeCount(intakeKeys());
     function step(go, num, done, title, sub, st) {
       return '<a data-go="' + go + '"' + (done ? ' class="done"' : "") + '><span class="n">' + (done ? "✓" : num) + '</span><span class="x"><b>' + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>"
         + (st ? '<span class="st">' + esc(st) + "</span>" : "") + "</a>";
@@ -1135,19 +1156,23 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<p class="ls">' + esc(T.short) + "</p>"
       + '<div class="lb">' + T.blocks.map(function (b) { return "<div><b>" + esc(b[0]) + "</b><p>" + b[1] + "</p></div>"; }).join("") + "</div></div></div></div>";
   }
-  // Картата за писане: днес горе (брояч, полето, днешните редове). Миналите дни са в „История на храненето" (под-страница).
-  function logCardHtml(closed) {
+  // Т24: логът е карта-акордеон като другите (рамка + цветна страна, ▸/▾, цикълът от Т20). В затворения заглавен ред: „Днес“ + броячът.
+  // Вътре най-горе „Защо 21 дни?“, после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
+  // Миналите дни са в „История на храненето“ (отделната карта под нея).
+  function logCardHtml(open) {
     var n = logDays();
-    return '<div class="ltoday" data-key="logtoday"><div class="lhead"><b>Днес</b>'
-      + '<button type="button" class="lm" id="logMore" aria-expanded="false" aria-controls="logInfoBox"></button>'
-      + '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span></div>"
+    var chip = '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
+    var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-expanded="false" aria-controls="logInfoBox"></button></div>'
       + '<div id="logInfo"></div>'
-      + '<div class="lf lw' + (closed ? " closed" : "") + '" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво хапна или пи</label>'
+      + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво хапна или пи"></textarea>'
       + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
       + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
-      + '<div class="lrows" id="logToday"></div></div>';
+      + '<div class="lrows" id="logToday"></div>';
+    return panelHtml("log", "✍️", "Днес", "", inner, open, chip);
   }
+  // режим с храни = поне една nutrition карта с елемент [data-meal] (там е „Изядох“) → логът започва затворен; иначе — отворен
+  function hasMealPlan(menus) { return menus.some(function (r) { return /\sdata-meal\s*=/.test(String(r.body || "")); }); }
   function todayCount() { var t = todayStr(); return foodClient().filter(function (e) { return logDayOf(e) === t; }).length; }
   // Т15: бутонът е 60 % от реда до часа → текстът трябва да се събира на един ред и на 320 px
   function logIdleText(n) { return n ? entriesWord(n) + " днес" : "Няма записи днес"; }
@@ -1202,9 +1227,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       html += '<div class="sec" data-key="menu"><h2>Режимът</h2>'
         + (CAN_WRITE ? "" : RO_NOTE)
         + menus.map(function (r) { return cardHtml(r, false); }).join("")
-        + '<button type="button" class="offplan" id="offPlan">Яде нещо извън режима? <b>Впиши го в лога ›</b></button></div>';
+        + "</div>";
     }
-    html += '<div class="sec" data-key="log"><h2>Лог</h2>' + logCardHtml(!!menus.length) + "</div>"
+    html += '<div class="sec" data-key="logsec"><h2>Лог</h2>' + logCardHtml(!hasMealPlan(menus)) + "</div>"
       + foodHistHtml();
     if (A.cards.length) html += panelHtml("analysis", "📊", "Анализ", "", analysisHtml(), false);
     P.hrana.innerHTML = html;
@@ -1224,19 +1249,33 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function hasBp(e) { return e.bp_sys != null && e.bp_sys !== "" && e.bp_dia != null && e.bp_dia !== ""; }
   function hasPulse(e) { return e.pulse != null && e.pulse !== ""; }
   function hasMeas(e) { return hasBp(e) || hasPulse(e) || MEAS_ALL.some(function (f) { return e[f[0]] != null && e[f[0]] !== ""; }); }
-  // мерения: най-новото първо; на всяко поле — разлика спрямо предишното мерене със същото поле
+  // Т28: теглата/талиите от храна-лога (food_log, старата форма) — само за дни БЕЗ мерене в client_log; в един ден — последното
+  function hasVal(v) { return v != null && v !== ""; }
+  function foodMeas(clDays) {
+    var by = {};
+    F.entries.forEach(function (e) {
+      if (e.kind === "coach" || !(hasVal(e.weight) || hasVal(e.waist))) return;
+      var d = e.entry_date || sofiaDay(e.created_at);
+      if (clDays[d]) return;
+      if (!by[d] || tsNum(e.created_at) > tsNum(by[d].created_at)) by[d] = e;
+    });
+    return Object.keys(by).map(function (d) { var e = by[d]; return { id: "f_" + d, created_at: e.created_at, entry_date: d, weight: hasVal(e.weight) ? e.weight : null, waist: hasVal(e.waist) ? e.waist : null, _food: true }; });
+  }
+  // мерения (слятата поредица): най-новото първо; на всяко поле — разлика спрямо предишното мерене със същото поле
   function measRows() {
-    var rows = D.log.filter(function (e) { return e.kind !== "coach" && hasMeas(e); })
-      .sort(function (a, b) { return tsNum(b.created_at) - tsNum(a.created_at); });
+    var cl = D.log.filter(function (e) { return e.kind !== "coach" && hasMeas(e); }), clDays = {};
+    cl.forEach(function (e) { clDays[e.entry_date || sofiaDay(e.created_at)] = 1; });
+    var rows = cl.concat(foodMeas(clDays)).sort(function (a, b) { return tsNum(b.created_at) - tsNum(a.created_at); });
     return rows.map(function (e, i) {
       var diff = {};
       MEAS_ALL.forEach(function (f) {
         var k = f[0]; if (e[k] == null || e[k] === "") return;
         for (var j = i + 1; j < rows.length; j++) if (rows[j][k] != null && rows[j][k] !== "") { diff[k] = Math.round((Number(e[k]) - Number(rows[j][k])) * 10) / 10; break; }
       });
-      return { e: e, day: e.entry_date || sofiaDay(e.created_at), diff: diff };
+      return { e: e, day: e.entry_date || sofiaDay(e.created_at), diff: diff, food: !!e._food };
     });
   }
+  var FROM_LOG = '<span class="mfrom">от лога</span>';
   function diffTxt(d) { if (d == null) return ""; if (d === 0) return " ="; return " " + (d < 0 ? "↓" : "↑") + String(Math.abs(d)).replace(".", ","); }
   function num(v) { return String(v).replace(".", ","); }
   function measLine(m) {
@@ -1250,11 +1289,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return parts.join('<span class="msep"> · </span>');
   }
   function measPast() { var t = todayStr(); return measRows().filter(function (m) { return m.day !== t; }); }
-  function measNavSub() { var n = measPast().length; return n ? n + (n === 1 ? " мерене" : " мерения") : "още няма"; }
+  function measDays(list) { var d = {}; list.forEach(function (m) { d[m.day] = 1; }); return Object.keys(d).length; }
+  function measNavSub() { var n = measDays(measPast()); return n ? n + (n === 1 ? " мерене" : " мерения") : "още няма"; }
   function measTodayHtml() {
     var t = todayStr(), rows = measRows().filter(function (m) { return m.day === t; });
     if (!rows.length) return "";
-    return '<div class="mtoday"><div class="mth">Днес</div>' + rows.map(function (m) { return '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + "</div>"; }).join("") + "</div>";
+    return '<div class="mtoday"><div class="mth">Днес</div>' + rows.map(function (m) { return '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>"; }).join("") + "</div>";
   }
   function renderMerki() {
     function big(f) { return '<label class="mbig" for="lg_' + f[0] + '"><span class="mn">' + esc(f[1]) + '</span><input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off"><span class="mu">' + f[2] + "</span></label>"; }
@@ -1745,13 +1785,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         }).catch(function () { btn.disabled = !CAN_WRITE; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("err"); });
         return;
       }
-      if (e.target.closest("#offPlan")) {   // „Яде нещо извън режима?" → отваря полето на лога
-        var w = document.getElementById("logWrite"); w.classList.remove("closed");
-        var t = document.getElementById("f_text");
-        var y = document.querySelector('#p-hrana [data-key="log"]').getBoundingClientRect().top + window.scrollY - 10;
-        window.scrollTo(0, Math.max(0, y));
-        try { t.focus({ preventScroll: true }); } catch (x) { t.focus(); }
-      }
     });
   }
   function refreshEatTimes() {
@@ -1954,10 +1987,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function measHistHtml() {
     var past = measPast();
     var inner = !past.length ? hEmpty("Още няма минали мерения.") : histMonths("hm_meas_", past, function (m) { return m.day; },
-      function (list) { return list.length + (list.length === 1 ? " мерене" : " мерения"); },
+      function (list) { var n = measDays(list); return n + (n === 1 ? " мерене" : " мерения"); },
       function (m, i) {
-        var lead = m.e.weight != null && m.e.weight !== "" ? num(m.e.weight) + " кг" + diffTxt(m.diff.weight) : hasBp(m.e) ? "кръвно " + m.e.bp_sys + "/" + m.e.bp_dia : "";
-        return qcard(logDayLabel(m.day), esc(lead), '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"');
+        var lead = hasVal(m.e.weight) ? num(m.e.weight) + " кг" + diffTxt(m.diff.weight) : hasVal(m.e.waist) ? "талия " + num(m.e.waist) + " см" : hasBp(m.e) ? "кръвно " + m.e.bp_sys + "/" + m.e.bp_dia : "";
+        return qcard(logDayLabel(m.day), esc(lead) + (m.food ? " " + FROM_LOG : ""), '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
       });
     return histCard("h_meas", "📈", "История на мерките", measNavSub(), inner);
   }
@@ -2006,22 +2039,47 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function isOpen(n) { return n.tagName === "DETAILS" ? n.open : n.classList.contains("open"); }
   function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на движение)
   function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); }
-  function accBody(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > :not(summary)") : n.querySelector(":scope > .body"); }
+  // тялото на акордеона. <details> с повече от едно дете (или с текст направо в него) → обвива се веднъж в .dbody (Т25),
+  // за да се движи ЦЯЛОТО съдържание, а не само първото дете
+  function accBody(n) {
+    if (n.tagName !== "DETAILS") return n.querySelector(":scope > .body");
+    var w = n.querySelector(":scope > .dbody"); if (w) return w;
+    var kids = Array.prototype.filter.call(n.childNodes, function (c) { return c.nodeName !== "SUMMARY" && (c.nodeType === 1 || (c.nodeType === 3 && c.textContent.trim())); });
+    if (kids.length === 1 && kids[0].nodeType === 1) return kids[0];
+    if (!kids.length) return null;
+    w = document.createElement("div"); w.className = "dbody";
+    Array.prototype.slice.call(n.childNodes).forEach(function (c) { if (c.nodeName !== "SUMMARY") w.appendChild(c); });
+    n.appendChild(w);
+    return w;
+  }
   function accHead(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > summary") : n.querySelector(":scope > .ch"); }
   // хедърът (ЧЕРНОВА/зелената лента) не е залепнал → горният край на екрана; ако някога стане sticky/fixed — под него
   function topOffset() {
     var h = document.getElementById("hdr"), cs = h && getComputedStyle(h);
     return (cs && (cs.position === "sticky" || cs.position === "fixed") ? h.getBoundingClientRect().bottom : 0) + ACC_GAP;
   }
-  var ACC_KEYS = ["height", "paddingTop", "paddingBottom", "marginTop"], ACC_ZERO = { height: 0, paddingTop: 0, paddingBottom: 0, marginTop: 0 };
+  var ACC_KEYS = ["height", "paddingTop", "paddingBottom", "marginTop", "marginBottom"], ACC_ZERO = { height: 0, paddingTop: 0, paddingBottom: 0, marginTop: 0, marginBottom: 0 };
   function boxOf(b) {
     var cs = getComputedStyle(b);
     if (cs.display === "none") return ACC_ZERO;
-    return { height: b.getBoundingClientRect().height, paddingTop: parseFloat(cs.paddingTop) || 0, paddingBottom: parseFloat(cs.paddingBottom) || 0, marginTop: parseFloat(cs.marginTop) || 0 };
+    return { height: b.getBoundingClientRect().height, paddingTop: parseFloat(cs.paddingTop) || 0, paddingBottom: parseFloat(cs.paddingBottom) || 0,
+      marginTop: parseFloat(cs.marginTop) || 0, marginBottom: parseFloat(cs.marginBottom) || 0 };
   }
   function boxSet(b, x) { ACC_KEYS.forEach(function (k) { b.style[k] = x ? x[k] + "px" : ""; }); b.style.overflow = x ? "hidden" : ""; }
   var ACC_RUN = null;   // текущото движение: { items: [{n, b, open, from, to}], y0, y1, t0, raf }
-  function maxScroll() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+  // временният разделител под съдържанието (Т25): докато трае движението, целевият скрол винаги е достижим
+  var ACC_SP = null;
+  function spacerH() { return ACC_SP ? ACC_SP.offsetHeight : 0; }
+  function spacerSet(h) {
+    if (!ACC_SP) { if (!h) return; ACC_SP = document.createElement("div"); ACC_SP.id = "accSpacer"; ACC_SP.setAttribute("aria-hidden", "true"); document.getElementById("main").insertAdjacentElement("afterend", ACC_SP); }
+    ACC_SP.style.height = Math.max(0, Math.ceil(h)) + "px";
+  }
+  // височината на самото съдържание (долният ръб на #main + долният отстъп на body) — без резерва и без min-height: 100vh
+  function contentH() {
+    var m = document.getElementById("main"), cs = getComputedStyle(document.body);
+    return m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(cs.paddingBottom) || 0);
+  }
+  function maxScroll() { return Math.max(0, contentH() - window.innerHeight); }
   // changes: [{n, open}] · sc: null (без скрол) | {open: n} (заглавието на n горе) | {close: n} (ако заглавието е над екрана → горе) | {y: число}
   function accRun(changes, sc, instant) {
     var prev = ACC_RUN;
@@ -2029,7 +2087,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       cancelAnimationFrame(prev.raf); ACC_RUN = null;
       prev.items.forEach(function (it) { if (!changes.some(function (c) { return c.n === it.n; })) changes.push({ n: it.n, open: it.open }); });
     }
-    var y0 = window.scrollY, items = [];
+    var y0 = window.scrollY, items = [], H0 = contentH();
     var closeHead = sc && sc.close ? accHead(sc.close) : null, closeAbove = !!closeHead && closeHead.getBoundingClientRect().top < 0;
     changes.forEach(function (c) {
       var b = accBody(c.n);
@@ -2039,16 +2097,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // крайната подредба — приложена и измерена в същия ход (не се рисува)
     items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); });
     items.forEach(function (it) { it.to = it.open ? boxOf(it.b) : ACC_ZERO; });
-    var max = maxScroll(), y1 = y0;
+    var H1 = contentH(), max = maxScroll(), y1 = y0;
     if (sc && sc.y != null) y1 = sc.y;
     else if (sc && sc.el) y1 = sc.el.getBoundingClientRect().top + window.scrollY - topOffset();
     else if (sc && (sc.open || closeAbove)) { var hd = accHead(sc.open || sc.close); if (hd) y1 = hd.getBoundingClientRect().top + window.scrollY - topOffset(); }
     y1 = Math.max(0, Math.min(Math.round(y1), max));   // извън възможния скрол → границата още от началото
     if (instant || REDUCE) {   // наведнъж: крайната подредба вече е приложена; скролът — в същия кадър
       items.forEach(function (it) { it.n.__target = null; });
-      window.scrollTo(0, y1);
+      spacerSet(0); window.scrollTo(0, y1);
       return;
     }
+    // къса страница: височината на съдържанието и скролът са линейни по една и съща крива → нужният резерв е най-голям в краищата
+    var ih = window.innerHeight;
+    spacerSet(Math.max(0, y0 + ih - H0, y1 + ih - H1));
     // обратно към началното състояние (пак в същия ход) и един цикъл до крайното
     items.forEach(function (it) { setOpen(it.n, true); boxSet(it.b, it.from); it.n.__target = it.open; });
     window.scrollTo(0, y0);
@@ -2062,12 +2123,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           var x = {}; ACC_KEYS.forEach(function (k) { x[k] = it.from[k] + (it.to[k] - it.from[k]) * e; });
           boxSet(it.b, x);
         });
-        if (run.y1 !== run.y0) window.scrollTo(0, run.y0 + (run.y1 - run.y0) * e);
+        window.scrollTo(0, run.y0 + (run.y1 - run.y0) * e);   // на всеки кадър — скролът е закрепен (без „закотвяне“ на браузъра)
         run.raf = requestAnimationFrame(frame);
         return;
       }
       // край: естествената височина (= измерената цел) и скролът точно на целта — същият кадър, без поправка след него
       run.items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); it.n.__target = null; });
+      spacerSet(0);   // y1 е в границите на самото съдържание → махането на резерва не мести нищо
       window.scrollTo(0, run.y1);
       ACC_RUN = null;
     }
@@ -2124,8 +2186,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ НАВИГАЦИЯ ════════
   // Лентата долу е единствената навигация между страници (#хешът на бутона се пази); вътре всичко е акордеон.
   function setTop() {
-    var h = document.getElementById("hdr"), dr = document.getElementById("draft");
-    document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight) + "px");
+    var h = document.getElementById("hdr"), dr = document.getElementById("draft"), va = document.getElementById("viewAs");
+    document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight + (va ? va.offsetHeight : 0)) + "px");
   }
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
@@ -2187,10 +2249,58 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
+  // Т29: менюто с линковете към страницата на клиента. coach_client_link се вика САМО при натискане (веднъж; после от паметта).
+  var LINK = null;
+  function linkMenu() {
+    var btn = document.getElementById("whoBtn"), old = document.getElementById("linkMenu");
+    if (old) { closeLinkMenu(); return; }
+    var m = document.createElement("div"); m.className = "lmenu"; m.id = "linkMenu"; m.setAttribute("role", "menu");
+    m.innerHTML = '<div class="lm-note">Зарежда…</div>';
+    document.getElementById("hdr").appendChild(m);
+    btn.setAttribute("aria-expanded", "true");
+    (LINK ? Promise.resolve({ data: LINK }) : safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID }))).then(function (res) {
+      if (!document.getElementById("linkMenu")) return;
+      if (!res || res.error || !res.data || !res.data.token) { m.innerHTML = '<div class="lm-note">Не успях да взема линка. Опитай пак.</div>'; return; }
+      LINK = res.data;
+      var app = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token), location.href).href;
+      var me = new URL("../me/?t=" + encodeURIComponent(LINK.token), location.href).href;
+      var h = (LINK.active === false ? '<div class="lm-note">Линкът не е активен.</div>' : "")
+        + '<a role="menuitem" id="lmApp" href="' + esc(app) + '" target="_blank" rel="noopener">Отвори новата страница</a>'
+        + (LINK.is_dev ? "" : '<a role="menuitem" id="lmMe" href="' + esc(me) + '" target="_blank" rel="noopener">Отвори сегашния дневник</a>')
+        + '<div class="lm-sep"></div>'
+        + '<button type="button" role="menuitem" id="lmCopyApp" data-url="' + esc(app) + '">Копирай линка към новата</button>'
+        + (LINK.is_dev ? "" : '<button type="button" role="menuitem" id="lmCopyMe" data-url="' + esc(me) + '">Копирай линка към дневника</button>');
+      m.innerHTML = h;
+    });
+  }
+  function closeLinkMenu() {
+    var m = document.getElementById("linkMenu"); if (m) m.parentNode.removeChild(m);
+    var b = document.getElementById("whoBtn"); if (b) b.setAttribute("aria-expanded", "false");
+  }
+  function copyText(t) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t);
+    return new Promise(function (res, rej) {
+      var ta = document.createElement("textarea"); ta.value = t; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy") ? res() : rej(); } catch (e) { rej(e); } document.body.removeChild(ta);
+    });
+  }
+  document.addEventListener("click", function (e) {
+    var m = document.getElementById("linkMenu"); if (!m) return;
+    var cb = e.target.closest("#lmCopyApp, #lmCopyMe");
+    if (cb) {
+      var lbl = cb.textContent;
+      copyText(cb.getAttribute("data-url")).then(function () { cb.textContent = "Копирано ✓"; cb.classList.add("lm-ok"); setTimeout(function () { if (cb.isConnected) { cb.textContent = lbl; cb.classList.remove("lm-ok"); } }, 1600); },
+        function () { cb.textContent = "Не успях — задръж и копирай от „Отвори“"; });
+      return;
+    }
+    if (e.target.closest("#lmApp, #lmMe")) { setTimeout(closeLinkMenu, 0); return; }
+    if (!m.contains(e.target)) closeLinkMenu();
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLinkMenu(); });
   // Режим треньор (Т19): без лента над шапката. В зелената шапка: ← (към списъка) вляво, бутонът на страницата + името на клиента
   // в средата, „Изход“ вдясно (signOut → входа за треньора). Записът е изключен навсякъде освен в чата.
   var coachNav = function (u) { location.href = u; };
@@ -2205,7 +2315,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var done = function () { coachNav(COACH_URL); };
       try { sb.auth.signOut().then(done, done); } catch (e) { done(); }
     });
-    RO_NOTE = '<div class="ro">Изглед на треньора — тук само се чете</div>';
+    RO_NOTE = "";   // Т27: при треньора без бележка „само се чете“ — полетата и бутоните извън чата пак са изключени
     document.title = name + " · треньор";
   }
   function coachGate(msg) {
@@ -2216,7 +2326,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   if (COACH_CID) {
     document.body.classList.add("coach-on");   // Т21: сивото на треньора още от първия кадър
-    var tcm = document.querySelector('meta[name="theme-color"]'); if (tcm) tcm.setAttribute("content", "#2b3540");
+    var tcm = document.querySelector('meta[name="theme-color"]'); if (tcm) tcm.setAttribute("content", "#5f6b78");
     (sb.auth && sb.auth.getSession ? safe(sb.auth.getSession()) : Promise.resolve({})).then(function (r) {
       var s = r && r.data && r.data.session;
       if (!s) { coachGate("Тази страница е за треньора. Влез с акаунта си."); return; }
@@ -2232,14 +2342,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       });
     });
   } else {
+    // Т29: вход на треньор на това устройство (is_coach) → страницата на не-DEV клиент е само за преглед
+    var viewerCheck = (sb.auth && sb.auth.getSession ? safe(sb.auth.getSession()) : Promise.resolve({})).then(function (r) {
+      if (!(r && r.data && r.data.session)) return false;
+      return safe(sb.rpc("is_coach")).then(function (x) { return !!(x && !x.error && x.data === true); });
+    });
     Promise.all([
       safe(sb.rpc("get_client_diary", { p_token: token })),
       safe(sb.rpc("get_food_log", { p_token: token })),
       safe(sb.rpc("get_analysis", { p_token: token })),
       safe(sb.rpc("get_client_name", { p_token: token })),
       safe(sb.rpc("get_intake", { p_token: token })),   // няма ли го на живо → грешка → формата е „още не е включена"
-      safe(sb.rpc("get_labs", { p_token: token }))      // няма ли го на живо → „Качването ще се включи след обновяване"
+      safe(sb.rpc("get_labs", { p_token: token })),     // няма ли го на живо → „Качването ще се включи след обновяване"
+      viewerCheck
     ]).then(function (rs) {
+      VIEWER = rs[6] === true;
       var lb = rs[5];
       if (lb && !lb.error && lb.data) { LABS.on = true; LABS.uploads = lb.data.uploads || []; LABS.results = lb.data.results || []; }
       var dr = rs[0];
@@ -2254,7 +2371,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (analysis) A = { cards: analysis.cards || [] };
     nm = nm || D.name;
     DB_SEEN = D.log.some(function (e) { return "read_at" in e; });
-    CAN_WRITE = !COACH && /^DEV/.test(String(nm || ""));
+    var isDev = /^DEV/.test(String(nm || ""));
+    CAN_WRITE = !COACH && isDev;   // DEV: записът е включен и при вход на треньор (за тест)
+    VIEW_AS = !COACH && VIEWER && !isDev;
+    if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
+      CAN_WRITE = false;
+      document.getElementById("hdr").insertAdjacentHTML("beforebegin", '<div class="viewas" id="viewAs">Гледаш като ' + esc(D.name || nm || "") + "</div>");
+    }
     if (!COACH) document.getElementById("draftSub").textContent = CAN_WRITE ? "тестов клиент — записът е включен" : "само за преглед — записът е изключен";
     // интейкът: get_intake → {data, updated_at, changes}. Грешка (RPC-то още го няма) → изключен, без гърмене.
     IN.on = !!(intake && !intake.error);
@@ -2264,6 +2387,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     START = !D.content.some(function (r) { return !isQaCard(r); });
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
+    if (COACH) {
+      who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false">' + esc(D.name) + ' <span class="ar" aria-hidden="true">↗</span></button>';
+      document.getElementById("whoBtn").addEventListener("click", function (e) { e.stopPropagation(); linkMenu(); });
+    }
     computeLastClient();
     loading.style.display = "none";
     trackAll();

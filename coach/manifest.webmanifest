@@ -8,7 +8,7 @@
   "orientation": "portrait",
   "lang": "bg",
   "background_color": "#1a1c3e",
-  "theme_color": "#2b3540",
+  "theme_color": "#5f6b78",
   "icons": [
     {
       "src": "../app/icons/icon-192.png",
