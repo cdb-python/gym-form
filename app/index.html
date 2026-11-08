@@ -1949,15 +1949,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (x) { return ["lab_" + x.day]; });
     return histCard("h_labs", "📈", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
   }
-  // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата) минават оттук (Т12)
-  // Плавно: височина (+ отстъпи) за ~250 ms, ease-out. Повторно натискане по време на анимацията я обръща чисто от текущата височина.
-  // При отваряне заглавието отива плавно до горния край (скролът е сметнат СЛЕД затварянето на брата над нея).
-  // При затваряне: ако заглавието е над екрана — плавно връщане, за да е горе; ако се вижда — без скрол.
-  // prefers-reduced-motion → без анимация, само скролът. По един отворен на ниво в .acc (Т11).
-  var ACC_MS = 250, ACC_EASE = "cubic-bezier(0.25, 0.8, 0.35, 1)", ACC_GAP = 8;
+  // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата, „Защо 21 дни?“) минават оттук.
+  // Т20: ЕДНО движение. Един цикъл requestAnimationFrame движи височината на всички засегнати тела (отварящото се, брата, който се
+  // затваря по „един на ниво“) И window.scrollY — едно начало, една продължителност (ACC_MS), една крива (ease-out). Без
+  // behavior:"smooth", без scrollIntoView, без поправка след края. Целите (височини и скрол) се смятат ПРЕДИ старта от крайната
+  // подредба (приложена и измерена в същия JS ход, преди браузърът да нарисува кадър). Скролът е ограничен до възможния още в началото.
+  // Повторно натискане по време на движение → нов цикъл от текущото състояние (височини и скрол). reduced-motion → всичко наведнъж.
+  var ACC_MS = 250, ACC_GAP = 8;
   var REDUCE = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function accEase(t) { return 1 - Math.pow(1 - t, 3); }   // ease-out — една и съща за височината и за скрола
   function isOpen(n) { return n.tagName === "DETAILS" ? n.open : n.classList.contains("open"); }
-  function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на анимация)
+  function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на движение)
   function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); }
   function accBody(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > :not(summary)") : n.querySelector(":scope > .body"); }
   function accHead(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > summary") : n.querySelector(":scope > .ch"); }
@@ -1966,77 +1968,99 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var h = document.getElementById("hdr"), cs = h && getComputedStyle(h);
     return (cs && (cs.position === "sticky" || cs.position === "fixed") ? h.getBoundingClientRect().bottom : 0) + ACC_GAP;
   }
-  function scrollToY(y, instant) {
-    y = Math.max(0, Math.round(y));
-    try { window.scrollTo({ top: y, behavior: REDUCE || instant ? "auto" : "smooth" }); } catch (e) { window.scrollTo(0, y); }
-  }
+  var ACC_KEYS = ["height", "paddingTop", "paddingBottom", "marginTop"], ACC_ZERO = { height: 0, paddingTop: 0, paddingBottom: 0, marginTop: 0 };
   function boxOf(b) {
     var cs = getComputedStyle(b);
-    return { height: b.getBoundingClientRect().height + "px", paddingTop: cs.paddingTop, paddingBottom: cs.paddingBottom, marginTop: cs.marginTop };
+    if (cs.display === "none") return ACC_ZERO;
+    return { height: b.getBoundingClientRect().height, paddingTop: parseFloat(cs.paddingTop) || 0, paddingBottom: parseFloat(cs.paddingBottom) || 0, marginTop: parseFloat(cs.marginTop) || 0 };
   }
-  var ACC_ZERO = { height: "0px", paddingTop: "0px", paddingBottom: "0px", marginTop: "0px" };
-  function animTo(n, open, instant) {
-    n.__target = open;
-    var b = accBody(n), run = n.__anim, from = null;
-    if (run) { from = boxOf(b); run.onfinish = null; run.cancel(); n.__anim = null; }   // обръщане: от текущата височина
-    if (!b || REDUCE || instant || !b.animate) { setOpen(n, open); if (b) b.style.overflow = ""; n.__target = null; return null; }
-    if (open) {
-      if (!isOpen(n)) { setOpen(n, true); if (!from) from = ACC_ZERO; }
-      b.style.overflow = "";
-      var to = boxOf(b);
-      if (!from) { n.__target = null; return null; }   // вече отворен, без анимация
-      b.style.overflow = "hidden";
-      var a = b.animate([from, to], { duration: ACC_MS, easing: ACC_EASE });
-      n.__anim = a;
-      a.onfinish = function () { b.style.overflow = ""; n.__anim = null; n.__target = null; };
-      return a;
+  function boxSet(b, x) { ACC_KEYS.forEach(function (k) { b.style[k] = x ? x[k] + "px" : ""; }); b.style.overflow = x ? "hidden" : ""; }
+  var ACC_RUN = null;   // текущото движение: { items: [{n, b, open, from, to}], y0, y1, t0, raf }
+  function maxScroll() { return Math.max(0, document.documentElement.scrollHeight - window.innerHeight); }
+  // changes: [{n, open}] · sc: null (без скрол) | {open: n} (заглавието на n горе) | {close: n} (ако заглавието е над екрана → горе) | {y: число}
+  function accRun(changes, sc, instant) {
+    var prev = ACC_RUN;
+    if (prev) {   // ново натискане по време на движение: всичко, което още се движи, продължава от текущото си състояние в новия цикъл
+      cancelAnimationFrame(prev.raf); ACC_RUN = null;
+      prev.items.forEach(function (it) { if (!changes.some(function (c) { return c.n === it.n; })) changes.push({ n: it.n, open: it.open }); });
     }
-    if (!isOpen(n)) { n.__target = null; return null; }
-    b.style.overflow = "hidden";
-    var c = b.animate([from || boxOf(b), ACC_ZERO], { duration: ACC_MS, easing: ACC_EASE, fill: "forwards" });
-    n.__anim = c;
-    c.onfinish = function () { setOpen(n, false); c.cancel(); b.style.overflow = ""; n.__anim = null; n.__target = null; };
-    return c;
+    var y0 = window.scrollY, items = [];
+    var closeHead = sc && sc.close ? accHead(sc.close) : null, closeAbove = !!closeHead && closeHead.getBoundingClientRect().top < 0;
+    changes.forEach(function (c) {
+      var b = accBody(c.n);
+      if (!b) { setOpen(c.n, c.open); c.n.__target = null; return; }
+      items.push({ n: c.n, b: b, open: c.open, from: isOpen(c.n) ? boxOf(b) : ACC_ZERO });
+    });
+    // крайната подредба — приложена и измерена в същия ход (не се рисува)
+    items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); });
+    items.forEach(function (it) { it.to = it.open ? boxOf(it.b) : ACC_ZERO; });
+    var max = maxScroll(), y1 = y0;
+    if (sc && sc.y != null) y1 = sc.y;
+    else if (sc && sc.el) y1 = sc.el.getBoundingClientRect().top + window.scrollY - topOffset();
+    else if (sc && (sc.open || closeAbove)) { var hd = accHead(sc.open || sc.close); if (hd) y1 = hd.getBoundingClientRect().top + window.scrollY - topOffset(); }
+    y1 = Math.max(0, Math.min(Math.round(y1), max));   // извън възможния скрол → границата още от началото
+    if (instant || REDUCE) {   // наведнъж: крайната подредба вече е приложена; скролът — в същия кадър
+      items.forEach(function (it) { it.n.__target = null; });
+      window.scrollTo(0, y1);
+      return;
+    }
+    // обратно към началното състояние (пак в същия ход) и един цикъл до крайното
+    items.forEach(function (it) { setOpen(it.n, true); boxSet(it.b, it.from); it.n.__target = it.open; });
+    window.scrollTo(0, y0);
+    var run = ACC_RUN = { items: items, y0: y0, y1: y1, t0: null, raf: 0 };
+    function frame(ts) {
+      if (ACC_RUN !== run) return;
+      if (run.t0 == null) run.t0 = ts;
+      var p = Math.min(1, (ts - run.t0) / ACC_MS), e = accEase(p);
+      if (p < 1) {
+        run.items.forEach(function (it) {
+          var x = {}; ACC_KEYS.forEach(function (k) { x[k] = it.from[k] + (it.to[k] - it.from[k]) * e; });
+          boxSet(it.b, x);
+        });
+        if (run.y1 !== run.y0) window.scrollTo(0, run.y0 + (run.y1 - run.y0) * e);
+        run.raf = requestAnimationFrame(frame);
+        return;
+      }
+      // край: естествената височина (= измерената цел) и скролът точно на целта — същият кадър, без поправка след него
+      run.items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); it.n.__target = null; });
+      window.scrollTo(0, run.y1);
+      ACC_RUN = null;
+    }
+    run.raf = requestAnimationFrame(frame);
   }
   function accSet(n, open, opts) {
     opts = opts || {};
-    var head = accHead(n), closing = [];
-    if (open) {
+    var changes = [{ n: n, open: open }];
+    if (open) {   // по един отворен на ниво (.acc): брат, който се затваря, върви в СЪЩИЯ цикъл
       var par = n.parentElement;
       if (par && par.classList.contains("acc")) Array.prototype.forEach.call(par.children, function (s) {
-        if (s !== n && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) closing.push(s);
+        if (s !== n && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) changes.push({ n: s, open: false });
       });
     }
-    var targetY = null;
-    if (open && head && !opts.noScroll) {
-      // крайното място на заглавието = сегашното минус височините, които ще изчезнат НАД него
-      var shift = 0;
-      closing.forEach(function (s) {
-        if (s.compareDocumentPosition(n) & Node.DOCUMENT_POSITION_FOLLOWING) { var sb = accBody(s); if (sb && isOpen(s)) shift += sb.getBoundingClientRect().height; }
-      });
-      targetY = head.getBoundingClientRect().top + window.scrollY - shift - topOffset();
-    }
-    closing.forEach(function (s) { animTo(s, false, opts.instant); });
-    var a = animTo(n, open, opts.instant);
-    if (open) {
-      markSeen(n.getAttribute("data-key"));
-      if (n.classList.contains("panel")) markOpenSeen(n);
-      if (n.getAttribute("data-key") === "labs") { var lg = labDates(); if (lg.length) markSeen("lab_" + lg[0].day); }
-      if (targetY != null) {
-        scrollToY(targetY, opts.instant);
-        // страницата може още да е къса в началото на анимацията → след нея поправка, ако заглавието не е горе
-        if (a) a.addEventListener("finish", function () { var t = head.getBoundingClientRect().top - topOffset(); if (Math.abs(t) > 2 && n.__target == null && isOpen(n)) scrollToY(window.scrollY + t); });
-      }
-    } else if (head && !opts.noScroll) {
-      var r = head.getBoundingClientRect();
-      if (r.top < 0) scrollToY(r.top + window.scrollY - topOffset());
-    }
+    accRun(changes, opts.noScroll || !accHead(n) ? null : open ? { open: n } : { close: n }, !!opts.instant);
+    if (open) seenOnOpen(n);
   }
-  // data-go в дълбочина: разгъва пътя отгоре надолу (карта → месец → ден/дата)
-  function revealPath(el, root) {
-    var chain = [], c = el;
+  function seenOnOpen(n) {
+    markSeen(n.getAttribute("data-key"));
+    if (n.classList.contains("panel")) markOpenSeen(n);
+    if (n.getAttribute("data-key") === "labs") { var lg = labDates(); if (lg.length) markSeen("lab_" + lg[0].day); }
+  }
+  // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
+  // всичко и скролът до целта в ЕДИН цикъл (Т20)
+  function revealChanges(el, root) {
+    var chain = [], c = el, changes = [];
     while (c && c !== root) { if (c.tagName === "DETAILS" || (c.classList && c.classList.contains("card"))) chain.unshift(c); c = c.parentElement; }
-    chain.forEach(function (n) { if (!wantOpen(n)) accSet(n, true, { instant: true, noScroll: true }); else markSeen(n.getAttribute("data-key")); });
+    chain.forEach(function (n) {
+      if (!wantOpen(n)) {
+        changes.push({ n: n, open: true });
+        var par = n.parentElement;
+        if (par && par.classList.contains("acc")) Array.prototype.forEach.call(par.children, function (s) {
+          if (s !== n && chain.indexOf(s) < 0 && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) changes.push({ n: s, open: false });
+        });
+      }
+      seenOnOpen(n);
+    });
+    return changes;
   }
   // пре-рисуване на хронология (нови данни), без да се губи кое е отворено
   function rerenderHist(key, html) {
@@ -2087,12 +2111,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!key) return;
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
     if (!el) { window.scrollTo(0, 0); return; }
-    revealPath(el, root);
     if (key === "analysis") lsSet("app_seen_analysis_" + KEY_ID, "1");
-    setTimeout(function () {
-      var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el;
-      scrollToY(tgt.getBoundingClientRect().top + window.scrollY - topOffset()); flash(el);
-    }, 30);
+    var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el;
+    accRun(revealChanges(el, root), { el: tgt }, false);
+    flash(el);
   }
   document.getElementById("tabs").addEventListener("click", function (e) {
     var b = e.target.closest("button[data-tab]");
@@ -2105,7 +2127,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var more = e.target.closest("#logMore");
     if (more) {   // справка — не се помни (както в Victus): отваря се, прочиташ я, затваряш
       var ib = document.getElementById("logInfoBox"), open = !wantOpen(ib);
-      animTo(ib, open); more.setAttribute("aria-expanded", open ? "true" : "false");
+      accRun([{ n: ib, open: open }], null, false); more.setAttribute("aria-expanded", open ? "true" : "false");
       more.textContent = open ? "Скрий" : LOG_TXT[ib.getAttribute("data-set")].more;
       return;
     }
@@ -2120,7 +2142,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
