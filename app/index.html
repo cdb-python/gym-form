@@ -68,6 +68,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --gold: #b8862f;
     --border: #d8dee5;
     --soft: #eef4f1;
+    /* Т21: всички зелени тонове са променливи → в режим треньор (body.coach-on) стават сиви на едно място */
+    --soft2: #e6f4ec;            /* фон на значки, „записано“, броячът */
+    --okline: #b7dcc6;           /* рамка на „записано“ */
+    --line: #bcd9c9;             /* пунктирни/тънки зелени рамки */
+    --ate: #eaf6ef;              /* изядено хранене */
+    --eatrow: #fafcfb;           /* редът с „Изядох“ */
+    --me: #d9efe3;               /* моите балони в Разговор */
+    --accent-a40: rgba(46,125,91,0.4);   /* подчертаване на линковете */
+    --btn-off: #c5d0ca;          /* изключеният „Изпрати“ */
     --warn: #a0701c;
     --navh: 62px;
     --top: 0px;
@@ -126,7 +135,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card > .ch { font-weight: 700; font-size: 16px; margin: 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
   .card > .ch::after { content: "▸"; color: var(--accent); font-size: 14px; flex: none; }
   .card.open > .ch::after { content: "▾"; }
-  .card > .ch .chip { flex: none; margin-left: auto; padding: 1px 8px; border-radius: 999px; background: #e6f4ec; color: var(--accent-dark); font-size: 12px; font-weight: 700; }
+  .card > .ch .chip { flex: none; margin-left: auto; padding: 1px 8px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 12px; font-weight: 700; }
   .card > .ch .chip.pend { background: #fbf0dc; color: var(--warn); }
   .card > .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
   .card > .body { font-size: 15.5px; margin-top: 8px; display: none; overflow-x: auto; }
@@ -146,7 +155,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body details.fx[open] > summary::after { content: "\2212"; }
   .card .body details.fx > .fxb { padding: 11px 14px 13px; font-size: 15px; }
   .card .body details.fx > .fxb p:first-child { margin-top: 0; }
-  .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: rgba(46,125,91,0.4); text-underline-offset: 2px; cursor: pointer; }
+  .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
   .flash { outline: 2px solid var(--gold); outline-offset: 2px; transition: outline-color 0.4s; }
 
   /* панели (акордеон от първо ниво в Храна и Данни) */
@@ -158,6 +167,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel.open > .ch { border-bottom: 1px solid var(--border); background: var(--soft); }
   .card.panel > .body { margin: 0; padding: 12px 12px 4px; background: #fafbfc; }
   .card.panel > .body > .card { border-left-width: 3px; }
+  /* Т22: „Допълнителни въпроси“ (беше „Въпроси към теб“) — вътре без рамки и цветни ленти: редове с тънка линия (цветната страна е само на външната карта) */
+  .card.panel[data-key="qa"] > .body .qpend > .card,
+  .card.panel[data-key="qa"] > .body .qmonths > .card.hm { border: none; border-top: 1px solid var(--border); border-radius: 0; background: transparent; margin: 0; padding: 0; overflow: visible; }
+  .card.panel[data-key="qa"] > .body .qpend > .card:first-child { border-top: none; }
+  .card.panel[data-key="qa"] > .body .qpend > .card > .ch,
+  .card.panel[data-key="qa"] > .body .qmonths > .card.hm > .ch { padding: 12px 2px; background: none; border-bottom: none; }
+  .card.panel[data-key="qa"] > .body .qpend > .card > .body { margin: 0; padding: 0 2px 12px; }
+  .card.panel[data-key="qa"] > .body .qmonths > .card.hm > .body { margin: 0; padding: 0 2px 6px; background: none; }
+  .card.panel[data-key="qa"] > .body .qpend + .qmonths > .card.hm:first-child, .card.panel[data-key="qa"] > .body #qaEmpty + .qmonths > .card.hm:first-child { border-top: 1px solid var(--border); }
+  .card.panel[data-key="qa"] > .body #qaEmpty { margin: 2px 2px 12px; }
+  .qsent + .qsent { border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px; }
+  .qsent .qs-h { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .qsent .qs-h .qs-sub { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .qsent .qcqa > p:first-child { margin-top: 6px; }
 
   /* Ново за теб */
   .now { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; }
@@ -184,13 +207,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lf button:active, .btn:active { background: var(--accent-dark); }
   .lf button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   button:disabled { opacity: 0.55; cursor: not-allowed; }
-  .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
   .lf .ok.show { display: block; }
   .lf .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
   .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
-  .eat { margin-top: 12px; padding: 10px 12px; border: 1px solid #bcd9c9; border-radius: 10px; background: var(--soft); }
+  .eat { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
   .eat .er { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .eat .er label { margin: 0; font-size: 14px; font-weight: 600; flex: none; }
   .eat .er input { width: 132px; flex: none; padding: 9px 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; background: #fff; color: var(--ink); }
@@ -205,10 +228,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .logitem .wt { color: var(--accent-dark); font-weight: 600; }
   .logitem.ate { color: var(--accent-dark); font-weight: 600; }
   /* логът (модел Victus LogScreen): брояч „N / 21“ → „∞“ · днес отгоре разгънат · миналите дни свити · групи по месеци · ред = час + текст */
-  .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: #e6f4ec; color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
+  .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .card.panel > .ch .lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
   /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
-  .lhead .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: rgba(46,125,91,0.4); text-underline-offset: 2px; }
+  .lhead .lm { flex: none; margin: -6px 0; padding: 6px 2px; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
   .linfo > .body { display: none; padding: 0 0 10px; }
   .linfo.open > .body { display: block; }
   .linfo .lin { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
@@ -255,7 +278,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .start a { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid var(--border); color: var(--ink); text-decoration: none; cursor: pointer; }
   .start h3 + a { border-top: none; }
   .start a .n { flex: none; width: 27px; height: 27px; margin-top: 1px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-  .start a.done .n { background: #e6f4ec; color: var(--accent-dark); }
+  .start a.done .n { background: var(--soft2); color: var(--accent-dark); }
   .start a .x { flex: 1; min-width: 0; }
   .start a .x b { display: block; font-size: 15.5px; line-height: 1.35; }
   .start a .x small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; line-height: 1.4; }
@@ -271,7 +294,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body .qa .qst { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); }
   .card .body .qa .qst.pend { color: var(--warn); }
   .card .body .qa .qabtn { width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
-  .card .body .qa .qaok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .card .body .qa .qaok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
   .card .body .qa .qaok.show { display: block; }
 
   .card .body details.fx > summary .cnt { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
@@ -291,10 +314,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .iopts { display: flex; flex-wrap: wrap; gap: 6px; }
   .io { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 14.5px; line-height: 1.3; cursor: pointer; }
   .io input { margin: 0; accent-color: var(--accent); flex: none; }
-  .io:has(input:checked) { border-color: var(--accent); background: #e6f4ec; color: var(--accent-dark); font-weight: 700; }
+  .io:has(input:checked) { border-color: var(--accent); background: var(--soft2); color: var(--accent-dark); font-weight: 700; }
   .io:has(input:disabled) { cursor: default; }
   .iareas .ia { display: flex; border-radius: 10px; margin: 6px 0 0; }
-  .iasub { margin: 6px 0 4px 10px; padding: 4px 0 6px 12px; border-left: 3px solid #bcd9c9; }
+  .iasub { margin: 6px 0 4px 10px; padding: 4px 0 6px 12px; border-left: 3px solid var(--line); }
   .iasub[hidden] { display: none; }
   .iasub .ak { display: block; font-size: 13.5px; font-weight: 600; margin: 8px 0 3px; }
   .isv { min-height: 0; font-size: 12.5px; font-weight: 700; margin-top: 4px; }
@@ -328,7 +351,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hempty { margin: 0 0 12px; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 14.5px; }
 
   /* Т8: „Изядох" по data-meal (ред под храненето) */
-  .card .body tr.eatrow > td { padding: 5px 7px 8px; background: #fafcfb; }
+  .card .body tr.eatrow > td { padding: 5px 7px 8px; background: var(--eatrow); }
   .eat2 { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px 8px; margin: 6px 0 2px; }
   .card .body tr.eatrow .eat2 { margin: 0; }
   .eat2 .eatbtn { border: 1px solid var(--accent); background: #fff; color: var(--accent-dark); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
@@ -336,12 +359,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eat2 .eatok { flex: 1 1 100%; font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
   .eat2 .eatok:empty { display: none; }
   .eat2 .eatok.err { color: #9a3b3b; }
-  .card .body tr.ate > td { background: #eaf6ef; }
-  .card .body [data-meal].ate:not(tr) { background: #eaf6ef; border-radius: 8px; }
-  .offplan { display: block; width: 100%; margin: 4px 0 6px; padding: 11px 12px; border: 1px dashed #bcd9c9; border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; text-align: left; cursor: pointer; }
+  .card .body tr.ate > td { background: var(--ate); }
+  .card .body [data-meal].ate:not(tr) { background: var(--ate); border-radius: 8px; }
+  .offplan { display: block; width: 100%; margin: 4px 0 6px; padding: 11px 12px; border: 1px dashed var(--line); border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; text-align: left; cursor: pointer; }
   .offplan b { color: var(--accent-dark); }
   .lw.closed { display: none; }
-  .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: #e6f4ec; color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
+  .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .lhead span.lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
 
   /* Т8: Мерки (самостоятелен бутон) */
@@ -374,7 +397,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mgrid .ioff[hidden] { display: none; }
   input:disabled { background: #f3f5f7; }
   .msep { color: var(--muted); }
-  .mok { display: none; margin-top: 10px; padding: 10px 12px; background: #e6f4ec; border: 1px solid #b7dcc6; border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
+  .mok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
   .mok.show { display: block; }
   .mok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
   .mtoday { margin-top: 12px; padding-top: 8px; border-top: 1px solid var(--border); }
@@ -390,7 +413,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .up .labdate span { color: var(--muted); font-weight: 600; }
   .up input[type=date] { display: block; width: 100%; margin: 0 0 10px; padding: 9px 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
   .up .ioff { margin: 0 0 10px; padding: 9px 12px; border: 1px dashed #d9b46a; border-radius: 9px; background: #fbf0dc; color: var(--warn); font-size: 13.5px; font-weight: 700; }
-  .upmsg { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 9px; background: #e6f4ec; border: 1px solid #b7dcc6; color: var(--accent-dark); font-size: 14px; text-align: left; }
+  .upmsg { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 9px; background: var(--soft2); border: 1px solid var(--okline); color: var(--accent-dark); font-size: 14px; text-align: left; }
   .upmsg.show { display: block; }
   .upmsg.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
   .uprow { padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14.5px; }
@@ -407,7 +430,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lfl { color: var(--accent-dark); font-weight: 800; }
   .lableg { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
   /* изследвания — качване */
-  .up { border: 2px dashed #bcd9c9; border-radius: 12px; padding: 16px 14px; text-align: center; background: #fff; }
+  .up { border: 2px dashed var(--line); border-radius: 12px; padding: 16px 14px; text-align: center; background: #fff; }
   .up .btn { margin-top: 0; }
   .up p { margin: 8px 0 0; font-size: 13px; color: var(--muted); }
 
@@ -445,7 +468,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cmsg.me { margin-left: auto; align-items: flex-end; }
   .cmsg.them { margin-right: auto; align-items: flex-start; }
   .cb { padding: 8px 11px; border-radius: 14px; font-size: 15.5px; line-height: 1.45; overflow-wrap: anywhere; }
-  .cmsg.me .cb { background: #d9efe3; border-bottom-right-radius: 4px; }
+  .cmsg.me .cb { background: var(--me); border-bottom-right-radius: 4px; }
   .cmsg.them .cb { background: var(--soft); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
   .cwho { margin-bottom: 2px; color: var(--accent-dark); font-size: 13px; font-weight: 700; }
   .cq { margin-bottom: 6px; padding: 4px 8px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(0,0,0,0.05); color: var(--muted); font-size: 13px; cursor: pointer; }
@@ -459,6 +482,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cseen.on { color: #2f6fb0; font-weight: 700; }
   /* режим треньор: тънка лента вместо знака ЧЕРНОВА */
   body.coach-on #draft { display: none; }   /* Т19: в режим треньор няма лента над шапката */
+  /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо зеленото навсякъде; златното и червеното остават */
+  body.coach-on {
+    --accent: #2b3540; --accent-dark: #1f272f; --soft: #eef0f2;
+    --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --eatrow: #fafbfc; --me: #dde2e7;
+    --accent-a40: rgba(43,53,64,0.4); --btn-off: #c4c9cf;
+  }
   /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
   header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
   header.h3 > .wrap { min-width: 0; }
@@ -478,7 +507,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .crow { display: flex; align-items: flex-end; gap: 8px; }
   .crow textarea { flex: 1; min-width: 0; height: 42px; min-height: 42px; padding: 10px 12px; line-height: 20px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: none; overflow-y: hidden; display: block; }
   .crow button { flex: none; width: 42px; height: 42px; padding: 0; border: none; border-radius: 12px; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-  .crow button:disabled { background: #c5d0ca; opacity: 1; cursor: default; }
+  .crow button:disabled { background: var(--btn-off); opacity: 1; cursor: default; }
   .crow button:active { background: var(--accent-dark); }
   .cerr { display: none; margin-top: 6px; color: var(--warn); font-size: 13.5px; text-align: center; }
   .cerr.show { display: block; }
@@ -1576,17 +1605,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   function renderDanni() {
     var html = "", openCards = [], openQa = 0, sentN = qaSent().length;
-    // въпросниците: чакащите отговор са горе; изпратените (без отворен въпрос) — в „Изпратени ›" (хронология)
+    // Т22: две кутии — картата и месецът. Горе чакащите въпросници (леки редове); под тях месеците с изпратените (най-новият отворен).
     D.content.filter(isQaCard).forEach(function (r) { var c = qaCounts(r); if (c.open || !c.n) { openQa += c.open; openCards.push(r); } });
-    var qaInner = openCards.map(function (r) { var c = qaCounts(r); return cardHtml(r, false, "", c.open ? '<span class="chip pend">' + c.open + " без отговор</span>" : ""); }).join("");
-    if (!openCards.length) qaInner = '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма въпроси към теб.") + "</p>";
+    var qaInner = openCards.length ? '<div class="acc qpend">' + openCards.map(function (r) { var c = qaCounts(r); return cardHtml(r, false, "", c.open ? '<span class="chip pend">' + c.open + " без отговор</span>" : ""); }).join("") + "</div>"
+      : '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма допълнителни въпроси.") + "</p>";
     if (sentN) qaInner += qaSentHtml();
     var ic = intakeCount(intakeKeys()), nch = (IN.changes || []).length;
     html += panelHtml("intake", "📝", "Формата за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
       + (IN.on ? ichgHistHtml() : "")
       + "</div></div>", true);
-    html += panelHtml("qa", "📋", "Въпроси към теб", openQa ? openQa + " чакат отговор" : "", qaInner, openQa > 0);
+    html += panelHtml("qa", "📋", "Допълнителни въпроси", openQa ? openQa + " чакат отговор" : "", qaInner, openQa > 0);
     html += panelHtml("labs", "🧪", "Изследвания", labsSub(), labsHtml(), false);
     P.danni.innerHTML = html;
     wireIntake(); wireQa(); wireLabs();
@@ -1934,12 +1963,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       });
     return histCard("h_ichg", "📈", "Промени в отговорите", ch.length ? cnt(ch.length) : "още няма", inner);
   }
+  // Т22: изпратените — направо месеци (без „Изпратени“); в месеца въпросниците са отворени един под друг (без свой акордеон)
   function qaSentHtml() {
     var s = qaSent();
     if (!s.length) return "";
-    var inner = histMonths("hm_qa_", s, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " въпросник" : " въпросника"); },
-      function (x) { return qcard(x.c.title, x.c.n + (x.c.n === 1 ? " отговор" : " отговора") + " · " + fmtDate(x.day).slice(0, 5), '<div class="qcqa">' + (x.r.body || "") + "</div>", 'data-key="' + esc(cardKey(x.r)) + '"'); });
-    return histCard("h_qa", "📨", "Изпратени", s.length + (s.length === 1 ? " въпросник" : " въпросника"), inner);
+    return '<div class="acc qmonths">' + histMonths("hm_qa_", s, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " въпросник" : " въпросника"); },
+      function (x) {
+        return '<div class="qsent" data-key="' + esc(cardKey(x.r)) + '"><div class="qs-h">' + esc(x.c.title) + ' <span class="qs-sub">· ' + x.c.n + (x.c.n === 1 ? " отговор" : " отговора") + " · " + fmtDate(x.day).slice(0, 5) + "</span></div>"
+          + '<div class="qcqa">' + (x.r.body || "") + "</div></div>";
+      }, function (x) { return [cardKey(x.r)]; }) + "</div>";
   }
   function labsHistHtml() {
     var g = labDates();
@@ -2170,6 +2202,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     document.getElementById("tabs").style.display = "none";
   }
   if (COACH_CID) {
+    document.body.classList.add("coach-on");   // Т21: сивото на треньора още от първия кадър
+    var tcm = document.querySelector('meta[name="theme-color"]'); if (tcm) tcm.setAttribute("content", "#2b3540");
     (sb.auth && sb.auth.getSession ? safe(sb.auth.getSession()) : Promise.resolve({})).then(function (r) {
       var s = r && r.data && r.data.session;
       if (!s) { coachGate("Тази страница е за треньора. Влез с акаунта си."); return; }
