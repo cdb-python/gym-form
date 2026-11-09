@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.1">
+<meta name="version" content="v0.2.2">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -120,13 +120,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .inst ol { margin: 4px 0 0; padding-left: 22px; font-size: 14.5px; line-height: 1.6; }
   .inst p { margin: 4px 0 0; font-size: 14.5px; }
   .inst .shr { display: inline-block; width: 17px; height: 17px; vertical-align: -3px; margin-left: 2px; color: #1a7cf5; }
-  /* ЧЕРНОВА — голям знак горе */
-  .draft {
-    background: repeating-linear-gradient(135deg, #c43d3d 0 14px, #b13434 14px 28px);
-    color: #fff; text-align: center; padding: 8px 12px 7px;
-  }
-  .draft b { display: block; font-size: 24px; letter-spacing: 0.22em; line-height: 1.15; }
-  .draft span { display: block; font-size: 12.5px; font-weight: 600; opacity: 0.95; }
+  /* Т47: ЕДИН надпис „ЧЕРНОВА“ — в шапката, на ред под името; шрифтът на името (размер, дебелина, семейство), червени букви на светло
+     хапче (#c43d3d на бяло = 5,2:1; на оранжевата шапка би бил ~1,4). Само у клиента (и DEV, и изгледът като клиент); при треньора — не. */
+  header p.dmark { margin: 3px 0 0; opacity: 1; line-height: 1.3; }
+  .dmark span { display: inline-block; padding: 0 6px; border-radius: 7px; background: #fff; color: #c43d3d; letter-spacing: normal; }
   header { position: relative; background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
   header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
@@ -228,7 +225,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
   .loading { text-align: center; color: var(--muted); padding: 30px 0; }
   .empty { color: var(--muted); font-size: 14px; margin: 4px 0 10px; }
-  .ro { margin: 8px 0 0; padding: 7px 10px; border-radius: 8px; background: #fbf0dc; color: var(--warn); font-size: 13px; font-weight: 600; text-align: center; }
 
   /* формите (мерки, свободен лог, „Изядох") */
   .lf label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
@@ -396,7 +392,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   @media print {
     @page { size: A4; margin: 14mm 12mm; }
     body.print-an { max-width: none !important; margin: 0 !important; padding: 0 !important; }
-    body.print-an #draft, body.print-an #viewAs, body.print-an #hdr, body.print-an #loading, body.print-an .pane:not(#p-hrana),
+    body.print-an #hdr, body.print-an #loading, body.print-an .pane:not(#p-hrana),
     body.print-an #p-hrana > :not(.card.panel[data-key="analysis"]), body.print-an .ndot, body.print-an .tdot, body.print-an .badge,
     body.print-an .anprint, body.print-an .no-print, body.print-an .cert-pop { display: none !important; }
     body.print-an #main { padding: 0 !important; max-width: none !important; }
@@ -582,8 +578,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .crep { padding: 0; border: none; background: none; color: var(--accent-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; }
   .cseen { color: var(--muted); font-size: 11.5px; }
   .cseen.on { color: #2f6fb0; font-weight: 700; }
-  /* режим треньор: тънка лента вместо знака ЧЕРНОВА */
-  body.coach-on #draft { display: none; }
   /* Т29: името на клиента в шапката на треньора → меню с линковете към неговата страница */
   #whoBtn { padding: 2px 8px; margin: 0; border: none; border-radius: 8px; background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #whoBtn:hover, #whoBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); }
@@ -598,8 +592,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lmenu .lm-sep { height: 1px; margin: 4px 6px; background: var(--border); }
   .lmenu .lm-note { padding: 8px 12px; color: var(--muted); font-size: 13px; }
   .lmenu .lm-ok { color: var(--accent-dark); }
-  /* Т29: клиентската страница, отворена на устройство с вход на треньор (клиентът не е DEV) → само за преглед */
-  .viewas { padding: 5px 12px; background: #5f6b78; color: #fff; font-size: 13px; font-weight: 700; text-align: center; }   /* Т19: в режим треньор няма лента над шапката */
   /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо цвета на клиента навсякъде; червеното остава. Т45: и кремът/оранжевото */
   body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
     --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
@@ -686,7 +678,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </style>
 </head>
 <body>
-<div class="draft" id="draft"><b>ЧЕРНОВА</b><span id="draftSub">само за преглед</span></div>
 <header id="hdr">
   <div class="wrap" style="padding:0 4px;">
     <h1 id="paneTitle">Начало</h1>
@@ -846,6 +837,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ── РЕЖИМ ТРЕНЬОР: ?c=<client_id> + сесия на треньор (Supabase Auth, вход от tools/coach/). Същият рендер;
   //    данните идват от coach_get_client, всичко е само за четене, освен „Разговор" (coach_add_message). ──
   var COACH_CID = QS.get("c");
+  // Т47: ЕДИН надпис „ЧЕРНОВА“ в шапката, на ред под името — у клиента (и DEV, и изгледът като клиент); при треньора (?c=) — не.
+  var DRAFT_MARK = true;   // ← ЕДИНСТВЕНОТО място: false = надписът изчезва навсякъде (при пускането на първото момиче)
+  if (window.CDB_DRAFT_MARK === false) DRAFT_MARK = false;   // само за теста (mock: nomark=1)
+  if (DRAFT_MARK && !COACH_CID) document.getElementById("who").insertAdjacentHTML("afterend", '<p class="dmark" id="draftMark"><span>ЧЕРНОВА</span></p>');
   var COACH = false;                                // става true, когато има сесия
   var COACH_URL = window.CDB_COACH_URL || "../coach/";
   if (!token && !COACH_CID) { showMissingToken("cdbgym_app_token"); return; }
@@ -853,7 +848,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ── ЗАЩИТА ЗА ЗАПИС (чернова): записва се само при клиент, чието име започва с „DEV". Иначе — само четене. ──
   var CAN_WRITE = false;
-  var RO_NOTE = '<div class="ro">Чернова — записът е изключен</div>';
   function wr(name, args) {
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
     return sb.rpc(name, args);
@@ -1372,7 +1366,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво хапна или пи"></textarea>'
       + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
-      + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
+      + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + "</div>"
       + '<div class="lrows" id="logToday"></div>';
     return panelHtml("log", "log", "Днес", "", inner, open, chip);
   }
@@ -1480,7 +1474,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (START && !menus.length) html += '<p class="lead" id="hranaLead" style="margin:14px 2px 12px">Режимът ти още се подготвя.</p>';
     if (menus.length) {
       html += '<div class="sec" data-key="menu"><h2>Режимът</h2>'
-        + (CAN_WRITE ? "" : RO_NOTE)
         + menus.map(function (r) { return cardHtml(r, false); }).join("")
         + "</div>";
     }
@@ -1566,7 +1559,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<span class="msl">/</span><input type="text" inputmode="numeric" id="lg_bp_dia" aria-label="Кръвно — долно" placeholder="долно" autocomplete="off"' + (BP_ON ? "" : " disabled") + '><span class="mu">mmHg</span></div>'
       + '<label class="msm" for="lg_pulse"><span class="mn">Пулс</span><input type="text" inputmode="numeric" id="lg_pulse" autocomplete="off"' + (BP_ON ? "" : " disabled") + '><span class="mu">уд/мин</span></label>'
       + MEAS_MORE.map(small).join("") + "</div></details>"
-      + '<button type="button" class="btn" id="lgBtn"' + (CAN_WRITE ? "" : " disabled") + '>Запиши</button><div class="ok mok" id="lgOk"></div>' + (CAN_WRITE ? "" : RO_NOTE)
+      + '<button type="button" class="btn" id="lgBtn"' + (CAN_WRITE ? "" : " disabled") + '>Запиши</button><div class="ok mok" id="lgOk"></div>'
       + '<div id="mToday">' + measTodayHtml() + "</div></div>"
       + measHistHtml();
     wireMeas();
@@ -1675,7 +1668,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function intakeHtml() {
     var head;
     if (!IN.on) head = '<p class="ioff" id="intakeOff">' + esc(INTAKE_OFF_TXT) + "</p>";
-    else if (IN.ro) head = RO_NOTE;
     else head = "";
     var html = '<div class="iform" id="intakeForm">' + head;
     INTAKE_Q.forEach(function (g, gi) {
@@ -1852,7 +1844,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<input type="file" id="labFile" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>'
       + '<button type="button" class="btn" id="upBtn"' + (dis ? " disabled" : "") + ">" + ic("upload", "icl") + "Качи снимка или PDF</button>"
       + '<div class="upmsg' + (LABS.msg ? (LABS.msg.err ? " show err" : " show") : "") + '" id="upMsg" aria-live="polite">' + (LABS.msg ? esc(LABS.msg.text) : "") + "</div>"
-      + (LABS.on && !CAN_WRITE ? RO_NOTE : "") + "</div>";
+      + "</div>";
     if (LABS.uploads.length) h += '<div class="sec"><h2>Качени</h2><div id="labUps">' + LABS.uploads.slice(0, 8).map(upRow).join("") + "</div>"
       + (LABS.uploads.length > 8 ? '<p class="empty">… и още ' + (LABS.uploads.length - 8) + "</p>" : "") + "</div>";
     if (g.length) {
@@ -1942,7 +1934,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">' + ic("close") + "</button></div>"
       + '<div class="crow"><textarea id="cText" rows="1" placeholder="' + (COACH ? "Напиши на " + esc(clientShort()) + "…" : "Напиши съобщение…") + '"></textarea>'
       + '<button type="button" id="cSend" aria-label="Изпрати" disabled>' + ic("send") + "</button></div>"
-      + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div>' + (CAN_WRITE || COACH ? "" : RO_NOTE) + "</div>";
+      + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div>' + "</div>";
     wireChat();
   }
   function chatBottom() {
@@ -2167,7 +2159,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       });
       var btn = qa.querySelector(".qabtn"), ok = qa.querySelector(".qaok");
       if (!btn || !ok) return;
-      if (!CAN_WRITE) { btn.disabled = true; btn.insertAdjacentHTML("afterend", RO_NOTE); }
+      if (!CAN_WRITE) btn.disabled = true;
       btn.addEventListener("click", function () {
         var parts = [], got = [];
         Array.prototype.forEach.call(items, function (qi) {
@@ -2371,7 +2363,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return w;
   }
   function accHead(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > summary") : n.querySelector(":scope > .ch"); }
-  // хедърът (ЧЕРНОВА/зелената лента) не е залепнал → горният край на екрана; ако някога стане sticky/fixed — под него
+  // хедърът не е залепнал → горният край на екрана; ако някога стане sticky/fixed — под него
   function topOffset() {
     var h = document.getElementById("hdr"), cs = h && getComputedStyle(h);
     return (cs && (cs.position === "sticky" || cs.position === "fixed") ? h.getBoundingClientRect().bottom : 0) + ACC_GAP;
@@ -2505,8 +2497,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ НАВИГАЦИЯ ════════
   // Лентата долу е единствената навигация между страници (#хешът на бутона се пази); вътре всичко е акордеон.
   function setTop() {
-    var h = document.getElementById("hdr"), dr = document.getElementById("draft"), va = document.getElementById("viewAs");
-    document.documentElement.style.setProperty("--top", (h.offsetHeight + dr.offsetHeight + (va ? va.offsetHeight : 0)) + "px");
+    var h = document.getElementById("hdr");   // Т47: над шапката вече няма ленти
+    document.documentElement.style.setProperty("--top", h.offsetHeight + "px");
   }
   // Т41: един маркер за петте бутона, все едно двете хапчета са едно. Позиция и ширина — от кутията на целевия бутон спрямо лентата;
   // времето расте със стъпките (220 ms за съседен, +30 ms на всяка следваща, до 340). Първото поставяне и смяната на ширината на
@@ -2698,7 +2690,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var done = function () { coachNav(COACH_URL); };
       try { sb.auth.signOut().then(done, done); } catch (e) { done(); }
     });
-    RO_NOTE = "";   // Т27: при треньора без бележка „само се чете“ — полетата и бутоните извън чата пак са изключени
     document.title = name + " · треньор";
   }
   function coachGate(msg) {
@@ -2759,11 +2750,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     VIEW_AS = !COACH && VIEWER && !isDev;
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
       CAN_WRITE = false;
-      document.getElementById("hdr").insertAdjacentHTML("beforebegin", '<div class="viewas" id="viewAs">Гледаш като ' + esc(D.name || nm || "") + "</div>");
       document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
     }
     if (!COACH && VIEWER && QS.get("from")) viewBack(QS.get("from"));   // Т45
-    if (!COACH) document.getElementById("draftSub").textContent = CAN_WRITE ? "тестов клиент — записът е включен" : "само за преглед — записът е изключен";
     // интейкът: get_intake → {data, updated_at, changes}. Грешка (RPC-то още го няма) → изключен, без гърмене.
     IN.on = !!(intake && !intake.error);
     IN.data = (IN.on && intake.data) || {};
