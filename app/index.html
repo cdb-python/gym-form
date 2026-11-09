@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.3">
+<meta name="version" content="v0.2.4">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1793,27 +1793,38 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   // ════════ ИЗСЛЕДВАНИЯ (Т7) — модел Victus LabsScreen, но СНИМКАТА НЕ СЕ ПАЗИ: препис → таблица ════════
-  // Снимките се свиват тук (дългата страна ≤ 1600 px, JPEG 0,8); PDF не се пипа. Лимит 10 MB на файл.
+  // Снимките се свиват тук: КЪСАТА страна ≤ 1600 px и общо ≤ 12 MP (под лимита на canvas в iOS ~16,7 MP) — Т49: дълъг скрийншот
+  // на протокол (1080×4400) остава четлив, вместо 396×1600. JPEG 0,8; над 10 MB → 0,6; пак над 10 MB → грешката за размер.
+  // PDF не се пипа. Лимит 10 MB на файл.
   // Качва се към edge функцията lab-upload (токен модел). Чете се през get_labs(p_token) → {uploads, results}, без пътища.
   // Няма ли get_labs на живо → „Качването ще се включи след обновяване", бутонът е изключен.
   var LABS = { on: false, uploads: [], results: [], msg: null };
   var LAB_FN = window.CDB_LAB_FN || SB_URL + "/functions/v1/lab-upload";
-  var LAB_MAX = 10 * 1024 * 1024, LAB_SIDE = 1600, LAB_Q = 0.8;
+  var LAB_MAX = 10 * 1024 * 1024, LAB_SIDE = 1600, LAB_PX = 12e6, LAB_Q = 0.8, LAB_Q2 = 0.6;
   function labOkType(f) { return /^(image\/(jpeg|png|heic|heif|webp)|application\/pdf)$/.test(f.type || "") || /\.(jpe?g|png|heic|heif|webp|pdf)$/i.test(f.name || ""); }
   function shrinkLab(file) {
     var asIs = { blob: file, name: file.name, type: file.type };
     if (file.type === "application/pdf" || /\.pdf$/i.test(file.name) || !window.createImageBitmap) return Promise.resolve(asIs);
     return createImageBitmap(file).then(function (bmp) {
-      var scale = Math.min(1, LAB_SIDE / Math.max(bmp.width, bmp.height));
-      var w = Math.round(bmp.width * scale), h = Math.round(bmp.height * scale), cv = document.createElement("canvas");
+      var bw = bmp.width, bh = bmp.height;
+      var scale = Math.min(1, LAB_SIDE / Math.min(bw, bh), Math.sqrt(LAB_PX / (bw * bh)));   // Т49: късата страна, не дългата; + площта
+      var w = Math.max(1, Math.round(bw * scale)), h = Math.max(1, Math.round(bh * scale)), cv = document.createElement("canvas");
+      if (w * h > LAB_PX) { w = Math.max(1, Math.floor(bw * scale)); h = Math.max(1, Math.floor(bh * scale)); }   // закръглянето не минава 12 MP
       cv.width = w; cv.height = h; cv.getContext("2d").drawImage(bmp, 0, 0, w, h);
       if (bmp.close) bmp.close();
-      return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, "image/jpeg", LAB_Q); }).then(function (b) {
-        // по-малка снимка не се „свива" в по-голям JPEG; голяма снимка винаги става ≤ 1600 px
+      function jpeg(qq) { return new Promise(function (res) { cv.toBlob(function (b) { res(b); }, "image/jpeg", qq); }); }
+      function out(b) { return { blob: b, name: String(file.name || "snimka").replace(/\.[^.]+$/, "") + ".jpg", type: "image/jpeg" }; }
+      return jpeg(LAB_Q).then(function (b) {
+        // по-малка снимка не се „свива" в по-голям JPEG; голяма снимка винаги се свива (късата страна ≤ 1600 px, ≤ 12 MP)
         if (!b || (scale === 1 && b.size >= file.size)) return asIs;
-        return { blob: b, name: String(file.name || "snimka").replace(/\.[^.]+$/, "") + ".jpg", type: "image/jpeg" };
+        if (b.size <= LAB_MAX) return out(b);
+        return jpeg(LAB_Q2).then(function (b2) {   // над 10 MB → още веднъж с 0,6
+          if (!b2) return asIs;
+          if (b2.size > LAB_MAX) throw new Error("size");   // пак над 10 MB → грешката за размер (labErr)
+          return out(b2);
+        });
       });
-    }).catch(function () { return asIs; });   // HEIC на браузър, който не го чете → както е
+    }).catch(function (e) { if (e && e.message === "size") throw e; return asIs; });   // HEIC на браузър, който не го чете → както е
   }
   function labDates() {
     var m = {}, order = [];
