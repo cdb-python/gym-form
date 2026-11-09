@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.1.0">
+<meta name="version" content="v0.2.0">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
-<meta name="theme-color" content="#2e7d5b">
+<meta name="theme-color" content="#c77d2e">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -47,7 +47,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   try {
     var t = new URLSearchParams(location.search).get("t");
     if (new URLSearchParams(location.search).get("c")) { /* треньор */ }
-    else if (t) { localStorage.setItem("cdbgym_app_token", t); }
+    else if (t) { if (!new URLSearchParams(location.search).get("from")) localStorage.setItem("cdbgym_app_token", t); }   // Т45: &from = треньорът гледа → не става „последният клиент“ на телефона му
     else {
       var saved = localStorage.getItem("cdbgym_app_token");
       if (saved) { location.replace(location.pathname + "?t=" + saved + location.hash); return; }
@@ -60,25 +60,26 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </script>
 <style>
   :root {
-    --bg: #f4f6f8;
+    /* Т45: клиентът — оранжевото на фе-тракера (cdb-Victus/app/phe-tracker); треньорът (body.coach-on) остава сив */
+    --bg: #f8efe6;               /* кремавият фон на фе-тракера */
     --card: #ffffff;
     --ink: #1c2733;
-    --muted: #6b7886;
-    --accent: #2e7d5b;
-    --accent-dark: #235e45;
-    --gold: #b8862f;
+    --muted: #5f6b78;            /* вторичният текст (и в двата режима): 4,79 на крема, 5,44 на бяло, 5,02 на сивия фон */
+    --accent: #c77d2e;           /* шапката, хапчетата на лентата, иконите, рамки/фокус; бял текст на него само едър (3,28) */
+    --accent-dark: #8a5a1a;      /* ВСИЧКИ оранжеви текстове на светло (5,9 на бяло, 5,2 на крема) + hover/active на бутоните */
+    --btn: #a55f18;              /* плътните бутони с бял текст (бял 4,94) */
     --border: #d8dee5;
-    --soft: #eef4f1;
-    /* Т21: всички зелени тонове са променливи → в режим треньор (body.coach-on) стават сиви на едно място */
-    --soft2: #e6f4ec;            /* фон на значки, „записано“, броячът */
-    --okline: #b7dcc6;           /* рамка на „записано“ */
-    --line: #bcd9c9;             /* пунктирни/тънки зелени рамки */
-    --ate: #eaf6ef;              /* изядено хранене */
-    --eatrow: #fafcfb;           /* редът с „Изядох“ */
-    --me: #d9efe3;               /* моите балони в Разговор */
-    --accent-a40: rgba(46,125,91,0.4);   /* подчертаване на линковете */
-    --btn-off: #c5d0ca;          /* изключеният „Изпрати“ */
-    --edge: #2e7d5b;             /* Т26: цветната лява страна на картите и панелите (декоративна) */
+    --soft: #fbf1e6;
+    /* Т21: всички тонове на темата са променливи → в режим треньор (body.coach-on) стават сиви на едно място */
+    --soft2: #fcebd6;            /* фон на значки, „записано“, броячът */
+    --okline: #ecc596;           /* рамка на „записано“ */
+    --line: #e9cfa9;             /* пунктирни/тънки рамки */
+    --ate: #fdf3e6;              /* изядено хранене */
+    --eatrow: #fffbf6;           /* редът с „Изядох“ */
+    --me: #f9e2c7;               /* моите балони в Разговор */
+    --accent-a40: rgba(199,125,46,0.4);   /* подчертаване на линковете */
+    --btn-off: #e3d3bf;          /* изключеният „Изпрати“ */
+    --edge: #b06f22;             /* Т26: цветната лява страна на картите и панелите (декоративна; --card-edge на фе-тракера) */
     --warn: #a0701c;
     --navh: 48px;      /* Т36: височината на хапчето: 4 + 40 + 4 */
     --navgap: 14px;    /* отстоянието на плаващата лента от долния край */
@@ -185,7 +186,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #whoBtn .ar svg.ic { width: 15px; height: 15px; vertical-align: -2px; }
   .card .body details.fx > .fxb p:first-child { margin-top: 0; }
   .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
-  .flash { outline: 2px solid var(--gold); outline-offset: 2px; transition: outline-color 0.4s; }
+  .flash { outline: 2px solid var(--accent); outline-offset: 2px; transition: outline-color 0.4s; }
 
   /* панели (акордеон от първо ниво в Храна и Данни) */
   .card.panel { border-left-width: 5px; padding: 0; overflow: hidden; }
@@ -212,8 +213,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .qsent .qcqa > p:first-child { margin-top: 6px; }
 
   /* Ново за теб */
-  .now { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; }
-  .now h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: #8a5a00; }
+  .now { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; }
+  .now h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-dark); }
   .now a { display: flex; gap: 10px; align-items: baseline; padding: 7px 0; border-top: 1px solid var(--border); text-decoration: none; color: var(--ink); font-weight: 600; font-size: 15px; }
   .now a:first-of-type { border-top: none; }
   .now a .i { flex: none; width: 22px; text-align: center; }
@@ -234,7 +235,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
   .lf .row2 { display: flex; gap: 10px; }
   .lf .row2 > div { flex: 1 1 0; min-width: 0; }
-  .lf button, .btn { width: 100%; margin-top: 12px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; }
+  .lf button, .btn { width: 100%; margin-top: 12px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--btn); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; }
   .lf button:active, .btn:active { background: var(--accent-dark); }
   .lf button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   button:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -242,7 +243,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lf .ok.show { display: block; }
   .lf .ok.err { background: #fdecec; border-color: #f3c2c2; color: #9a3b3b; }
   .lf details.meas { margin: 8px 0 2px; border-top: 1px solid var(--border); padding-top: 6px; }
-  .lf details.meas summary { cursor: pointer; color: var(--accent); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
+  .lf details.meas summary { cursor: pointer; color: var(--accent-dark); font-weight: 600; font-size: 14px; padding: 4px 0; list-style: none; }
   .lf details.meas summary::-webkit-details-marker { display: none; }
   .eat { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
   .eat .er { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -306,11 +307,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   details.lday > .lrows { margin: 0; padding: 2px 12px 6px; }
 
   /* ден 1 — първи стъпки (Начало) и празните състояния */
-  .start { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--gold); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 4px; }
-  .start h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: #8a5a00; }
+  .start { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 4px; }
+  .start h3 { margin: 0 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-dark); }
   .start a { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid var(--border); color: var(--ink); text-decoration: none; cursor: pointer; }
   .start h3 + a { border-top: none; }
-  .start a .n { flex: none; width: 27px; height: 27px; margin-top: 1px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .start a .n { flex: none; width: 27px; height: 27px; margin-top: 1px; border-radius: 50%; background: var(--btn); color: #fff; font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
   .start a.done .n { background: var(--soft2); color: var(--accent-dark); }
   .start a .x { flex: 1; min-width: 0; }
   .start a .x b { display: block; font-size: 15.5px; line-height: 1.35; }
@@ -326,7 +327,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body .qa textarea { width: 100%; min-height: 54px; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; }
   .card .body .qa .qst { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); }
   .card .body .qa .qst.pend { color: var(--warn); }
-  .card .body .qa .qabtn { width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--accent); border: none; border-radius: 10px; cursor: pointer; }
+  .card .body .qa .qabtn:active { background: var(--accent-dark); }
+  .card .body .qa .qabtn { width: 100%; margin-top: 14px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--btn); border: none; border-radius: 10px; cursor: pointer; }
   .card .body .qa .qaok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
   .card .body .qa .qaok.show { display: block; }
 
@@ -552,13 +554,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #p-razgovor .chatwrap { flex: 1; min-height: 0; display: flex; }
   #p-razgovor .chat { flex: 1; min-height: 0; }
   body.chat-on { padding-bottom: 0; }
-  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--accent); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
+  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--btn); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
   .cdown.show { display: block; }
+  .cdown:active { background: var(--accent-dark); }
   .cempty { margin: 6px 0; color: var(--muted); font-size: 14px; text-align: center; }
   .cday { text-align: center; margin: 8px 0 10px; }
   .cday span { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
   .csys { margin: 0 8px 10px; text-align: center; color: var(--muted); font-size: 12.5px; }
-  .csys[data-go] { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(107,120,134,0.45); text-underline-offset: 2px; }
+  .csys[data-go] { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(95,107,120,0.45); text-underline-offset: 2px; }
   .cmsg { display: flex; flex-direction: column; max-width: 86%; margin: 0 0 10px; }
   .cmsg.me { margin-left: auto; align-items: flex-end; }
   .cmsg.them { margin-right: auto; align-items: flex-start; }
@@ -566,13 +569,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cmsg.me .cb { background: var(--me); border-bottom-right-radius: 4px; }
   .cmsg.them .cb { background: var(--soft); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
   .cwho { margin-bottom: 2px; color: var(--accent-dark); font-size: 13px; font-weight: 700; }
-  .cq { margin-bottom: 6px; padding: 4px 8px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(0,0,0,0.05); color: var(--muted); font-size: 13px; cursor: pointer; }
+  .cq { margin-bottom: 6px; padding: 4px 8px; border-left: 3px solid var(--accent); border-radius: 6px; background: rgba(255,255,255,0.5); color: var(--muted); font-size: 13px; cursor: pointer; }   /* Т45: по-светъл от балона (не по-тъмен) → сивият текст ≥ 4,5 на --me и --soft в двата режима */
   .cq b { display: block; color: var(--accent-dark); font-size: 12px; }
   .cm { color: var(--muted); font-size: 13px; }
   .cb a { color: var(--accent-dark); font-weight: 600; word-break: break-all; }
   .cmeta { display: flex; align-items: center; gap: 10px; padding: 2px 4px 0; color: var(--muted); font-size: 12px; }
   .cnew { padding: 0 7px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; }
-  .crep { padding: 0; border: none; background: none; color: var(--accent); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+  .crep { padding: 0; border: none; background: none; color: var(--accent-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; }
   .cseen { color: var(--muted); font-size: 11.5px; }
   .cseen.on { color: #2f6fb0; font-weight: 700; }
   /* режим треньор: тънка лента вместо знака ЧЕРНОВА */
@@ -581,6 +584,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #whoBtn { padding: 2px 8px; margin: 0; border: none; border-radius: 8px; background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #whoBtn:hover, #whoBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); }
   #whoBtn .ar { font-size: 12px; opacity: 0.9; }
+  /* Т45: дългото име се реже с „…“, ↗ остава видима (бутонът е flex: името се свива, стрелката — не) */
+  #whoBtn { display: inline-flex; align-items: center; vertical-align: top; }
+  #whoBtn .wn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #whoBtn .ar { flex: none; margin-left: 5px; display: inline-flex; }
   .lmenu { position: absolute; z-index: 70; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 24px)); padding: 6px; background: #fff; color: var(--ink); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(28,39,51,0.18); text-align: left; }
   .lmenu a, .lmenu button { display: block; width: 100%; padding: 11px 12px; border: none; border-radius: 9px; background: none; color: var(--accent-dark); font: inherit; font-size: 15px; font-weight: 700; text-align: left; text-decoration: none; cursor: pointer; }
   .lmenu a:hover, .lmenu button:hover { background: var(--soft); }
@@ -589,15 +596,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lmenu .lm-ok { color: var(--accent-dark); }
   /* Т29: клиентската страница, отворена на устройство с вход на треньор (клиентът не е DEV) → само за преглед */
   .viewas { padding: 5px 12px; background: #5f6b78; color: #fff; font-size: 13px; font-weight: 700; text-align: center; }   /* Т19: в режим треньор няма лента над шапката */
-  /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо зеленото навсякъде; златното и червеното остават */
+  /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо цвета на клиента навсякъде; червеното остава. Т45: и кремът/оранжевото */
   body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
     --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
     --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --eatrow: #fafbfc; --me: #e3e7eb;
     --accent-a40: rgba(95,107,120,0.4); --btn-off: #c4c9cf;
+    --bg: #f4f6f8; --btn: #5f6b78;   /* Т45: без крема и оранжевото на клиента (бял на --btn 5,4) */
   }
   /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
   header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
-  header.h3 > .wrap { min-width: 0; }
+  header.h3 > .wrap { min-width: 0; margin: 0; }   /* Т45: без auto полета → клетката е точно средната колона, дългото име не я разширява */
+  header.h3.vab { grid-template-columns: 36px minmax(0, 1fr) 36px; }   /* Т45: само ← (без „Изход“) — двете странични колони са еднакви */
+  header.vas p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   header.h3 h1, header.h3 p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
   .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
@@ -605,7 +615,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hbtn.out { justify-self: end; }
   @media (max-width: 359px) { header.h3 { grid-template-columns: 36px minmax(0, 1fr) 36px; } .hbtn.out { width: 36px; padding: 0; } .hbtn.out span { display: none; } }
   header.h3 > .wrap { padding: 0 !important; }
-  .cflash .cb { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .cflash .cb { outline: 2px solid var(--accent); outline-offset: 1px; }
   .cform { margin-top: 10px; flex: none; }
   .creply { display: none; align-items: center; gap: 8px; margin-bottom: 6px; padding: 5px 9px; border-left: 3px solid var(--accent); border-radius: 6px; background: var(--soft); font-size: 13px; }
   .creply.show { display: flex; }
@@ -613,7 +623,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .creply button { flex: none; padding: 2px 6px; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; }
   .crow { display: flex; align-items: flex-end; gap: 8px; }
   .crow textarea { flex: 1; min-width: 0; height: 42px; min-height: 42px; padding: 10px 12px; line-height: 20px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: none; overflow-y: hidden; display: block; }
-  .crow button { flex: none; width: 42px; height: 42px; padding: 0; border: none; border-radius: 12px; background: var(--accent); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .crow button { flex: none; width: 42px; height: 42px; padding: 0; border: none; border-radius: 12px; background: var(--btn); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .crow button:disabled { background: var(--btn-off); opacity: 1; cursor: default; }
   .crow button:active { background: var(--accent-dark); }
   .cerr { display: none; margin-top: 6px; color: var(--warn); font-size: 13.5px; text-align: center; }
@@ -2603,7 +2613,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
@@ -2620,11 +2630,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!document.getElementById("linkMenu")) return;
       if (!res || res.error || !res.data || !res.data.token) { m.innerHTML = '<div class="lm-note">Не успях да взема линка. Опитай пак.</div>'; return; }
       LINK = res.data;
-      var app = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token), location.href).href;
+      var app = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token), location.href).href;   // за копиране (към клиента)
+      var appGo = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token) + "&from=" + encodeURIComponent(COACH_CID), location.href).href;   // Т45: отваряне — в същия прозорец, с ← обратно
       var me = new URL("../me/?t=" + encodeURIComponent(LINK.token), location.href).href;
       var h = (LINK.active === false ? '<div class="lm-note">Линкът не е активен.</div>' : "")
-        + '<a role="menuitem" id="lmApp" href="' + esc(app) + '" target="_blank" rel="noopener">Отвори новата страница</a>'
-        + (LINK.is_dev ? "" : '<a role="menuitem" id="lmMe" href="' + esc(me) + '" target="_blank" rel="noopener">Отвори сегашния дневник</a>')
+        + '<a role="menuitem" id="lmApp" href="' + esc(appGo) + '">Отвори новата страница</a>'
+        + (LINK.is_dev ? "" : '<a role="menuitem" id="lmMe" href="' + esc(me) + '">Отвори сегашния дневник</a>')
         + '<div class="lm-sep"></div>'
         + '<button type="button" role="menuitem" id="lmCopyApp" data-url="' + esc(app) + '">Копирай линка към новата</button>'
         + (LINK.is_dev ? "" : '<button type="button" role="menuitem" id="lmCopyMe" data-url="' + esc(me) + '">Копирай линка към дневника</button>');
@@ -2658,6 +2669,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Режим треньор (Т19): без лента над шапката. В зелената шапка: ← (към списъка) вляво, бутонът на страницата + името на клиента
   // в средата, „Изход“ вдясно (signOut → входа за треньора). Записът е изключен навсякъде освен в чата.
   var coachNav = function (u) { location.href = u; };
+  // Т45: дошли сме от изгледа на треньора („Отвори новата страница“, &from=<client_id>) и на устройството има вход на треньор →
+  // шапката като на треньора: ← вляво, заглавието в средата. ← = назад, ако предишната страница е нашият изглед (?c=), иначе към него.
+  var vaBackFn = function () { history.back(); };
+  function viewBack(from) {
+    var h = document.getElementById("hdr");
+    h.classList.add("h3", "vab");
+    h.insertAdjacentHTML("afterbegin", '<button type="button" class="hbtn back" id="vaBack" aria-label="Назад към изгледа на треньора">' + ic("back") + "</button>");
+    h.insertAdjacentHTML("beforeend", '<span class="hside" aria-hidden="true"></span>');
+    document.getElementById("vaBack").addEventListener("click", function () {
+      var r = null; try { r = new URL(document.referrer); } catch (e) {}
+      if (r && r.origin === location.origin && r.pathname === location.pathname && r.searchParams.get("c")) vaBackFn();
+      else coachNav(location.pathname + "?c=" + encodeURIComponent(from));
+    });
+  }
   function coachBar(name) {
     document.body.classList.add("coach-on");
     var h = document.getElementById("hdr");
@@ -2731,7 +2756,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
       CAN_WRITE = false;
       document.getElementById("hdr").insertAdjacentHTML("beforebegin", '<div class="viewas" id="viewAs">Гледаш като ' + esc(D.name || nm || "") + "</div>");
+      document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
     }
+    if (!COACH && VIEWER && QS.get("from")) viewBack(QS.get("from"));   // Т45
     if (!COACH) document.getElementById("draftSub").textContent = CAN_WRITE ? "тестов клиент — записът е включен" : "само за преглед — записът е изключен";
     // интейкът: get_intake → {data, updated_at, changes}. Грешка (RPC-то още го няма) → изключен, без гърмене.
     IN.on = !!(intake && !intake.error);
@@ -2742,7 +2769,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
     if (COACH) {
-      who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false">' + esc(D.name) + ' <span class="ar" aria-hidden="true">' + ic("open") + "</span></button>";
+      who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false"><span class="wn">' + esc(D.name) + '</span><span class="ar" aria-hidden="true">' + ic("open") + "</span></button>";
       document.getElementById("whoBtn").addEventListener("click", function (e) { e.stopPropagation(); linkMenu(); });
     }
     computeLastClient();
