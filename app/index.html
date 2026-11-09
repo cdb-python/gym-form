@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.3">
+<meta name="version" content="v1.0.4">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2391,6 +2391,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т55: банерът „Изядох“ — под храненето, с ширината на картата, в страницата (не модал); само „Запиши“ пише.
   // Т59: банерът „Изядох“ и ⓘ балонът — целият над лентата долу. Ако страницата свършва преди това (балон под последната карта),
   //   страницата се удължава с невидим маркер 1 px на нужната височина (#popSpacer) и той се маха при затваряне.
+  // Т66: превъртането над лентата и връщането при затваряне (ако страницата е била удължена) — през двигателя (ACC_MS, accEase).
   function popFit(pop) {
     var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
     if (pr.bottom <= lim) return;
@@ -2400,9 +2401,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
       sp.style.top = (want - 1) + "px";
     }
-    window.scrollBy(0, need);
+    accRun([], { y: window.scrollY + need }, false);
   }
-  function popUnfit() { var sp = document.getElementById("popSpacer"); if (sp && sp.parentNode) sp.parentNode.removeChild(sp); }
+  function popUnfit() {
+    var sp = document.getElementById("popSpacer"); if (!sp || !sp.parentNode) return;
+    var y = window.scrollY, m = document.getElementById("main"), cs = getComputedStyle(document.body);
+    var natH = m.getBoundingClientRect().bottom + y + (parseFloat(cs.paddingBottom) || 0), max = Math.max(0, natH - window.innerHeight);   // без маркера
+    if (y <= max + 0.5) { sp.parentNode.removeChild(sp); return; }   // скролът е в самата страница → махането не мести нищо
+    spacerSet(y + window.innerHeight - natH + 1);   // ПРЕДИ махането: резервът държи страницата дълга (браузърът не дърпа скрола)
+    sp.parentNode.removeChild(sp);
+    accRun([], { y: max }, false);   // връщане до края на страницата — плавно
+  }
   var EAT = null;   // отвореният банер: { el, btn, pop, name, busy }
   function eatClose(back) {
     if (!EAT) return;
@@ -2863,13 +2872,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата) минават оттук. („Защо 21 дни?“ — вече балон, Т60.)
   // Т20: ЕДНО движение. Един цикъл requestAnimationFrame движи височината на всички засегнати тела (отварящото се, брата, който се
-  // затваря по „един на ниво“) И window.scrollY — едно начало, една продължителност (ACC_MS), една крива (ease-out). Без
+  // затваря по „един на ниво“) И window.scrollY — едно начало, една продължителност (ACC_MS), една крива (accEase). Без
   // behavior:"smooth", без scrollIntoView, без поправка след края. Целите (височини и скрол) се смятат ПРЕДИ старта от крайната
   // подредба (приложена и измерена в същия JS ход, преди браузърът да нарисува кадър). Скролът е ограничен до възможния още в началото.
   // Повторно натискане по време на движение → нов цикъл от текущото състояние (височини и скрол). reduced-motion → всичко наведнъж.
-  var ACC_MS = 250, ACC_GAP = 8;
+  // Т66 (Chris 09.11 15:59: „рязко нагоре“ — да е по-бавно, но навсякъде еднакво): ACC_MS 250 → 400 ms; кривата ease-out
+  //   (1−(1−t)³: тръгва на пълна скорост — затова изглеждаше рязко) → ease-in-out cubic (тръгва и спира меко, бързо в средата).
+  //   ЕДНО време и ЕДНА крива за всичко, което мести страницата: акордеоните, скоковете data-go, превъртането над лентата при ⓘ
+  //   и „Изядох“ и връщането при затварянето им. Без анимация: смяната на раздел, чатът (скролът е в кутията му), reduced-motion.
+  var ACC_MS = 400, ACC_GAP = 8;
   var REDUCE = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
-  function accEase(t) { return 1 - Math.pow(1 - t, 3); }   // ease-out — една и съща за височината и за скрола
+  function accEase(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }   // ease-in-out cubic — една и съща за височината и за скрола
   function isOpen(n) { return n.tagName === "DETAILS" ? n.open : n.classList.contains("open"); }
   function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на движение)
   function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); }
@@ -2910,8 +2923,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // височината на самото съдържание (долният ръб на #main + долният отстъп на body) — без резерва и без min-height: 100vh
   function contentH() {
-    var m = document.getElementById("main"), cs = getComputedStyle(document.body);
-    return m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(cs.paddingBottom) || 0);
+    var m = document.getElementById("main"), cs = getComputedStyle(document.body), sp = document.getElementById("popSpacer");
+    var h = m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(cs.paddingBottom) || 0);
+    return sp ? Math.max(h, sp.getBoundingClientRect().bottom + window.scrollY) : h;   // Т66: балонът/банерът под последната карта
   }
   function maxScroll() { return Math.max(0, contentH() - window.innerHeight); }
   // changes: [{n, open}] · sc: null (без скрол) | {open: n} (заглавието на n горе) | {close: n} (ако заглавието е над екрана → горе) | {y: число}
@@ -2968,6 +2982,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       ACC_RUN = null;
     }
     run.raf = requestAnimationFrame(frame);
+  }
+  // Т66: край веднага — крайната подредба и целевият скрол, без кадри (смяна на раздел: новият раздел не се мести от стария цикъл)
+  function accStop() {
+    var run = ACC_RUN; if (!run) return;
+    cancelAnimationFrame(run.raf); ACC_RUN = null;
+    run.items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); it.n.__target = null; });
+    spacerSet(0); window.scrollTo(0, Math.min(run.y1, maxScroll()));
   }
   function accSet(n, open, opts) {
     opts = opts || {};
@@ -3058,7 +3079,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
-    eatClose(); infoClose();
+    eatClose(); infoClose(); accStop();   // Т66
     if (!TABS[tab]) tab = "nachalo";
     if (current) scrollMem[current] = window.scrollY;
     current = tab;
@@ -3082,11 +3103,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Старите препратки към мерките в Храна (hrana:meas) водят към бутона Мерки.
   function go(spec) {
     spec = String(spec || "").replace(/^hrana:meas$/, "merki");
-    var p = spec.split(":"), tab = p[0], key = p.slice(1).join(":");
+    var p = spec.split(":"), tab = p[0], key = p.slice(1).join(":"), same = tab === current;
     switchTab(tab, !!key);
     if (!key) return;
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
-    if (!el) { window.scrollTo(0, 0); return; }
+    if (!el) { if (same) accRun([], { y: 0 }, false); else window.scrollTo(0, 0); return; }   // Т66
     if (key === "analysis") lsSet("app_seen_analysis_" + KEY_ID, "1");
     var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el;
     accRun(revealChanges(el, root), { el: tgt }, false);
@@ -3127,7 +3148,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
