@@ -162,6 +162,26 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .igt { display: flex; align-items: baseline; gap: 0; min-width: 0; }
   .igi { flex: none; width: 1.6em; text-align: left; font-weight: 400; }
   .igx { min-width: 0; }
+  /* Т43: линейните икони (IC). Линията на екрана = в лентата (40 px × 1/24 ≈ 1,67 px) при всеки размер: non-scaling-stroke + 1,67 px.
+     В текст — центърът на височината на главните букви; в картите, „Ново за теб“ и групите на формата — акцентът (в режим треньор — сив, Т21). */
+  svg.ic { display: inline-block; flex: none; width: 1.1em; height: 1.1em; vertical-align: -0.19em; overflow: visible; stroke-width: 1.67px; }
+  svg.ic * { vector-effect: non-scaling-stroke; }
+  svg.ic.icl { margin-right: 0.3em; }
+  .card.panel > .ch .ico { display: flex; color: var(--accent); }
+  .card.panel > .ch .ico svg.ic { width: 24px; height: 24px; }
+  .now a .i { color: var(--accent); }
+  .now a .i svg.ic { width: 22px; height: 22px; vertical-align: -5.5px; }
+  .igi { color: var(--accent); }
+  .igi svg.ic { width: 20px; height: 20px; vertical-align: -4.5px; }
+  .eat2 .eatbtn svg.ic, #upBtn svg.ic { width: 1.25em; height: 1.25em; vertical-align: -0.27em; margin-right: 0.35em; }
+  .csys svg.ic { width: 1.3em; height: 1.3em; vertical-align: -0.32em; margin-right: 0.35em; }
+  .qst svg.ic { width: 1.25em; height: 1.25em; vertical-align: -0.27em; }
+  .crow button svg.ic { width: 22px; height: 22px; }
+  .cdown svg.ic { display: block; margin: 0 auto; width: 22px; height: 22px; }
+  .creply button svg.ic { display: block; width: 18px; height: 18px; }
+  .hbtn.back svg.ic { width: 20px; height: 20px; }
+  .hbtn.out svg.ic { width: 18px; height: 18px; }
+  #whoBtn .ar svg.ic { width: 15px; height: 15px; vertical-align: -2px; }
   .card .body details.fx > .fxb p:first-child { margin-top: 0; }
   .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
   .flash { outline: 2px solid var(--gold); outline-offset: 2px; transition: outline-color 0.4s; }
@@ -695,7 +715,45 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     { key: "labs", label: "Изследвания" },
     { key: "instruction", label: "Указания" }
   ];
-  var QA_HEAD = "📋 Отговори — ";
+  var QA_HEAD = "📋 Отговори — ";   // запис в базата (и по него се разпознава) — не се сменя; на екрана е иконата qa
+  // Т43: линейните икони — tools/app/icons/ui/*.svg, вътрешността 1:1 (одобрени 09.11). viewBox 24, stroke currentColor, stroke 1;
+  // на екрана линията е колкото в лентата (40 px при stroke 1 ≈ 1,67 px) при всеки размер — вж. svg.ic в CSS. До видим текст — aria-hidden.
+  var IC = {
+    analysis: '<path d="M3.5 20.5h17"></path><path d="M5.5 20.5v-7a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v7"></path><path d="M10.4 20.5v-13a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v13"></path><path d="M15.3 20.5v-10a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v10"></path>',
+    ate: '<circle cx="12" cy="12" r="8.6"></circle><path d="M8.1 12.4l2.6 2.6 5.2-5.4"></path>',
+    back: '<path d="M19.5 12h-15"></path><path d="M10 6.5 4.5 12l5.5 5.5"></path>',
+    basic: '<rect x="2.8" y="5" width="18.4" height="14" rx="2.2"></rect><circle cx="8.4" cy="10.4" r="2"></circle><path d="M5.4 16.2a3 3 0 0 1 6 0"></path><path d="M14.2 10h4M14.2 13.4h4"></path>',
+    close: '<path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"></path>',
+    daily: '<circle cx="13.4" cy="4.3" r="1.8"></circle><path d="M12.6 7.6l-1.4 5.8"></path><path d="M11.2 13.4l-1.6 3.4-2 3.6"></path><path d="M11.2 13.4l2.2 3.2 1.6 4"></path><path d="M12.4 8.6l2.4 2.4 2.4.6"></path><path d="M12.2 8.8l-2.4 1.4-1.2 2.8"></path>',
+    down: '<path d="M12 4.5v15"></path><path d="M6.5 14 12 19.5l5.5-5.5"></path>',
+    edit: '<path d="M15.4 4.8a2.1 2.1 0 0 1 3 0l.8.8a2.1 2.1 0 0 1 0 3L8.6 19.2 4.2 20l.8-4.4Z"></path><path d="M13.6 6.6l3.8 3.8"></path>',
+    goal: '<circle cx="12" cy="12" r="8.6"></circle><circle cx="12" cy="12" r="5.2"></circle><circle cx="12" cy="12" r="1.8"></circle>',
+    habits: '<path d="M4.5 9.5h11v5a5.5 5.5 0 0 1-5.5 5.5A5.5 5.5 0 0 1 4.5 14.5Z"></path><path d="M15.5 11h1.2a2.6 2.6 0 0 1 0 5.2h-1.4"></path><path d="M8 3.5c-.9 1 .9 2 0 3M11.5 3.5c-.9 1 .9 2 0 3"></path>',
+    health: '<path d="M5 3.5h2M14 3.5h2"></path><path d="M6 3.5v5a4.5 4.5 0 0 0 9 0v-5"></path><path d="M10.5 13v2.5a4.5 4.5 0 0 0 9 0V13"></path><circle cx="19.5" cy="11" r="2"></circle>',
+    height: '<path d="M7.5 3.5h9M7.5 20.5h9"></path><path d="M12 6.2v11.6"></path><path d="M9.8 8.4 12 6.2l2.2 2.2M9.8 15.6 12 17.8l2.2-2.2"></path>',
+    history: '<path d="M3.8 12a8.2 8.2 0 1 0 8.2-8.2 8.9 8.9 0 0 0-6.1 2.5L3.8 8.4"></path><path d="M3.8 4.2v4.2H8"></path><path d="M12 7.6V12l3.2 1.9"></path>',
+    intake: '<path d="M8.5 4.8H7a2.2 2.2 0 0 0-2.2 2.2v12A2.2 2.2 0 0 0 7 21.2h10a2.2 2.2 0 0 0 2.2-2.2V7A2.2 2.2 0 0 0 17 4.8h-1.5"></path><rect x="8.5" y="3" width="7" height="3.6" rx="1.2"></rect><path d="M8.4 11h7.2M8.4 14.4h7.2M8.4 17.8h4.2"></path>',
+    labs: '<path d="M9 3h6"></path><path d="M10.2 3v5.8l-5 8.9A2.2 2.2 0 0 0 7.1 21h9.8a2.2 2.2 0 0 0 1.9-3.3l-5-8.9V3"></path><path d="M7.6 14.5h8.8"></path>',
+    log: '<path d="M16.5 8.6V5.2a2.2 2.2 0 0 0-2.2-2.2H6.2A2.2 2.2 0 0 0 4 5.2v13.6A2.2 2.2 0 0 0 6.2 21h8.1a2.2 2.2 0 0 0 2.2-2.2v-3.4"></path><path d="M7 8h6.5M7 11.5h6.5M7 15h3"></path><path d="M18.6 7.6a1.5 1.5 0 0 1 2.1 2.1l-7.3 7.3-2.9.8.8-2.9Z"></path>',
+    logout: '<path d="M9.5 20.5H6.2A2.2 2.2 0 0 1 4 18.3V5.7a2.2 2.2 0 0 1 2.2-2.2h3.3"></path><path d="M15.2 7.5 19.7 12l-4.5 4.5"></path><path d="M19.7 12H9.5"></path>',
+    message: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"></rect><path d="M3.8 7.2l7 5.2a2 2 0 0 0 2.4 0l7-5.2"></path>',
+    nutrition: '<path d="M12 7.6c-1.5-1-3.6-1.4-5.3-.4-2.6 1.5-3 5.2-1.6 8.4 1.2 2.8 3.4 5 5 4.4.8-.3 1.1-.5 1.9-.5s1.1.2 1.9.5c1.6.6 3.8-1.6 5-4.4 1.4-3.2 1-6.9-1.6-8.4-1.7-1-3.8-.6-5.3.4Z"></path><path d="M12 7.6c0-1.6.5-2.9 1.6-3.9"></path><path d="M13 5.8c1.9.2 3.3-.6 3.9-2.2-1.9-.2-3.3.6-3.9 2.2Z"></path>',
+    open: '<path d="M7 17 17 7"></path><path d="M9 7h8v8"></path>',
+    pdf: '<path d="M14 3H7a2.2 2.2 0 0 0-2.2 2.2v13.6A2.2 2.2 0 0 0 7 21h10a2.2 2.2 0 0 0 2.2-2.2V8.2Z"></path><path d="M14 3v3.4a1.8 1.8 0 0 0 1.8 1.8h3.4"></path><path d="M8.5 12.6h7M8.5 16.2h5"></path>',
+    photo: '<rect x="3" y="4.5" width="18" height="15" rx="2.2"></rect><circle cx="8.6" cy="9.6" r="1.7"></circle><path d="M3.6 17.6l5.2-5 3.6 3.4 2.8-2.6 5.2 4.8"></path>',
+    plan_updated: '<path d="M9 3.5h6"></path><path d="M10.2 3.5v5l-3 3.6a.9.9 0 0 0 .7 1.5h8.2a.9.9 0 0 0 .7-1.5l-3-3.6v-5"></path><path d="M12 13.6v7"></path>',
+    qa: '<rect x="4.8" y="3" width="14.4" height="18" rx="2.2"></rect><path d="M9.6 9.8a2.4 2.4 0 1 1 3.5 2.1c-.7.4-1.1.9-1.1 1.6v.6"></path><circle cx="12" cy="16.8" r=".5" fill="currentColor"></circle>',
+    send: '<path d="M20.8 3.2 3.6 10.2a.7.7 0 0 0 0 1.3l6.9 2.5 2.5 6.9a.7.7 0 0 0 1.3 0Z"></path><path d="M10.5 14 20.8 3.2"></path>',
+    share: '<path d="M12 14.5V3.5"></path><path d="M8.3 7.2 12 3.5l3.7 3.7"></path><path d="M8.5 10H6.7a2.2 2.2 0 0 0-2.2 2.2v6.1a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-6.1a2.2 2.2 0 0 0-2.2-2.2h-1.8"></path>',
+    sleep: '<path d="M12.5 3.8a6 6 0 0 0 7.7 7.7A8.4 8.4 0 1 1 12.5 3.8Z"></path><path d="M16.4 3.2h2.8l-2.8 3.2h2.8"></path>',
+    training: '<path d="M8 12h8"></path><rect x="5" y="7" width="3" height="10" rx="1.2"></rect><rect x="16" y="7" width="3" height="10" rx="1.2"></rect><rect x="2.8" y="9.2" width="2.2" height="5.6" rx=".9"></rect><rect x="19" y="9.2" width="2.2" height="5.6" rx=".9"></rect>',
+    upload: '<path d="M12 15V4.2"></path><path d="M7.8 8.4 12 4.2l4.2 4.2"></path><path d="M4.5 14.5v3.8a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-3.8"></path>',
+    waist: '<circle cx="9.5" cy="11" r="6.5"></circle><circle cx="9.5" cy="11" r="2"></circle><path d="M15 14.5h6v3H9.5"></path><path d="M17 17.5v-1.4M19 17.5v-1.4"></path>',
+    weight: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><path d="M7.6 10.4a4.6 4.6 0 0 1 8.8 0Z"></path><path d="M12 10.4l1.4-2.2"></path>'
+  };
+  function ic(name, cls) {
+    return '<svg class="ic' + (cls ? " " + cls : "") + '" data-ic="' + name + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + IC[name] + "</svg>";
+  }
   // ЛОГЪТ — модел Victus (web/app/LogScreen.tsx · LOG_TARGET): броят се РАЗЛИЧНИТЕ дни със записи.
   // Под 21 → „N / 21“; на 21 → „∞“ и не се връща (дните само растат). Мери дали има достатъчно за четене, не послушание —
   // еднакво с режим и без. Числото стои само тук; текстовете около него се сменят на същия праг.
@@ -828,7 +886,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var newIn = COACH && !coach && !e.coach_read_at;   // треньорът: още невидяно от клиента
       if (!coach && isQaNote(note)) {
         var tl = qaTitleOf(note), again = !!seenQa[tl]; seenQa[tl] = 1;
-        items.push({ sys: again ? "✎ Променен отговор във „" + tl + "“ — виж в Данни" : "📋 Отговорите на „" + tl + "“ са изпратени — виж в Данни", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa", newIn: newIn });
+        items.push({ sys: again ? "Променен отговор във „" + tl + "“ — виж в Данни" : "Отговорите на „" + tl + "“ са изпратени — виж в Данни", sic: again ? "edit" : "qa", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa", newIn: newIn });
       }
       else if (note) items.push({ ts: e.created_at, id: e.id, mine: isMine(coach), coach: coach, note: note, meas: meas, to: e.reply_to, ans: e.id, readAt: coach ? (e.read_at || null) : null, newIn: newIn });
       else if (meas) items.push({ sys: meas, ts: e.created_at, id: e.id });
@@ -913,7 +971,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     items.forEach(function (m) {
       var d = dayLabelChat(m.ts), time = fmtTime(m.ts), idAttr = m.id ? ' data-id="' + esc(m.id) + '"' : "";
       if (d && d !== day) { day = d; out += '<div class="cday"><span>' + esc(d) + "</span></div>"; }
-      if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + ">" + esc(m.sys) + (time ? " · " + esc(time) : "") + (m.newIn ? ' <span class="cnew">ново</span>' : "") + "</div>"; return; }
+      if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + ">" + (m.sic ? ic(m.sic) : "") + esc(m.sys) + (time ? " · " + esc(time) : "") + (m.newIn ? ' <span class="cnew">ново</span>' : "") + "</div>"; return; }
       var p = m.to && byId[m.to];
       var isNew = COACH ? !!m.newIn : (!m.mine && isUnreadTs(String(m.ts || "")));
       out += '<div class="cmsg ' + (m.mine ? "me" : "them") + '"' + idAttr + '><div class="cb">'
@@ -1062,7 +1120,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function panelHtml(key, ico, title, sub, inner, open, chip) {
     return '<div class="card panel' + (open ? " open" : "") + '" data-key="' + key + '">'
-      + '<div class="ch"><span class="ico">' + ico + '</span><span class="ttl">' + esc(title) + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span>" + (chip || "") + "</div>"
+      + '<div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl">' + esc(title) + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + inner + "</div></div>";
   }
 
@@ -1081,18 +1139,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function nowRows() {
     var rows = [], nU = unreadCount();
-    if (nU) rows.push(["✉", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + " от " + (COACH ? clientShort() : "Chris"), "razgovor"]);
+    if (nU) rows.push(["message", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + " от " + (COACH ? clientShort() : "Chris"), "razgovor"]);
     D.content.forEach(function (r) {
       if (!isQaCard(r)) return;
       var c = qaCounts(r);
-      if (c.open) rows.push(["📋", "„" + c.title + "“ — " + (c.open === c.n ? (c.n === 1 ? "1 въпрос чака отговор" : c.n + " въпроса чакат отговор") : c.open + " от " + c.n + " без отговор"), "danni:" + cardKey(r)]);
+      if (c.open) rows.push(["qa", "„" + c.title + "“ — " + (c.open === c.n ? (c.n === 1 ? "1 въпрос чака отговор" : c.n + " въпроса чакат отговор") : c.open + " от " + c.n + " без отговор"), "danni:" + cardKey(r)]);
     });
     var news = D.content.filter(function (r) { return r.section === "info" && /какво е новото/i.test(r.title || "") && r.entry_date; })[0];
-    if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["📌", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
-    if (A.cards.length && !lsGet("app_seen_analysis_" + KEY_ID)) rows.push(["📊", "Анализът на храненето ти е готов", "hrana:analysis"]);
+    if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["plan_updated", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
+    if (A.cards.length && !lsGet("app_seen_analysis_" + KEY_ID)) rows.push(["analysis", "Анализът на храненето ти е готов", "hrana:analysis"]);
     var w = lastWeight();
     if (START) return rows;   // ден 1: теглото е стъпка 3 в „Първи стъпки" — не се повтаря тук
-    rows.push(w ? ["⚖", "Последно тегло: " + num1(w.w) + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["⚖", "Още няма записано тегло", "merki"]);
+    rows.push(w ? ["weight", "Последно тегло: " + num1(w.w) + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["weight", "Още няма записано тегло", "merki"]);
     return rows;
   }
   // Ден 1 (още няма карти): какво следва, с препратки към мястото на всяка стъпка.
@@ -1112,7 +1170,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var html = '<div id="instHost"></div>', rows = nowRows();
     if (rows.length) {
       html += '<div class="now"><h3>Ново за теб</h3>';
-      rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"><span class="i">' + r[0] + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
+      rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
       html += "</div>";
     }
     if (START) {
@@ -1140,7 +1198,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // × я скрива за 14 дни (localStorage). Android/Chrome: бутон през beforeinstallprompt; без него — 2 стъпки през ⋮.
   // iPhone: в Safari — „Сподели“ → „Добави към началния екран“; в друг браузър — „Отвори този линк в Safari“.
   var INST_KEY = "app_install_hidden", INST_DONE = "app_installed", INST_DAYS = 14, instPrompt = null, INST_ENV = null;
-  var SHARE_SVG = '<svg class="shr" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M8 7l4-4 4 4M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H17"/></svg>';
+  var SHARE_SVG = ic("share", "shr");
   function pwaEnv() {
     var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     return {
@@ -1204,7 +1262,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function mealCtl(name) {
     var done = eatenToday(name), dis = CAN_WRITE ? "" : " disabled";
     return '<div class="eat2" data-meal-name="' + esc(name) + '"><input type="time" class="eattm" value="' + nowHM() + '" aria-label="Час"' + dis + ">"
-      + '<button type="button" class="eatbtn"' + dis + ">✓ Изядох</button>"
+      + '<button type="button" class="eatbtn"' + dis + ">" + ic("ate", "icl") + "Изядох</button>"
       + '<span class="eatok">' + (done.length ? "✓ днес " + esc(done[done.length - 1]) : "") + "</span></div>";
   }
   function decorateMeals(root) {
@@ -1247,10 +1305,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function logLine(v) {
     var parts = [], e = v.e;
-    if (v.text) parts.push(esc(v.text));
-    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">⚖ ' + esc(num1(e.weight)) + " кг</span>");
-    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">📏 талия ' + esc(num1(e.waist)) + " см</span>");
-    if (e.height != null && e.height !== "") parts.push('<span class="wt">📐 ръст ' + esc(e.height) + " см</span>");
+    if (v.text) parts.push(v.ate ? ic("ate", "icl") + esc(v.text.slice(2)) : esc(v.text));   // Т43: записът остава „✅ …“, на екрана — иконата
+    if (e.weight != null && e.weight !== "") parts.push('<span class="wt">' + ic("weight", "icl") + esc(num1(e.weight)) + " кг</span>");
+    if (e.waist != null && e.waist !== "") parts.push('<span class="wt">' + ic("waist", "icl") + "талия " + esc(num1(e.waist)) + " см</span>");
+    if (e.height != null && e.height !== "") parts.push('<span class="wt">' + ic("height", "icl") + "ръст " + esc(e.height) + " см</span>");
     return '<div class="lrow' + (v.ate ? " ate" : "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(" · ") + "</span></div>";
   }
   // Групи по ден (най-новият горе); в деня — по часа, най-късното горе (както LogScreen).
@@ -1294,7 +1352,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
       + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + (CAN_WRITE ? "" : RO_NOTE) + "</div>"
       + '<div class="lrows" id="logToday"></div>';
-    return panelHtml("log", "✍️", "Днес", "", inner, open, chip);
+    return panelHtml("log", "log", "Днес", "", inner, open, chip);
   }
   // режим с храни = поне една nutrition карта с елемент [data-meal] (там е „Изядох“) → логът започва затворен; иначе — отворен
   function hasMealPlan(menus) { return menus.some(function (r) { return /\sdata-meal\s*=/.test(String(r.body || "")); }); }
@@ -1406,7 +1464,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     html += '<div class="sec" data-key="logsec"><h2>Лог</h2>' + logCardHtml(!hasMealPlan(menus)) + "</div>"
       + foodHistHtml();
-    if (A.cards.length) html += panelHtml("analysis", "📊", "Анализ", "", analysisHtml(), false);
+    if (A.cards.length) html += panelHtml("analysis", "analysis", "Анализ", "", analysisHtml(), false);
     P.hrana.innerHTML = html;
     decorateMeals(P.hrana);
     logInfoKey = ""; refreshLogView();
@@ -1498,21 +1556,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ════════ ДАННИ ════════
   // Въпросите на интейка — текстовете от tools/forms/intake/ (извлечени 08.11). Ключовете = полетата в submissions.payload.
-  // Т42: заглавието на група — иконката (първата дума, ако е знак, а не буква) в клетка с еднаква ширина, после текстът
-  function igTitle(t) {
-    var m = /^(\S+)\s+([\s\S]*)$/.exec(String(t));
-    if (!m || /[0-9A-Za-zА-Яа-яЁё]/.test(m[1])) return esc(t);
-    return '<span class="igt"><span class="igi" aria-hidden="true">' + esc(m[1]) + '</span><span class="igx">' + esc(m[2]) + "</span></span>";
+  // Т42: заглавието на група — иконата в клетка с еднаква ширина, после текстът (започва на една линия при всичките 8). Т43: иконата е IC (g[2]).
+  function igTitle(t, k) {
+    if (!k || !IC[k]) return esc(t);
+    return '<span class="igt"><span class="igi" aria-hidden="true">' + ic(k) + '</span><span class="igx">' + esc(t) + "</span></span>";
   }
   var INTAKE_Q = [
-    ["🎯 Какво търсиш и каква е целта", [["zhelan_izhod", "Какво искаш да получиш?"], ["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]]],
-    ["🪪 Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]]],
-    ["🚶 Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]]],
-    ["☕ Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]]],
-    ["🩺 Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]]],
-    ["🍎 Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"]]],
-    ["🏋 Тренировки", [["trenira", "В момента тренираш ли?"], ["dni", "Кои дни тренираш сега?"], ["vreme_min", "Минути"], ["chas", "В колко часа?"], ["kade_kakvo", "Къде и какво?"], ["staj", "От колко време тренираш с тежести/съпротивление?"], ["staj_sega", "Как изглежда тренировката ти сега?"], ["staj_orientiri", "Текущи ориентири на основните движения?"], ["dvizhenia", "Кои движения познаваш и изпълняваш уверено?"], ["s_programa", "Тренирал(а) ли си по програма досега?"], ["s_programa_opis", "Каква и как мина?"], ["cel_programa", "Какво искаш да постигне програмата?"], ["sila_orientir", "Ориентир на силата"], ["sport_detail", "Кой спорт, на какво ниво и в кой сезон си?"], ["cel_programa_opis", "С две думи — нещо конкретно?"], ["kade", "Къде ще тренираш предимно?"], ["oborudvane", "Какво оборудване имаш на разположение?"], ["oborudvane_drugo", "Друго оборудване или уточнения?"], ["dni_sedmica", "Колко дни седмично реално можеш да тренираш?"], ["grafik", "Графикът позволява ли редовни дни, или варира?"], ["grafik_opis", "Кога реално можеш да тренираш?"], ["minuti", "Колко време на тренировка?"], ["chasove_dni", "Предпочитани дни и часове"], ["klek_ok", "Можеш ли да клекнеш дълбоко без болка?"], ["ruce_glava", "Можеш ли да вдигнеш ръце над глава свободно?"], ["zatrudnenia", "Има ли движения, които те затрудняват или избягваш?"], ["stil", "Какъв стил на тренировка предпочиташ?"], ["nt_intensitet", "Кое ти допада повече?"], ["nt_raznoobrazie", "Предпочиташ ли разнообразие?"], ["nt_plan", "Как тренираш по-добре?"], ["lyubimi_nelyubimi", "Любими или нелюбими упражнения?"], ["drugo_tren", "Нещо друго важно за тренировките?"]]],
-    ["😴 Сън и възстановяване", [["syn_promenliv", "Сънят ти еднакъв ли е всеки ден, или варира?"], ["chas_lyagane", "В колко часа обикновено си лягаш?"], ["syn_chasove", "Колко часа спиш на нощ?"], ["syn_kachestvo", "Как е сънят?"], ["stres", "Ниво на стрес в момента?"], ["energiya", "Енергия през деня?"], ["vyzstanovyavane", "Възстановяваш ли се добре между натоварвания?"], ["syn_tochno", "Среден сън — точно"], ["puls_pokoy", "Пулс в покой"]]]
+    ["Какво търсиш и каква е целта", [["zhelan_izhod", "Какво искаш да получиш?"], ["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]], "goal"],
+    ["Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]], "basic"],
+    ["Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]], "daily"],
+    ["Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]], "habits"],
+    ["Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]], "health"],
+    ["Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"]], "nutrition"],
+    ["Тренировки", [["trenira", "В момента тренираш ли?"], ["dni", "Кои дни тренираш сега?"], ["vreme_min", "Минути"], ["chas", "В колко часа?"], ["kade_kakvo", "Къде и какво?"], ["staj", "От колко време тренираш с тежести/съпротивление?"], ["staj_sega", "Как изглежда тренировката ти сега?"], ["staj_orientiri", "Текущи ориентири на основните движения?"], ["dvizhenia", "Кои движения познаваш и изпълняваш уверено?"], ["s_programa", "Тренирал(а) ли си по програма досега?"], ["s_programa_opis", "Каква и как мина?"], ["cel_programa", "Какво искаш да постигне програмата?"], ["sila_orientir", "Ориентир на силата"], ["sport_detail", "Кой спорт, на какво ниво и в кой сезон си?"], ["cel_programa_opis", "С две думи — нещо конкретно?"], ["kade", "Къде ще тренираш предимно?"], ["oborudvane", "Какво оборудване имаш на разположение?"], ["oborudvane_drugo", "Друго оборудване или уточнения?"], ["dni_sedmica", "Колко дни седмично реално можеш да тренираш?"], ["grafik", "Графикът позволява ли редовни дни, или варира?"], ["grafik_opis", "Кога реално можеш да тренираш?"], ["minuti", "Колко време на тренировка?"], ["chasove_dni", "Предпочитани дни и часове"], ["klek_ok", "Можеш ли да клекнеш дълбоко без болка?"], ["ruce_glava", "Можеш ли да вдигнеш ръце над глава свободно?"], ["zatrudnenia", "Има ли движения, които те затрудняват или избягваш?"], ["stil", "Какъв стил на тренировка предпочиташ?"], ["nt_intensitet", "Кое ти допада повече?"], ["nt_raznoobrazie", "Предпочиташ ли разнообразие?"], ["nt_plan", "Как тренираш по-добре?"], ["lyubimi_nelyubimi", "Любими или нелюбими упражнения?"], ["drugo_tren", "Нещо друго важно за тренировките?"]], "training"],
+    ["Сън и възстановяване", [["syn_promenliv", "Сънят ти еднакъв ли е всеки ден, или варира?"], ["chas_lyagane", "В колко часа обикновено си лягаш?"], ["syn_chasove", "Колко часа спиш на нощ?"], ["syn_kachestvo", "Как е сънят?"], ["stres", "Ниво на стрес в момента?"], ["energiya", "Енергия през деня?"], ["vyzstanovyavane", "Възстановяваш ли се добре между натоварвания?"], ["syn_tochno", "Среден сън — точно"], ["puls_pokoy", "Пулс в покой"]], "sleep"]
   ];
   // ── ИНТЕЙКЪТ — интерактивен, вграден тук (Т6). Видовете и опциите са от tools/forms/intake/ (извлечени 08.11);
   //    ключовете = полетата в submissions.payload. Записва се само, без бутон: изборите веднага, текстът след ~800 ms
@@ -1601,7 +1658,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var html = '<div class="iform" id="intakeForm">' + head;
     INTAKE_Q.forEach(function (g, gi) {
       var c = intakeCount(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0]) + '<span class="cnt" id="igc_' + gi + '">' + c[0] + " от " + c[1] + "</span></summary>"
+      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt" id="igc_' + gi + '">' + c[0] + " от " + c[1] + "</span></summary>"
         + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], q[1]); }).join("") + "</div></details>";
     });
     return html + "</div>";
@@ -1714,7 +1771,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     return order.map(function (d) {
       var g = byDay[d];
-      return { sys: "✎ Промени отговор във „Форма за данни“: " + g.keys.map(function (k) { return QLABEL[k] || k; }).join(" · "), ts: g.ts, go: "danni:iq_" + g.keys[0], ich: 1 };
+      return { sys: "Промени отговор във „Форма за данни“: " + g.keys.map(function (k) { return QLABEL[k] || k; }).join(" · "), sic: "edit", ts: g.ts, go: "danni:iq_" + g.keys[0], ich: 1 };
     });
   }
   // ════════ ИЗСЛЕДВАНИЯ (Т7) — модел Victus LabsScreen, но СНИМКАТА НЕ СЕ ПАЗИ: препис → таблица ════════
@@ -1761,7 +1818,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       ;
   }
   function upRow(u) {
-    return '<div class="uprow">' + (/pdf/.test(u.mime || "") ? "📄" : "🖼") + " Качено " + esc(fmtDate(sofiaDay(u.uploaded_at)).slice(0, 5))
+    return '<div class="uprow">' + ic(/pdf/.test(u.mime || "") ? "pdf" : "photo", "icl") + "Качено " + esc(fmtDate(sofiaDay(u.uploaded_at)).slice(0, 5))
       + (u.taken_on ? " · изследване от " + esc(fmtDate(u.taken_on).slice(0, 5)) : "") + " · "
       + (u.status === "transcribed" ? '<span class="ust ok">преписано ✓</span>' : '<span class="ust">чака препис</span>') + "</div>";
   }
@@ -1771,7 +1828,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     h += '<label class="labdate" for="labDate">Дата на изследването <span>(по желание)</span></label>'
       + '<input type="date" id="labDate" max="' + todayStr() + '"' + (dis ? " disabled" : "") + ">"
       + '<input type="file" id="labFile" accept="image/*,application/pdf,.pdf,.heic,.heif" multiple hidden>'
-      + '<button type="button" class="btn" id="upBtn"' + (dis ? " disabled" : "") + ">📎 Качи снимка или PDF</button>"
+      + '<button type="button" class="btn" id="upBtn"' + (dis ? " disabled" : "") + ">" + ic("upload", "icl") + "Качи снимка или PDF</button>"
       + '<div class="upmsg' + (LABS.msg ? (LABS.msg.err ? " show err" : " show") : "") + '" id="upMsg" aria-live="polite">' + (LABS.msg ? esc(LABS.msg.text) : "") + "</div>"
       + (LABS.on && !CAN_WRITE ? RO_NOTE : "") + "</div>";
     if (LABS.uploads.length) h += '<div class="sec"><h2>Качени</h2><div id="labUps">' + LABS.uploads.slice(0, 8).map(upRow).join("") + "</div>"
@@ -1845,12 +1902,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       : '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма допълнителни въпроси.") + "</p>";
     if (sentN) qaInner += qaSentHtml();
     var ic = intakeCount(intakeKeys()), nch = (IN.changes || []).length;
-    html += panelHtml("intake", "📝", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
+    html += panelHtml("intake", "intake", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
       + (IN.on ? ichgHistHtml() : "")
       + "</div></div>", true);
-    html += panelHtml("qa", "📋", "Допълнителни въпроси", openQa ? openQa + " чакат отговор" : "", qaInner, openQa > 0);
-    html += panelHtml("labs", "🧪", "Изследвания", labsSub(), labsHtml(), false);
+    html += panelHtml("qa", "qa", "Допълнителни въпроси", openQa ? openQa + " чакат отговор" : "", qaInner, openQa > 0);
+    html += panelHtml("labs", "labs", "Изследвания", labsSub(), labsHtml(), false);
     P.danni.innerHTML = html;
     wireIntake(); wireQa(); wireLabs();
   }
@@ -1859,10 +1916,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var replyTo = null;
   function renderRazgovor() {
     P.razgovor.innerHTML = '<div class="chatwrap"><div class="chat" id="chatBox">' + chatHtml() + "</div>"
-      + '<button type="button" class="cdown" id="cDown" aria-label="Към последното съобщение">↓</button></div>'
-      + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">✕</button></div>'
+      + '<button type="button" class="cdown" id="cDown" aria-label="Към последното съобщение">' + ic("down") + "</button></div>"
+      + '<div class="cform"><div class="creply" id="cReply"><div class="crt" id="cReplyTxt"></div><button type="button" id="cReplyX" aria-label="Откажи отговора">' + ic("close") + "</button></div>"
       + '<div class="crow"><textarea id="cText" rows="1" placeholder="' + (COACH ? "Напиши на " + esc(clientShort()) + "…" : "Напиши съобщение…") + '"></textarea>'
-      + '<button type="button" id="cSend" aria-label="Изпрати" disabled><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3.4 20.4 21.85 12.5a.55.55 0 0 0 0-1L3.4 3.6a.5.5 0 0 0-.7.6L5 11l9 1-9 1-2.3 6.8a.5.5 0 0 0 .7.6z"/></svg></button></div>'
+      + '<button type="button" id="cSend" aria-label="Изпрати" disabled>' + ic("send") + "</button></div>"
       + '<div class="cerr" id="cErr">Неуспешно. Опитай пак.</div>' + (CAN_WRITE || COACH ? "" : RO_NOTE) + "</div>";
     wireChat();
   }
@@ -2066,11 +2123,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function status(qi, sent, ta) {
         var st = qi.querySelector(".qst");
         if (!st) { st = document.createElement("div"); st.className = "qst"; qi.appendChild(st); }
-        var v = qaNorm(ta.value), txt = "", pend = false;
+        var v = qaNorm(ta.value), txt = "", pend = false, sic = "";
         if (sent && v === sent.text) txt = "✓ Изпратено · " + fmtDate(sent.date) + (fmtTime(sent.at) ? ", " + fmtTime(sent.at) : "");
-        else if (v) { txt = sent ? "✎ Променено — още не е изпратено" : "✎ Още не е изпратено"; pend = true; }
+        else if (v) { txt = sent ? "Променено — още не е изпратено" : "Още не е изпратено"; sic = "edit"; pend = true; }
         else if (sent) { txt = "Празно поле не се изпраща — изпратеният отговор остава."; pend = true; }
-        st.textContent = txt; st.className = "qst" + (pend ? " pend" : ""); st.style.display = txt ? "" : "none";
+        st.innerHTML = (sic ? ic(sic, "icl") : "") + esc(txt); st.className = "qst" + (pend ? " pend" : ""); st.style.display = txt ? "" : "none";
       }
       Array.prototype.forEach.call(items, function (qi) {
         var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea");
@@ -2194,7 +2251,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // карта-хронология (затворена) — същият вид като „Анализ"
   function histCard(key, ico, title, sub, inner, keys) {
-    return '<div class="card panel hist" data-key="' + key + '"><div class="ch"><span class="ico">' + ico + '</span><span class="ttl"><span class="htt"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + "</span>"
+    return '<div class="card panel hist" data-key="' + key + '"><div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl"><span class="htt"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + "</span>"
       + '<span class="sub">' + esc(sub) + '</span></span></div><div class="body"><div class="acc">' + inner + "</div></div></div>";
   }
   function monthCard(key, ym, sub, inner, open, keys) {
@@ -2214,7 +2271,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var inner = !past.length ? hEmpty("Още няма минали дни.") : histMonths("hm_food_", past, function (g) { return g.day; },
       function (list) { return daysWord(list.length) + " · " + entriesWord(list.reduce(function (a, g) { return a + g.rows.length; }, 0)); },
       function (g) { return qday(g.day, "qd-cnt", dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"'); });
-    return histCard("h_food", "📈", "История на храненето", foodNavSub(), inner);
+    return histCard("h_food", "history", "История на храненето", foodNavSub(), inner);
   }
   function measHistHtml() {
     var past = measPast();
@@ -2230,7 +2287,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + diff1(dif) + '</span><span class="d-src">' + (m.food ? FROM_LOG : "") + "</span>";
         return qday(m.day, "qd-meas", cells, '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
       });
-    return histCard("h_meas", "📈", "История на мерките", measNavSub(), inner);
+    return histCard("h_meas", "history", "История на мерките", measNavSub(), inner);
   }
   function ichgHistHtml() {
     var ch = (IN.changes || []).slice().sort(function (a, b) { return tsNum(b.changed_at) - tsNum(a.changed_at); });
@@ -2245,7 +2302,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
             + '<span class="iold">' + esc(ivShow(c.old_value)) + "</span> → " + esc(ivShow(c.new_value)) + "</span></div>";
         }).join(""), 'data-day="' + d + '" data-key="hd_ichg_' + d + '"');   // Т30: дата първа
       });
-    return histCard("h_ichg", "📈", "Промени в отговорите", ch.length ? cnt(ch.length) : "още няма", inner);
+    return histCard("h_ichg", "history", "Промени в отговорите", ch.length ? cnt(ch.length) : "още няма", inner);
   }
   // Т22: изпратените — направо месеци (без „Изпратени“); в месеца въпросниците са отворени един под друг (без свой акордеон)
   function qaSentHtml() {
@@ -2264,7 +2321,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var inner = histMonths("hm_labs_", g, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " дата" : " дати"); },
       function (x) { return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]); },
       function (x) { return ["lab_" + x.day]; });
-    return histCard("h_labs", "📈", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
+    return histCard("h_labs", "history", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
   }
   // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата, „Защо 21 дни?“) минават оттук.
   // Т20: ЕДНО движение. Един цикъл requestAnimationFrame движи височината на всички засегнати тела (отварящото се, брата, който се
@@ -2597,8 +2654,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     document.body.classList.add("coach-on");
     var h = document.getElementById("hdr");
     h.classList.add("h3");
-    h.insertAdjacentHTML("afterbegin", '<a class="hbtn back" href="' + esc(COACH_URL) + '" id="coachBack" aria-label="Към списъка с клиенти">←</a>');
-    h.insertAdjacentHTML("beforeend", '<button type="button" class="hbtn out" id="coachOut" aria-label="Изход" title="Изход"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"/></svg><span>Изход</span></button>');
+    h.insertAdjacentHTML("afterbegin", '<a class="hbtn back" href="' + esc(COACH_URL) + '" id="coachBack" aria-label="Към списъка с клиенти">' + ic("back") + "</a>");
+    h.insertAdjacentHTML("beforeend", '<button type="button" class="hbtn out" id="coachOut" aria-label="Изход" title="Изход">' + ic("logout") + '<span>Изход</span></button>');
     document.getElementById("coachOut").addEventListener("click", function () {
       var b = this; b.disabled = true;
       var done = function () { coachNav(COACH_URL); };
@@ -2677,7 +2734,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
     if (COACH) {
-      who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false">' + esc(D.name) + ' <span class="ar" aria-hidden="true">↗</span></button>';
+      who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false">' + esc(D.name) + ' <span class="ar" aria-hidden="true">' + ic("open") + "</span></button>";
       document.getElementById("whoBtn").addEventListener("click", function (e) { e.stopPropagation(); linkMenu(); });
     }
     computeLastClient();
