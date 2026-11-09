@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.4">
+<meta name="version" content="v1.0.5">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -667,9 +667,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lmenu { position: absolute; z-index: 70; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 24px)); padding: 6px; background: #fff; color: var(--ink); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(28,39,51,0.18); text-align: left; }
   .lmenu a, .lmenu button { display: block; width: 100%; padding: 11px 12px; border: none; border-radius: 9px; background: none; color: var(--accent-dark); font: inherit; font-size: 15px; font-weight: 700; text-align: left; text-decoration: none; cursor: pointer; }
   .lmenu a:hover, .lmenu button:hover { background: var(--soft); }
-  .lmenu .lm-sep { height: 1px; margin: 4px 6px; background: var(--border); }
   .lmenu .lm-note { padding: 8px 12px; color: var(--muted); font-size: 13px; }
   .lmenu .lm-ok { color: var(--accent-dark); }
+  @media (max-width: 359px) { .lmenu { width: calc(100% - 12px); } .lmenu a, .lmenu button { padding-left: 8px; padding-right: 8px; } }   /* Т67: „Отвори приложението на клиента“ на един ред и на 320 */
   /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо цвета на клиента навсякъде; червеното остава. Т45: и кремът/оранжевото */
   body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
     --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
@@ -3153,6 +3153,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
   // Т29: менюто с линковете към страницата на клиента. coach_client_link се вика САМО при натискане (веднъж; после от паметта).
+  // Т67 (Chris 09.11 16:21): 2 реда, без разделител — „Отвори приложението на клиента“ (app/?t=…&from=…) и „Копирай линка към
+  //   приложението“ (app/?t=…). Редовете за стария дневник (me/) са махнати: след v1.0.0 той само пренасочва тук. RPC-то е същото.
   var LINK = null;
   function linkMenu() {
     var btn = document.getElementById("whoBtn"), old = document.getElementById("linkMenu");
@@ -3167,13 +3169,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       LINK = res.data;
       var app = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token), location.href).href;   // за копиране (към клиента)
       var appGo = new URL(location.pathname + "?t=" + encodeURIComponent(LINK.token) + "&from=" + encodeURIComponent(COACH_CID), location.href).href;   // Т45: отваряне — в същия прозорец, с ← обратно
-      var me = new URL("../me/?t=" + encodeURIComponent(LINK.token), location.href).href;
       var h = (LINK.active === false ? '<div class="lm-note">Линкът не е активен.</div>' : "")
-        + '<a role="menuitem" id="lmApp" href="' + esc(appGo) + '">Отвори новата страница</a>'
-        + (LINK.is_dev ? "" : '<a role="menuitem" id="lmMe" href="' + esc(me) + '">Отвори сегашния дневник</a>')
-        + '<div class="lm-sep"></div>'
-        + '<button type="button" role="menuitem" id="lmCopyApp" data-url="' + esc(app) + '">Копирай линка към новата</button>'
-        + (LINK.is_dev ? "" : '<button type="button" role="menuitem" id="lmCopyMe" data-url="' + esc(me) + '">Копирай линка към дневника</button>');
+        + '<a role="menuitem" id="lmApp" href="' + esc(appGo) + '">Отвори приложението на клиента</a>'
+        + '<button type="button" role="menuitem" id="lmCopyApp" data-url="' + esc(app) + '">Копирай линка към приложението</button>';
       m.innerHTML = h;
     });
   }
@@ -3190,21 +3188,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   document.addEventListener("click", function (e) {
     var m = document.getElementById("linkMenu"); if (!m) return;
-    var cb = e.target.closest("#lmCopyApp, #lmCopyMe");
+    var cb = e.target.closest("#lmCopyApp");
     if (cb) {
       var lbl = cb.textContent;
       copyText(cb.getAttribute("data-url")).then(function () { cb.textContent = "Копирано ✓"; cb.classList.add("lm-ok"); setTimeout(function () { if (cb.isConnected) { cb.textContent = lbl; cb.classList.remove("lm-ok"); } }, 1600); },
         function () { cb.textContent = "Не успях — задръж и копирай от „Отвори“"; });
       return;
     }
-    if (e.target.closest("#lmApp, #lmMe")) { setTimeout(closeLinkMenu, 0); return; }
+    if (e.target.closest("#lmApp")) { setTimeout(closeLinkMenu, 0); return; }
     if (!m.contains(e.target)) closeLinkMenu();
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLinkMenu(); });
   // Режим треньор (Т19): без лента над шапката. В зелената шапка: ← (към списъка) вляво, бутонът на страницата + името на клиента
   // в средата, „Изход“ вдясно (signOut → входа за треньора). Записът е изключен навсякъде освен в чата.
   var coachNav = function (u) { location.href = u; };
-  // Т45: дошли сме от изгледа на треньора („Отвори новата страница“, &from=<client_id>) и на устройството има вход на треньор →
+  // Т45: дошли сме от изгледа на треньора („Отвори приложението на клиента“, &from=<client_id>) и на устройството има вход на треньор →
   // шапката като на треньора: ← вляво, заглавието в средата. ← = назад, ако предишната страница е нашият изглед (?c=), иначе към него.
   var vaBackFn = function () { history.back(); };
   function viewBack(from) {
