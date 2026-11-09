@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.8">
+<meta name="version" content="v0.2.9">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -292,6 +292,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lrow .tx { flex: 1; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
   .lrow.ate .tx { color: var(--accent-dark); font-weight: 600; }
   .lrow .wt { color: var(--accent-dark); font-weight: 600; }
+  /* Т56: „Изядох“ със снимка — час · име · ккал вдясно (в колона); под тях сив ред с храните (под името) */
+  .lrow.snap { flex-wrap: wrap; row-gap: 0; }
+  .lrow .lk { flex: none; min-width: 4.6em; padding-top: 1px; text-align: right; font-size: 13.5px; font-weight: 700; color: var(--ink); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .lrow .lfd { flex: 0 0 100%; box-sizing: border-box; padding-left: 50px; margin-top: 1px; color: var(--muted); font-size: 13px; font-weight: 400; line-height: 1.4; overflow-wrap: anywhere; }
+  /* Т56: сборът на деня (модел ФКУ тракер): ккал горе вдясно; П · В · М на втория ред — всяко в своя колона (цифра под цифра); „+ N без сметка“ вляво */
+  .d-kc { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; white-space: nowrap; color: var(--ink); }
+  .d-m { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; font-weight: 600; white-space: nowrap; color: var(--accent-dark); }
+  .d-nc { min-width: 0; font-size: 11.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+  .lsum { display: grid; grid-template-columns: minmax(0, 1fr) 40px 40px 36px; column-gap: 5px; row-gap: 1px; align-items: baseline; padding: 4px 0 8px; border-bottom: 1px solid var(--border); }
+  .lsum .ls-l { grid-column: 1; grid-row: 1; font-size: 13px; font-weight: 700; color: var(--accent-dark); }
+  .lsum .d-kc { grid-column: 2 / 5; grid-row: 1; }
+  .lsum .d-nc { grid-column: 1; grid-row: 2; }
+  .lsum .d-p { grid-column: 2; grid-row: 2; } .lsum .d-c { grid-column: 3; grid-row: 2; } .lsum .d-f { grid-column: 4; grid-row: 2; }
+  .lrows .lsum + .lrow { border-top: none; }
   .lempty { margin: 4px 0 8px; color: var(--muted); font-size: 14px; }
   .lmon { display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
   .lmon::before, .lmon::after { content: ""; flex: 1; height: 1px; background: var(--border); }
@@ -425,6 +439,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .d-src { white-space: nowrap; overflow: hidden; }
   .d-src .mfrom { font-size: 10.5px; padding: 0 5px; }
   .d-cnt { text-align: right; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  /* Т56: ден със сбор — два реда в заглавието: [ДД.ММ][ден] … [ккал][▸] / [+ N без сметка] … [П][В][М] */
+  details.qday.qd-food > summary { grid-template-columns: 38px 34px minmax(0, 1fr) 40px 40px 36px 10px; column-gap: 5px; row-gap: 1px; }
+  .qd-food > summary > .d-date { grid-column: 1; grid-row: 1; } .qd-food > summary > .d-wd { grid-column: 2; grid-row: 1; }
+  .qd-food .d-kc { grid-column: 4 / 7; grid-row: 1; }
+  .qd-food .d-nc { grid-column: 1 / 4; grid-row: 2; }
+  .qd-food .d-p { grid-column: 4; grid-row: 2; } .qd-food .d-c { grid-column: 5; grid-row: 2; } .qd-food .d-f { grid-column: 6; grid-row: 2; }
+  details.qday.qd-food > summary::after { grid-column: 7; grid-row: 1; }
   .qs-h .d-date { font-size: 14.5px; margin-right: 2px; }
   .qs-h .d-wd { margin-right: 4px; }
   @media (max-width: 359px) {
@@ -432,6 +453,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     details.qday.qd-meas > summary { grid-template-columns: 36px 31px minmax(0, 1fr) 54px 36px 46px 10px; column-gap: 4px; }
     .d-date { font-size: 13.5px; } .d-wd { font-size: 11.5px; } .d-val { font-size: 13px; } .d-diff { font-size: 11.5px; } .d-src .mfrom { font-size: 9.5px; padding: 0 4px; }
     .qd-meas .d-lab { visibility: hidden; }
+    details.qday.qd-food > summary { grid-template-columns: 36px 31px minmax(0, 1fr) 38px 38px 34px 10px; column-gap: 4px; }
+    .lsum { grid-template-columns: minmax(0, 1fr) 38px 38px 34px; column-gap: 4px; }
+    .d-kc { font-size: 13px; } .d-m { font-size: 12px; }
   }
   #accSpacer { pointer-events: none; }
   /* Т23: вътре в хронология — леки редове: без рамка и цветна лента, тънка линия между тях; ▸/▾ и плавният цикъл (Т20) остават.
@@ -1309,7 +1333,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function eatenToday(name) {
     var head = "✅ " + name + " — ядено ", today = todayStr(), out = [];
     foodClient().forEach(function (e) {
-      var t = String(e.text || "");
+      var t = String(e.text || "").split("\n")[0].trim();   // Т56: първият ред (под него — снимката)
       if (t.indexOf(head) === 0 && (e.entry_date || sofiaDay(e.created_at)) === today) out.push(t.slice(head.length).trim());
     });
     return out.sort();
@@ -1325,12 +1349,83 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!name) return;
       if (el.tagName === "TR") (el.cells[0] || el).insertAdjacentHTML("beforeend", mealCtl(name));   // в първата клетка, до името
       else {
-        var head = el.firstElementChild;
-        if (head && /^(B|STRONG|H[1-6])$/.test(head.tagName)) head.insertAdjacentHTML("afterend", mealCtl(name));   // до заглавието
+        var head = mealHead(el);
+        if (head && head.tagName === "DIV") head.insertAdjacentHTML("beforeend", mealCtl(name));   // заглавието е <div> с удебелен шрифт → в него
+        else if (head) head.insertAdjacentHTML("afterend", mealCtl(name));   // до заглавието
         else el.insertAdjacentHTML("beforeend", mealCtl(name));   // в края
       }
       el.classList.toggle("ate", eatenToday(name).length > 0);
     });
+  }
+  // заглавието на храненето: първият елемент, ако е <b>/<strong>/h… или <div> с удебелен шрифт и пред него няма текст
+  function mealHead(el) {
+    var h = el.firstElementChild;
+    if (!h) return null;
+    for (var p = h.previousSibling; p; p = p.previousSibling) if (p.nodeType === 3 && p.nodeValue.trim()) return null;
+    if (/^(B|STRONG|H[1-6])$/.test(h.tagName)) return h;
+    if (h.tagName === "DIV" && (parseInt(getComputedStyle(h).fontWeight, 10) || 400) >= 600) return h;
+    return null;
+  }
+  // ── Т56: снимката на храненето при „Запиши“ — храните + числата от картата. Нищо не се гадае: без пълен ред с числата → без числа.
+  //   Записът (food_log.text — обикновен текст на редове):
+  //     ✅ <име> — ядено ЧЧ:ММ          ← както досега; старите записи са само този ред → „без сметка“
+  //     <храните>                       ← ако ги има
+  //     455 ккал · П 42 · В 38 · М 15   ← ако редът с числата в картата се разчете изцяло (ккал + П + В + М)
+  //   Редът с числата в картите (4 формата): „П 42 · В 38 · М 15 · ~455 ккал“ · „25 П · 27 В · 2 М · 212 ккал“ · „П44 · В49 · М12 · 472 ккал“ ·
+  //   „протеин 20 г · въглехидрати 11 г · мазнини 50 г · 570 kcal“; „~“ се пренебрегва; ккал = kcal.
+  var NUM_CANON = /^(\d+(?:,\d+)?) ккал · П (\d+(?:,\d+)?) · В (\d+(?:,\d+)?) · М (\d+(?:,\d+)?)$/;
+  var NUM_KEY = { "п": "p", "протеин": "p", "протеини": "p", "в": "c", "въглехидрати": "c", "м": "f", "мазнини": "f" };
+  var NUM_EXTRA = /^[A-Za-zА-Яа-я][A-Za-zА-Яа-я ]{1,20} ?\d+(?:[.,]\d+)?(?: ?(?:г|гр|мг|mg|g)\.?)?$/;   // напр. „фибри 9 г“ след числата — пренебрегва се
+  function numV(s) { return parseFloat(String(s).replace(",", ".")); }
+  function numS(v) { return String(Math.round(v * 10) / 10).replace(".", ","); }
+  function numPart(x) {
+    var s = String(x).replace(/[~≈]/g, "").replace(/\s+/g, " ").trim(), m;
+    if ((m = /^(\d+(?:[.,]\d+)?) ?(?:ккал|kcal)\.?$/i.exec(s))) return { k: "k", v: numV(m[1]) };
+    if ((m = /^([А-Яа-я]+) ?(\d+(?:[.,]\d+)?)(?: ?гр?\.?)?$/.exec(s)) && NUM_KEY[m[1].toLowerCase()]) return { k: NUM_KEY[m[1].toLowerCase()], v: numV(m[2]) };
+    if ((m = /^(\d+(?:[.,]\d+)?)(?: ?гр?\.?)? ?([А-Яа-я]+)$/.exec(s)) && NUM_KEY[m[2].toLowerCase()]) return { k: NUM_KEY[m[2].toLowerCase()], v: numV(m[1]) };
+    return null;
+  }
+  // ред → { n: {k,p,c,f}, rest: текстът пред числата } само ако в края има ккал + П + В + М (по веднъж); иначе null
+  function parseNums(line) {
+    var parts = String(line).split(/\s*[·•|]\s*/), i = parts.length, got = {}, req = 0;
+    while (i > 0) {
+      var np = numPart(parts[i - 1]);
+      if (np) { if (got[np.k] != null) return null; got[np.k] = np.v; req++; i--; continue; }
+      if (!req && NUM_EXTRA.test(parts[i - 1].replace(/[~≈]/g, "").trim())) { i--; continue; }
+      break;
+    }
+    if (req !== 4 || got.k == null || got.p == null || got.c == null || got.f == null) return null;
+    return { n: { k: got.k, p: got.p, c: got.c, f: got.f }, rest: parts.slice(0, i).join(" · ").trim() };
+  }
+  function numLine(n) { return numS(n.k) + " ккал · П " + numS(n.p) + " · В " + numS(n.c) + " · М " + numS(n.f); }
+  var LINE_BLOCK = /^(DIV|P|LI|UL|OL|TD|TH|TR|TBODY|TABLE|H[1-6]|SECTION|BLOCKQUOTE)$/;
+  function textLines(root, skip) {
+    var out = [""];
+    (function walk(n) {
+      for (var c = n.firstChild; c; c = c.nextSibling) {
+        if (c.nodeType === 3) { out[out.length - 1] += c.nodeValue; continue; }
+        if (c.nodeType !== 1 || skip(c) || /^(STYLE|SCRIPT|BUTTON)$/.test(c.tagName)) continue;
+        if (c.tagName === "BR") { out.push(""); continue; }
+        var blk = LINE_BLOCK.test(c.tagName);
+        if (blk) out.push("");
+        walk(c);
+        if (blk) out.push("");
+      }
+    })(root);
+    return out.map(function (x) { return x.replace(/\s+/g, " ").trim(); }).filter(Boolean);
+  }
+  function isEatCtl(x) { return !!(x.classList && x.classList.contains("eatc")); }
+  function normT(x) { return String(x || "").replace(/\s+/g, " ").trim().toLowerCase(); }
+  function mealSnap(el, name) {
+    var nm = normT(name), head = el.tagName === "TR" ? (el.cells.length > 1 ? el.cells[0] : null) : mealHead(el);
+    if (head) { var ht = normT(textLines(head, isEatCtl).join(" ")); if (!ht || (nm.indexOf(ht) < 0 && ht.indexOf(nm) < 0)) head = null; }   // името — само ако е името
+    var lines = textLines(el, function (x) { return x === head || isEatCtl(x); }), num = null;
+    for (var i = lines.length - 1; i >= 0 && !num; i--) {
+      var r = parseNums(lines[i]);
+      if (r) { num = r.n; if (r.rest) lines[i] = r.rest; else lines.splice(i, 1); }
+    }
+    var foods = lines.map(function (l) { return l.replace(/^[\s·•|:;,\-–—]+/, "").replace(/[\s·•|;,]+$/, ""); }).filter(Boolean).join(" · ");
+    return { foods: foods, num: num };
   }
   function refreshMealMarks() {
     Array.prototype.forEach.call(P.hrana.querySelectorAll(".eatc[data-meal-name]"), function (box) {
@@ -1339,8 +1434,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (el) el.classList.toggle("ate", eatenToday(name).length > 0);
     });
   }
-  // ── ЛОГЪТ (модел Victus): ред = ЧАС + ТЕКСТ. Без търсачка, грамажи, макроси. Пише се през add_food_entry, чете се през get_food_log.
+  // ── ЛОГЪТ (модел Victus): ред = ЧАС + ТЕКСТ. Без търсачка и грамажи. Пише се през add_food_entry, чете се през get_food_log.
   // Часът = created_at. Поправен час влиза в текста като „… — в HH:MM“ (при „Изядох“: „… — ядено HH:MM“) до миграцията (food_log.eaten_at).
+  // Т56: „Изядох“ носи снимка (храни + ккал/макроси от картата) на следващите редове → денят се сумира; останалото е „без сметка“.
   var TIME_TAIL = /^([\s\S]*?) — (?:ядено|в) (\d{2}:\d{2})$/;
   function logDayOf(e) { return e.entry_date || sofiaDay(e.created_at); }
   // Броячът: различни дни с поне един запис с текст (и „Изядох" е такъв). Само тегло без текст (стар form3L) не прави ден.
@@ -1356,9 +1452,27 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     try { return new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Sofia" }); } catch (x) { return ""; }
   }
   function logView(e) {
-    var t = String(e.text || "").trim(), m = TIME_TAIL.exec(t), tm = nowHMof(e.created_at);
+    var raw = String(e.text || "").trim(), t = raw, tm = nowHMof(e.created_at), foods = "", num = null, m;
+    if (raw.indexOf("✅ ") === 0 && raw.indexOf("\n") > 0) {   // Т56: първият ред е записът, под него — снимката
+      var L = raw.split(/\r?\n/).map(function (x) { return x.trim(); }).filter(Boolean), nc;
+      t = L.shift();
+      if (L.length && (nc = NUM_CANON.exec(L[L.length - 1]))) { num = { k: numV(nc[1]), p: numV(nc[2]), c: numV(nc[3]), f: numV(nc[4]) }; L.pop(); }
+      foods = L.join(" ");
+      m = TIME_TAIL.exec(t);
+    } else m = TIME_TAIL.exec(raw);
     if (m) { t = m[1]; tm = m[2]; }
-    return { text: t, tm: tm, ate: t.indexOf("✅ ") === 0, e: e };
+    return { text: t, tm: tm, ate: t.indexOf("✅ ") === 0, e: e, foods: foods, num: num };
+  }
+  // Т56: сборът на деня — само от записите с числа; „без сметка“ = записи с текст без числа (свободни, стари ✅); само тегло не се брои
+  function daySum(rows) {
+    var s = { n: 0, k: 0, p: 0, c: 0, f: 0, nc: 0 };
+    rows.forEach(function (v) { if (v.num) { s.n++; s.k += v.num.k; s.p += v.num.p; s.c += v.num.c; s.f += v.num.f; } else if (v.text) s.nc++; });
+    return s;
+  }
+  function sumCells(s) {
+    return '<span class="d-kc">' + Math.round(s.k) + " ккал</span>"
+      + '<span class="d-nc">' + (s.nc ? "+ " + s.nc + " без сметка" : "") + "</span>"
+      + '<span class="d-m d-p">П ' + Math.round(s.p) + '</span><span class="d-m d-c">В ' + Math.round(s.c) + '</span><span class="d-m d-f">М ' + Math.round(s.f) + "</span>";
   }
   function logLine(v) {
     var parts = [], e = v.e;
@@ -1366,7 +1480,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (e.weight != null && e.weight !== "") parts.push('<span class="wt">' + ic("weight", "icl") + esc(num1(e.weight)) + " кг</span>");
     if (e.waist != null && e.waist !== "") parts.push('<span class="wt">' + ic("waist", "icl") + "талия " + esc(num1(e.waist)) + " см</span>");
     if (e.height != null && e.height !== "") parts.push('<span class="wt">' + ic("height", "icl") + "ръст " + esc(e.height) + " см</span>");
-    return '<div class="lrow' + (v.ate ? " ate" : "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(" · ") + "</span></div>";
+    var snap = v.ate && (v.num || v.foods);   // Т56: ккал вдясно, храните на сив ред отдолу
+    return '<div class="lrow' + (v.ate ? " ate" : "") + (snap ? " snap" : "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(" · ") + "</span>"
+      + (v.num ? '<span class="lk">' + Math.round(v.num.k) + " ккал</span>" : "")
+      + (snap && v.foods ? '<span class="lfd">' + esc(v.foods) + "</span>" : "") + "</div>";
   }
   // Групи по ден (най-новият горе); в деня — по часа, най-късното горе (както LogScreen).
   function logGroups() {
@@ -1440,7 +1557,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var groups = logGroups(), tg = groups.filter(function (g) { return g.day === today; })[0], past = groups.length - (tg ? 1 : 0);
     var tEl = document.getElementById("logToday");   // днешният брой е на бутона (Т15) — в заглавния ред го няма (Т16, решение на CDB-GYM)
     // без запис днес: бутонът вече казва „Няма записи днес“; приветливият ред е само за съвсем празен лог
-    if (tEl) tEl.innerHTML = tg ? tg.rows.map(logLine).join("")
+    var ts = tg ? daySum(tg.rows) : null;   // Т56: сборът днес (само ако има записи с числа)
+    if (tEl) tEl.innerHTML = tg ? (ts.n ? '<div class="lsum" id="logSum"><span class="ls-l">Общо днес</span>' + sumCells(ts) + "</div>" : "") + tg.rows.map(logLine).join("")
       : past ? "" : '<p class="lempty">Още няма нито един запис.</p>';
     var nr = document.querySelector('#p-hrana [data-key="h_food"] > .ch .sub');
     if (nr) nr.textContent = foodNavSub();
@@ -2124,7 +2242,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var cur = EAT, hm = cur.pop.querySelector(".eptm").value, msg = cur.pop.querySelector(".epmsg"), okb = cur.pop.querySelector(".epok");
     if (!/^\d{2}:\d{2}$/.test(hm)) { msg.textContent = "Избери час."; return; }
     cur.busy = true; okb.disabled = true; msg.textContent = "";
-    wr("add_food_entry", { p_token: token, p_text: "✅ " + cur.name + " — ядено " + hm, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
+    var snap = mealSnap(cur.el, cur.name);   // Т56: храните + числата от картата
+    var text = "✅ " + cur.name + " — ядено " + hm + (snap.foods ? "\n" + snap.foods : "") + (snap.num ? "\n" + numLine(snap.num) : "");
+    wr("add_food_entry", { p_token: token, p_text: text, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
       if (res.error || res.data === false) throw (res.error || new Error("fail"));
       cur.saved = true;
       if (EAT === cur) eatClose(true);
@@ -2395,7 +2515,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var past = foodPastDays();
     var inner = !past.length ? hEmpty("Още няма минали дни.") : histMonths("hm_food_", past, function (g) { return g.day; },
       function (list) { return daysWord(list.length) + " · " + entriesWord(list.reduce(function (a, g) { return a + g.rows.length; }, 0)); },
-      function (g) { return qday(g.day, "qd-cnt", dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"'); });
+      function (g) {
+        var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
+        return qday(g.day, s.n ? "qd-food" : "qd-cnt", s.n ? sumCells(s) : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
+      });
     return histCard("h_food", "history", "История на храненето", foodNavSub(), inner);
   }
   function measHistHtml() {
