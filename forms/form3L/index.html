@@ -2,6 +2,20 @@
 <html lang="bg">
 <head>
 <meta charset="UTF-8">
+<script>
+// Т57 (09.11.2026, Chris „старите дневници да станат новите“): логът вече е в app/ → пренасочване с кода.
+// Кодът: ?t= или запазеният на устройството (същият ключ като по-долу). Без код → старото поведение.
+// window.stop(): старата страница не продължава да се зарежда (заявки, service worker) — направо към новата.
+(function () {
+  try {
+    var t = new URLSearchParams(location.search).get("t") || localStorage.getItem("cdbgym_f3l_token");
+    if (!t) return;
+    try { localStorage.setItem("cdbgym_f3l_token", t); } catch (e) {}
+    try { window.stop(); } catch (e) {}
+    location.replace("../../app/?t=" + encodeURIComponent(t) + "#hrana");
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
 <title>Хранителен лог — 15 дни</title>
