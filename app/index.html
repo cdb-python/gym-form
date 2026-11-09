@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.5">
+<meta name="version" content="v0.2.6">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -526,8 +526,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   table.labt { width: 100%; border-collapse: collapse; table-layout: fixed; margin: 6px 0; font-size: 13.5px; }
   table.labt th, table.labt td { border: 1px solid var(--border); padding: 6px 7px; text-align: left; word-break: break-word; vertical-align: top; }
   table.labt th { background: var(--soft); color: var(--accent-dark); }
-  .card .body table.labt td:first-child, .card .body table.labt th:first-child, table.labt td:first-child, table.labt th:first-child { width: 42%; }
-  .lfl { color: var(--accent-dark); font-weight: 800; }
+  /* Т51: заглавията не се чупят по средата на думата („Стойно|ст“ на 320) — по-силно от „.card .body th“ */
+  .card .body table.labt th, table.labt th { word-break: normal; overflow-wrap: normal; font-size: 13px; padding: 6px 6px; }
+  .card .body table.labt td:first-child, .card .body table.labt th:first-child, table.labt td:first-child, table.labt th:first-child { width: 38.5%; }
+  .card .body table.labt td:nth-child(2), .card .body table.labt th:nth-child(2), table.labt td:nth-child(2), table.labt th:nth-child(2) { width: 34.5%; }
+  /* Т51: знакът — в слот с фиксирана ширина вдясно в „Стойност“: на едно място във всеки ред, стойностите остават подравнени */
+  .lv { display: flex; align-items: baseline; column-gap: 3px; }
+  .lv > .lvv { flex: 1; min-width: 0; }
+  .lfl { flex: none; width: 1.15em; text-align: center; font-weight: 800; }
+  .lfl.lhi, .lfl.llo { color: var(--up); -webkit-text-stroke: 0.6px currentColor; }   /* над / под нормата — червено (и ниското не е добре); стрелката — по-плътна */
+  .lfl.lok { color: var(--down); }   /* в нормата — зелено */
+  @media (max-width: 359px) {   /* Т51: тесен екран — таблицата е ~220 px; иначе имената и мерните единици се чупят по средата */
+    .card .body table.labt, table.labt { font-size: 12.5px; }   /* по-силно от „.card .body table“ */
+    .card .body table.labt th, table.labt th { font-size: 12px; padding: 6px 5px; }
+    .card .body table.labt td, table.labt td { padding: 6px 5px; }
+    .card .body table.labt td:first-child, .card .body table.labt th:first-child, table.labt td:first-child, table.labt th:first-child { width: 37.5%; }
+    .card .body table.labt td:nth-child(2), .card .body table.labt th:nth-child(2), table.labt td:nth-child(2), table.labt th:nth-child(2) { width: 35.5%; }
+    .lv { column-gap: 2px; }
+    .lfl { width: 1em; }
+  }
   .lableg { margin: 4px 0 0; color: var(--muted); font-size: 12.5px; }
   /* изследвания — качване */
   .up { border: 2px dashed var(--line); border-radius: 12px; padding: 16px 14px; text-align: center; background: #fff; }
@@ -1835,13 +1852,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return { day: d, rows: rows, tr: tr };
     });
   }
+  // Т51: H ↑ / L ↓ — червено; без флаг + с норма ✓ — зелено; без норма — празен слот. Флаговете ги слага Chris по нормата от листа.
+  var LFL = { H: ["lhi", "↑", "над нормата"], L: ["llo", "↓", "под нормата"], ok: ["lok", "✓", "в нормата"] };
+  function labFlag(r) {
+    var k = r.flag === "H" || r.flag === "L" ? r.flag : !r.flag && String(r.ref_text || "").trim() ? "ok" : "", f = LFL[k];
+    return f ? '<span class="lfl ' + f[0] + '" role="img" aria-label="' + f[2] + '" title="' + f[2] + '">' + f[1] + "</span>" : '<span class="lfl"></span>';
+  }
   function labTable(g) {
-    var flagged = false;
     var rows = g.rows.map(function (r) {
       var v = r.value != null && r.value !== "" ? num(r.value) : (r.value_text || "—");
-      var f = r.flag === "H" ? ' <span class="lfl" title="над нормата">↑</span>' : r.flag === "L" ? ' <span class="lfl" title="под нормата">↓</span>' : "";
-      if (f) flagged = true;
-      return "<tr><td>" + esc(r.marker) + "</td><td><b>" + esc(v) + "</b>" + (r.unit ? " " + esc(r.unit) : "") + f + "</td><td>" + esc(r.ref_text || "—") + "</td></tr>";
+      return "<tr><td>" + esc(r.marker) + '</td><td><div class="lv"><span class="lvv"><b>' + esc(v) + "</b>" + (r.unit ? " " + esc(r.unit) : "") + "</span>" + labFlag(r) + "</div></td><td>" + esc(r.ref_text || "—") + "</td></tr>";
     }).join("");
     return '<p class="labby">Преписано от Chris · ' + esc(fmtDate(sofiaDay(g.tr))) + "</p>"
       + '<table class="labt"><tr><th>Показател</th><th>Стойност</th><th>Норма</th></tr>' + rows + "</table>"
