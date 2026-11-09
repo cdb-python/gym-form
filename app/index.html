@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
+<meta name="version" content="v0.1.0">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#2e7d5b">
@@ -217,6 +218,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .now a:first-of-type { border-top: none; }
   .now a .i { flex: none; width: 22px; text-align: center; }
   .now a .x { flex: 1; min-width: 0; }
+  /* Т44: версията — най-долу в Начало; сивият цвят на вторичния текст, 12 px, цифри с еднаква ширина; не е бутон, не е линк */
+  .appver { margin: 24px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.4; font-variant-numeric: tabular-nums; }
   .now a::after { content: "›"; flex: none; color: var(--accent); font-size: 20px; line-height: 1; }
 
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15.5px; }
@@ -1166,6 +1169,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + step("merki", 3, !!w, "Запиши тегло и талия", "", w ? num1(w.w) + " кг" : "")
       + "</div>";
   }
+  // Т44: номерът живее САМО в <meta name="version"> (вдига го tools/deploy_app.py) — тук се чете; без <meta> → без ред
+  function appVerHtml() {
+    var m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
+    return v ? '<p class="appver" id="appVer">cdb-Gym · ' + esc(v) + "</p>" : "";
+  }
   function renderNachalo() {
     var html = '<div id="instHost"></div>', rows = nowRows();
     if (rows.length) {
@@ -1174,7 +1182,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       html += "</div>";
     }
     if (START) {
-      P.nachalo.innerHTML = html + startHtml() + '<div class="state" id="startNote">Планът ти се подготвя. Когато е готов, ще го намериш тук.</div>';
+      P.nachalo.innerHTML = html + startHtml() + '<div class="state" id="startNote">Планът ти се подготвя. Когато е готов, ще го намериш тук.</div>' + appVerHtml();
       renderInstall();
       return;
     }
@@ -1189,7 +1197,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       html += "</div>";
     });
     if (!any) html += '<div class="state">Планът ти още се подготвя. Скоро тук ще има съдържание.</div>';
-    P.nachalo.innerHTML = html;
+    P.nachalo.innerHTML = html + appVerHtml();
     renderInstall();
   }
 
@@ -2595,7 +2603,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
