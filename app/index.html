@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.6">
+<meta name="version" content="v1.0.7">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -350,6 +350,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .iform .iq { padding: 10px 0; border-top: 1px solid var(--border); }
   .iform .iq:first-child { border-top: none; padding-top: 2px; }
   .iform .iq[hidden] { display: none; }
+  .iform .imiss { float: right; margin: 2px 0 0 10px; font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--muted); white-space: nowrap; }   /* Т69 */
   .iform .k { display: block; font-size: 14.5px; font-weight: 700; color: var(--ink); margin: 0 0 3px; }
   .iform .ih { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; line-height: 1.4; }
   .iform input[type=text], .iform textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
@@ -364,6 +365,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .iasub { margin: 6px 0 4px 10px; padding: 4px 0 6px 12px; border-left: 3px solid var(--line); }
   .iasub[hidden] { display: none; }
   .iasub .ak { display: block; font-size: 13.5px; font-weight: 600; margin: 8px 0 3px; }
+  .iasub .ak > .imiss { margin-top: 1px; }   /* Т69 */
+  .iasub .iahint { margin: 2px 0 0; }   /* Т69: веднъж под отметнатата област */
   .isv { min-height: 0; font-size: 12.5px; font-weight: 700; margin-top: 4px; }
   .isv:empty { display: none; }
   .isv.ok { color: var(--accent-dark); }
@@ -1891,12 +1894,30 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   „Ново за теб · липсват N“. ОБЩО = видимите задължителни + видимите по желание, които СА попълнени · ПОПЪЛНЕНО = видимите
   //   попълнени · ЛИПСВАТ = видимите задължителни празни. Винаги попълнено + липсват = общо. Празен въпрос по желание не влиза никъде;
   //   попълненият влиза и в двете. (Преди: „от N“ броеше и празните по желание → 31 + 58 ≠ 96.)
+  // Т69: ЕДНО правило „липсва“ — видим, задължителен (не е в INTAKE_OPTIONAL), празен. От него — и броячите, и знакът на реда.
+  function ivMiss(k, d) { d = d || IN.data; return ivVisible(k, d) && ivEmpty(d[k]) && INTAKE_OPTIONAL.indexOf(k) < 0; }
+  // Т69 добавка (Chris 19:21): oblasti сам е по желание (празно = „нямам“), но за всяка ОТМЕТНАТА област всеки неин видим подвъпрос
+  //   (ime само при named, bp при sarce, stoynosti при labs; ogranichava също) е задължителен. Тук е правилото — и за броенето, и за знака.
+  function areaUnits(v) {
+    var u = [];
+    (Array.isArray(v) ? v : []).forEach(function (o) {
+      var a = o && AREAS.filter(function (x) { return x.key === o.key; })[0];
+      if (!a) return;
+      AREA_SUB.forEach(function (s) {
+        if (s[3] && !a[s[3]]) return;
+        var x = o[s[0]]; if (typeof x === "string") x = x.trim();
+        u.push({ id: a.key + ":" + s[0], miss: ivEmpty(x) });
+      });
+    });
+    return u;
+  }
+  function ivUnits(k, d) { return (INTAKE_F[k] || {}).t === "areas" && ivVisible(k, d) ? areaUnits(d[k]) : []; }
   function intakeTally(keys, d) {
     var got = 0, miss = 0; d = d || IN.data;
     keys.forEach(function (k) {
-      if (!ivVisible(k, d)) return;
-      if (!ivEmpty(d[k])) got++;
-      else if (INTAKE_OPTIONAL.indexOf(k) < 0) miss++;
+      if (ivMiss(k, d)) miss++;
+      else if (ivVisible(k, d) && !ivEmpty(d[k])) got++;
+      ivUnits(k, d).forEach(function (u) { if (u.miss) miss++; else got++; });   // Т69: подвъпросите на отметнатите области
     });
     return { got: got, miss: miss, total: got + miss };
   }
@@ -1946,25 +1967,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return '<label class="io"><input type="' + type + '" name="' + esc(name) + '" value="' + esc(o) + '"' + (sel.indexOf(o) > -1 ? " checked" : "") + (extra || "") + (IN.ro ? " disabled" : "") + "><span>" + esc(o) + "</span></label>";
     }).join("") + "</div>";
   }
+  var AREA_HINT = "Ако не знаеш или не помниш — напиши „не знам“ или „не помня“. И това е отговор.";   // Т69 добавка, Chris 19:21
   function areasHtml(v) {
-    var by = {}, dis = IN.ro ? " disabled" : "";
+    var by = {}, dis = IN.ro ? " disabled" : "", um = {};
     (Array.isArray(v) ? v : []).forEach(function (o) { if (o && o.key) by[o.key] = o; });
+    ivUnits("oblasti", IN.data).forEach(function (u) { if (u.miss) um[u.id] = 1; });   // Т69
     return '<div class="iareas">' + AREAS.map(function (a) {
       var o = by[a.key];
       var sub = AREA_SUB.filter(function (s) { return !s[3] || a[s[3]]; }).map(function (s) {
         var val = o && o[s[0]] != null ? String(o[s[0]]) : "", id = "ar_" + a.key + "_" + s[0], da = ' data-ar="' + a.key + '" data-af="' + s[0] + '"';
-        if (s[2] === "radio") return '<div class="ak">' + esc(s[1]) + "</div>" + optsHtml("radio", id, ["Не", "Малко", "Значително"], [val], da);
-        return '<label class="ak" for="' + id + '">' + esc(s[1]) + "</label>"
+        var aq = ' data-aq="' + a.key + ":" + s[0] + '"', mk = o && um[a.key + ":" + s[0]] ? IMISS : "";
+        if (s[2] === "radio") return '<div class="ak"' + aq + ">" + mk + esc(s[1]) + "</div>" + optsHtml("radio", id, ["Не", "Малко", "Значително"], [val], da);
+        return '<label class="ak" for="' + id + '"' + aq + ">" + mk + esc(s[1]) + "</label>"
           + (s[2] === "area" ? '<textarea id="' + id + '" rows="2"' + da + dis + ">" + esc(val) + "</textarea>" : '<input type="text" id="' + id + '"' + da + ' value="' + esc(val) + '"' + dis + ">");
       }).join("");
       return '<label class="io ia"><input type="checkbox" data-area="' + a.key + '"' + (o ? " checked" : "") + dis + "><span>" + esc(a.label) + "</span></label>"
-        + '<div class="iasub" data-sub="' + a.key + '"' + (o ? "" : " hidden") + ">" + sub + "</div>";
+        + '<div class="iasub" data-sub="' + a.key + '"' + (o ? "" : " hidden") + '><div class="ih iahint">' + esc(AREA_HINT) + "</div>" + sub + "</div>";
     }).join("") + "</div>";
   }
   function fieldHtml(k, label) {
     var f = INTAKE_F[k] || { t: "text" }, v = IN.data[k], id = "if_" + k, dis = IN.ro ? " disabled" : "", h;
     var choice = f.t === "radio" || f.t === "check" || f.t === "areas";
     h = '<div class="iq" data-key="iq_' + k + '" data-k="' + k + '"' + (ivVisible(k) ? "" : " hidden") + ">"
+      + (ivMiss(k) ? IMISS : "")   // Т69: „липсва“ вдясно горе; заглавието го обтича
       + (choice ? '<div class="k">' + esc(label) + "</div>" : '<label class="k" for="' + id + '">' + esc(label) + "</label>")
       + (f.h ? '<div class="ih">' + esc(f.h) + "</div>" : "");
     if (f.t === "radio" || f.t === "check") h += optsHtml(f.t === "radio" ? "radio" : "checkbox", id, f.o || [], Array.isArray(v) ? v : (v == null ? [] : [String(v)]));
@@ -1972,6 +1997,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     else if (f.t === "area") h += '<textarea id="' + id + '" rows="2"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + dis + ">" + esc(v == null ? "" : v) + "</textarea>";
     else h += '<input type="text" id="' + id + '"' + (f.t === "number" ? ' inputmode="decimal"' : "") + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + ' value="' + esc(v == null ? "" : v) + '"' + dis + ">";
     return h + '<div class="isv" aria-live="polite"></div></div>';
+  }
+  // Т69 (Chris 19:15): знакът „липсва“ на реда — като брояча на групата; изчезва, щом отговорът е записан (или въпросът се скрие)
+  var IMISS = '<span class="imiss">липсва</span>';
+  function ivMarkSet(row, on) {
+    var m = row.querySelector(":scope > .imiss");
+    if (on && !m) row.insertAdjacentHTML("afterbegin", IMISS);
+    else if (!on && m) row.removeChild(m);
   }
   function intakeHtml() {
     var head;
@@ -2039,7 +2071,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function ivReveal(d) {
     var form = document.getElementById("intakeForm"); if (!form) return;
-    Array.prototype.forEach.call(form.querySelectorAll(".iq[data-k]"), function (r) { r.hidden = !ivVisible(r.getAttribute("data-k"), d); });
+    Array.prototype.forEach.call(form.querySelectorAll(".iq[data-k]"), function (r) {   // Т69
+      var k = r.getAttribute("data-k"), um = {}; r.hidden = !ivVisible(k, d); ivMarkSet(r, ivMiss(k, d));
+      ivUnits(k, d || IN.data).forEach(function (u) { if (u.miss) um[u.id] = 1; });
+      Array.prototype.forEach.call(r.querySelectorAll(".ak[data-aq]"), function (ak) { ivMarkSet(ak, !!um[ak.getAttribute("data-aq")]); });
+    });
     INTAKE_Q.forEach(function (g, gi) { var el = document.getElementById("igc_" + gi); if (el) igCntSet(el, igCnt(g[1].map(function (q) { return q[0]; }), d)); });   // Т63: ✓ / липсват N
     var ic = intakeCount(intakeKeys(), d), sub = document.querySelector('#p-danni .card.panel[data-key="intake"] > .ch .sub');   // Т63: и панелът
     if (sub) sub.textContent = "попълнено " + ic[0] + " от " + ic[1];
@@ -2934,6 +2970,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function maxScroll() { return Math.max(0, contentH() - window.innerHeight); }
   // changes: [{n, open}] · sc: null (без скрол) | {open: n} (заглавието на n горе) | {close: n} (ако заглавието е над екрана → горе) | {y: число}
+  //   | {el} (el горе) | {el, head, end} (Т69: head горе, ако el … end се събират над лентата; иначе el горе)
   function accRun(changes, sc, instant) {
     var prev = ACC_RUN;
     if (prev) {   // ново натискане по време на движение: всичко, което още се движи, продължава от текущото си състояние в новия цикъл
@@ -2952,7 +2989,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     items.forEach(function (it) { it.to = it.open ? boxOf(it.b) : ACC_ZERO; });
     var H1 = contentH(), max = maxScroll(), y1 = y0;
     if (sc && sc.y != null) y1 = sc.y;
-    else if (sc && sc.el) y1 = sc.el.getBoundingClientRect().top + window.scrollY - topOffset();
+    else if (sc && sc.el) {
+      y1 = sc.el.getBoundingClientRect().top + window.scrollY - topOffset();
+      if (sc.head) {   // Т69: заглавието на групата горе, ако и въпросът се събира над лентата; иначе — въпросът горе
+        var hy = sc.head.getBoundingClientRect().top + window.scrollY - topOffset(), nv = document.getElementById("tabs");
+        var room = (nv ? nv.getBoundingClientRect().top : window.innerHeight) - topOffset() - ACC_GAP;
+        if ((sc.end || sc.el).getBoundingClientRect().bottom + window.scrollY - topOffset() - hy <= room) y1 = hy;
+      }
+    }
     else if (sc && (sc.open || closeAbove)) { var hd = accHead(sc.open || sc.close); if (hd) y1 = hd.getBoundingClientRect().top + window.scrollY - topOffset(); }
     y1 = Math.max(0, Math.min(Math.round(y1), max));   // извън възможния скрол → границата още от началото
     if (instant || REDUCE) {   // наведнъж: крайната подредба вече е приложена; скролът — в същия кадър
@@ -3114,8 +3158,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
     if (!el) { if (same) accRun([], { y: 0 }, false); else window.scrollTo(0, 0); return; }   // Т66
     if (key === "analysis") lsSet("app_seen_analysis_" + KEY_ID, "1");
-    var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el;
-    accRun(revealChanges(el, root), { el: tgt }, false);
+    var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el, head = null;
+    if (tab === "danni" && /^ig_\d+$/.test(key)) {   // Т69: „Допълни формата · липсват N“ → и първият липсващ въпрос (без focus() — на iPhone вади клавиатурата)
+      var mq = el.querySelector(".iq:not([hidden]) > .imiss, .iq:not([hidden]) .iasub:not([hidden]) > .ak > .imiss"), end = null;
+      if (mq) { head = tgt; tgt = mq.parentElement; if (tgt.classList.contains("ak")) end = tgt.nextElementSibling; }   // подвъпрос: заглавието + полето
+    }
+    accRun(revealChanges(el, root), { el: tgt, head: head, end: end }, false);
     flash(el);
   }
   // Т34: лентата притъмнява при скрол надолу, светва при скрол нагоре/спиране — винаги тапваема (1:1 от ФКУ тракера)
