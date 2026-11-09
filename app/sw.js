@@ -5,7 +5,7 @@
 //  • записи (POST и т.н.) — само мрежа;
 //  • новата версия влиза веднага: skipWaiting + clients.claim, старите кешове се трият.
 // ⚠ При всяко качване на нова версия на страницата смени VERSION (името на кеша).
-var VERSION = "v0.2.4";
+var VERSION = "v0.2.5";
 var CACHE = "cdb-app-" + VERSION;
 
 function bypass(req) {

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.4">
+<meta name="version" content="v0.2.5">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -519,6 +519,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .uprow:last-child { border-bottom: none; }
   .ust { color: var(--warn); font-weight: 700; }
   .ust.ok { color: var(--accent-dark); }
+  .lrow.upd > svg.ic { margin-top: 0.17em; }   /* Т50: ред в „Качени файлове“ — иконата до първия ред текст */
   .labres { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
   .labhd { font-weight: 800; font-size: 15.5px; color: var(--accent-dark); }
   .labby { margin: 2px 0 6px; color: var(--muted); font-size: 13px; }
@@ -1860,13 +1861,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<button type="button" class="btn" id="upBtn"' + (dis ? " disabled" : "") + ">" + ic("upload", "icl") + "Качи снимка или PDF</button>"
       + '<div class="upmsg' + (LABS.msg ? (LABS.msg.err ? " show err" : " show") : "") + '" id="upMsg" aria-live="polite">' + (LABS.msg ? esc(LABS.msg.text) : "") + "</div>"
       + "</div>";
-    if (LABS.uploads.length) h += '<div class="sec"><h2>Качени</h2><div id="labUps">' + LABS.uploads.slice(0, 8).map(upRow).join("") + "</div>"
-      + (LABS.uploads.length > 8 ? '<p class="empty">… и още ' + (LABS.uploads.length - 8) + "</p>" : "") + "</div>";
+    var pend = LABS.uploads.filter(function (u) { return u.status !== "transcribed"; });   // Т50: открито — само чакащите
+    if (pend.length) h += '<div class="sec"><h2>Качени</h2><div id="labUps">' + pend.map(upRow).join("") + "</div></div>";
     if (g.length) {
       h += '<div class="sec"><h2>Резултатите</h2><div class="labres" data-key="lab_' + g[0].day + '"><div class="labhd">Изследване от ' + esc(fmtDate(g[0].day)) + "</div>" + labTable(g[0]) + "</div></div>"
         + labsHistHtml();
     } else if (LABS.on) h += '<p class="empty" id="labsEmpty">Още няма преписани резултати.</p>';
-    return h;
+    return h + labUpHistHtml();   // Т50: преписаните файлове — под „Хронология на изследванията“
   }
   function labsSub() {
     var g = labDates(), w = LABS.uploads.filter(function (u) { return u.status !== "transcribed"; }).length;
@@ -2351,6 +2352,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (x) { return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]); },
       function (x) { return ["lab_" + x.day]; });
     return histCard("h_labs", "history", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
+  }
+  // Т50: преписаните файлове — месецът и денят по uploaded_at (София), най-новото горе; датите на изследванията — от преписа (upload_id)
+  function filesWord(n) { return n + (n === 1 ? " файл" : " файла"); }
+  function upDates(u) {
+    var ds = LABS.results.filter(function (r) { return r.upload_id === u.id; }).map(function (r) { return String(r.taken_on || "").slice(0, 10); })
+      .filter(function (d, i, a) { return d && a.indexOf(d) === i; }).sort();
+    if (!ds.length) return "";   // дубликат на вече преписан лист — няма редове
+    return (ds.length === 1 ? "изследване от " : "изследвания от ") + ds.slice(0, 3).map(fmtDate).join(", ") + (ds.length > 3 ? ", …" : "") + " · ";
+  }
+  function upDoneRow(u) {
+    return '<div class="lrow upd" data-up="' + esc(u.id) + '">' + ic(/pdf/.test(u.mime || "") ? "pdf" : "photo") + '<span class="tm">' + esc(nowHMof(u.uploaded_at)) + "</span>"
+      + '<span class="tx">' + esc(upDates(u)) + '<span class="ust ok">преписано ✓</span></span></div>';
+  }
+  function labUpHistHtml() {
+    var done = LABS.uploads.filter(function (u) { return u.status === "transcribed"; }).sort(function (a, b) { return tsNum(b.uploaded_at) - tsNum(a.uploaded_at); });
+    if (!done.length) return "";
+    var days = done.map(function (u) { return sofiaDay(u.uploaded_at); }).filter(function (d, i, a) { return a.indexOf(d) === i; });
+    function onDay(d) { return done.filter(function (u) { return sofiaDay(u.uploaded_at) === d; }); }
+    var inner = histMonths("hm_labup_", days, function (d) { return d; },
+      function (list) { return daysWord(list.length) + " · " + filesWord(list.reduce(function (a, d) { return a + onDay(d).length; }, 0)); },
+      function (d) { var l = onDay(d); return qday(d, "qd-cnt", dayCount(filesWord(l.length)), '<div class="lrows">' + l.map(upDoneRow).join("") + "</div>", 'data-day="' + d + '" data-key="hd_labup_' + d + '"'); });
+    return histCard("h_labup", "history", "Качени файлове", filesWord(done.length), inner);
   }
   // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата, „Защо 21 дни?“) минават оттук.
   // Т20: ЕДНО движение. Един цикъл requestAnimationFrame движи височината на всички засегнати тела (отварящото се, брата, който се
