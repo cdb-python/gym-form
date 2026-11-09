@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.9">
+<meta name="version" content="v0.3.0">
 <title>Твоят дневник</title>
-<!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
+<!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -264,15 +264,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
   .lmrow { display: flex; justify-content: flex-end; margin: 0 0 8px; }   /* Т31: вдясно, над полето */
   .lmrow .lm { flex: none; margin: -6px 0; padding: 6px 0; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
-  .linfo > .body { display: none; padding: 0 0 10px; }
-  .linfo.open > .body { display: block; }
-  .linfo .lin { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
-  .linfo .ls { margin: 0; font-size: 14.5px; line-height: 1.5; }
-  .linfo .lb { margin-top: 4px; }
-  .linfo .lb > div { margin: 10px 0 0; }
-  .linfo .lb b { display: block; font-size: 14px; color: var(--accent-dark); }
-  .linfo .lb p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.5; color: #46525e; }
-  .linfo a[data-go] { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .ltoday { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 12px 12px 6px; margin: 0 0 12px; }
   .lhead { display: flex; align-items: baseline; gap: 8px; margin: 0 0 8px; }
   .lhead b { flex: 1 1 auto; min-width: 0; font-size: 16px; }
@@ -501,6 +492,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eatpop .epmsg { margin: 6px 0 0; font-size: 13.5px; font-weight: 600; color: #9a3b3b; }
   .eatpop .epmsg:empty { display: none; }
   .card .body tr.ate > td { background: var(--ate); }
+  /* Т59: ⓘ — бутонът до заглавието (видимо 18 px, зона 32 px; не мени височината на реда) и балонът (семейството на банера „Изядох“) */
+  .ibtn { display: inline-flex; flex: none; align-items: center; justify-content: center; box-sizing: border-box; width: 32px; height: 32px; margin: -7px -7px -7px -1px; padding: 0; border: 0; background: none; color: var(--accent); vertical-align: middle; font: inherit; letter-spacing: normal; text-transform: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ibtn svg.ic { width: 18px; height: 18px; }
+  .ibtn:focus { outline: none; }
+  .ibtn:focus-visible svg.ic { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
+  .ibtn[aria-expanded="true"] { color: var(--accent-dark); }
+  .ipop { position: absolute; z-index: 55; box-sizing: border-box; padding: 8px 12px 12px; background: #fff; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; text-align: left; }
+  .ipop .iph { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 4px; }
+  .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+  .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
+  .ipop .ipx svg.ic { width: 18px; height: 18px; }
+  #popSpacer { position: absolute; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
+  .ipop { display: flex; flex-direction: column; max-height: 60vh; }   /* Т60: дълъг текст → скрол вътре, заглавието и × остават */
+  .ipop .ipbody { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .ipop p { margin: 0 0 8px; overflow-wrap: anywhere; }
+  .ipop .ipbody > :last-child { margin-bottom: 0; }
+  .ipop .ipq { margin: 10px 0 2px; font-size: 14.5px; font-weight: 700; line-height: 1.35; color: var(--accent-dark); }
+  .ipop .ipbody > .ipq:first-child { margin-top: 2px; }
+  .ipop a[data-go] { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .card .body [data-meal].ate:not(tr) { background: var(--ate); border-radius: 8px; }
   .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .lhead span.lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
@@ -800,6 +810,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     health: '<path d="M5 3.5h2M14 3.5h2"></path><path d="M6 3.5v5a4.5 4.5 0 0 0 9 0v-5"></path><path d="M10.5 13v2.5a4.5 4.5 0 0 0 9 0V13"></path><circle cx="19.5" cy="11" r="2"></circle>',
     height: '<path d="M7.5 3.5h9M7.5 20.5h9"></path><path d="M12 6.2v11.6"></path><path d="M9.8 8.4 12 6.2l2.2 2.2M9.8 15.6 12 17.8l2.2-2.2"></path>',
     history: '<path d="M3.8 12a8.2 8.2 0 1 0 8.2-8.2 8.9 8.9 0 0 0-6.1 2.5L3.8 8.4"></path><path d="M3.8 4.2v4.2H8"></path><path d="M12 7.6V12l3.2 1.9"></path>',
+    info: '<circle cx="12" cy="12" r="8.6"></circle><path d="M12 11v5.3"></path><path d="M12 7.7v.1"></path>',
     intake: '<path d="M8.5 4.8H7a2.2 2.2 0 0 0-2.2 2.2v12A2.2 2.2 0 0 0 7 21.2h10a2.2 2.2 0 0 0 2.2-2.2V7A2.2 2.2 0 0 0 17 4.8h-1.5"></path><rect x="8.5" y="3" width="7" height="3.6" rx="1.2"></rect><path d="M8.4 11h7.2M8.4 14.4h7.2M8.4 17.8h4.2"></path>',
     labs: '<path d="M9 3h6"></path><path d="M10.2 3v5.8l-5 8.9A2.2 2.2 0 0 0 7.1 21h9.8a2.2 2.2 0 0 0 1.9-3.3l-5-8.9V3"></path><path d="M7.6 14.5h8.8"></path>',
     log: '<path d="M16.5 8.6V5.2a2.2 2.2 0 0 0-2.2-2.2H6.2A2.2 2.2 0 0 0 4 5.2v13.6A2.2 2.2 0 0 0 6.2 21h8.1a2.2 2.2 0 0 0 2.2-2.2v-3.4"></path><path d="M7 8h6.5M7 11.5h6.5M7 15h3"></path><path d="M18.6 7.6a1.5 1.5 0 0 1 2.1 2.1l-7.3 7.3-2.9.8.8-2.9Z"></path>',
@@ -820,6 +831,58 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     waist: '<circle cx="9.5" cy="11" r="6.5"></circle><circle cx="9.5" cy="11" r="2"></circle><path d="M15 14.5h6v3H9.5"></path><path d="M17 17.5v-1.4M19 17.5v-1.4"></path>',
     weight: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><path d="M7.6 10.4a4.6 4.6 0 0 1 8.8 0Z"></path><path d="M12 10.4l1.4-2.2"></path>'
   };
+  // ════════ ⓘ ИНФО (Т59, Chris 14:07 / 14:13: „инфо балон зад иконка … да е еднакво в целия апп“) ════════
+  // ПРАВИЛО: всяка задача, която сменя как работи нещо, сменя и неговия текст тук — в същия комит.
+  // { ключ: { t: заглавие, b: [абзац | [заглавие на блок, текст]] } } · {раздел:ключ|дума} в текста = линк (data-go) · бутонът: infoBtn(ключ)
+  //   или <button data-info="ключ"> (напр. „Защо 21 дни?“) · тестът пази: всеки data-info има ключ тук, всеки ключ се ползва.
+  // Текстовете: CDB-GYM (09.11.2026), Chris ги одобрява на снимките.
+  var INFO = {
+    izyadoh: { t: "Изядох", b: [
+      "При всяко хранене от режима има бутон „Изядох“ до името му. Натисни го, когато го ядеш.",
+      "Излиза балон с часа — смени го, ако храненето е било по-рано, и натисни „Запиши“. Храненето влиза в лога заедно с храните, калориите и макросите.",
+      "Ако е имало нещо различно или в повече — запиши го в лога със свои думи."] },
+    log: { t: "Лог", b: [
+      "Тук пишеш всичко, което ядеш и пиеш — със свои думи, без грамове и сметки. Най-добре в момента, иначе до края на деня.",
+      "Часът се слага сам; можеш да го смениш.",
+      "Целта са 21 дни с поне един запис. Защо точно 21 — виж „Защо 21 дни?“ в картата Днес."] },
+    // Т60 — „Защо 21 дни?“ (под 21 дни): петте блока, в този ред (Chris 14:30). Произходът — коментарът над LOG_TXT.
+    log21: { t: "Защо 21 дни?", b: [
+      ["Какво излиза от 21-те дни", "За 21 дни излиза твоята поддръжка: при колко храна теглото ти стои на място. От това число тръгва всичко след него. Един ден нищо не казва — има леки и тежки дни, делници и почивни; за 21 дни се събират всички. Затова първите три седмици са измерването — те са част от работата, не чакане."],
+      ["Логът е доказателството", "В него стои и колко храна влиза, и какво прави теглото. Не отделният ден и не отделното число — цялото заедно. Едно теглене нищо не значи; важна е посоката: стои → написаното е поддръжката ти; качва се → над нея си; пада → под нея."],
+      ["Какво се брои", "Всеки ден с поне един запис. Отметките „Изядох“ също се броят. Пропуснат ден не връща брояча назад — просто не се брои."],
+      ["Честно, не перфектно", "Премерено или на око — и двете вършат работа; важното е да е записано. „Шепа ядки“, „чаша вино“, „филия с масло“ стига. Пиши и дребното: сос, олио, захар в кафето. Пропуснеш ли вечерята, денят изглежда като ден с по-малко храна — затова груба оценка на цял ден струва повече от точни числа за половин."],
+      ["След 21-вия ден", "Броячът става ∞. Целта не е срок, а резултат: нова поддръжка, на която се живее спокойно. Оттам нататък теглото и талията показват дали храненето работи, а логът — защо."]] },
+    // „Какво следва?“ (от 21 дни нататък) — трите блока от досегашния акордеон; {merki|Мерки} е линк (data-go)
+    log_done: { t: "Какво следва?", b: [
+      ["Логът продължава", "Броячът спря, логът — не. Когато нещо не върви, отговорът обикновено е в дните преди това."],
+      ["Теглото и талията", "Кантарът не вижда всичко: тялото може да се промени, без теглото да мръдне. Затова се мери и талията — в {merki|Мерки}."],
+      ["Режимът се донастройва", "Режимът е най-доброто предположение от твоите числа. Тялото отговаря и по отговора се донастройва."]] },
+    hist_food: { t: "История на храненето", b: [
+      "Всички дни със записи, подредени по месеци.",
+      "Където има „Изядох“, денят показва сбора: калории, белтъчини (П), въглехидрати (В) и мазнини (М).",
+      "Свободните записи нямат числа — затова пише „+ N без сметка“: те не са в сбора."] },
+    merki: { t: "Мерки", b: [
+      "Теглото — сутрин, след тоалетна, преди храна и вода. Така числата от различни дни се сравняват честно.",
+      "Талията — на най-тясното, около пъпа; ханшът — на най-широкото на седалището. Мери винаги на едно и също място.",
+      "Кръвното и пулса — в покой, след няколко минути седене.",
+      "До всяко число стои разликата спрямо предишното мерене."] },
+    intake: { t: "Форма за данни", b: [
+      "Формата се записва сама — няма бутон „Изпрати“. Допълваш и поправяш по всяко време.",
+      "Част от отговорите са попълнени от досегашните ни разговори — провери ги и допълни липсващото. При промяна старият отговор се пази в „Промени в отговорите“.",
+      "Колкото по-пълна е формата, толкова по-точен е планът."] },
+    labs: { t: "Изследвания", b: [
+      "Снимай листа с резултатите или качи PDF — може няколко файла наведнъж (до 10).",
+      "Датата се взема от самия лист. Полето за дата попълни само ако на листа няма дата.",
+      "След като резултатите се препишат в таблицата, снимката се изтрива — не се пази.",
+      "Червена стрелка ↑ или ↓ — извън нормата, написана на листа. Зелена ✓ — в нормата.",
+      "Тук влизат и документите от лекар — ехография, ЕКГ, DEXA."] }
+  };
+  function infoBtn(key) {
+    var f = INFO[key];
+    if (!f) return "";
+    return '<button type="button" class="ibtn" data-info="' + key + '" aria-label="Какво е това: ' + esc(f.t) + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop">' + ic("info") + "</button>";
+  }
+  function infoText(x) { return esc(x).replace(/\{([\w:]+)\|([^}]+)\}/g, '<a data-go="$1">$2</a>'); }
   function ic(name, cls) {
     return '<svg class="ic' + (cls ? " " + cls : "") + '" data-ic="' + name + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">' + IC[name] + "</svg>";
   }
@@ -827,26 +890,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Под 21 → „N / 21“; на 21 → „∞“ и не се връща (дните само растат). Мери дали има достатъчно за четене, не послушание —
   // еднакво с режим и без. Числото стои само тук; текстовете около него се сменят на същия праг.
   var LOG_TARGET = 21;
+  // Т60 (Chris 09.11 14:30). Произход: cdb-Victus D381 (30.08) — прагът 21, не 15, по две отделни причини: научна (MacroFactor оценява
+  //   разхода от 21-дневен прозорец; за 15 дни валидиран праг няма; Burke ≥15 дни/мес. е за представителност, не за поддръжка) и продуктова —
+  //   думата на Chris, по-силната: 21 дни правят периода част от услугата. D425 (23.09): входът е винаги 21 дни дневник; 21-те дни не са чакане.
+  //   Поправките на Chris по текста: доказателството е логът, не кантарът; везната не се отрича; краят е резултат, не срок.
+  //   Научните имена не стоят пред клиента.
+  // Т60 (Chris 14:35): „Защо 21 дни?“ / „Какво следва?“ отварят балон от системата на Т59 — текстовете са в INFO (log21 / log_done), тук е само
+  //   надписът на бутона. Старият акордеон в картата (short + blocks) го няма; short не се показва никъде (решение на CDB-GYM, 14:36).
   var LOG_TXT = {
-    info: {
-      short: "Пиши всичко, което ядеш и пиеш. За 21 дни записи се вижда при колко храна теглото ти стои на място.",
-      more: "Защо 21 дни?",
-      blocks: [
-        ["Защо 21 дни", "Един ден нищо не казва — има леки и тежки дни, делници и почивни. За 21 дни се събират всички, а теглото има време да покаже посоката си."],
-        ["Какво се брои", "Всеки ден с поне един запис. Отметките „Изядох“ също се броят. Пропуснат ден не връща брояча назад — просто не се брои."],
-        ["На око е достатъчно", "„Шепа ядки“, „чаша вино“, „филия с масло“ — това стига. Пиши и дребното: сос, олио, захар в кафето. Груба оценка на цял ден струва повече от точни числа за половин."],
-        ["След 21-вия ден", "Броячът става ∞. Оттам нататък теглото и талията показват дали храненето работи, а логът — защо."]
-      ]
-    },
-    done: {
-      short: "Има достатъчно записи за четене. Пиши и занапред — заедно с теглото и талията логът показва какво работи и какво не.",
-      more: "Какво следва?",
-      blocks: [
-        ["Логът продължава", "Броячът спря, логът — не. Когато нещо не върви, отговорът обикновено е в дните преди това."],
-        ["Теглото и талията", "Кантарът не вижда всичко: тялото може да се промени, без теглото да мръдне. Затова се мери и талията — в <a data-go=\"merki\">Мерки</a>."],
-        ["Режимът се донастройва", "Режимът е най-доброто предположение от твоите числа. Тялото отговаря и по отговора се донастройва."]
-      ]
-    }
+    info: { more: "Защо 21 дни?", info: "log21" },
+    done: { more: "Какво следва?", info: "log_done" }
   };
 
   var loading = document.getElementById("loading");
@@ -899,7 +952,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //    данните идват от coach_get_client, всичко е само за четене, освен „Разговор" (coach_add_message). ──
   var COACH_CID = QS.get("c");
   // Т47: ЕДИН надпис „ЧЕРНОВА“ в шапката, на ред под името — у клиента (и DEV, и изгледът като клиент); при треньора (?c=) — не.
-  var DRAFT_MARK = true;   // ← ЕДИНСТВЕНОТО място: false = надписът изчезва навсякъде (при пускането на първото момиче)
+  var DRAFT_MARK = false;   // ← ЕДИНСТВЕНОТО място: false = надписът изчезва навсякъде. Т57 (09.11.2026): всички живи → false
   if (window.CDB_DRAFT_MARK === false) DRAFT_MARK = false;   // само за теста (mock: nomark=1)
   if (DRAFT_MARK && !COACH_CID) document.getElementById("who").insertAdjacentHTML("afterend", '<p class="dmark" id="draftMark"><span>ЧЕРНОВА</span></p>');
   var COACH = false;                                // става true, когато има сесия
@@ -907,7 +960,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   if (!token && !COACH_CID) { showMissingToken("cdbgym_app_token"); return; }
   var KEY_ID = token || ("coach_" + COACH_CID);     // за локалните ключове (чернова на чата, прочетено и т.н.)
 
-  // ── ЗАЩИТА ЗА ЗАПИС (чернова): записва се само при клиент, чието име започва с „DEV". Иначе — само четене. ──
+  // ── ЗАЩИТА ЗА ЗАПИС: Т57 (09.11.2026) — записва всеки клиент; само за четене са треньорът (coach=1) и изгледът като клиент (VIEW_AS). ──
   var CAN_WRITE = false;
   function wr(name, args) {
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
@@ -1190,9 +1243,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="ch"><span>' + esc(r.title || "Виж") + dot(key) + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + plainBody(r.body) + (extraBody || "") + "</div></div>";
   }
-  function panelHtml(key, ico, title, sub, inner, open, chip) {
+  function panelHtml(key, ico, title, sub, inner, open, chip, info) {
     return '<div class="card panel' + (open ? " open" : "") + '" data-key="' + key + '">'
-      + '<div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl">' + esc(title) + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span>" + (chip || "") + "</div>"
+      + '<div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl">' + esc(title) + (info ? infoBtn(info) : "") + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + inner + "</div></div>";
   }
 
@@ -1217,6 +1270,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var c = qaCounts(r);
       if (c.open) rows.push(["qa", "„" + c.title + "“ — " + (c.open === c.n ? (c.n === 1 ? "1 въпрос чака отговор" : c.n + " въпроса чакат отговор") : c.open + " от " + c.n + " без отговор"), "danni:" + cardKey(r)]);
     });
+    var im = intakeNowRow(); if (im) rows.push(im);   // Т58: формата за данни — липсващите
     var news = D.content.filter(function (r) { return r.section === "info" && /какво е новото/i.test(r.title || "") && r.entry_date; })[0];
     if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["plan_updated", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
     if (A.cards.length && !lsGet("app_seen_analysis_" + KEY_ID)) rows.push(["analysis", "Анализът на храненето ти е готов", "hrana:analysis"]);
@@ -1243,13 +1297,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
     return v ? '<p class="appver" id="appVer">cdb-Gym · ' + esc(v) + "</p>" : "";
   }
+  function nowHtml(rows) {
+    if (!rows.length) return "";
+    var html = '<div class="now"><h3>Ново за теб</h3>';
+    rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
+    return html + "</div>";
+  }
+  // Т58: след запис във формата — само блокът „Ново за теб“ (картите в Начало не се прерисуват и не се затварят)
+  function refreshNow() {
+    if (!P.nachalo) return;
+    var old = P.nachalo.querySelector(":scope > .now"), h = nowHtml(nowRows());
+    if (old) { if (h) old.outerHTML = h; else old.parentNode.removeChild(old); }
+    else if (h) { var host = document.getElementById("instHost"); if (host) host.insertAdjacentHTML("afterend", h); }
+  }
   function renderNachalo() {
-    var html = '<div id="instHost"></div>', rows = nowRows();
-    if (rows.length) {
-      html += '<div class="now"><h3>Ново за теб</h3>';
-      rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
-      html += "</div>";
-    }
+    var html = '<div id="instHost"></div>' + nowHtml(nowRows());
     if (START) {
       P.nachalo.innerHTML = html + startHtml() + '<div class="state" id="startNote">Планът ти се подготвя. Когато е готов, ще го намериш тук.</div>' + appVerHtml();
       renderInstall();
@@ -1506,21 +1568,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   var MONTH_NAMES = ["Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"];
   function monthLabel(k) { var p = String(k).split("-"), mi = parseInt(p[1], 10) - 1; return (MONTH_NAMES[mi] || p[1]) + " " + p[0]; }
-  var logInfoKey = "";
-  function logInfoHtml(key) {
-    var T = LOG_TXT[key];
-    return '<div class="linfo" id="logInfoBox" data-set="' + key + '"><div class="body"><div class="lin">'
-      + '<p class="ls">' + esc(T.short) + "</p>"
-      + '<div class="lb">' + T.blocks.map(function (b) { return "<div><b>" + esc(b[0]) + "</b><p>" + b[1] + "</p></div>"; }).join("") + "</div></div></div></div>";
-  }
   // Т24: логът е карта-акордеон като другите (рамка + цветна страна, ▸/▾, цикълът от Т20). В затворения заглавен ред: „Днес“ + броячът.
-  // Вътре най-горе „Защо 21 дни?“, после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
+  // Вътре най-горе „Защо 21 дни?“ (Т60: отваря балон — INFO.log21 / log_done), после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
   // Миналите дни са в „История на храненето“ (отделната карта под нея).
   function logCardHtml(open) {
     var n = logDays();
     var chip = '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
-    var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-expanded="false" aria-controls="logInfoBox"></button></div>'
-      + '<div id="logInfo"></div>'
+    var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво хапна или пи"></textarea>'
       + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
@@ -1548,11 +1602,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var n = logDays(), key = n >= LOG_TARGET ? "done" : "info", today = todayStr();
     var cnt = document.getElementById("logCnt");
     if (cnt) { cnt.textContent = logCounter(n); cnt.classList.toggle("inf", n >= LOG_TARGET); }
-    var box = document.getElementById("logInfo");
-    if (box && key !== logInfoKey) {
-      box.innerHTML = logInfoHtml(key); logInfoKey = key;
-      var mb = document.getElementById("logMore");
-      if (mb) { mb.textContent = LOG_TXT[key].more; mb.setAttribute("aria-expanded", "false"); }
+    var mb = document.getElementById("logMore");   // Т60: „Защо 21 дни?“ / „Какво следва?“ → балонът (INFO)
+    if (mb && mb.getAttribute("data-info") !== LOG_TXT[key].info) {
+      if (IPOP && IPOP.btn === mb) infoClose();
+      mb.textContent = LOG_TXT[key].more; mb.setAttribute("data-info", LOG_TXT[key].info);
     }
     var groups = logGroups(), tg = groups.filter(function (g) { return g.day === today; })[0], past = groups.length - (tg ? 1 : 0);
     var tEl = document.getElementById("logToday");   // днешният брой е на бутона (Т15) — в заглавния ред го няма (Т16, решение на CDB-GYM)
@@ -1578,8 +1631,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // Т32: картите са писани за старата страница log-analysis (базата не се пипа). Тук, само при показване:
   //  · „Път 2“ — махат се бутонът/линкът към офертата: <a>/<button> с текст „Път 2…“ или <a> с href към офертата/формата/интейка
-  //    (start-pyramid, /gym-form/start, intake, landing, оферт); пунктираните „треньор“/„диетолог“ (span.cert + span.cert-pop) и
-  //    всички <a>/<abbr> в абзаца „Път 2…“ стават обикновен текст. Текстът на абзаца остава.
+  //    (start-pyramid, /gym-form/start, intake, landing, оферт); пунктираните „треньор“/„диетолог“ (span.cert + span.cert-pop) стават текст.
+  //    Т57 (09.11.2026): и целият абзац „Път 2…“ (с текста) — офертата е към човек, който вече е клиент, и има „диетолог“.
   //  · „Път 1 — Свали анализа (PDF)“ (button.pdfbtn / onclick=print / текст „Път 1“) → нашият бутон „Принтирай / запази като PDF“.
   var OFFER_HREF = /start-pyramid|\/gym-form\/start|intake|landing|offer|оферт/i;
   function cleanAnalysis(html) {
@@ -1595,9 +1648,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     Array.prototype.forEach.call(box.querySelectorAll(".cert-pop"), function (el) { el.parentNode.removeChild(el); });
     Array.prototype.forEach.call(box.querySelectorAll(".cert"), unwrap);
+    Array.prototype.forEach.call(box.querySelectorAll("p, li, div"), function (p) {   // Т57: абзацът „Път 2…“ — цял (само най-вътрешният блок)
+      if (!p.parentNode || !/^\s*Път\s*2\b/.test(p.textContent || "") || p.querySelector("p, li, div, ul, ol, table")) return;
+      p.parentNode.removeChild(p);
+    });
+    // Т57 (а) (09.11.2026, решение на CDB-GYM — логично следствие от т.3): без „Път 2“ „две посоки“ е невярно →
+    //   отделният абзац „Имаш две посоки — изборът е твой:“ се скрива изцяло; в края на по-дълъг абзац се маха само това изречение
+    //   („…Затова имаш две посоки — изборът е твой:“), останалото от абзаца остава.
+    var TWO_WAYS = /^\s*(?:[Зз]атова\s+)?[Ии]маш\s+две\s+посоки\s*[—–-]\s*изборът\s+е\s+твой\s*:?\s*$/;
+    var TWO_WAYS_END = /\s*(?:[Зз]атова\s+)?[Ии]маш\s+(?:<(?:b|strong)>\s*)?две\s+посоки(?:\s*<\/(?:b|strong)>)?\s*[—–-]\s*изборът\s+е\s+твой\s*:?\s*$/;
     Array.prototype.forEach.call(box.querySelectorAll("p, li, div"), function (p) {
-      if (!/^\s*Път\s*2\b/.test(p.textContent || "")) return;
-      Array.prototype.forEach.call(p.querySelectorAll("a, abbr"), unwrap);
+      if (!p.parentNode || p.querySelector("p, li, div, ul, ol, table")) return;
+      var tx = (p.textContent || "").replace(/\s+/g, " ");
+      if (TWO_WAYS.test(tx)) { p.parentNode.removeChild(p); return; }
+      if (!/две\s+посоки\s*[—–-]\s*изборът\s+е\s+твой\s*:?\s*$/.test(tx)) return;
+      var h = p.innerHTML.replace(/\s+$/, ""), h2 = h.replace(TWO_WAYS_END, "");
+      if (h2 === h) return;
+      h2 = h2.replace(/\s*[,;:—–-]\s*$/, ".");   // без висяща запетая/тире, ако пред изречението нямаше точка
+      if (h2.replace(/<[^>]*>/g, "").trim()) p.innerHTML = h2; else p.parentNode.removeChild(p);
     });
     return box.innerHTML;
   }
@@ -1628,21 +1696,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   try { var PQ = window.matchMedia("print"); (PQ.addEventListener ? PQ.addEventListener.bind(PQ, "change") : PQ.addListener.bind(PQ))(function (e) { if (!e.matches) printPrep(false); }); } catch (e) {}
   // Храна: режимът (ако го има) → логът (картата за писане) → „История на храненето ›" → анализът (последен).
   function renderHrana() {
-    eatClose();
+    eatClose(); infoClose();
     var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); });
     var html = "";
     if (START && !menus.length) html += '<p class="lead" id="hranaLead" style="margin-right:2px;margin-bottom:12px;margin-left:2px">Режимът ти още се подготвя.</p>';
     if (menus.length) {
-      html += '<div class="sec" data-key="menu"><h2>Режимът</h2>'
+      html += '<div class="sec" data-key="menu"><h2>Режимът' + (hasMealPlan(menus) ? infoBtn("izyadoh") : "") + "</h2>"   // Т59: ⓘ само ако има „Изядох“
         + menus.map(function (r) { return cardHtml(r, false); }).join("")
         + "</div>";
     }
-    html += '<div class="sec" data-key="logsec"><h2>Лог</h2>' + logCardHtml(!hasMealPlan(menus)) + "</div>"
+    html += '<div class="sec" data-key="logsec"><h2>Лог' + infoBtn("log") + "</h2>" + logCardHtml(!hasMealPlan(menus)) + "</div>"
       + foodHistHtml();
     if (A.cards.length) html += panelHtml("analysis", "analysis", "Анализ", "", analysisHtml(), false);
     P.hrana.innerHTML = html;
     decorateMeals(P.hrana);
-    logInfoKey = ""; refreshLogView();
+    refreshLogView();
     wireFreeLog(); wireEat();
   }
 
@@ -1711,7 +1779,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // кръвното е включено, ако базата вече го връща (редовете имат bp_sys); при празен дневник — пробва и се изключва при отказ
     if (BP_ON === null) BP_ON = !D.log.length || D.log.some(function (e) { return "bp_sys" in e; });
     P.merki.innerHTML = '<div class="mcard" data-key="meas">'
-      + '<div class="mhead"><b>Ново мерене</b><span id="mDate">Днес, ' + esc(fmtDate(dt).slice(0, 5)) + "</span></div>"
+      + '<div class="mhead"><b>Ново мерене' + infoBtn("merki") + '</b><span id="mDate">Днес, ' + esc(fmtDate(dt).slice(0, 5)) + "</span></div>"
       + MEAS_MAIN.map(big).join("")
       + '<details class="mmore" id="mMore"><summary>Още мерки</summary><div class="mgrid">'
       + '<p class="ioff" id="bpOff"' + (BP_ON ? " hidden" : "") + ">Кръвното и пулсът ще се включат след обновяване.</p>"
@@ -1784,7 +1852,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   ];
   var QLABEL = {};
   INTAKE_Q.forEach(function (g) { g[1].forEach(function (q) { QLABEL[q[0]] = q[1]; }); });
-  // on: базата поддържа формата (get_intake отговори) · ro: само за четене (клиент извън DEV в черновата / треньор)
+  // on: базата поддържа формата (get_intake отговори) · ro: само за четене (треньор / изгледът като клиент)
   var IN = { on: false, ro: true, data: {}, changes: [] };
   var INTAKE_OFF_TXT = "Формата ще се записва след обновяване — още не е включена.";
   function ivEmpty(v) { return v == null || v === "" || (Array.isArray(v) && !v.length); }
@@ -1794,6 +1862,37 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var got = 0, tot = 0; d = d || IN.data;
     keys.forEach(function (k) { if (!ivVisible(k, d)) return; tot++; if (!ivEmpty(d[k])) got++; });
     return [got, tot];
+  }
+  // Т58 (09.11.2026, Chris 13:39 „на всички да има подкана да си допопълнят данните“ → 13:49 „да“): „Допълни формата за данни · липсват N“.
+  //   N = само ЧАКАЩИТЕ въпроси: видими (ivVisible / REVEAL — напр. smeni = Не → smeni_* не се броят) и не ПО ЖЕЛАНИЕ.
+  //   ПО ЖЕЛАНИЕ — изричният списък (тук се вижда и сменя): петте с подсказка „Ако няма/нищо — остави празно“
+  //   + числата „ако имаш часовник/приложение“.
+  var INTAKE_OPTIONAL = [
+    "hormonalna", "druga_aktivnost", "drugo_sastoyanie", "snaks", "zatrudnenia",   // подсказка „… остави празно“
+    "krachki_tochno", "syn_tochno", "puls_pokoy",                                    // числа от часовник/приложение
+    // решение на CDB-GYM, 09.11 14:05: празното тук е законен отговор („нямам“), а във формата няма опция „Нямам“ → не се броят.
+    // Ако по-късно формата получи „Нямам“ / „Нищо от изброените“, тези три се вадят оттук.
+    "oblasti", "lek_klas", "neponosimost"
+  ];
+  function intakeMissing(d) {
+    var n = 0, first = -1; d = d || IN.data;
+    INTAKE_Q.forEach(function (g, gi) {
+      g[1].forEach(function (q) {
+        var k = q[0];
+        if (INTAKE_OPTIONAL.indexOf(k) > -1 || !ivVisible(k, d) || !ivEmpty(d[k])) return;
+        n++; if (first < 0) first = gi;
+      });
+    });
+    return { n: n, group: first };
+  }
+  // редът: клиентът (формата се пише) — „Допълни формата за данни · липсват N“; треньорът — само информация; изгледът като клиент — нищо
+  function intakeNowRow() {
+    if (!IN.on || VIEW_AS) return null;
+    if (IN.ro && !COACH) return null;
+    var m = intakeMissing();
+    if (!m.n) return null;
+    var miss = (m.n === 1 ? "липсва " : "липсват ") + m.n;
+    return ["intake", (COACH ? "Формата за данни · " : "Допълни формата за данни · ") + miss, "danni:ig_" + m.group, "nowIntake"];
   }
   function intakeKeys() { return INTAKE_Q.reduce(function (a, g) { return a.concat(g[1].map(function (q) { return q[0]; })); }, []); }
   function optsHtml(type, name, opts, sel, extra) {
@@ -1900,7 +1999,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var ivRefreshT = null;
   function ivAfter() {
     ivReveal();
-    if (START) renderNachalo();
+    if (START) renderNachalo(); else refreshNow();   // Т58: „Допълни формата · липсват N“
     // промените (за сивите редове в „Разговор") идват от базата — тригерът решава кое е промяна
     clearTimeout(ivRefreshT);
     ivRefreshT = setTimeout(function () {
@@ -2004,7 +2103,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var v = r.value != null && r.value !== "" ? num(r.value) : (r.value_text || "—");
       return "<tr><td>" + esc(r.marker) + '</td><td><div class="lv"><span class="lvv"><b>' + esc(v) + "</b>" + (r.unit ? " " + esc(r.unit) : "") + "</span>" + labFlag(r) + "</div></td><td>" + esc(r.ref_text || "—") + "</td></tr>";
     }).join("");
-    return '<p class="labby">Преписано от Chris · ' + esc(fmtDate(sofiaDay(g.tr))) + "</p>"
+    return '<p class="labby">Препис от Chris · ' + esc(fmtDate(sofiaDay(g.tr))) + "</p>"   // Т57 (Chris 13:44): „Препис“, не „Преписано“
       + '<table class="labt"><tr><th>Показател</th><th>Стойност</th><th>Норма</th></tr>' + rows + "</table>"
       ;
   }
@@ -2096,9 +2195,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     html += panelHtml("intake", "intake", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
       + (IN.on ? ichgHistHtml() : "")
-      + "</div></div>", true);
+      + "</div></div>", true, null, "intake");
     html += panelHtml("qa", "qa", "Допълнителни въпроси", openQa ? openQa + " чакат отговор" : "", qaInner, openQa > 0);
-    html += panelHtml("labs", "labs", "Изследвания", labsSub(), labsHtml(), false);
+    html += panelHtml("labs", "labs", "Изследвания", labsSub(), labsHtml(), false, null, "labs");
     P.danni.innerHTML = html;
     wireIntake(); wireQa(); wireLabs();
   }
@@ -2200,11 +2299,26 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ── Храна: окабеляване ──
   // Т55: банерът „Изядох“ — под храненето, с ширината на картата, в страницата (не модал); само „Запиши“ пише.
+  // Т59: банерът „Изядох“ и ⓘ балонът — целият над лентата долу. Ако страницата свършва преди това (балон под последната карта),
+  //   страницата се удължава с невидим маркер 1 px на нужната височина (#popSpacer) и той се маха при затваряне.
+  function popFit(pop) {
+    var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
+    if (pr.bottom <= lim) return;
+    var need = Math.max(0, Math.min(pr.bottom - lim, pr.top - 8)), want = Math.ceil(window.scrollY + need + window.innerHeight);
+    if (document.documentElement.scrollHeight < want) {
+      var sp = document.getElementById("popSpacer");
+      if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
+      sp.style.top = (want - 1) + "px";
+    }
+    window.scrollBy(0, need);
+  }
+  function popUnfit() { var sp = document.getElementById("popSpacer"); if (sp && sp.parentNode) sp.parentNode.removeChild(sp); }
   var EAT = null;   // отвореният банер: { el, btn, pop, name, busy }
   function eatClose(back) {
     if (!EAT) return;
     var b = EAT.btn;
     if (EAT.pop.parentNode) EAT.pop.parentNode.removeChild(EAT.pop);
+    popUnfit();
     b.setAttribute("aria-expanded", "false"); EAT = null;
     window.removeEventListener("resize", eatPlace);
     if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
@@ -2230,8 +2344,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     EAT = { el: el, btn: btn, pop: pop, name: name, busy: false };
     btn.setAttribute("aria-expanded", "true");
     eatPlace(); window.addEventListener("resize", eatPlace);
-    var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
-    if (pr.bottom > lim) window.scrollBy(0, Math.max(0, Math.min(pr.bottom - lim, pr.top - 8)));   // целият банер над лентата долу
+    popFit(pop);   // целият банер над лентата долу
     pop.querySelector(".epno").addEventListener("click", function () { eatClose(true); });
     pop.querySelector(".epok").addEventListener("click", eatSave);
     pop.querySelector(".eptm").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); eatSave(); } });
@@ -2255,6 +2368,71 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (EAT === cur) msg.textContent = "Неуспешно. Опитай пак.";
     });
   }
+  // Т59: ⓘ балонът — под реда със заглавието, с ширината на картата/раздела; върху съдържанието (не го бута); по един.
+  //   Затваря се: ×, докосване извън, Esc, „Назад“ (отварянето слага запис в историята), смяна на раздела.
+  //   ⓘ в заглавие на акордеон (<summary> или .ch) не отваря/затваря акордеона (preventDefault + stopPropagation).
+  //   Историята: ЕДИН запис „балонът е отворен“ (IP_HIST). При смяна от балон на балон записът остава; при затваряне — history.back().
+  //   history.back() е асинхронно → докато наше „назад“ не е стигнало (IP_BACK), нов запис не се слага — слага се в popstate.
+  var IPOP = null, IP_HIST = false, IP_BACK = false;
+  function ipPush() { if (IP_HIST || IP_BACK) return; try { history.pushState({ ipop: 1 }, "", location.href); IP_HIST = true; } catch (x) {} }
+  function infoBox(btn) { return btn.closest(".card, details, .mcard, .sec") || btn.parentElement; }
+  function infoRow(btn) { return btn.closest(".ch, summary, h2, .mhead") || btn.parentElement; }
+  function infoPlace() {
+    if (!IPOP) return;
+    var box = infoBox(IPOP.btn), row = infoRow(IPOP.btn);
+    if (!IPOP.btn.isConnected || !IPOP.btn.getClientRects().length) { infoClose(); return; }
+    var br = box.getBoundingClientRect(), rr = row.getBoundingClientRect(), st = IPOP.pop.style;
+    st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (rr.bottom + window.scrollY + 4) + "px";
+  }
+  function infoClose(back, viaPop, keep) {
+    if (!IPOP) return;
+    var b = IPOP.btn;
+    if (IPOP.pop.parentNode) IPOP.pop.parentNode.removeChild(IPOP.pop);
+    popUnfit();
+    b.setAttribute("aria-expanded", "false"); IPOP = null;
+    window.removeEventListener("resize", infoPlace);
+    if (viaPop) IP_HIST = false;   // „Назад“ вече махна записа
+    else if (IP_HIST && !keep) { IP_HIST = false; IP_BACK = true; try { history.back(); } catch (x) { IP_BACK = false; } }   // махни записа
+    if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function infoOpen(btn) {
+    var key = btn.getAttribute("data-info"), f = INFO[key], same = IPOP && IPOP.btn === btn;
+    infoClose(false, false, !same && !!f);   // към друг балон — записът в историята остава
+    if (same || !f) return;
+    var pop = document.createElement("div");
+    pop.className = "ipop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
+    pop.innerHTML = '<div class="iph"><b>' + esc(f.t) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>"
+      + '<div class="ipbody">' + f.b.map(function (p) { return Array.isArray(p) ? '<h3 class="ipq">' + esc(p[0]) + "</h3><p>" + infoText(p[1]) + "</p>" : "<p>" + infoText(p) + "</p>"; }).join("") + "</div>";
+    document.body.appendChild(pop);
+    IPOP = { btn: btn, pop: pop };
+    btn.setAttribute("aria-expanded", "true");
+    infoPlace(); window.addEventListener("resize", infoPlace);
+    popFit(pop);   // целият балон над лентата долу
+    ipPush();   // „Назад“ затваря балона
+    pop.querySelector(".ipx").addEventListener("click", function () { infoClose(true); });
+    try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("button[data-info]");   // ⓘ или текстов бутон („Защо 21 дни?“)
+    if (b) { e.preventDefault(); e.stopPropagation(); infoOpen(b); return; }   // не пипа акордеона
+    if (!IPOP) return;
+    if (IPOP.pop.contains(e.target)) {
+      var g = e.target.closest("[data-go]");   // линк в балона → затваря и отива
+      if (g) { e.preventDefault(); e.stopPropagation(); var spec = g.getAttribute("data-go"); infoClose(); go(spec); }
+      return;
+    }
+    infoClose();
+  }, true);
+  document.addEventListener("keydown", function (e) { if (IPOP && e.key === "Escape") { e.preventDefault(); infoClose(true); } });
+  window.addEventListener("popstate", function () {
+    if (IP_BACK) {   // нашето „назад“ стигна: адресът — текущият раздел; ако междувременно е отворен балон — неговият запис сега
+      IP_BACK = false;
+      try { history.replaceState(null, "", location.pathname + location.search + "#" + current); } catch (x) {}
+      if (IPOP) ipPush();
+      return;
+    }
+    if (IPOP && IP_HIST) infoClose(true, true);   // „Назад“ на телефона/браузъра
+  });
   function wireEat() {
     P.hrana.addEventListener("click", function (e) {
       var btn = e.target.closest(".eatbtn");
@@ -2495,8 +2673,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }).filter(Boolean).sort(function (a, b) { return a.day < b.day ? 1 : a.day > b.day ? -1 : 0; });
   }
   // карта-хронология (затворена) — същият вид като „Анализ"
-  function histCard(key, ico, title, sub, inner, keys) {
-    return '<div class="card panel hist" data-key="' + key + '"><div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl"><span class="htt"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + "</span>"
+  function histCard(key, ico, title, sub, inner, keys, info) {
+    return '<div class="card panel hist" data-key="' + key + '"><div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl"><span class="htt"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + "</span>" + (info ? infoBtn(info) : "")
       + '<span class="sub">' + esc(sub) + '</span></span></div><div class="body"><div class="acc">' + inner + "</div></div></div>";
   }
   function monthCard(key, ym, sub, inner, open, keys) {
@@ -2519,7 +2697,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
         return qday(g.day, s.n ? "qd-food" : "qd-cnt", s.n ? sumCells(s) : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
       });
-    return histCard("h_food", "history", "История на храненето", foodNavSub(), inner);
+    return histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food");
   }
   function measHistHtml() {
     var past = measPast();
@@ -2593,7 +2771,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (d) { var l = onDay(d); return qday(d, "qd-cnt", dayCount(filesWord(l.length)), '<div class="lrows">' + l.map(upDoneRow).join("") + "</div>", 'data-day="' + d + '" data-key="hd_labup_' + d + '"'); });
     return histCard("h_labup", "history", "Качени файлове", filesWord(done.length), inner);
   }
-  // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата, „Защо 21 дни?“) минават оттук.
+  // отваряне/затваряне — ВСИЧКИ акордеони (карти, панели, хронологии, месеци, дни, групите на формата) минават оттук. („Защо 21 дни?“ — вече балон, Т60.)
   // Т20: ЕДНО движение. Един цикъл requestAnimationFrame движи височината на всички засегнати тела (отварящото се, брата, който се
   // затваря по „един на ниво“) И window.scrollY — едно начало, една продължителност (ACC_MS), една крива (ease-out). Без
   // behavior:"smooth", без scrollIntoView, без поправка след края. Целите (височини и скрол) се смятат ПРЕДИ старта от крайната
@@ -2790,7 +2968,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
-    eatClose();
+    eatClose(); infoClose();
     if (!TABS[tab]) tab = "nachalo";
     if (current) scrollMem[current] = window.scrollY;
     current = tab;
@@ -2848,13 +3026,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (e.target.closest(".anprint")) { if (printPrep(true)) { try { window.print(); } catch (x) { printPrep(false); } } return; }
     var g = e.target.closest("[data-go]");
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
-    var more = e.target.closest("#logMore");
-    if (more) {   // справка — не се помни (както в Victus): отваря се, прочиташ я, затваряш
-      var ib = document.getElementById("logInfoBox"), open = !wantOpen(ib);
-      accRun([{ n: ib, open: open }], null, false); more.setAttribute("aria-expanded", open ? "true" : "false");
-      more.textContent = open ? "Скрий" : LOG_TXT[ib.getAttribute("data-set")].more;
-      return;
-    }
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
     if (sm) { e.preventDefault(); accSet(sm.parentElement, !wantOpen(sm.parentElement)); return; }
     var ch = e.target.closest(".ch");
@@ -2866,7 +3037,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
@@ -3003,8 +3174,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     nm = nm || D.name;
     DB_SEEN = D.log.some(function (e) { return "read_at" in e; });
     var isDev = /^DEV/.test(String(nm || ""));
-    CAN_WRITE = !COACH && isDev;   // DEV: записът е включен и при вход на треньор (за тест)
-    VIEW_AS = !COACH && VIEWER && !isDev;
+    CAN_WRITE = !COACH;   // Т57: всички живи — записва всеки клиент (преди: само DEV)
+    VIEW_AS = !COACH && VIEWER && !isDev;   // треньорът на това устройство → само за преглед; DEV остава за запис (за тест)
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
       CAN_WRITE = false;
       document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
