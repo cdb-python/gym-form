@@ -73,10 +73,15 @@
   .err.show { display: block; }
 
   /* списъкът */
-  .tools { display: flex; align-items: center; gap: 8px; margin: 14px 0 10px; }
-  .tools .cnt { flex: 1; color: var(--muted); font-size: 13px; font-weight: 600; }
-  .chipbtn { flex: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; cursor: pointer; }
+  .tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 14px 0 10px; }
+  .tools .cnt { flex: 1 0 auto; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .chipbtn { flex: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
   .chipbtn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  /* Т53: „N клиента · [Само с ново] [Чернови · N]“ на един ред и на 360 px — свиват се отстъпите на бутоните, не текстът.
+     Ако пак не стига (под 360 px, големи числа), последният бутон минава на втори ред вдясно — без застъпване. */
+  .tools > .chipbtn:last-child { margin-left: auto; }
+  @media (max-width: 399px) { .tools { column-gap: 6px; } .tools > .chipbtn { padding-left: 8px; padding-right: 8px; } }
+  @media (max-width: 359px) { .tools { column-gap: 4px; } .tools > .chipbtn { padding-left: 6px; padding-right: 6px; } }
   .row { display: block; background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 0 0 10px; color: var(--ink); text-decoration: none; }
   .row.new { border-left-color: #e0821e; }
   .row .l1 { display: flex; align-items: baseline; gap: 8px; }
@@ -94,6 +99,10 @@
   .row .l2 .lg .n { display: inline-block; min-width: 2ch; text-align: right; }
   .row .l2 b { color: var(--accent-dark); }
   .row .pv { margin-top: 5px; color: #46525e; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Т53: чернови и тестови — в общия списък на мястото си, приглушени (светъл фон, пунктир; текстът остава ≥ 4,5:1) */
+  .row.ps { background: #f6f7f9; border-style: dashed; border-left-style: solid; }
+  .row.ps .nm { color: #46525e; font-weight: 600; }
+  .row.ps .when, .row.ps .l2 { color: #5f6b78; }
 </style>
 </head>
 <body>
@@ -113,7 +122,7 @@
   </form>
 
   <div class="hidden" id="list">
-    <div class="tools"><span class="cnt" id="cnt"></span><button type="button" class="chipbtn" id="onlyNew" aria-pressed="false">Само с ново</button></div>
+    <div class="tools"><span class="cnt" id="cnt"></span><button type="button" class="chipbtn" id="onlyNew" aria-pressed="false">Само с ново</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Чернови</button></div>
     <div id="rows"></div>
   </div>
 </div>
@@ -128,9 +137,10 @@
   var APP_URL = window.CDB_APP_URL || "../app/";
   var LOG_TARGET = 21;                       // същият праг като в tools/app (модел Victus)
   var FILTER_KEY = "coach_only_new";
+  var PSEUDO_KEY = "coach_show_pseudo";      // Т53: „Чернови“ включено на това устройство
 
   var $ = function (id) { return document.getElementById(id); };
-  var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), onlyNew = $("onlyNew");
+  var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), onlyNew = $("onlyNew"), psBtn = $("psBtn");
   var ROWS = [];
 
   function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
@@ -178,6 +188,9 @@
 
   // ── списъкът ──
   function isNew(r) { return (r.unread_msgs || 0) > 0 || (r.unread_answers || 0) > 0 || (r.pending_labs || 0) > 0; }
+  // Т53 (09.11.2026, Chris „да направете 1“ + 10:57): псевдо-клиент = DEV или „(не е клиент)“ в името (черновата на страница за някого).
+  //   По подразбиране се виждат само истинските; „N клиента“ брои само тях. „Чернови · N“ горе ги пуска в същия списък, приглушени.
+  function isPseudo(r) { return !!r.is_dev || String(r.name || "").indexOf("(не е клиент)") > -1; }
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
     var tab = (r.unread_msgs || r.unread_answers) ? "razgovor" : "nachalo";
@@ -185,8 +198,9 @@
     if (r.unread_msgs) badges += '<span class="b msg">✉ ' + r.unread_msgs + (r.unread_msgs === 1 ? " ново съобщение" : " нови съобщения") + "</span>";
     if (r.unread_answers) badges += '<span class="b ans">📋 нови отговори</span>';
     if (r.pending_labs) badges += '<span class="b lab">🧪 ' + r.pending_labs + (r.pending_labs === 1 ? " за препис" : " за препис") + "</span>";
-    return '<a class="row' + (isNew(r) ? " new" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
-      + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (r.is_dev ? '<span class="dev">DEV</span>' : "")
+    var ps = isPseudo(r);
+    return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
+      + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (r.is_dev ? '<span class="dev">DEV</span>' : ps ? '<span class="dev">ЧЕРНОВА</span>' : "")
       + '<span class="when">' + esc(when(r.last_activity)) + "</span></div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
       + '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
@@ -198,15 +212,21 @@
   function render() {
     var only = lsGet(FILTER_KEY) === "1";
     onlyNew.classList.toggle("on", only); onlyNew.setAttribute("aria-pressed", only ? "true" : "false");
+    var nPs = ROWS.filter(isPseudo).length, nReal = ROWS.length - nPs, showPs = nPs > 0 && lsGet(PSEUDO_KEY) === "1";
+    psBtn.classList.toggle("hidden", !nPs);                  // Т53: без чернови/тестови бутонът го няма
+    psBtn.textContent = "Чернови · " + nPs;
+    psBtn.classList.toggle("on", showPs); psBtn.setAttribute("aria-pressed", showPs ? "true" : "false");
     var rows = ROWS.slice().sort(function (a, b) { return String(b.last_activity || "").localeCompare(String(a.last_activity || "")); });
-    var nNew = rows.filter(isNew).length;
+    if (!showPs) rows = rows.filter(function (r) { return !isPseudo(r); });
+    var nNew = rows.filter(isNew).length;                     // само видимите редове
     onlyNew.textContent = "Само с ново" + (nNew ? " (" + nNew + ")" : "");
     if (only) rows = rows.filter(isNew);
-    $("cnt").textContent = ROWS.length + (ROWS.length === 1 ? " клиент" : " клиента");
+    $("cnt").textContent = nReal + (nReal === 1 ? " клиент" : " клиента");
     rowsEl.innerHTML = rows.length ? rows.map(rowHtml).join("")
       : '<div class="state" id="emptyList">' + (only ? "Няма ново от клиентите." : "Няма клиенти.") + "</div>";
   }
   onlyNew.addEventListener("click", function () { lsSet(FILTER_KEY, lsGet(FILTER_KEY) === "1" ? null : "1"); render(); });
+  psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
 
   function loadList() {
     if (!ROWS.length) state("Зарежда…");
