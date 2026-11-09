@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v0.2.7">
+<meta name="version" content="v0.2.8">
 <title>Твоят дневник</title>
 <!-- ЧЕРНОВА (08.11.2026): новата клиентска страница с 4 бутона. Не е деплойната. tools/me/ остава живата. -->
 <meta name="theme-color" content="#c77d2e">
@@ -75,7 +75,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --okline: #ecc596;           /* рамка на „записано“ */
     --line: #e9cfa9;             /* пунктирни/тънки рамки */
     --ate: #fdf3e6;              /* изядено хранене */
-    --eatrow: #fffbf6;           /* редът с „Изядох“ */
     --me: #f9e2c7;               /* моите балони в Разговор */
     --accent-a40: rgba(199,125,46,0.4);   /* подчертаване на линковете */
     --btn-off: #e3d3bf;          /* изключеният „Изпрати“ */
@@ -176,7 +175,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .now a .i svg.ic { width: 22px; height: 22px; vertical-align: -5.5px; }
   .igi { color: var(--accent); }
   .igi svg.ic { width: 20px; height: 20px; vertical-align: -4.5px; }
-  .eat2 .eatbtn svg.ic, #upBtn svg.ic { width: 1.25em; height: 1.25em; vertical-align: -0.27em; margin-right: 0.35em; }
+  #upBtn svg.ic { width: 1.25em; height: 1.25em; vertical-align: -0.27em; margin-right: 0.35em; }
   .csys svg.ic { width: 1.3em; height: 1.3em; vertical-align: -0.32em; margin-right: 0.35em; }
   .qst svg.ic { width: 1.25em; height: 1.25em; vertical-align: -0.27em; }
   .crow button svg.ic { width: 22px; height: 22px; }
@@ -281,9 +280,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lw textarea { min-height: 70px; max-height: 170px; resize: none; overflow-y: auto; line-height: 1.45; }
   /* Т15: час + бутон на един ред — час ~40 %, бутон ~60 %, еднаква височина 42 px (като полето в Разговор), 8 px между тях */
   .lwr { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
-  .lf .lwr input, .eat2 .eattm { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
-  .lf .lwr button, .eat2 .eatbtn { flex: 1 1 0; min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  @media (max-width: 360px) { .lf .lwr button, .eat2 .eatbtn { padding: 0 4px; font-size: 15px; } }   /* Т39: „Няма записи днес“ на един ред на 320 */
+  .lf .lwr input { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
+  .lf .lwr button { flex: 1 1 0; min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 360px) { .lf .lwr button { padding: 0 4px; font-size: 15px; } }   /* Т39: „Няма записи днес“ на един ред на 320 */
   .lwr span { flex: 1 1 150px; min-width: 0; font-size: 12.5px; color: var(--muted); }
   .lf button.idle:disabled { opacity: 1; background: var(--soft); color: var(--muted); border: 1px solid var(--border); font-size: 14.5px; }
   .lrows { margin-top: 10px; }
@@ -451,15 +450,32 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .qcqa .qa .qi:first-child { margin-top: 8px; }
   .hempty { margin: 0 0 12px; padding: 14px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; color: var(--muted); font-size: 14.5px; }
 
-  /* Т8: „Изядох" по data-meal (ред под храненето) */
-  .card .body tr.eatrow > td { padding: 5px 7px 8px; background: var(--eatrow); }
-  .eat2 { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px 8px; margin: 6px 0 2px; }
-  .card .body tr.eatrow .eat2 { margin: 0; }
-  .eat2 .eatbtn { border: 1px solid var(--accent); background: #fff; color: var(--accent-dark); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
-  .eat2 .eatbtn:active { background: var(--soft); }
-  .eat2 .eatok { flex: 1 1 100%; font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
-  .eat2 .eatok:empty { display: none; }
-  .eat2 .eatok.err { color: #9a3b3b; }
+  /* Т55: „Изядох" по data-meal — малък бутон ВЪТРЕ в храненето (без отделен ред). Целта за докосване е 32 px, видимото е хапче 24 px.
+     <tr> → в първата клетка, под името (блок); друг елемент → до заглавието му (<b>/<strong>/h…) или в края, на реда на текста. */
+  .eatc { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 6px; vertical-align: middle; margin: -4px 0 -4px 2px; }
+  .card .body td > .eatc { display: flex; margin: -4px 0 -6px; }   /* прозрачните 4 px от целта стъпват в реда на името; хапчето е точно под него */
+  .card .body td > .eatc > .eatbtn { margin-left: -6px; }   /* хапчето е под началото на името; „✓ ЧЧ:ММ“ на нов ред — също */
+  .eatbtn { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 32px; margin: 0; padding: 0 6px; border: 0; background: none; color: var(--accent-dark); font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .eatbtn .eatv { display: inline-flex; align-items: center; gap: 4px; box-sizing: border-box; height: 24px; padding: 0 9px 0 7px; border: 1px solid var(--accent); border-radius: 999px; background: #fff; font-size: 12.5px; font-weight: 700; line-height: 1; white-space: nowrap; }
+  .eatbtn .eatv svg.ic { width: 15px; height: 15px; flex: none; }
+  .eatbtn:active .eatv, .eatbtn[aria-expanded="true"] .eatv { background: var(--soft); }
+  .eatbtn:focus { outline: none; }
+  .eatbtn:focus-visible .eatv { box-shadow: 0 0 0 2px var(--accent); }
+  .eatok { font-size: 12.5px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+  .eatok:empty { display: none; }
+  @media (max-width: 359px) { .eatbtn .eatx { display: none; } .eatbtn .eatv { padding: 0 6px; } }   /* 320: само иконата (aria-label „Изядох“) */
+  /* банерът: под храненето, върху съдържанието (не го бута); с ширината на картата */
+  .eatpop { position: absolute; z-index: 55; box-sizing: border-box; padding: 10px 12px 12px; background: #fff; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; }
+  .eatpop .eph { margin: 0 0 8px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
+  .eatpop .epr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .eatpop .epl { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 600; color: var(--accent-dark); }
+  .eatpop .epb { display: flex; gap: 8px; margin-left: auto; }   /* двата бутона заедно, вдясно */
+  .eatpop .eptm { box-sizing: border-box; width: 112px; height: 40px; margin: 0; padding: 0 8px; font-size: 16px; font-family: inherit; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .eatpop .epok, .eatpop .epno { height: 40px; margin: 0; padding: 0 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
+  .eatpop .epok { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
+  .eatpop .epno { border: 1px solid var(--border); background: #fff; color: var(--ink); font-weight: 600; }
+  .eatpop .epmsg { margin: 6px 0 0; font-size: 13.5px; font-weight: 600; color: #9a3b3b; }
+  .eatpop .epmsg:empty { display: none; }
   .card .body tr.ate > td { background: var(--ate); }
   .card .body [data-meal].ate:not(tr) { background: var(--ate); border-radius: 8px; }
   .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
@@ -615,7 +631,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо цвета на клиента навсякъде; червеното остава. Т45: и кремът/оранжевото */
   body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
     --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
-    --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --eatrow: #fafbfc; --me: #e3e7eb;
+    --soft2: #e6e9ec; --okline: #c3c9cf; --line: #c4cad0; --ate: #eceff2; --me: #e3e7eb;
     --accent-a40: rgba(95,107,120,0.4); --btn-off: #c4c9cf;
     --bg: #f4f6f8; --btn: #5f6b78;   /* Т45: без крема и оранжевото на клиента (бял на --btn 5,4) */
   }
@@ -1285,8 +1301,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
 
   // ════════ ХРАНА ════════
-  // Т8: „Изядох" стои САМО там, където картата го казва изрично: всеки елемент с data-meal="<име>" (обикновено <tr>)
-  // получава свой бутон + час. Записът: add_food_entry „✅ <име> — ядено ЧЧ:ММ“. Без data-meal → без бутон.
+  // Т8: „Изядох" стои САМО там, където картата го казва изрично: всеки елемент с data-meal="<име>" (обикновено <tr>).
+  // Т55 (Chris 09.11 11:24/11:34): малък бутон ВЪТРЕ в храненето (без отделен ред между храненията). Натискане → банер под
+  //   храненето: името + час (по подразбиране сега) + „Запиши“ / „Отказ“. Пише САМО „Запиши“; Отказ / Esc / докосване извън → без запис.
+  //   По един отворен банер. Записът е както в Т8: add_food_entry „✅ <име> — ядено ЧЧ:ММ“ за днес. Без data-meal → без бутон.
   function foodClient() { return F.entries.filter(function (e) { return e.kind !== "coach"; }); }
   function eatenToday(name) {
     var head = "✅ " + name + " — ядено ", today = todayStr(), out = [];
@@ -1296,27 +1314,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     return out.sort();
   }
+  function eatOkText(name) { var d = eatenToday(name); return d.length ? "✓ " + d[d.length - 1] : ""; }   // последният час днес
   function mealCtl(name) {
-    var done = eatenToday(name), dis = CAN_WRITE ? "" : " disabled";
-    return '<div class="eat2" data-meal-name="' + esc(name) + '"><input type="time" class="eattm" value="' + nowHM() + '" aria-label="Час"' + dis + ">"
-      + '<button type="button" class="eatbtn"' + dis + ">" + ic("ate", "icl") + "Изядох</button>"
-      + '<span class="eatok">' + (done.length ? "✓ днес " + esc(done[done.length - 1]) : "") + "</span></div>";
+    return '<span class="eatc" data-meal-name="' + esc(name) + '"><button type="button" class="eatbtn" aria-label="Изядох" aria-haspopup="dialog" aria-expanded="false"' + (CAN_WRITE ? "" : " disabled") + ">"
+      + '<span class="eatv">' + ic("ate") + '<span class="eatx">Изядох</span></span></button><span class="eatok">' + esc(eatOkText(name)) + "</span></span>";
   }
   function decorateMeals(root) {
     Array.prototype.forEach.call(root.querySelectorAll(".card .body [data-meal]"), function (el) {
       var name = el.getAttribute("data-meal");
       if (!name) return;
-      if (el.tagName === "TR") el.insertAdjacentHTML("afterend", '<tr class="eatrow"><td colspan="' + Math.max(1, el.children.length) + '">' + mealCtl(name) + "</td></tr>");
-      else el.insertAdjacentHTML("beforeend", mealCtl(name));
+      if (el.tagName === "TR") (el.cells[0] || el).insertAdjacentHTML("beforeend", mealCtl(name));   // в първата клетка, до името
+      else {
+        var head = el.firstElementChild;
+        if (head && /^(B|STRONG|H[1-6])$/.test(head.tagName)) head.insertAdjacentHTML("afterend", mealCtl(name));   // до заглавието
+        else el.insertAdjacentHTML("beforeend", mealCtl(name));   // в края
+      }
       el.classList.toggle("ate", eatenToday(name).length > 0);
     });
   }
   function refreshMealMarks() {
-    Array.prototype.forEach.call(P.hrana.querySelectorAll(".eat2[data-meal-name]"), function (box) {
-      var name = box.getAttribute("data-meal-name"), done = eatenToday(name), ok = box.querySelector(".eatok");
-      if (!ok.classList.contains("err")) ok.textContent = done.length ? "✓ днес " + done[done.length - 1] : "";
-      var row = box.closest("tr.eatrow"), el = row ? row.previousElementSibling : box.parentElement;
-      if (el) el.classList.toggle("ate", done.length > 0);
+    Array.prototype.forEach.call(P.hrana.querySelectorAll(".eatc[data-meal-name]"), function (box) {
+      var name = box.getAttribute("data-meal-name"), el = box.closest("[data-meal]");
+      box.querySelector(".eatok").textContent = eatOkText(name);
+      if (el) el.classList.toggle("ate", eatenToday(name).length > 0);
     });
   }
   // ── ЛОГЪТ (модел Victus): ред = ЧАС + ТЕКСТ. Без търсачка, грамажи, макроси. Пише се през add_food_entry, чете се през get_food_log.
@@ -1490,6 +1510,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   try { var PQ = window.matchMedia("print"); (PQ.addEventListener ? PQ.addEventListener.bind(PQ, "change") : PQ.addListener.bind(PQ))(function (e) { if (!e.matches) printPrep(false); }); } catch (e) {}
   // Храна: режимът (ако го има) → логът (картата за писане) → „История на храненето ›" → анализът (последен).
   function renderHrana() {
+    eatClose();
     var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); });
     var html = "";
     if (START && !menus.length) html += '<p class="lead" id="hranaLead" style="margin-right:2px;margin-bottom:12px;margin-left:2px">Режимът ти още се подготвя.</p>';
@@ -2060,25 +2081,77 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
 
   // ── Храна: окабеляване ──
-  function wireEat() {
-    P.hrana.addEventListener("input", function (e) { if (e.target.classList.contains("eattm")) e.target.setAttribute("data-user", "1"); });
-    P.hrana.addEventListener("click", function (e) {
-      var btn = e.target.closest(".eatbtn");
-      if (btn) {
-        var box = btn.closest(".eat2"), name = box.getAttribute("data-meal-name"), inp = box.querySelector(".eattm"), ok = box.querySelector(".eatok");
-        var hm = /^\d{2}:\d{2}$/.test(inp.value) ? inp.value : nowHM();
-        btn.disabled = true; ok.classList.remove("err");
-        wr("add_food_entry", { p_token: token, p_text: "✅ " + name + " — ядено " + hm, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
-          if (res.error || res.data === false) throw (res.error || new Error("fail"));
-          btn.disabled = false; inp.removeAttribute("data-user");
-          return refreshFood();
-        }).catch(function () { btn.disabled = !CAN_WRITE; ok.textContent = "Неуспешно. Опитай пак."; ok.classList.add("err"); });
-        return;
-      }
+  // Т55: банерът „Изядох“ — под храненето, с ширината на картата, в страницата (не модал); само „Запиши“ пише.
+  var EAT = null;   // отвореният банер: { el, btn, pop, name, busy }
+  function eatClose(back) {
+    if (!EAT) return;
+    var b = EAT.btn;
+    if (EAT.pop.parentNode) EAT.pop.parentNode.removeChild(EAT.pop);
+    b.setAttribute("aria-expanded", "false"); EAT = null;
+    window.removeEventListener("resize", eatPlace);
+    if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function eatPlace() {
+    if (!EAT) return;
+    var card = EAT.el.closest(".card");
+    if (!EAT.el.isConnected || !card || !EAT.el.getClientRects().length) { eatClose(); return; }
+    var cr = card.getBoundingClientRect(), r = EAT.el.getBoundingClientRect(), st = EAT.pop.style;
+    st.left = (cr.left + window.scrollX) + "px"; st.width = cr.width + "px"; st.top = (r.bottom + window.scrollY + 4) + "px";
+  }
+  function eatOpen(btn) {
+    var box = btn.closest(".eatc"), el = box && box.closest("[data-meal]"), same = EAT && EAT.btn === btn;
+    eatClose();
+    if (same || !box || !el || !CAN_WRITE) return;   // истински клиент / треньор: банер не се отваря (и wr() не пише)
+    var name = box.getAttribute("data-meal-name"), pop = document.createElement("div");
+    pop.className = "eatpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Изядох — " + name); pop.tabIndex = -1;
+    pop.innerHTML = '<div class="eph">' + esc(name) + "</div>"
+      + '<div class="epr"><label class="epl">Час <input type="time" class="eptm" value="' + nowHM() + '"></label>'
+      + '<div class="epb"><button type="button" class="epno">Отказ</button><button type="button" class="epok">Запиши</button></div></div>'
+      + '<div class="epmsg" role="status"></div>';
+    document.body.appendChild(pop);
+    EAT = { el: el, btn: btn, pop: pop, name: name, busy: false };
+    btn.setAttribute("aria-expanded", "true");
+    eatPlace(); window.addEventListener("resize", eatPlace);
+    var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
+    if (pr.bottom > lim) window.scrollBy(0, Math.max(0, Math.min(pr.bottom - lim, pr.top - 8)));   // целият банер над лентата долу
+    pop.querySelector(".epno").addEventListener("click", function () { eatClose(true); });
+    pop.querySelector(".epok").addEventListener("click", eatSave);
+    pop.querySelector(".eptm").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); eatSave(); } });
+    try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function eatSave() {
+    if (!EAT || EAT.busy) return;
+    var cur = EAT, hm = cur.pop.querySelector(".eptm").value, msg = cur.pop.querySelector(".epmsg"), okb = cur.pop.querySelector(".epok");
+    if (!/^\d{2}:\d{2}$/.test(hm)) { msg.textContent = "Избери час."; return; }
+    cur.busy = true; okb.disabled = true; msg.textContent = "";
+    wr("add_food_entry", { p_token: token, p_text: "✅ " + cur.name + " — ядено " + hm, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
+      if (res.error || res.data === false) throw (res.error || new Error("fail"));
+      cur.saved = true;
+      if (EAT === cur) eatClose(true);
+      return refreshFood();
+    }).catch(function () {
+      if (cur.saved) return;
+      cur.busy = false; okb.disabled = false;
+      if (EAT === cur) msg.textContent = "Неуспешно. Опитай пак.";
     });
   }
-  function refreshEatTimes() {
-    Array.prototype.forEach.call(document.querySelectorAll("#p-hrana .eattm, #f_time"), function (inp) { if (!inp.getAttribute("data-user")) inp.value = nowHM(); });
+  function wireEat() {
+    P.hrana.addEventListener("click", function (e) {
+      var btn = e.target.closest(".eatbtn");
+      if (btn && !btn.disabled) eatOpen(btn);
+    });
+    if (wireEat.doc) return;
+    wireEat.doc = true;
+    document.addEventListener("click", function (e) {   // докосване извън банера → затваря, без запис
+      if (!EAT || EAT.pop.contains(e.target)) return;
+      if (e.target.closest && e.target.closest(".eatbtn") === EAT.btn) return;   // същият бутон → eatOpen го затваря
+      eatClose();
+    }, true);
+    document.addEventListener("keydown", function (e) { if (EAT && e.key === "Escape") { e.preventDefault(); eatClose(true); } });
+  }
+  function refreshEatTimes() {   // Т55: часът на „Изядох“ е в банера (сега, при отваряне) → тук остава само свободният лог
+    var inp = document.getElementById("f_time");
+    if (inp && !inp.getAttribute("data-user")) inp.value = nowHM();
   }
   // Логът: едно натискане = един ред (без стъпка за потвърждение, както в Victus). Enter записва; бутонът е истинският път.
   function wireFreeLog() {
@@ -2594,6 +2667,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
+    eatClose();
     if (!TABS[tab]) tab = "nachalo";
     if (current) scrollMem[current] = window.scrollY;
     current = tab;
