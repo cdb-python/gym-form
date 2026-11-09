@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.5">
+<meta name="version" content="v1.0.6">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -716,7 +716,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     display: flex; gap: 8px; align-items: center; transition: opacity .25s ease; }
   nav.tabs.dim { opacity: 0.4; }   /* притъмнява при скрол надолу; остава тапваема */
   nav.tabs .nav-pill { position: static; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
-  nav.tabs button { position: relative; flex: 1 0 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center; place-content: center;   /* Т37: и по-висока от бутона иконата остава в средата */
+  nav.tabs button { position: relative; flex: 1 0 56px; width: 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center; place-content: center;   /* Т37: и по-висока от бутона иконата остава в средата */
     color: #fff; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: color 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
   /* Т37/Т38: размерът на иконите (един за петте; оптичното изравняване на дизайнера остава): Chris избра 40 px (Т38).
@@ -743,7 +743,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   nav.tabs .tdot.show { display: block; }
   /* Т39: значката на Разговор е точка като другите (без число) — правилото е горе, заедно с .tdot */
   nav.tabs .badge.show { display: block; }
-  @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
+  @media (max-width: 360px) { nav.tabs button { flex-basis: 52px; width: 52px; } nav.tabs .nav-side { width: 60px; } }   /* 4 × 52 + 8 + 8 + 60 = 284 ≤ 320 − 20 */
+  /* Т68 (09.11.2026, Поля на iPhone — Chrome и Safari): WebKit смята ширината на хапчето (fit-content) от съдържанието на бутоните
+     (иконата 40 px), не от flex-basis 56 → хапчето излиза 4 × 40 + 8, бутоните 56 преливат и Разговор отива под Данни.
+     Изричното width = flex-basis оправя сметката; в Chrome (Android) нищо не се мести. */
   @media (prefers-reduced-motion: reduce) { nav.tabs, nav.tabs button, nav.tabs .nav-slide { transition: none !important; } }   /* маркерът скача, не се плъзга (и при времето по стъпки) */
   .card, details.qacard { position: relative; }
   /* Т39: точката „ново“ — 4 px, само червена, без ръб.
@@ -1916,7 +1919,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     "krachki_tochno", "syn_tochno", "puls_pokoy",                                    // числа от часовник/приложение
     // решение на CDB-GYM, 09.11 14:05: празното тук е законен отговор („нямам“), а във формата няма опция „Нямам“ → не се броят.
     // Ако по-късно формата получи „Нямам“ / „Нищо от изброените“, тези три се вадят оттук.
-    "oblasti", "lek_klas", "neponosimost"
+    "oblasti", "lek_klas", "neponosimost",
+    // Т68 (Chris 18:53, при Поля: „липсва 1, а едното е маркирано“): свободният текст към целта е добавка, не въпрос → по желание.
+    "motivaciya"
   ];
   function intakeMissing(d) {   // Т63: от същото броене (intakeTally), по групите
     var n = 0, first = -1;
