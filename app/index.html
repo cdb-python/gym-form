@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.1">
+<meta name="version" content="v1.0.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -337,6 +337,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body .qa .qaok.show { display: block; }
 
   .card .body details.fx > summary .cnt { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .card .body details.fx > summary .cnt.igok { color: var(--down); font-size: 15px; font-weight: 800; line-height: 1; }   /* Т63: групата е пълна — зелената ✓ (като в изследванията) */
+  @media (max-width: 359px) {   /* Т63: „липсват N“ е по-дълго от „X от Y“ — на 320 „възстановяване“ стигаше брояча; отстъпите 14 → 10, празното 12 → 8 */
+    .card .body details.fx > summary { padding: 12px 10px; gap: 8px; }
+    .card .body details.fx > .fxb { padding: 11px 10px 13px; }
+  }
 
   /* интейкът — интерактивен (Т6) */
   .iform .ihint, .iform .ioff { margin: 0 0 10px; font-size: 13.5px; }
@@ -1577,6 +1582,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var MONTH_NAMES = ["Януари", "Февруари", "Март", "Април", "Май", "Юни", "Юли", "Август", "Септември", "Октомври", "Ноември", "Декември"];
   function monthLabel(k) { var p = String(k).split("-"), mi = parseInt(p[1], 10) - 1; return (MONTH_NAMES[mi] || p[1]) + " " + p[0]; }
   // Т24: логът е карта-акордеон като другите (рамка + цветна страна, ▸/▾, цикълът от Т20). В затворения заглавен ред: „Днес“ + броячът.
+  // Т64 (Chris 09.11 15:32, отменя Т24 „затворена при режим“ от 08.11 20:37): „Днес“ е ОТВОРЕНА при всяко зареждане, с режим или без.
+  //   Клиентът може да я затвори; при следващо отваряне на приложението пак е отворена — нищо не се помни.
   // Вътре най-горе „Защо 21 дни?“ (Т60: отваря балон — INFO.log21 / log_done), после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
   // Миналите дни са в „История на храненето“ (отделната карта под нея).
   function logCardHtml(open) {
@@ -1590,7 +1597,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="lrows" id="logToday"></div>';
     return panelHtml("log", "log", "Днес", "", inner, open, chip);
   }
-  // режим с храни = поне една nutrition карта с елемент [data-meal] (там е „Изядох“) → логът започва затворен; иначе — отворен
+  // режим с храни = поне една nutrition карта с елемент [data-meal] (там е „Изядох“). Т64: вече НЕ решава дали логът е отворен
+  //   (винаги е отворен) — остава само за ⓘ „Изядох“ до заглавието „Режимът“.
   function hasMealPlan(menus) { return menus.some(function (r) { return /\sdata-meal\s*=/.test(String(r.body || "")); }); }
   function todayCount() { var t = todayStr(); return foodClient().filter(function (e) { return logDayOf(e) === t; }).length; }
   // Т15: бутонът е 60 % от реда до часа → текстът трябва да се събира на един ред и на 320 px
@@ -1713,7 +1721,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         + menus.map(function (r) { return cardHtml(r, false); }).join("")
         + "</div>";
     }
-    html += '<div class="sec" data-key="logsec"><h2>Лог' + infoBtn("log") + "</h2>" + logCardHtml(!hasMealPlan(menus)) + "</div>"
+    html += '<div class="sec" data-key="logsec"><h2>Лог' + infoBtn("log") + "</h2>" + logCardHtml(true) + "</div>"   // Т64: винаги отворена
       + foodHistHtml();
     if (A.cards.length) html += panelHtml("analysis", "analysis", "Анализ", "", analysisHtml(), false);
     P.hrana.innerHTML = html;
@@ -1812,14 +1820,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!k || !IC[k]) return esc(t);
     return '<span class="igt"><span class="igi" aria-hidden="true">' + ic(k) + '</span><span class="igx">' + esc(t) + "</span></span>";
   }
+  // dobavki е в Здраве (Chris 15:21) — различно от tools/forms/intake/ (там е последен в Хранене и не се вижда). Ключът е същият → данните не се пипат.
   var INTAKE_Q = [
     ["Какво търсиш", [["zhelan_izhod", "Какво искаш да получиш?"]], "search"],   // Т48: бившата „Какво търсиш и каква е целта“ — на две
     ["Каква е целта", [["cel", "Каква е целта ти?"], ["motivaciya", "Свободен текст за всичко останало."]], "goal"],
     ["Основни данни", [["ime", "Име"], ["pol", "Пол"], ["godina_razhdane", "Година на раждане"], ["visochina", "Височина (см)"], ["teglo", "Тегло сега (кг)"], ["zhelano_teglo", "Желано тегло (кг)"], ["taliya", "Талия (см)"], ["hansh", "Ханш (см)"], ["teglo_trend", "Теглото ти напоследък?"], ["teglo_promyana", "Откога и какво се промени тогава?"], ["cikyl", "Цикъл (мензис)?"], ["menopauza", "Симптоми на перименопауза/менопауза?"], ["bremennost", "Бременна си, кърмиш или планираш бременност?"], ["hormonalna", "Хормонална терапия или контрацепция?"]], "basic"],
     ["Ежедневие и активност", [["rabota", "Как изглежда работата/ежедневието ти?"], ["smeni", "Работиш ли на смени или променлив график?"], ["smeni_cikyl", "Какви смени и как се редуват?"], ["smeni_ritym", "Кога спиш и кога можеш да тренираш на всеки тип ден?"], ["na_krak", "Колко часа на ден прекарваш на крак / в движение?"], ["dvizhenie", "Колко се движиш през деня (крачки)?"], ["krachki_tochno", "Точен брой крачки на ден"], ["druga_aktivnost", "Друга редовна физическа активност извън залата?"], ["prekysvaniya", "Колко често прекъсваш режима/тренировките?"]], "daily"],
     ["Навици", [["pushene", "Пушиш ли?"], ["alkohol", "Алкохол?"], ["gazirani", "Газирани или сладки напитки?"], ["kafe", "Кафе?"]], "habits"],
-    ["Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]], "health"],
-    ["Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"]], "nutrition"],
+    ["Здраве", [["oblasti", "Състояния и оплаквания"], ["drugo_sastoyanie", "Друго състояние или заболяване, което не е в списъка?"], ["lek_klas", "Приемаш ли нещо от изброеното? (класове лекарства)"], ["lek_vliyanie", "Влияе ли някое лекарство на теглото, апетита или енергията?"], ["lekarstva", "Какви лекарства приемаш в момента?"], ["dobavki", "Какви добавки или витамини пиеш в момента?"], ["prof_natovarvane", "Работата ти натоварва ли тялото по специфичен начин?"], ["drugo_vazhno", "Има ли още нещо за здравето ти, което е добре да се знае?"]], "health"],
+    ["Хранене", [["tip_hranene", "Как се храниш?"], ["tip_opis", "Опиши накратко"], ["izklyucheni", "Храни, които НЕ ядеш или избягваш"], ["neponosimost", "Имаш ли хранителна непоносимост?"], ["proteini", "Кои източници на протеин харесваш?"], ["hranenia_broy", "Колко пъти на ден се храниш?"], ["zakuska", "Закусваш ли?"], ["chasove", "В кои часове се храниш обикновено?"], ["hr_po_dni", "Храненето ти различно ли е на различни дни?"], ["hr_po_dni_opis", "Опиши накратко по тип ден"], ["preskacha", "Прескачаш ли хранения или имаш дълги паузи без храна?"], ["preskacha_opis", "Кога и защо?"], ["snaks", "Какво хапваш между храненията?"], ["den_zakuska", "Типичен ден — закуска"], ["den_obyad", "Типичен ден — обяд"], ["den_vecherya", "Типичен ден — вечеря"], ["den_mezhdu", "Типичен ден — между / друго"], ["gotvene", "Кой готви / откъде е храната?"], ["vreme_gotvene", "Колко време имаш за готвене?"], ["raznoobrazie", "Разнообразие в храната?"], ["glad", "Какъв е гладът ти през деня?"], ["glad_koga", "Кога гладът е най-силен?"], ["sladko", "Желание за сладко?"], ["vecher_hapvane", "Хапване вечер или през нощта?"], ["emo_hapvane", "Ядеш ли при стрес, скука или емоция?"], ["voda", "Колко вода пиеш на ден?"], ["zadalzhitelni", "Има ли храни, които задължително искаш да присъстват?"], ["drugo_hrana", "Нещо друго за храненето ти?"]], "nutrition"],
     ["Тренировки", [["trenira", "В момента тренираш ли?"], ["dni", "Кои дни тренираш сега?"], ["vreme_min", "Минути"], ["chas", "В колко часа?"], ["kade_kakvo", "Къде и какво?"], ["staj", "От колко време тренираш с тежести/съпротивление?"], ["staj_sega", "Как изглежда тренировката ти сега?"], ["staj_orientiri", "Текущи ориентири на основните движения?"], ["dvizhenia", "Кои движения познаваш и изпълняваш уверено?"], ["s_programa", "Тренирал(а) ли си по програма досега?"], ["s_programa_opis", "Каква и как мина?"], ["cel_programa", "Какво искаш да постигне програмата?"], ["sila_orientir", "Ориентир на силата"], ["sport_detail", "Кой спорт, на какво ниво и в кой сезон си?"], ["cel_programa_opis", "С две думи — нещо конкретно?"], ["kade", "Къде ще тренираш предимно?"], ["oborudvane", "Какво оборудване имаш на разположение?"], ["oborudvane_drugo", "Друго оборудване или уточнения?"], ["dni_sedmica", "Колко дни седмично реално можеш да тренираш?"], ["grafik", "Графикът позволява ли редовни дни, или варира?"], ["grafik_opis", "Кога реално можеш да тренираш?"], ["minuti", "Колко време на тренировка?"], ["chasove_dni", "Предпочитани дни и часове"], ["klek_ok", "Можеш ли да клекнеш дълбоко без болка?"], ["ruce_glava", "Можеш ли да вдигнеш ръце над глава свободно?"], ["zatrudnenia", "Има ли движения, които те затрудняват или избягваш?"], ["stil", "Какъв стил на тренировка предпочиташ?"], ["nt_intensitet", "Кое ти допада повече?"], ["nt_raznoobrazie", "Предпочиташ ли разнообразие?"], ["nt_plan", "Как тренираш по-добре?"], ["lyubimi_nelyubimi", "Любими или нелюбими упражнения?"], ["drugo_tren", "Нещо друго важно за тренировките?"]], "training"],
     ["Сън и възстановяване", [["syn_promenliv", "Сънят ти еднакъв ли е всеки ден, или варира?"], ["chas_lyagane", "В колко часа обикновено си лягаш?"], ["syn_chasove", "Колко часа спиш на нощ?"], ["syn_kachestvo", "Как е сънят?"], ["stres", "Ниво на стрес в момента?"], ["energiya", "Енергия през деня?"], ["vyzstanovyavane", "Възстановяваш ли се добре между натоварвания?"], ["syn_tochno", "Среден сън — точно"], ["puls_pokoy", "Пулс в покой"]], "sleep"]
   ];
@@ -1866,10 +1875,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function ivEmpty(v) { return v == null || v === "" || (Array.isArray(v) && !v.length); }
   function ivNorm(v) { if (typeof v === "string") v = v.trim(); return ivEmpty(v) ? null : v; }
   function ivVisible(k, d) { var f = INTAKE_F[k]; return !f || !f.rv || !REVEAL[f.rv] || REVEAL[f.rv](d || IN.data); }
-  function intakeCount(keys, d) {
-    var got = 0, tot = 0; d = d || IN.data;
-    keys.forEach(function (k) { if (!ivVisible(k, d)) return; tot++; if (!ivEmpty(d[k])) got++; });
-    return [got, tot];
+  // Т63 (Chris 15:15, при Поля): ЕДНО броене за всички места — панелът „попълнено X от Y“, групите „X от Y“, „Първи стъпки“,
+  //   „Ново за теб · липсват N“. ОБЩО = видимите задължителни + видимите по желание, които СА попълнени · ПОПЪЛНЕНО = видимите
+  //   попълнени · ЛИПСВАТ = видимите задължителни празни. Винаги попълнено + липсват = общо. Празен въпрос по желание не влиза никъде;
+  //   попълненият влиза и в двете. (Преди: „от N“ броеше и празните по желание → 31 + 58 ≠ 96.)
+  function intakeTally(keys, d) {
+    var got = 0, miss = 0; d = d || IN.data;
+    keys.forEach(function (k) {
+      if (!ivVisible(k, d)) return;
+      if (!ivEmpty(d[k])) got++;
+      else if (INTAKE_OPTIONAL.indexOf(k) < 0) miss++;
+    });
+    return { got: got, miss: miss, total: got + miss };
+  }
+  function intakeCount(keys, d) { var t = intakeTally(keys, d); return [t.got, t.total]; }
+  // Т63 добавка (Chris 15:18: „Какво търсиш“ — „1 от 1“ при три отметки изглежда като грешка): броячът на ГРУПАТА е „✓“ (няма
+  //   липсващ задължителен; зелената отметка от изследванията) или „липсват N“ („липсва 1“). Празни по желание не я правят непълна.
+  function igCnt(keys, d) { var t = intakeTally(keys, d); return { ok: !t.miss, txt: !t.miss ? "✓" : t.miss === 1 ? "липсва 1" : "липсват " + t.miss }; }
+  function igCntAttrs(c) { return c.ok ? ' role="img" aria-label="попълнено" title="попълнено"' : ""; }
+  function igCntSet(el, c) {
+    el.textContent = c.txt; el.classList.toggle("igok", c.ok);
+    if (c.ok) { el.setAttribute("role", "img"); el.setAttribute("aria-label", "попълнено"); el.setAttribute("title", "попълнено"); }
+    else { el.removeAttribute("role"); el.removeAttribute("aria-label"); el.removeAttribute("title"); }
   }
   // Т58 (09.11.2026, Chris 13:39 „на всички да има подкана да си допопълнят данните“ → 13:49 „да“): „Допълни формата за данни · липсват N“.
   //   N = само ЧАКАЩИТЕ въпроси: видими (ivVisible / REVEAL — напр. smeni = Не → smeni_* не се броят) и не ПО ЖЕЛАНИЕ.
@@ -1882,14 +1909,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // Ако по-късно формата получи „Нямам“ / „Нищо от изброените“, тези три се вадят оттук.
     "oblasti", "lek_klas", "neponosimost"
   ];
-  function intakeMissing(d) {
-    var n = 0, first = -1; d = d || IN.data;
+  function intakeMissing(d) {   // Т63: от същото броене (intakeTally), по групите
+    var n = 0, first = -1;
     INTAKE_Q.forEach(function (g, gi) {
-      g[1].forEach(function (q) {
-        var k = q[0];
-        if (INTAKE_OPTIONAL.indexOf(k) > -1 || !ivVisible(k, d) || !ivEmpty(d[k])) return;
-        n++; if (first < 0) first = gi;
-      });
+      var t = intakeTally(g[1].map(function (q) { return q[0]; }), d);
+      n += t.miss; if (t.miss && first < 0) first = gi;
     });
     return { n: n, group: first };
   }
@@ -1941,8 +1965,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     else head = "";
     var html = '<div class="iform" id="intakeForm">' + head;
     INTAKE_Q.forEach(function (g, gi) {
-      var c = intakeCount(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt" id="igc_' + gi + '">' + c[0] + " от " + c[1] + "</span></summary>"
+      var c = igCnt(g[1].map(function (q) { return q[0]; }));
+      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
         + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], q[1]); }).join("") + "</div></details>";
     });
     return html + "</div>";
@@ -2002,7 +2026,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function ivReveal(d) {
     var form = document.getElementById("intakeForm"); if (!form) return;
     Array.prototype.forEach.call(form.querySelectorAll(".iq[data-k]"), function (r) { r.hidden = !ivVisible(r.getAttribute("data-k"), d); });
-    INTAKE_Q.forEach(function (g, gi) { var c = intakeCount(g[1].map(function (q) { return q[0]; }), d), el = document.getElementById("igc_" + gi); if (el) el.textContent = c[0] + " от " + c[1]; });
+    INTAKE_Q.forEach(function (g, gi) { var el = document.getElementById("igc_" + gi); if (el) igCntSet(el, igCnt(g[1].map(function (q) { return q[0]; }), d)); });   // Т63: ✓ / липсват N
+    var ic = intakeCount(intakeKeys(), d), sub = document.querySelector('#p-danni .card.panel[data-key="intake"] > .ch .sub');   // Т63: и панелът
+    if (sub) sub.textContent = "попълнено " + ic[0] + " от " + ic[1];
   }
   var ivRefreshT = null;
   function ivAfter() {
