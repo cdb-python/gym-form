@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.2">
+<meta name="version" content="v1.0.3">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -637,6 +637,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cday span { display: inline-block; padding: 2px 10px; border-radius: 999px; background: var(--bg); color: var(--muted); font-size: 12px; font-weight: 600; }
   .csys { margin: 0 8px 10px; text-align: center; color: var(--muted); font-size: 12.5px; }
   .csys[data-go] { cursor: pointer; text-decoration: underline; text-decoration-color: rgba(95,107,120,0.45); text-underline-offset: 2px; }
+  .csys.ichd[data-go] { text-decoration: none; }   /* Т65: подчертан е само ред 1 и „виж всички“, не промените */
+  .csys.ichd .csh, .csys.ichd .csm { text-decoration: underline; text-decoration-color: rgba(95,107,120,0.45); text-underline-offset: 2px; }
+  .csys.ichd .csl { display: block; margin-top: 3px; overflow-wrap: anywhere; }
   .cmsg { display: flex; flex-direction: column; max-width: 86%; margin: 0 0 10px; }
   .cmsg.me { margin-left: auto; align-items: flex-end; }
   .cmsg.them { margin-right: auto; align-items: flex-start; }
@@ -994,6 +997,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   function isQaCard(r) { return /class="qa"|class='qa'/.test(String(r.body || "")); }
   function cardKey(r) { return r.section + "_" + r.sort; }
+  function shownSection(r) { return r.section === "nutrition" || HOME_SECTIONS.some(function (s) { return s.key === r.section; }); }   // Т65: секциите, които страницата показва
 
   // ── Разговор: логика 1:1 от me/ + съобщенията от Chris в храна-лога + сив ред-линк към въпросника ──
   function logSummary(e) {
@@ -1033,7 +1037,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     F.entries.forEach(function (e) {
       if (e.kind === "coach" && e.text) items.push({ ts: e.created_at, mine: isMine(true), coach: true, note: String(e.text), src: "food", legacy: true });
     });
-    intakeChangeItems().forEach(function (x) { items.push(x); });   // „Промени отговор във „Форма за данни“: …" (по ден)
+    if (COACH) intakeChangeItems().forEach(function (x) { items.push(x); });   // Т65: промените във „Форма за данни“ (по ден) — САМО при треньора; клиентът не ги вижда в Разговор
     items.sort(function (a, b) { return tsNum(a.ts) - tsNum(b.ts); });
     // „видяно" (режим треньор): под последния балон на треньора преди следващото действие на клиента
     if (COACH) items.forEach(function (m, i) {
@@ -1108,6 +1112,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     items.forEach(function (m) {
       var d = dayLabelChat(m.ts), time = fmtTime(m.ts), idAttr = m.id ? ' data-id="' + esc(m.id) + '"' : "";
       if (d && d !== day) { day = d; out += '<div class="cday"><span>' + esc(d) + "</span></div>"; }
+      if (m.det) {   // Т65: промените във формата (треньорът)
+        out += '<div class="csys ichd"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + '><span class="csh">' + (m.sic ? ic(m.sic) : "") + esc(m.sys) + (time ? " · " + esc(time) : "") + "</span>"
+          + m.det.map(function (l) { return '<span class="csl">' + esc(l) + "</span>"; }).join("") + (m.more ? '<span class="csl csm">… › виж всички</span>' : "") + "</div>";
+        return;
+      }
       if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + ">" + (m.sic ? ic(m.sic) : "") + esc(m.sys) + (time ? " · " + esc(time) : "") + (m.newIn ? ' <span class="cnew">ново</span>' : "") + "</div>"; return; }
       var p = m.to && byId[m.to];
       var isNew = COACH ? !!m.newIn : (!m.mine && isUnreadTs(String(m.ts || "")));
@@ -1165,7 +1174,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var k = cardKey(r), body = (r.title || "") + "\n" + (r.body || "");
       if (isQaCard(r)) { if (qaCounts(r).open) track(k, "danni", body); return; }   // въпросник без отговор
       if (r.section === "nutrition") track(k, "hrana", body);
-      else if (HOME_SECTIONS.some(function (s) { return s.key === r.section; })) track(k, "nachalo", body);
+      else if (shownSection(r)) track(k, "nachalo", body);
     });
     A.cards.forEach(function (r) { track("an_" + r.sort, "hrana", (r.title || "") + "\n" + (r.body || "")); });
     labDates().forEach(function (g) { track("lab_" + g.day, "danni", JSON.stringify(g.rows.map(function (r) { return [r.marker, r.value, r.value_text, r.unit, r.ref_text, r.flag]; }))); });
@@ -2070,18 +2079,65 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var s = e.target.closest(".isv.err"); if (s) ivPush(s.closest(".iq[data-k]"));
     });
   }
-  // Сивите редове в „Разговор": промените от базата, групирани по ден (един ред на ден, въпросите изредени).
+  // Т65 (Chris 15:45): сивият ред в „Разговор“ за промените във формата — САМО при треньора, един на ден:
+  //   ред 1 „<кратко име> смени N отговора във „Форма за данни“ · ЧЧ:ММ“ (N = различните въпроси за деня; часът — последната промяна);
+  //   под него до 3 промени (най-новата горе), после „… › виж всички“. За всеки въпрос — от първото старо до последното ново за деня.
+  //   Тапът → Данни → „Промени в отговорите“, отворени до този ден. Данните — IN.changes (базата дава последните 20).
+  // Кратките имена на въпросите в реда (Т65 — формулировката е на асистента; въпросите в самата форма не се пипат).
+  var QSHORT = {
+    zhelan_izhod: "Какво търсиш", cel: "Цел", motivaciya: "Свободен текст (цел)", teglo: "Тегло", teglo_trend: "Теглото напоследък",
+    teglo_promyana: "Промяна в теглото", cikyl: "Цикъл", menopauza: "Менопауза", bremennost: "Бременност/кърмене", hormonalna: "Хормонална терапия",
+    rabota: "Работа/ежедневие", smeni: "Смени", smeni_cikyl: "Смени — цикъл", smeni_ritym: "Сън и тренировка по смени", na_krak: "Часове на крак",
+    dvizhenie: "Движение през деня", krachki_tochno: "Крачки на ден", druga_aktivnost: "Друга активност", prekysvaniya: "Прекъсвания",
+    oblasti: "Състояния", drugo_sastoyanie: "Друго състояние", lek_klas: "Класове лекарства", lek_vliyanie: "Лекарства и тегло/апетит",
+    lekarstva: "Лекарства", dobavki: "Добавки", prof_natovarvane: "Натоварване от работата", drugo_vazhno: "Още за здравето",
+    tip_hranene: "Тип хранене", tip_opis: "Тип хранене — описание", izklyucheni: "Изключени храни", neponosimost: "Непоносимост",
+    proteini: "Източници на протеин", hranenia_broy: "Хранения на ден", zakuska: "Закуска", chasove: "Часове на хранене",
+    hr_po_dni: "Хранене по дни", hr_po_dni_opis: "Хранене по тип ден", preskacha: "Прескачане на хранения", preskacha_opis: "Прескачане — кога и защо",
+    snaks: "Между храненията", den_mezhdu: "Типичен ден — между", gotvene: "Кой готви", vreme_gotvene: "Време за готвене", glad: "Глад",
+    glad_koga: "Кога е гладът", vecher_hapvane: "Хапване вечер", emo_hapvane: "Емоционално хапване", voda: "Вода на ден",
+    zadalzhitelni: "Задължителни храни", drugo_hrana: "Още за храненето",
+    trenira: "Тренира ли сега", dni: "Дни на тренировка", vreme_min: "Минути на тренировка", chas: "Час на тренировка",
+    kade_kakvo: "Къде и какво тренира", staj: "Стаж с тежести", staj_sega: "Тренировката сега", staj_orientiri: "Ориентири в движенията",
+    dvizhenia: "Познати движения", s_programa: "Програма досега", s_programa_opis: "Програмата досега", cel_programa: "Цел на програмата",
+    sport_detail: "Спорт", cel_programa_opis: "Цел — конкретно", kade: "Къде тренира", oborudvane: "Оборудване",
+    oborudvane_drugo: "Друго оборудване", dni_sedmica: "Дни седмично", grafik: "График", grafik_opis: "Кога може да тренира",
+    minuti: "Време на тренировка", chasove_dni: "Дни и часове за тренировка", klek_ok: "Дълбок клек", ruce_glava: "Ръце над глава",
+    zatrudnenia: "Затруднени движения", stil: "Стил на тренировка", nt_intensitet: "Тежко или леко", nt_raznoobrazie: "Разнообразие в тренировките",
+    nt_plan: "По план или по усет", lyubimi_nelyubimi: "Любими/нелюбими упражнения", drugo_tren: "Още за тренировките",
+    syn_promenliv: "Сън — еднакъв/варира", chas_lyagane: "Час на лягане", syn_chasove: "Часове сън", syn_kachestvo: "Качество на съня",
+    stres: "Стрес", vyzstanovyavane: "Възстановяване", syn_tochno: "Сън — точно"
+  };
+  function chgLabel(k) { return QSHORT[k] || String(QLABEL[k] || k).replace(/\s*\([^)]*\)\s*$/, "").replace(/\?$/, "").trim(); }
+  function chgItem(x) { return x && typeof x === "object" ? String(x.label || x.key || "") : String(x); }
+  function chgList(v) { return Array.isArray(v) ? v.map(chgItem) : ivEmpty(v) ? [] : [chgItem(v)]; }
+  function chgLine(k, o, n) {   // „Височина 175 → 173“ · „Класове лекарства + За холестерол (статини)“ · „Лекарства (редактирано)“
+    var lb = chgLabel(k);
+    if ((INTAKE_F[k] || {}).t === "areas") return lb + " (редактирано)";
+    if (Array.isArray(o) || Array.isArray(n)) {
+      var a = chgList(o), b = chgList(n);
+      var add = b.filter(function (x) { return a.indexOf(x) < 0; }), rem = a.filter(function (x) { return b.indexOf(x) < 0; });
+      if (!add.length && !rem.length) return lb + " (редактирано)";
+      return lb + (add.length ? " + " + add.join(", ") : "") + (add.length && rem.length ? " ·" : "") + (rem.length ? " − " + rem.join(", ") : "");
+    }
+    var so = ivShow(o), sn = ivShow(n);
+    if (so.length > 30 || sn.length > 30 || so === sn) return lb + " (редактирано)";
+    return lb + " " + so + " → " + sn;
+  }
   function intakeChangeItems() {
     var byDay = {}, order = [];
     (IN.changes || []).slice().sort(function (a, b) { return tsNum(a.changed_at) - tsNum(b.changed_at); }).forEach(function (c) {
-      var d = sofiaDay(c.changed_at);
-      if (!byDay[d]) { byDay[d] = { keys: [], ts: c.changed_at }; order.push(d); }
-      if (byDay[d].keys.indexOf(c.key) < 0) byDay[d].keys.push(c.key);
-      if (c.changed_at > byDay[d].ts) byDay[d].ts = c.changed_at;
+      var d = sofiaDay(c.changed_at), g = byDay[d];
+      if (!g) { g = byDay[d] = { keys: {}, ts: c.changed_at }; order.push(d); }
+      var e = g.keys[c.key];
+      if (!e) g.keys[c.key] = { o: c.old_value, n: c.new_value, at: c.changed_at };
+      else { e.n = c.new_value; e.at = c.changed_at; }
+      if (tsNum(c.changed_at) > tsNum(g.ts)) g.ts = c.changed_at;
     });
     return order.map(function (d) {
-      var g = byDay[d];
-      return { sys: "Промени отговор във „Форма за данни“: " + g.keys.map(function (k) { return QLABEL[k] || k; }).join(" · "), sic: "edit", ts: g.ts, go: "danni:iq_" + g.keys[0], ich: 1 };
+      var g = byDay[d], ks = Object.keys(g.keys).sort(function (a, b) { return tsNum(g.keys[b].at) - tsNum(g.keys[a].at); });
+      return { sys: clientShort() + " смени " + ks.length + (ks.length === 1 ? " отговор" : " отговора") + " във „Форма за данни“", sic: "edit", ts: g.ts,
+        go: "danni:hd_ichg_" + d, ich: 1, det: ks.slice(0, 3).map(function (k) { return chgLine(k, g.keys[k].o, g.keys[k].n); }), more: ks.length > 3 };
     });
   }
   // ════════ ИЗСЛЕДВАНИЯ (Т7) — модел Victus LabsScreen, но СНИМКАТА НЕ СЕ ПАЗИ: препис → таблица ════════
@@ -3220,7 +3276,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     IN.data = (IN.on && intake.data) || {};
     IN.changes = (IN.on && intake.changes) || [];
     IN.ro = !IN.on || !CAN_WRITE;   // треньорът: CAN_WRITE е false → само за четене
-    START = !D.content.some(function (r) { return !isQaCard(r); });
+    START = !D.content.some(function (r) { return !isQaCard(r) && shownSection(r); });   // Т65: archive_* и непознатите секции не се броят
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
     if (COACH) {
