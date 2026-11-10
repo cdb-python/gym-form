@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.1.1">
+<meta name="version" content="v1.1.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1297,13 +1297,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ── Т77 (Chris 10.11 22:17–22:19): треньорът (изгледът ?c=, всеки клиент) — всичко ново или променено след предното му влизане при този
   //   клиент (храна и „Изядох“, мерки, отговорите на въпросник, качени изследвания, полета на формата, съобщения в „Разговор“) минава
-  //   със светла вълна (.shim) вместо червена точка, докато не бъде видяно: в изгледа ≥ 1 s или отворено. Затворена карта/месец/ден,
+  //   със светла вълна (.shim) вместо червена точка. Т79 (Chris 23:51–23:53 „като точките, вместо точки флаш“): бутоните (иконите долу,
+  //   затворените дни/месеци/групи/панели) — докато не се натиснат (видимостта не ги гаси); текстът (запис, поле, съобщение, ред в
+  //   мерките) — непрекъснато, докато е в раздела; при напускане на раздела/страницата показаното поне веднъж на екрана става видяно. Затворена карта/месец/ден,
   //   в която има такова, също е с вълна; иконата на раздела долу — докато разделът не се отвори. Клиентската страница — без промяна (Т71).
   //   Паметта е на устройството, както досега (coach_seen_*): coach_seen_<раздел>_<id> — до кога всичко в раздела е видяно (без него —
   //   7 дни назад); coach_seen_el_<id> — видяното след това поотделно; coach_seen_at_<id> — кога е отварян клиентът (за coach/).
   //   „Разговор“: новото е по базата (coach_read_at), както досега — вълната стои на балона, докато не се види.
-  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, mine: {}, t: {}, io: null, mo: null, raf: 0 };
-  var SH_TABS = ["hrana", "merki", "danni"], SH_FIRST_DAYS = 7, SH_MS = 1000;
+  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, mine: {}, shown: {}, pressed: {}, io: null, mo: null, raf: 0 };
+  var SH_TABS = ["hrana", "merki", "danni"], SH_FIRST_DAYS = 7;
   function shBaseKey(tab) { return "coach_seen_" + tab + "_" + COACH_CID; }
   function shTabOf(k) { return k.charAt(0) === "f" ? "hrana" : k.charAt(0) === "m" ? "merki" : k.charAt(0) === "c" ? "razgovor" : "danni"; }
   function shq(s) { return String(s).replace(/["\\]/g, "\\$&"); }
@@ -1312,14 +1314,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!SH.on) return;
     try { SH.seen = JSON.parse(lsGet("coach_seen_el_" + COACH_CID) || "{}") || {}; } catch (e) { SH.seen = {}; }
     SH_TABS.forEach(function (t) { SH.base[t] = tsNum(lsGet(shBaseKey(t))) || Date.now() - SH_FIRST_DAYS * 864e5; });
-    lsSet("coach_seen_at_" + COACH_CID, new Date().toISOString());   // за coach/: клиентът е отворен сега
+    lsSet("coach_seen_at_" + COACH_CID, new Date(Math.max(Date.now(), tsNum(lsGet("coach_seen_at_" + COACH_CID)))).toISOString());   // за coach/: отворен сега (Т79: никога назад — списъкът може да е записал по-късно)
     D.log.forEach(function (e) { if (e.id && e.kind !== "coach" && e.note && !isQaNote(e.note) && !e.coach_read_at) SH.chat[e.id] = 1; });
     if (window.IntersectionObserver) SH.io = new IntersectionObserver(function (es) { es.forEach(function (en) { shWatch(en.target); }); }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
     if (window.MutationObserver) {
       SH.mo = new MutationObserver(shSched);
       SH.mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "open"] });
     }
-    window.addEventListener("scroll", function () { if (SH.io) return; shWatchAll(); }, { passive: true });
+    window.addEventListener("scroll", function () { if (SH.ws) return; SH.ws = setTimeout(function () { SH.ws = 0; shWatchAll(); }, 120); }, { passive: true });   // и без наблюдателя / ако той закъснее
+    // Т79: излиза от страницата (← към списъка, затваря, приложението отива на заден план) → показаното в раздела става видяно
+    window.addEventListener("pagehide", function () { shCommit(current); });
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") shCommit(current); });
   }
   function shItems() {
     var it = {};
@@ -1347,7 +1352,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!IN.fat && IN.upd && tsNum(IN.upd) > chMax + 2000) add("danni", "iform@" + tsNum(IN.upd), IN.upd, '#p-danni .card[data-key="intake"]');
     return it;
   }
-  function shClosed(n) { return (n.tagName === "DETAILS" || (n.classList && n.classList.contains("card") && !!n.querySelector(":scope > .body"))) && !isOpen(n); }
+  function shBtn(n) { return n.tagName === "DETAILS" || (!!n.classList && n.classList.contains("card") && !!n.querySelector(":scope > .body")); }   // нещо, което се натиска (отваря)
+  function shClosed(n) { return shBtn(n) && !isOpen(n); }
+  function shPressed(n) { var k = n.getAttribute && n.getAttribute("data-key"); return !!n.__shPressed || (!!k && !!SH.pressed[k]); }   // Т79: натиснато в това посещение
   function shSched() {
     if (!SH.on || SH.raf) return;
     SH.raf = setTimeout(function () { SH.raf = 0; shApply(); }, 20);   // таймер, не rAF: rAF спира, когато прозорецът е на заден план
@@ -1361,8 +1368,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var it = SH.items[k], root = it.tab === "razgovor" ? document.getElementById("chatBox") : P[it.tab];
       if (!root) return;
       Array.prototype.forEach.call(root.querySelectorAll(it.sel), function (el) {
-        el.__shk = k; mark(el); leaves.push(el);
-        for (var a = el.parentElement; a && a !== root; a = a.parentElement) if (shClosed(a)) mark(a);   // затворено, в което има ново
+        el.__shk = k; leaves.push(el);
+        if (!(shBtn(el) && shPressed(el))) mark(el);   // Т79: бутон-новото (ден от мерките, панел) спира при натискане; текстът — не
+        for (var a = el.parentElement; a && a !== root; a = a.parentElement) if (shClosed(a) && !shPressed(a)) mark(a);   // затворено с ново — докато не се натисне
       });
     });
     var tabs = { hrana: 0, merki: 0, danni: 0, razgovor: 0 };
@@ -1377,7 +1385,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     shWatchAll(leaves);
     if (SH.mo) SH.mo.takeRecords();   // своите промени по класа не пускат нов кръг
   }
-  // видяно: в изгледа (поне половината или 40 % от екрана) и нищо затворено над него, 1 s без прекъсване
+  // показано: в изгледа (поне половината или 40 % от екрана) и нищо затворено над него
   function shVisible(el) {
     if (!el.isConnected || !el.getClientRects().length) return false;
     for (var a = el.parentElement; a; a = a.parentElement) if (shClosed(a)) return false;
@@ -1385,16 +1393,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var h = Math.max(0, Math.min(r.bottom, vh) - Math.max(r.top, 0));
     return r.height > 0 && r.width > 0 && (h >= r.height * 0.5 || h >= vh * 0.4);
   }
-  function shWatch(el) {
-    var k = el.__shk; if (!k || !SH.items[k]) return;
-    if (shVisible(el)) { if (!SH.t[k]) SH.t[k] = setTimeout(function () { SH.t[k] = 0; if (SH.items[k] && shVisible(el)) shSeen(k); }, SH_MS); }
-    else if (SH.t[k]) { clearTimeout(SH.t[k]); SH.t[k] = 0; }
+  function shWatch(el) {   // Т79: само „било е на екрана в това посещение“ — вълната не спира; видяно става при напускане на раздела
+    var k = el.__shk; if (!k || !SH.items[k] || SH.shown[k]) return;
+    if (shBtn(el) && !isOpen(el)) return;   // затворен бутон: видимостта не се брои — само натискането
+    if (shVisible(el)) SH.shown[k] = 1;
   }
   function shWatchAll(list) {
     (list || Array.prototype.slice.call(document.querySelectorAll(".shim"))).forEach(function (el) { if (el.__shk) shWatch(el); });
   }
-  function shSeen(k) {
-    var it = SH.items[k]; if (!it) return;
+  function shMark(k) {   // видяно: границата на раздела напред, ако може; иначе поотделно (coach_seen_el_<id>)
+    var it = SH.items[k]; if (!it) return false;
     delete SH.items[k];
     if (it.tab === "razgovor") delete SH.chat[k.slice(1)];
     else {
@@ -1405,9 +1413,23 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       Object.keys(SH.seen).forEach(function (x) { if (shTabOf(x) === tab && SH.seen[x] <= SH.base[tab]) delete SH.seen[x]; });
       lsSet("coach_seen_el_" + COACH_CID, Object.keys(SH.seen).length ? JSON.stringify(SH.seen) : null);
     }
-    shApply();
+    return true;
   }
-  function shOpened(n) { if (SH.on && n && n.__shk && SH.items[n.__shk]) shSeen(n.__shk); }   // отворено = видяно
+  // Т79: напуска раздела (смяна, излизане от клиента, затваряне) → показаното през посещението в него става видяно
+  function shCommit(tab) {
+    if (!SH.on || !tab) return;
+    shWatchAll();   // каквото е на екрана точно сега — също показано
+    var any = false;
+    Object.keys(SH.shown).forEach(function (k) { if (SH.items[k] && SH.items[k].tab === tab) { if (shMark(k)) any = true; delete SH.shown[k]; } });
+    if (any) shApply();
+  }
+  function shOpened(n) {   // Т79: натиснато (отворено) — бутонът спира; ако самото то е новото (ден от мерките, панел) — и показано
+    if (!SH.on || !n) return;
+    var k = n.getAttribute && n.getAttribute("data-key");
+    n.__shPressed = true; if (k) SH.pressed[k] = 1;
+    if (n.__shk && SH.items[n.__shk]) SH.shown[n.__shk] = 1;
+    shSched();
+  }
 
   // ── карта ──
   // Т39: картите са един цвят — бели, за всички. Съдържанието в DB носи <style> с цвят на картата (.card[data-key="…"] — рамка, фон,
@@ -3390,6 +3412,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     eatClose(); infoClose(); accStop();   // Т66
     if (!TABS[tab]) tab = "nachalo";
     if (current) scrollMem[current] = window.scrollY;
+    if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
     current = tab;
     Object.keys(P).forEach(function (k) { P[k].classList.toggle("on", k === tab); });
     Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function (b) {
