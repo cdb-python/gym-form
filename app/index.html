@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.1.0">
+<meta name="version" content="v1.1.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1015,7 +1015,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return sb.rpc(name, args).then(function (res) { if (res && !res.error) selfWrote(); return res; });
   }
   // Т75: написаното тук от самия него не светва точката „ново“ на треньора в раздела, в който е (coach_seen_<раздел>)
-  function selfWrote() { if (SELF_W) { SH.mine[current] = Date.now() - 120000; shSched(); } }   // Т77: неговото от последните 2 мин в този раздел — видяно
+  function selfWrote() { if (SELF_W) { SH.mine[current] = Date.now() - 15000; shSched(); } }   // Т77: написаното от него сега (±15 s за часовника) в този раздел — видяно; записите от клиентската страница не се пипат
   // „Видяно": базата го поддържа, когато редовете на дневника имат ключ read_at (след coach_proposal.sql).
   var DB_SEEN = false;
   // Клиентски линк, отворен на устройство с вход на треньора (Chris гледа линка на клиента) → не маркира „видяно" вместо клиента.
@@ -1339,7 +1339,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     LABS.uploads.forEach(function (u) { if (u.id) add("danni", "u" + u.id, u.uploaded_at, '[data-up="' + shq(u.id) + '"]'); });
     var lastCh = {};
     ivChanges().forEach(function (c) { if (!lastCh[c.key] || tsNum(c.changed_at) > tsNum(lastCh[c.key])) lastCh[c.key] = c.changed_at; });
+    var chMax = Object.keys(lastCh).reduce(function (a, k) { return Math.max(a, tsNum(lastCh[k])); }, 0);
+    // Т77б (Chris 23:16): първото попълване на поле не е „промяна“ (тригерът не пише ред) → field_at, ако RPC-то го дава — поле по поле
+    if (IN.fat && typeof IN.fat === "object") Object.keys(IN.fat).forEach(function (k) { if (!ivTrainOff(k) && (!lastCh[k] || tsNum(IN.fat[k]) > tsNum(lastCh[k]))) lastCh[k] = IN.fat[k]; });
     Object.keys(lastCh).forEach(function (k) { add("danni", "i" + k + "@" + tsNum(lastCh[k]), lastCh[k], '#intakeForm .iq[data-k="' + shq(k) + '"]'); });
+    // …без field_at: формата е писана след последната записана промяна (напр. попълнени празни полета) → цялата „Форма за данни“ е нова
+    if (!IN.fat && IN.upd && tsNum(IN.upd) > chMax + 2000) add("danni", "iform@" + tsNum(IN.upd), IN.upd, '#p-danni .card[data-key="intake"]');
     return it;
   }
   function shClosed(n) { return (n.tagName === "DETAILS" || (n.classList && n.classList.contains("card") && !!n.querySelector(":scope > .body"))) && !isOpen(n); }
@@ -3549,7 +3554,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
     var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
     if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false; Т75 — освен своя акаунт)
-    boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true } : { data: {}, changes: [], training: cl.show_training === true });   // Т72
+    boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true, updated_at: it.updated_at || null, field_at: it.field_at || null } : { data: {}, changes: [], training: cl.show_training === true });   // Т72 · Т77б
   }
   if (COACH_CID) {
     document.body.classList.add("coach-on");   // Т21: сивото на треньора още от първия кадър
@@ -3613,6 +3618,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     IN.on = !!(intake && !intake.error);
     IN.data = (IN.on && intake.data) || {};
     IN.changes = (IN.on && intake.changes) || [];
+    IN.upd = (IN.on && intake.updated_at) || null; IN.fat = (IN.on && intake.field_at) || null;   // Т77б: кога е писана формата / всяко поле (за треньора)
     IN.ro = !IN.on || !CAN_WRITE;   // треньорът: CAN_WRITE е false → само за четене
     TRAIN_ON = !!(intake && !intake.error && intake.training === true);   // Т72: само изрично true; иначе тренировките са скрити
     if (!TRAIN_ON) INFO.intake.b[0] = INFO_INTAKE_NOTR;
