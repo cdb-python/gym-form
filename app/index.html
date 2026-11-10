@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.11">
+<meta name="version" content="v1.0.12">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -994,10 +994,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // ── ЗАЩИТА ЗА ЗАПИС: Т57 (09.11.2026) — записва всеки клиент; само за четене са треньорът (coach=1) и изгледът като клиент (VIEW_AS). ──
   var CAN_WRITE = false;
+  // Т75 (Chris 10.11 20:10): изгледът на треньора (?c=) на собствения му акаунт (coach_get_client → client.coach_self) — треньор
+  //   както при всеки клиент (чатът: coach_mark_read / coach_add_message), плюс клиентските неща през токена от coach_client_link
+  //   (храна, „Изядох“, молив, мерки, формата, изследванията). Без токен → само за преглед, както досега. Точките на клиента (Т71) — не.
+  var SELF_W = false;
   function wr(name, args) {
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
-    return sb.rpc(name, args);
+    return sb.rpc(name, args).then(function (res) { if (res && !res.error) selfWrote(); return res; });
   }
+  // Т75: написаното тук от самия него не светва точката „ново“ на треньора в раздела, в който е (coach_seen_<раздел>)
+  function selfWrote() { if (SELF_W) coachMarkTab(current); }
   // „Видяно": базата го поддържа, когато редовете на дневника имат ключ read_at (след coach_proposal.sql).
   var DB_SEEN = false;
   // Клиентски линк, отворен на устройство с вход на треньора (Chris гледа линка на клиента) → не маркира „видяно" вместо клиента.
@@ -2369,7 +2375,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         if (!j || !j.ok) throw new Error((j && j.error) || "fail");
         say("Качено ✓ " + (n === 1 ? "1 файл" : n + " файла") + " · чака препис" + (bad.length ? " " + bad.join(" ") : ""), bad.length > 0);
         var dd = document.getElementById("labDate"); if (dd) dd.value = "";
-        return refreshLabs();
+        return refreshLabs().then(selfWrote);
       }).catch(function (e) { btn.disabled = false; say(labErr(e && e.message) + (bad.length ? " " + bad.join(" ") : ""), true); });
     });
   }
@@ -2477,7 +2483,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   function refreshFood() {
-    if (COACH) return refreshDiary();   // треньорът не пише в лога; пакетът идва наведнъж
+    if (COACH && !SELF_W) return refreshDiary();   // треньорът не пише в лога; пакетът идва наведнъж
     return sb.rpc("get_food_log", { p_token: token }).then(function (res) {
       if (res.error || !res.data) return;
       F.entries = res.data.entries || []; computeLastClient();
@@ -2815,7 +2821,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       });
       var btn = qa.querySelector(".qabtn"), ok = qa.querySelector(".qaok");
       if (!btn || !ok) return;
-      if (!CAN_WRITE) btn.disabled = true;
+      if (!CAN_WRITE || COACH) btn.disabled = true;   // Т75: и в изгледа на треньора на своя акаунт
       btn.addEventListener("click", function () {
         var parts = [], got = [];
         Array.prototype.forEach.call(items, function (qi) {
@@ -3362,21 +3368,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Режим треньор (Т19): без лента над шапката. В зелената шапка: ← (към списъка) вляво, бутонът на страницата + името на клиента
   // в средата, „Изход“ вдясно (signOut → входа за треньора). Записът е изключен навсякъде освен в чата.
   var coachNav = function (u) { location.href = u; };
-  // Т74 (Chris 10.11 18:19): собственият клиентски акаунт на треньора (coach_get_client → client.coach_self) от списъка в coach/
-  //   не остава в режим треньор (само за преглед), а отива направо на клиентската страница (Т73 — пише): coach_client_link (както
-  //   менюто от Т67) → location.replace(?t=…&from=<id>#…) — в историята не остава ?c=. Не стане ли (грешка, няма токен, линкът
-  //   не е активен) → режим треньор както досега, без грешка на екрана. window.CDB_SELF_NAV — само за тестовете (заместителя).
-  var selfNav = window.CDB_SELF_NAV || function (u) { location.replace(u); };
   // Т45: дошли сме от изгледа на треньора („Отвори приложението на клиента“, &from=<client_id>) и на устройството има вход на треньор →
   // шапката като на треньора: ← вляво, заглавието в средата. ← = назад, ако предишната страница е нашият изглед (?c=), иначе към него.
   var vaBackFn = function () { history.back(); };
   function viewBack(from) {
     var h = document.getElementById("hdr");
     h.classList.add("h3", "vab");
-    h.insertAdjacentHTML("afterbegin", '<button type="button" class="hbtn back" id="vaBack" aria-label="' + (COACH_SELF ? "Към списъка с клиенти" : "Назад към изгледа на треньора") + '">' + ic("back") + "</button>");
+    h.insertAdjacentHTML("afterbegin", '<button type="button" class="hbtn back" id="vaBack" aria-label="Назад към изгледа на треньора">' + ic("back") + "</button>");
     h.insertAdjacentHTML("beforeend", '<span class="hside" aria-hidden="true"></span>');
     document.getElementById("vaBack").addEventListener("click", function () {
-      if (COACH_SELF) { coachNav(COACH_URL); return; }   // Т74: своят акаунт → списъкът (?c=<него> пак би пренасочил тук — цикъл)
       var r = null; try { r = new URL(document.referrer); } catch (e) {}
       if (r && r.origin === location.origin && r.pathname === location.pathname && r.searchParams.get("c")) vaBackFn();
       else coachNav(location.pathname + "?c=" + encodeURIComponent(from));
@@ -3401,13 +3401,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     P.nachalo.classList.add("on");
     document.getElementById("tabs").style.display = "none";
   }
-  function coachBoot(b) {   // режим треньор (Т5): всичко само за четене, освен „Разговор“
+  function coachBoot(b) {   // режим треньор (Т5): всичко само за четене, освен „Разговор“ (Т75: своят акаунт с токен — и клиентските неща)
     var cl = b.client || {};
     COACH = true;
     coachBar(cl.name || (b.diary && b.diary.name) || "");
     // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
     var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
-    if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false)
+    if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false; Т75 — освен своя акаунт)
     boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true } : { data: {}, changes: [], training: cl.show_training === true });   // Т72
   }
   if (COACH_CID) {
@@ -3419,10 +3419,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return safe(sb.rpc("coach_get_client", { p_client_id: COACH_CID })).then(function (res) {
         if (res.error || !res.data) { coachGate(res.error ? "Няма достъп или няма връзка. Влез отново." : "Няма такъв клиент."); return; }
         var b = res.data, cl = b.client || {};
-        if (cl.coach_self === true) {   // Т74: своят акаунт → клиентската страница (за запис)
+        if (cl.coach_self === true) {   // Т75: своят акаунт → токенът за клиентските неща (без пренасочване)
           return safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID })).then(function (lk) {
             var L = lk && !lk.error && lk.data;
-            if (L && L.token && L.active !== false) { selfNav(location.pathname + "?t=" + encodeURIComponent(L.token) + "&from=" + encodeURIComponent(COACH_CID) + location.hash); return; }
+            if (L && L.token && L.active !== false) { token = L.token; SELF_W = true; }   // грешка / без токен / неактивен → само за преглед
             coachBoot(b);
           });
         }
@@ -3460,7 +3460,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     nm = nm || D.name;
     DB_SEEN = D.log.some(function (e) { return "read_at" in e; });
     var isDev = /^DEV/.test(String(nm || ""));
-    CAN_WRITE = !COACH;   // Т57: всички живи — записва всеки клиент (преди: само DEV)
+    CAN_WRITE = !COACH || SELF_W;   // Т57: всички живи — записва всеки клиент (преди: само DEV); Т75: и треньорът на своя акаунт
     COACH_SELF = !COACH && diary.coach_self === true;   // Т73: липсва ли ключът → false (както досега)
     VIEW_AS = !COACH && VIEWER && !isDev && !COACH_SELF;   // треньорът на това устройство → само за преглед; DEV и своят акаунт (Т73) остават за запис
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
@@ -3487,7 +3487,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     trackAll();
     renderNachalo(); renderHrana(); renderMerki(); renderDanni(); renderRazgovor();
     alignAll();
-    if (COACH) {   // само за четене: полетата извън чата не се пишат
+    if (COACH && !SELF_W) {   // само за четене: полетата извън чата не се пишат
       Array.prototype.forEach.call(document.querySelectorAll("#p-hrana input, #p-hrana textarea, #p-merki input, #p-danni input"), function (el) { el.disabled = true; });
     }
     updateBadge(); updateDots();
