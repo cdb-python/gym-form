@@ -85,6 +85,11 @@
   @media (max-width: 359px) { .tools { column-gap: 4px; } .tools > .chipbtn { padding-left: 6px; padding-right: 6px; } }
   .row { display: block; background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 0 0 10px; color: var(--ink); text-decoration: none; }
   .row.new { border-left-color: #e0821e; }
+  /* Т77 (Chris 10.11 22:17): клиент с ново от последното отваряне — светла вълна през цялата карта (~1,8 s, непрекъснато), докато не го
+     отвориш. Само фонът (под текста). „Без движение“ (prefers-reduced-motion) → лек неподвижен отблясък. Същото като в app/ при треньора. */
+  .shim { background-image: linear-gradient(100deg, rgba(120,140,165,0) 35%, rgba(120,140,165,0.22) 50%, rgba(120,140,165,0) 65%) !important; background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear infinite; }
+  @keyframes shimw { from { background-position: 100% 0; } to { background-position: 0% 0; } }
+  @media (prefers-reduced-motion: reduce) { .shim { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; } }
   .row .l1 { display: flex; align-items: baseline; gap: 8px; }
   .row .nm { flex: 0 1 auto; min-width: 0; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* Т76: чиповете — веднага след името; при теснота отстъпва името (…) */
   /* Т76 (Chris 22:09–22:10): часът на последната активност — закотвен горе вдясно, до ръбовете на картата (≈ 6 px отгоре, 8 px отдясно), дребен.
@@ -100,8 +105,8 @@
   .row .b.ans { background: #fbf0dc; color: var(--warn); }
   .row .b.lab { background: #e7eef8; color: #2f5f8f; }
   /* Т30 → Т76: мрежа с неподвижни колони — едно и също поле е на едно и също място във всяка карта (числата едно под друго).
-     Тясно (до 469 px): две колони — [Лог][последно] / [тегло][дни · талия] / [Днес][✅ · ккал] / [Вчера ккал][7 д ≈] / [Форма].
-     Широко: четири — [Лог][последно][тегло][дни · талия] / [Днес][✅ · ккал][Вчера ккал][7 д ≈] / [Форма]. Липсващ ред не заема място. */
+     Т76в: две колони на всички ширини — [Лог][· последно] / [тегло ↑↓][· дни · т · х] / [Логнато][· Изядох · ккал] / [Вчера ккал][· 7 д ≈] / [Форма].
+     Дясната колона започва с „·“; липсващ ред не заема място. */
   .row .l2 { display: grid; grid-template-columns: 8.4em minmax(0, 1fr); grid-template-areas: "lg lf" "ma mb" "ta tb" "na nb" "fm fm"; column-gap: 8px; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.45; }
   .row .l2 > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   /* Т76в: дясната клетка (започва с „·“) при теснота се пренася само пред точка — етикетът и стойността му остават заедно (неразделим интервал) */
@@ -216,6 +221,15 @@
   // Т53/Т54 (09.11.2026, Chris 10:53 / 11:21): тестов = DEV, „(не е клиент)“ (черновата на страница за някого) или „(ТЕСТ)“ (демо фикстура) в името.
   //   „Тестови · N“ превключва изгледа: изключен → само истинските („N клиента“), включен → само тестовите („N тестови“). Никога смесено.
   function isPseudo(r) { var n = String(r.name || ""); return !!r.is_dev || n.indexOf("(не е клиент)") > -1 || n.indexOf("(ТЕСТ)") > -1; }
+  // Т77: „ново“ за вълната = активност след последното отваряне на клиента от треньора на това устройство (coach_seen_at_<id> — пише го
+  //   app/ при отваряне и списъкът при натискане). Без такъв запис: последното влизане в раздел (coach_seen_<раздел>_<id>), иначе — isNew.
+  var SEEN_AT = "coach_seen_at_";
+  function openedAt(id) {
+    var t = Date.parse(lsGet(SEEN_AT + id) || "") || 0;
+    if (!t) ["hrana", "merki", "danni"].forEach(function (k) { t = Math.max(t, Date.parse(lsGet("coach_seen_" + k + "_" + id) || "") || 0); });
+    return t;
+  }
+  function shimRow(r) { var at = openedAt(r.client_id); return at ? (Date.parse(r.last_activity || "") || 0) > at : isNew(r); }
   // Т76: активен = last_activity днес или до 7 дни назад (по деня в София)
   function isActive(r) { return !!r.last_activity && dayDiff(sofiaDay(r.last_activity), todayStr()) <= ACTIVE_DAYS; }
   function num1(v) { return Number(v).toFixed(1).replace(".", ","); }
@@ -259,7 +273,7 @@
     var ps = isPseudo(r), ms = measCells(r), sg = sigs(r);
     var t1 = "", t2 = "", n1 = "", n2 = "", fm = "", pm = "";
     if ((r.today_n || 0) > 0) {   // днес: записи · „Изядох“ · ккал от „Изядох“
-      t1 = "Днес" + NB + nn(r.today_n);
+      t1 = "Логнато" + NB + nn(r.today_n);   // Т77 (Chris 22:55): „Логнато“ вместо „Днес“ — всички записи за храна днес
       if ((r.today_eat || 0) > 0) t2 = grps(["Изядох" + NB + nn(r.today_eat), r.today_eat_kcal ? nn(Math.round(r.today_eat_kcal), "w4") + NB + "ккал" : ""], true);   // Т76в: думата, не ✅
     }
     if (r.d_kcal && r.d_day) {   // нощната сметка: вчера (или ДД.ММ) + средно за 7 дни
@@ -277,7 +291,7 @@
       if (r.last_client_msg_answered === true) pm += " ✓";
       else if (r.last_client_msg_answered === false) pm += ' <span class="wt">⚠ чака отговор' + (ago > 0 ? SEP + ago + NB + "д" : "") + "</span>";
     }
-    return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
+    return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + (shimRow(r) ? " shim" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
       + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (stage(r) ? '<span class="stg">' + esc(stage(r)) + "</span>" : "") + (r.coach_self === true ? '<span class="stg">Личен</span>' : "") + (r.is_dev ? '<span class="dev">DEV</span>' : !ps ? "" : String(r.name || "").indexOf("(ТЕСТ)") > -1 ? '<span class="dev">ТЕСТ</span>' : '<span class="dev">ЧЕРНОВА</span>')
       + '<span class="when">' + esc(when(r.last_activity)) + "</span></div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
@@ -307,6 +321,8 @@
       : '<div class="state" id="emptyList">' + (act ? (tests ? "Няма активни в тестовите." : "Няма активни клиенти.") : "Няма клиенти.") + "</div>";
   }
   psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
+  // Т77: натиснат клиент → отворен сега (вълната му спира и при връщане назад)
+  rowsEl.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest(".row[data-id]"); if (a) { lsSet(SEEN_AT + a.getAttribute("data-id"), new Date().toISOString()); a.classList.remove("shim"); } });
   actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, lsGet(ACTIVE_KEY) === "1" ? null : "1"); render(); });
 
   function loadList() {
