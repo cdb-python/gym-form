@@ -265,7 +265,7 @@
   function cell(cls, h) { return h ? '<span class="' + cls + '">' + h + "</span>" : ""; }
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
-    var tab = (r.unread_msgs || r.unread_answers) ? "razgovor" : "nachalo";
+    var tab = "nachalo";   // Т79 (Chris 23:54): винаги „Начало“ — лентата долу показва (с вълна) къде има ново; разделът го избира той
     var badges = "";
     if (r.unread_msgs) badges += '<span class="b msg">✉ ' + r.unread_msgs + (r.unread_msgs === 1 ? " ново съобщение" : " нови съобщения") + "</span>";
     if (r.unread_answers) badges += '<span class="b ans">📋 нови отговори</span>';
@@ -323,7 +323,13 @@
   }
   psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
   // Т77: натиснат клиент → отворен сега (вълната му спира и при връщане назад)
-  rowsEl.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest(".row[data-id]"); if (a) { lsSet(SEEN_AT + a.getAttribute("data-id"), new Date().toISOString()); a.classList.remove("shim"); } });
+  rowsEl.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest(".row[data-id]"); if (!a) return;
+    var id = a.getAttribute("data-id"), r = ROWS.filter(function (x) { return x.client_id === id; })[0];
+    // Т79: сега или последната активност — по-късното (часовникът на сървъра може да е напред спрямо телефона)
+    lsSet(SEEN_AT + id, new Date(Math.max(Date.now(), (r && Date.parse(r.last_activity || "")) || 0)).toISOString());
+    a.classList.remove("shim");
+  });
   // Т78: „всички“ (броят) и „Активни“ — един избор; натиснатият остава избран (не превключва обратно)
   $("cnt").addEventListener("click", function () { lsSet(ACTIVE_KEY, null); render(); });
   actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, "1"); render(); });
