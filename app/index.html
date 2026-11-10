@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.9">
+<meta name="version" content="v1.0.10">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -907,6 +907,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       ["Теглото и талията", "Кантарът не вижда всичко: тялото може да се промени, без теглото да мръдне — например когато мускулът се увеличава, а мазнините намаляват. Затова мерим и талията — в {merki|Мерки}."],
       ["Режимът се донастройва", "Режимът е изграден по твоите числа. Тялото отговаря на него и по този отговор режимът се донастройва — това е нормалната част от работата."]] }
   };
+  // Т72: първото изречение на „Форма за данни“, докато тренировките са скрити (boot го слага на мястото на INFO.intake.b[0])
+  var INFO_INTAKE_NOTR = "Това са основните данни за теб — цел, здраве, хранене и сън. По тях се прави и настройва планът ти.";
   function infoBtn(key) {
     var f = INFO[key];
     if (!f) return "";
@@ -1000,6 +1002,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var DB_SEEN = false;
   // Клиентски линк, отворен на устройство с вход на треньора (Chris гледа линка на клиента) → не маркира „видяно" вместо клиента.
   var COACH_SESSION_HERE = false, VIEWER = false, VIEW_AS = false;
+  // Т73 (Chris 10.11 17:11): собственият клиентски акаунт на треньора (clients.coach_self → get_client_diary().coach_self = true).
+  //   На устройство с вход като треньор страницата е като на клиент: пише, точките и „видяно“ са негови. Изгледът на треньора (coach=1) — без промяна.
+  var COACH_SELF = false;
   if (!COACH_CID && sb.auth && sb.auth.getSession) sb.auth.getSession().then(function (r) { COACH_SESSION_HERE = !!(r && r.data && r.data.session); }, function () {});
 
   // ── състояние ──
@@ -1107,7 +1112,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Клиентът: „Разговор" е на екрана → съобщенията на треньора са видени (mark_seen). Само ако базата го поддържа.
   var seenBusy = false;
   function markSeenDb() {
-    if (COACH || COACH_SESSION_HERE || !DB_SEEN || seenBusy || current !== "razgovor" || document.visibilityState === "hidden") return;
+    if (COACH || (COACH_SESSION_HERE && !COACH_SELF) || !DB_SEEN || seenBusy || current !== "razgovor" || document.visibilityState === "hidden") return;   // Т73: своят акаунт — „видяно“ като клиент
     if (!D.log.some(function (e) { return e.kind === "coach" && !e.read_at; })) return;
     seenBusy = true;
     wr("mark_seen", { p_token: token }).then(function (res) {
@@ -1920,12 +1925,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   ];
   var QLABEL = {};
   INTAKE_Q.forEach(function (g) { g[1].forEach(function (q) { QLABEL[q[0]] = q[1]; }); });
+  // Т72 (Chris 10.11 16:30–16:34): тренировките в Данни са скрити за всички; включват се за отделен човек по дума на Chris
+  //   (clients.show_training). Скрива се ПАКЕТЪТ: целият раздел „Тренировки“ + „Какво търсиш“ (zhelan_izhod), vyzstanovyavane (Сън),
+  //   prof_natovarvane (Здраве). Правилото е в ivVisible → броячите, знаците „липсва“, „Първи стъпки“, редът „Допълни формата…“
+  //   и изгледът на треньора вървят заедно (както Т63/Т69). Нищо не се трие — отговорите остават в базата.
+  //   Флагът: клиентът и изгледът като клиент — get_intake().training; треньорът — coach_get_client().client.show_training;
+  //   липсва ли полето или RPC-то гръмне → скрито.
+  var TRAIN_ON = false;
+  var TRAIN_K = { zhelan_izhod: 1, vyzstanovyavane: 1, prof_natovarvane: 1 };
+  INTAKE_Q.forEach(function (g) { if (g[0] === "Тренировки") g[1].forEach(function (q) { TRAIN_K[q[0]] = 1; }); });
+  // смесените въпроси — с други думи, докато тренировките са скрити: [въпросът във формата, краткото име в историята, подсказката (ако се сменя)]
+  var TRAIN_ALT = { smeni_ritym: ["Кога ставаш и кога спиш на всеки тип ден?", "Сън по смени", "Накратко по тип ден — будене и сън."], prekysvaniya: ["Колко често прекъсваш режима?", "Прекъсвания на режима"] };
+  function qHint(k) { var f = INTAKE_F[k] || {}; return !TRAIN_ON && TRAIN_ALT[k] && TRAIN_ALT[k][2] || f.h; }
+  function ivTrainOff(k) { return !TRAIN_ON && !!TRAIN_K[k]; }
+  function qLabel(k) { return !TRAIN_ON && TRAIN_ALT[k] ? TRAIN_ALT[k][0] : QLABEL[k]; }
+  function igShown(g) { return g[1].some(function (q) { return !ivTrainOff(q[0]); }); }   // раздел само от скрити въпроси не се рисува
+  function ivChanges() { return (IN.changes || []).filter(function (c) { return !ivTrainOff(c.key); }); }   // историята — без скритите
   // on: базата поддържа формата (get_intake отговори) · ro: само за четене (треньор / изгледът като клиент)
   var IN = { on: false, ro: true, data: {}, changes: [] };
   var INTAKE_OFF_TXT = "Формата ще се записва след обновяване — още не е включена.";
   function ivEmpty(v) { return v == null || v === "" || (Array.isArray(v) && !v.length); }
   function ivNorm(v) { if (typeof v === "string") v = v.trim(); return ivEmpty(v) ? null : v; }
-  function ivVisible(k, d) { var f = INTAKE_F[k]; return !f || !f.rv || !REVEAL[f.rv] || REVEAL[f.rv](d || IN.data); }
+  function ivVisible(k, d) { if (ivTrainOff(k)) return false; var f = INTAKE_F[k]; return !f || !f.rv || !REVEAL[f.rv] || REVEAL[f.rv](d || IN.data); }   // Т72: пакетът
   // Т63 (Chris 15:15, при Поля): ЕДНО броене за всички места — панелът „попълнено X от Y“, групите „X от Y“, „Първи стъпки“,
   //   „Ново за теб · липсват N“. ОБЩО = видимите задължителни + видимите по желание, които СА попълнени · ПОПЪЛНЕНО = видимите
   //   попълнени · ЛИПСВАТ = видимите задължителни празни. Винаги попълнено + липсват = общо. Празен въпрос по желание не влиза никъде;
@@ -2027,7 +2048,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     h = '<div class="iq" data-key="iq_' + k + '" data-k="' + k + '"' + (ivVisible(k) ? "" : " hidden") + ">"
       + (ivMiss(k) ? IMISS : "")   // Т69: „липсва“ вдясно горе; заглавието го обтича
       + (choice ? '<div class="k">' + esc(label) + "</div>" : '<label class="k" for="' + id + '">' + esc(label) + "</label>")
-      + (f.h ? '<div class="ih">' + esc(f.h) + "</div>" : "");
+      + (qHint(k) ? '<div class="ih">' + esc(qHint(k)) + "</div>" : "");   // Т72: подсказката на смесения въпрос
     if (f.t === "radio" || f.t === "check") h += optsHtml(f.t === "radio" ? "radio" : "checkbox", id, f.o || [], Array.isArray(v) ? v : (v == null ? [] : [String(v)]));
     else if (f.t === "areas") h += areasHtml(v);
     else if (f.t === "area") h += '<textarea id="' + id + '" rows="2"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + dis + ">" + esc(v == null ? "" : v) + "</textarea>";
@@ -2045,11 +2066,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var head;
     if (!IN.on) head = '<p class="ioff" id="intakeOff">' + esc(INTAKE_OFF_TXT) + "</p>";
     else head = "";
-    var html = '<div class="iform" id="intakeForm">' + head;
+    var html = '<div class="iform" id="intakeForm">' + head, first = -1;
     INTAKE_Q.forEach(function (g, gi) {
+      if (!igShown(g)) return;   // Т72: без празна карта и без „✓“; gi остава индексът в INTAKE_Q → „danni:ig_N“ сочи същия раздел
+      if (first < 0) first = gi;
       var c = igCnt(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === 0 && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
-        + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], q[1]); }).join("") + "</div></details>";
+      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === first && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
+        + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], qLabel(q[0])); }).join("") + "</div></details>";
     });
     return html + "</div>";
   }
@@ -2185,7 +2208,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     syn_promenliv: "Сън — еднакъв/варира", chas_lyagane: "Час на лягане", syn_chasove: "Часове сън", syn_kachestvo: "Качество на съня",
     stres: "Стрес", vyzstanovyavane: "Възстановяване", syn_tochno: "Сън — точно"
   };
-  function chgLabel(k) { return QSHORT[k] || String(QLABEL[k] || k).replace(/\s*\([^)]*\)\s*$/, "").replace(/\?$/, "").trim(); }
+  function chgLabel(k) { if (!TRAIN_ON && TRAIN_ALT[k]) return TRAIN_ALT[k][1]; return QSHORT[k] || String(QLABEL[k] || k).replace(/\s*\([^)]*\)\s*$/, "").replace(/\?$/, "").trim(); }
   function chgItem(x) { return x && typeof x === "object" ? String(x.label || x.key || "") : String(x); }
   function chgList(v) { return Array.isArray(v) ? v.map(chgItem) : ivEmpty(v) ? [] : [chgItem(v)]; }
   function chgLine(k, o, n) {   // „Височина 175 → 173“ · „Класове лекарства + За холестерол (статини)“ · „Лекарства (редактирано)“
@@ -2203,7 +2226,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function intakeChangeItems() {
     var byDay = {}, order = [];
-    (IN.changes || []).slice().sort(function (a, b) { return tsNum(a.changed_at) - tsNum(b.changed_at); }).forEach(function (c) {
+    ivChanges().sort(function (a, b) { return tsNum(a.changed_at) - tsNum(b.changed_at); }).forEach(function (c) {   // Т72: без скритите
       var d = sofiaDay(c.changed_at), g = byDay[d];
       if (!g) { g = byDay[d] = { keys: {}, ts: c.changed_at }; order.push(d); }
       var e = g.keys[c.key];
@@ -2358,7 +2381,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var qaInner = openCards.length ? '<div class="acc qpend">' + openCards.map(function (r) { var c = qaCounts(r); return cardHtml(r, false, "", c.open ? '<span class="chip pend">' + c.open + " без отговор</span>" : ""); }).join("") + "</div>"
       : '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма допълнителни въпроси.") + "</p>";
     if (sentN) qaInner += qaSentHtml();
-    var ic = intakeCount(intakeKeys()), nch = (IN.changes || []).length;
+    var ic = intakeCount(intakeKeys()), nch = ivChanges().length;
     html += panelHtml("intake", "intake", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
       + (IN.on ? ichgHistHtml() : "")
@@ -2940,7 +2963,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return histCard("h_meas", "history", "История на мерките", measNavSub(), inner);
   }
   function ichgHistHtml() {
-    var ch = (IN.changes || []).slice().sort(function (a, b) { return tsNum(b.changed_at) - tsNum(a.changed_at); });
+    var ch = ivChanges().sort(function (a, b) { return tsNum(b.changed_at) - tsNum(a.changed_at); });   // Т72: без скритите
     var days = ch.map(function (c) { return sofiaDay(c.changed_at); }).filter(function (d, i, a) { return a.indexOf(d) === i; });
     function cnt(n) { return n + (n === 1 ? " промяна" : " промени"); }
     var inner = !ch.length ? hEmpty("Още няма промени.") : histMonths("hm_ichg_", days, function (d) { return d; },
@@ -2948,7 +2971,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (d) {
         var l = ch.filter(function (c) { return sofiaDay(c.changed_at) === d; });
         return qday(d, "qd-cnt", dayCount(cnt(l.length)), l.map(function (c) {
-          return '<div class="lrow"><span class="tm">' + esc(nowHMof(c.changed_at)) + '</span><span class="tx"><b>' + esc(QLABEL[c.key] || c.key) + "</b><br>"
+          return '<div class="lrow"><span class="tm">' + esc(nowHMof(c.changed_at)) + '</span><span class="tx"><b>' + esc(qLabel(c.key) || c.key) + "</b><br>"
             + '<span class="iold">' + esc(ivShow(c.old_value)) + "</span> → " + esc(ivShow(c.new_value)) + "</span></div>";
         }).join(""), 'data-day="' + d + '" data-key="hd_ichg_' + d + '"');   // Т30: дата първа
       });
@@ -3386,7 +3409,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
         var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
         if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false)
-        boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [] } : { data: {}, changes: [] });
+        boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true } : { data: {}, changes: [], training: cl.show_training === true });   // Т72
       });
     });
   } else {
@@ -3421,7 +3444,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     DB_SEEN = D.log.some(function (e) { return "read_at" in e; });
     var isDev = /^DEV/.test(String(nm || ""));
     CAN_WRITE = !COACH;   // Т57: всички живи — записва всеки клиент (преди: само DEV)
-    VIEW_AS = !COACH && VIEWER && !isDev;   // треньорът на това устройство → само за преглед; DEV остава за запис (за тест)
+    COACH_SELF = !COACH && diary.coach_self === true;   // Т73: липсва ли ключът → false (както досега)
+    VIEW_AS = !COACH && VIEWER && !isDev && !COACH_SELF;   // треньорът на това устройство → само за преглед; DEV и своят акаунт (Т73) остават за запис
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
       CAN_WRITE = false;
       document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
@@ -3432,6 +3456,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     IN.data = (IN.on && intake.data) || {};
     IN.changes = (IN.on && intake.changes) || [];
     IN.ro = !IN.on || !CAN_WRITE;   // треньорът: CAN_WRITE е false → само за четене
+    TRAIN_ON = !!(intake && !intake.error && intake.training === true);   // Т72: само изрично true; иначе тренировките са скрити
+    if (!TRAIN_ON) INFO.intake.b[0] = INFO_INTAKE_NOTR;
     START = !D.content.some(function (r) { return !isQaCard(r) && shownSection(r); });   // Т65: archive_* и непознатите секции не се броят
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
