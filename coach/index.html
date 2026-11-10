@@ -74,8 +74,8 @@
 
   /* списъкът */
   .tools { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; margin: 14px 0 10px; }
-  /* Т76б (Chris 22:31): броят — само числото в кръгче, като бутоните (същата височина и рамка), но неактивно и по-бледо */
-  .tools .cnt { flex: none; box-sizing: border-box; min-width: 2.6em; padding: 6px 9px; border: 1px solid var(--border); border-radius: 999px; background: transparent; color: var(--accent); font-size: 13.5px; font-weight: 700; line-height: 1.5; text-align: center; white-space: nowrap; cursor: default; user-select: none; }
+  /* Т76б → Т78 (Chris 23:16): броят е бутон „всички“ — с „Активни“ един избор (като радио); избраният е тъмносив (.on) */
+  .tools .cnt { min-width: 2.6em; padding-left: 9px; padding-right: 9px; text-align: center; }
   .chipbtn { flex: none; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; white-space: nowrap; cursor: pointer; }
   .chipbtn.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   /* Т53/Т54 → Т76б: „(N) [Активни (N)] [Тестови · N]“ — ВИНАГИ на един ред (320 / 375 / широко); „Тестови“ — вдясно.
@@ -151,7 +151,7 @@
   </form>
 
   <div class="hidden" id="list">
-    <div class="tools"><span class="cnt" id="cnt" role="img" aria-label=""></span><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Активни</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тестови</button></div>
+    <div class="tools"><button type="button" class="chipbtn cnt" id="cnt" aria-pressed="true"></button><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Активни</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тестови</button></div>
     <div id="rows"></div>
   </div>
 </div>
@@ -316,14 +316,17 @@
     if (act) rows = rows.filter(isActive);
     var n = rows.length, c = $("cnt");   // Т76б: колко се виждат сега (при „Активни“ — активните; в „Тестови“ — тестовите)
     c.textContent = String(n);
-    c.setAttribute("aria-label", n + (tests ? (n === 1 ? " тестов" : " тестови") : (n === 1 ? " клиент" : " клиента")));
+    c.classList.toggle("on", !act); c.setAttribute("aria-pressed", act ? "false" : "true");   // Т78: „всички“ е избран, когато „Активни“ не е
+    c.setAttribute("aria-label", "Всички — " + n + (tests ? (n === 1 ? " тестов" : " тестови") : (n === 1 ? " клиент" : " клиента")));
     rowsEl.innerHTML = rows.length ? rows.map(rowHtml).join("")
       : '<div class="state" id="emptyList">' + (act ? (tests ? "Няма активни в тестовите." : "Няма активни клиенти.") : "Няма клиенти.") + "</div>";
   }
   psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
   // Т77: натиснат клиент → отворен сега (вълната му спира и при връщане назад)
   rowsEl.addEventListener("click", function (e) { var a = e.target.closest && e.target.closest(".row[data-id]"); if (a) { lsSet(SEEN_AT + a.getAttribute("data-id"), new Date().toISOString()); a.classList.remove("shim"); } });
-  actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, lsGet(ACTIVE_KEY) === "1" ? null : "1"); render(); });
+  // Т78: „всички“ (броят) и „Активни“ — един избор; натиснатият остава избран (не превключва обратно)
+  $("cnt").addEventListener("click", function () { lsSet(ACTIVE_KEY, null); render(); });
+  actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, "1"); render(); });
 
   function loadList() {
     if (!ROWS.length) state("Зарежда…");
