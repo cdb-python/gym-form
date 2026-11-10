@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.10">
+<meta name="version" content="v1.0.11">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -3362,15 +3362,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Режим треньор (Т19): без лента над шапката. В зелената шапка: ← (към списъка) вляво, бутонът на страницата + името на клиента
   // в средата, „Изход“ вдясно (signOut → входа за треньора). Записът е изключен навсякъде освен в чата.
   var coachNav = function (u) { location.href = u; };
+  // Т74 (Chris 10.11 18:19): собственият клиентски акаунт на треньора (coach_get_client → client.coach_self) от списъка в coach/
+  //   не остава в режим треньор (само за преглед), а отива направо на клиентската страница (Т73 — пише): coach_client_link (както
+  //   менюто от Т67) → location.replace(?t=…&from=<id>#…) — в историята не остава ?c=. Не стане ли (грешка, няма токен, линкът
+  //   не е активен) → режим треньор както досега, без грешка на екрана. window.CDB_SELF_NAV — само за тестовете (заместителя).
+  var selfNav = window.CDB_SELF_NAV || function (u) { location.replace(u); };
   // Т45: дошли сме от изгледа на треньора („Отвори приложението на клиента“, &from=<client_id>) и на устройството има вход на треньор →
   // шапката като на треньора: ← вляво, заглавието в средата. ← = назад, ако предишната страница е нашият изглед (?c=), иначе към него.
   var vaBackFn = function () { history.back(); };
   function viewBack(from) {
     var h = document.getElementById("hdr");
     h.classList.add("h3", "vab");
-    h.insertAdjacentHTML("afterbegin", '<button type="button" class="hbtn back" id="vaBack" aria-label="Назад към изгледа на треньора">' + ic("back") + "</button>");
+    h.insertAdjacentHTML("afterbegin", '<button type="button" class="hbtn back" id="vaBack" aria-label="' + (COACH_SELF ? "Към списъка с клиенти" : "Назад към изгледа на треньора") + '">' + ic("back") + "</button>");
     h.insertAdjacentHTML("beforeend", '<span class="hside" aria-hidden="true"></span>');
     document.getElementById("vaBack").addEventListener("click", function () {
+      if (COACH_SELF) { coachNav(COACH_URL); return; }   // Т74: своят акаунт → списъкът (?c=<него> пак би пренасочил тук — цикъл)
       var r = null; try { r = new URL(document.referrer); } catch (e) {}
       if (r && r.origin === location.origin && r.pathname === location.pathname && r.searchParams.get("c")) vaBackFn();
       else coachNav(location.pathname + "?c=" + encodeURIComponent(from));
@@ -3395,6 +3401,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     P.nachalo.classList.add("on");
     document.getElementById("tabs").style.display = "none";
   }
+  function coachBoot(b) {   // режим треньор (Т5): всичко само за четене, освен „Разговор“
+    var cl = b.client || {};
+    COACH = true;
+    coachBar(cl.name || (b.diary && b.diary.name) || "");
+    // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
+    var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
+    if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false)
+    boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true } : { data: {}, changes: [], training: cl.show_training === true });   // Т72
+  }
   if (COACH_CID) {
     document.body.classList.add("coach-on");   // Т21: сивото на треньора още от първия кадър
     var tcm = document.querySelector('meta[name="theme-color"]'); if (tcm) tcm.setAttribute("content", "#5f6b78");
@@ -3404,12 +3419,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return safe(sb.rpc("coach_get_client", { p_client_id: COACH_CID })).then(function (res) {
         if (res.error || !res.data) { coachGate(res.error ? "Няма достъп или няма връзка. Влез отново." : "Няма такъв клиент."); return; }
         var b = res.data, cl = b.client || {};
-        COACH = true;
-        coachBar(cl.name || (b.diary && b.diary.name) || "");
-        // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
-        var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
-        if (b.labs) { LABS.on = true; LABS.uploads = b.labs.uploads || []; LABS.results = b.labs.results || []; }   // само за четене (CAN_WRITE = false)
-        boot(b.diary, b.food, b.analysis, cl.name, it ? { data: it.data || {}, changes: it.changes || [], training: cl.show_training === true } : { data: {}, changes: [], training: cl.show_training === true });   // Т72
+        if (cl.coach_self === true) {   // Т74: своят акаунт → клиентската страница (за запис)
+          return safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID })).then(function (lk) {
+            var L = lk && !lk.error && lk.data;
+            if (L && L.token && L.active !== false) { selfNav(location.pathname + "?t=" + encodeURIComponent(L.token) + "&from=" + encodeURIComponent(COACH_CID) + location.hash); return; }
+            coachBoot(b);
+          });
+        }
+        coachBoot(b);
       });
     });
   } else {
