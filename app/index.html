@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.12">
+<meta name="version" content="v1.0.13">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2025,6 +2025,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return ["intake", (COACH ? "Формата за данни · " : "Допълни формата за данни · ") + miss, "danni:ig_" + m.group, "nowIntake"];
   }
   function intakeKeys() { return INTAKE_Q.reduce(function (a, g) { return a.concat(g[1].map(function (q) { return q[0]; })); }, []); }
+  // Т76 (Chris 10.11 21:40): „липсват N“ (същото броене като Т63/Т69/Т72) — и в базата, за картата в списъка на треньора.
+  //   Клиентът (пише, не VIEW_AS): set_intake_missing; изгледът на треньора (всеки клиент): coach_set_intake_missing.
+  //   След зареждане и след всяко записано поле; същото число не се праща втори път. Грешка → тихо.
+  var MISS_SENT = null;
+  function pushMissing() {
+    if (!IN.on || VIEW_AS || (!COACH && !CAN_WRITE)) return;
+    var n = intakeMissing().n;
+    if (n === MISS_SENT) return;
+    MISS_SENT = n;
+    var p = COACH ? sb.rpc("coach_set_intake_missing", { p_client_id: COACH_CID, p_n: n }) : wr("set_intake_missing", { p_token: token, p_n: n });
+    try { p.then(function () {}, function () {}); } catch (e) {}
+  }
   function optsHtml(type, name, opts, sel, extra) {
     return '<div class="iopts">' + opts.map(function (o) {
       return '<label class="io"><input type="' + type + '" name="' + esc(name) + '" value="' + esc(o) + '"' + (sel.indexOf(o) > -1 ? " checked" : "") + (extra || "") + (IN.ro ? " disabled" : "") + "><span>" + esc(o) + "</span></label>";
@@ -2148,6 +2160,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var ivRefreshT = null;
   function ivAfter() {
     ivReveal();
+    pushMissing();   // Т76
     if (START) renderNachalo(); else refreshNow();   // Т58: „Допълни формата · липсват N“
     // промените (за сивите редове в „Разговор") идват от базата — тригерът решава кое е промяна
     clearTimeout(ivRefreshT);
@@ -3491,6 +3504,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       Array.prototype.forEach.call(document.querySelectorAll("#p-hrana input, #p-hrana textarea, #p-merki input, #p-danni input"), function (el) { el.disabled = true; });
     }
     updateBadge(); updateDots();
+    pushMissing();   // Т76: „липсват N“ → базата
     var h = (location.hash || "").slice(1);
     if (h && h.indexOf(":") > 0) { switchTab("nachalo"); go(h); } else switchTab(h || "nachalo");
     setTop();
