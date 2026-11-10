@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.0.8">
+<meta name="version" content="v1.0.9">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1100,7 +1100,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return;
     }
     var newest = coachEvents().reduce(function (a, ts) { return (!a || ts > a) ? ts : a; }, null);
-    if (newest) { lsSet(SEEN_KEY, newest); seenTs = newest; }
+    if (newest && !VIEW_AS) { lsSet(SEEN_KEY, newest); seenTs = newest; }   // Т71: треньорът, гледащ като клиента, не „чете“ вместо него
     updateBadge();
     markSeenDb();
   }
@@ -1194,14 +1194,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     A.cards.forEach(function (r) { track("an_" + r.sort, "hrana", (r.title || "") + "\n" + (r.body || "")); });
     labDates().forEach(function (g) { track("lab_" + g.day, "danni", JSON.stringify(g.rows.map(function (r) { return [r.marker, r.value, r.value_text, r.unit, r.ref_text, r.flag]; }))); });
   }
+  // Т71 (Chris 10.11 14:19 „аз само мога да разглеждам и да чатя от мое име нищо друго“): треньорът (COACH) и изгледът като клиент
+  //   (VIEW_AS) не отбелязват нищо като видяно — точките на клиента стоят, докато Chris разглежда. DEV с треньорска сесия е тестов
+  //   клиент (пише и вижда) — за него „видяно“ работи както при клиента. Неговите coach_seen_* (coachMarkTab) не са тук.
+  function seenOff() { return COACH || VIEW_AS; }
+  function seenAnalysis() { if (!seenOff()) lsSet("app_seen_analysis_" + KEY_ID, "1"); }
   function markSeen(key) {
-    if (!key || !isNewItem(key)) return;
+    if (seenOff() || !key || !isNewItem(key)) return;
     SEENC[key] = NEWC[key]; lsSet(SEENC_KEY, JSON.stringify(SEENC));
     Array.prototype.forEach.call(document.querySelectorAll('[data-dot="' + key + '"]'), function (d) { d.parentNode.removeChild(d); });
     updateDots();
   }
   // отворените карти в показания екран са видени (напр. първата карта на Начало)
   function markOpenSeen(root) {
+    if (seenOff()) return;   // Т71
     Array.prototype.forEach.call(root.querySelectorAll(".card.open[data-key]"), function (c) { if (c.offsetParent !== null) markSeen(c.getAttribute("data-key")); });
   }
   function setDot(sel, on, id) {
@@ -3235,7 +3241,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!key) return;
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
     if (!el) { if (same) accRun([], { y: 0 }, false); else window.scrollTo(0, 0); return; }   // Т66
-    if (key === "analysis") lsSet("app_seen_analysis_" + KEY_ID, "1");
+    if (key === "analysis") seenAnalysis();   // Т71
     var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el, head = null;
     if (tab === "danni" && /^ig_\d+$/.test(key)) {   // Т69: „Допълни формата · липсват N“ → и първият липсващ въпрос (без focus() — на iPhone вади клавиатурата)
       var mq = el.querySelector(".iq:not([hidden]) > .imiss, .iq:not([hidden]) .iasub:not([hidden]) > .ak > .imiss"), end = null;
@@ -3276,7 +3282,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!card || !card.classList.contains("card")) return;
     var open = !wantOpen(card);
     accSet(card, open);
-    if (card.getAttribute("data-key") === "analysis" && open) lsSet("app_seen_analysis_" + KEY_ID, "1");
+    if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
   window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
