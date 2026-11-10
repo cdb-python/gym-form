@@ -85,20 +85,39 @@
   .row { display: block; background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: 12px; padding: 11px 13px; margin: 0 0 10px; color: var(--ink); text-decoration: none; }
   .row.new { border-left-color: #e0821e; }
   .row .l1 { display: flex; align-items: baseline; gap: 8px; }
-  .row .nm { flex: 1; min-width: 0; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .row .when { flex: none; color: var(--muted); font-size: 12.5px; white-space: nowrap; }
+  .row .nm { flex: 0 1 auto; min-width: 0; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* Т76: чиповете — веднага след името; при теснота отстъпва името (…) */
+  /* Т76 (Chris 22:09–22:10): часът на последната активност — закотвен горе вдясно, до ръбовете на картата (≈ 6 px отгоре, 8 px отдясно), дребен.
+     Остава в реда (не absolute) → мястото му е запазено: името и чиповете не влизат под него, а при теснота се съкращават те. Редът с името не слиза. */
+  .row .when { flex: none; align-self: flex-start; margin: -5px -5px 0 auto; color: var(--muted); font-size: 11.5px; line-height: 1.25; white-space: nowrap; }
   .row .dev { flex: none; padding: 0 7px; border-radius: 6px; background: #e7eaee; color: #4b5866; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
+  /* Т76: етапът („Режим“, „Анализ“, „21 дни · ден N“, „Свободен лог“) и „Личен“ — малки сиви чипове до името */
+  .row .stg { flex: none; max-width: 9em; padding: 0 7px; border-radius: 6px; background: var(--soft); color: #4b5866; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Т76 (Chris 22:09): часът на последната активност е винаги в ъгъла, цял, на първия ред — при теснота се съкращават чипът и името, не той */
   .row .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
   .row .b { padding: 1px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
   .row .b.msg { background: #e0821e; color: #fff; }
   .row .b.ans { background: #fbf0dc; color: var(--warn); }
   .row .b.lab { background: #e7eef8; color: #2f5f8f; }
-  .row .l2 { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 6px; color: var(--muted); font-size: 13px; }
-  /* Т30: колони с фиксирана ширина → числата и датите са едни под други между редовете */
-  .row .l2 .c1 { flex: none; width: 6.4em; } .row .l2 .c2 { flex: none; width: 8.2em; } .row .l2 .c3 { flex: none; }
-  .row .l2 .lg .n { display: inline-block; min-width: 2ch; text-align: right; }
+  /* Т30 → Т76: мрежа с неподвижни колони — едно и също поле е на едно и също място във всяка карта (числата едно под друго).
+     Тясно (до 469 px): две колони — [Лог][последно] / [тегло][дни · талия] / [Днес][✅ · ккал] / [Вчера ккал][7 д ≈] / [Форма].
+     Широко: четири — [Лог][последно][тегло][дни · талия] / [Днес][✅ · ккал][Вчера ккал][7 д ≈] / [Форма]. Липсващ ред не заема място. */
+  .row .l2 { display: grid; grid-template-columns: 8.4em 8.4em; grid-template-areas: "lg lf" "ma mb" "ta tb" "na nb" "fm fm"; column-gap: 10px; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.45; }
+  @media (min-width: 470px) { .row .l2 { grid-template-columns: 6.4em 8.4em 8.4em minmax(0, 1fr); grid-template-areas: "lg lf ma mb" "ta tb na nb" "fm fm fm fm"; } }
+  .row .l2 > span { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .l2 .c1 { grid-area: lg; } .row .l2 .c2 { grid-area: lf; } .row .l2 .c3 { grid-area: ma; } .row .l2 .c4 { grid-area: mb; }
+  .row .l2 .t1 { grid-area: ta; } .row .l2 .t2 { grid-area: tb; } .row .l2 .n1 { grid-area: na; } .row .l2 .n2 { grid-area: nb; } .row .l2 .fm { grid-area: fm; }
+  .row .l2 .n { display: inline-block; min-width: 2ch; text-align: right; }   /* числото в слот с неподвижна ширина, подравнено вдясно */
+  .row .l2 .n.w4 { min-width: 4ch; } .row .l2 .n.w5 { min-width: 5ch; }
+  .row .l2 .lb { display: inline-block; min-width: 3.1em; }   /* „Вчера“ / „ДД.ММ“ — ккал едно под друго */
   .row .l2 b { color: var(--accent-dark); }
-  .row .pv { margin-top: 5px; color: #46525e; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Т46: разликата в теглото — нагоре червено, надолу зелено (семантично, както в app/); „=“ — сиво */
+  .row .l2 .dl { font-weight: 700; } .row .l2 .dl.dup { color: #c43d3d; } .row .l2 .dl.ddown { color: #2e7d5b; }
+  .row .pv { display: flex; gap: 5px; margin-top: 4px; color: #46525e; font-size: 13.5px; overflow: hidden; white-space: nowrap; }
+  .row .pv .pt { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .row .pv .pm { flex: none; color: var(--muted); font-size: 12.5px; }
+  .row .pv .wt { color: #8a5f14; font-weight: 700; }   /* по-тъмното от --warn: контраст ≥ 4,5 на бяло (дребен текст) */
+  .row .sg { margin-top: 2px; color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .sg .fl { color: #8a5f14; }
   /* Т53/Т54: тестовите редове (DEV, ТЕСТ, ЧЕРНОВА) — приглушени, за да личи изгледът (светъл фон, пунктир; текстът остава ≥ 4,5:1) */
   .row.ps { background: #f6f7f9; border-style: dashed; border-left-style: solid; }
   .row.ps .nm { color: #46525e; font-weight: 600; }
@@ -122,7 +141,7 @@
   </form>
 
   <div class="hidden" id="list">
-    <div class="tools"><span class="cnt" id="cnt"></span><button type="button" class="chipbtn" id="onlyNew" aria-pressed="false">Само с ново</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тестови</button></div>
+    <div class="tools"><span class="cnt" id="cnt"></span><button type="button" class="chipbtn" id="onlyNew" aria-pressed="false">Само с ново</button><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Активни</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тестови</button></div>
     <div id="rows"></div>
   </div>
 </div>
@@ -138,9 +157,11 @@
   var LOG_TARGET = 21;                       // същият праг като в tools/app (модел Victus)
   var FILTER_KEY = "coach_only_new";
   var PSEUDO_KEY = "coach_show_pseudo";      // Т53/Т54: изгледът „Тестови“ включен на това устройство
+  var ACTIVE_KEY = "coach_only_active";      // Т76: „Активни“ включен на това устройство
+  var ACTIVE_DAYS = 7;                       // Т76: активност до седмица назад (днес и 7-те дни преди него)
 
   var $ = function (id) { return document.getElementById(id); };
-  var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), onlyNew = $("onlyNew"), psBtn = $("psBtn");
+  var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), onlyNew = $("onlyNew"), psBtn = $("psBtn"), actBtn = $("actBtn");
   var ROWS = [];
 
   function esc(s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; }
@@ -191,6 +212,33 @@
   // Т53/Т54 (09.11.2026, Chris 10:53 / 11:21): тестов = DEV, „(не е клиент)“ (черновата на страница за някого) или „(ТЕСТ)“ (демо фикстура) в името.
   //   „Тестови · N“ превключва изгледа: изключен → само истинските („N клиента“), включен → само тестовите („N тестови“). Никога смесено.
   function isPseudo(r) { var n = String(r.name || ""); return !!r.is_dev || n.indexOf("(не е клиент)") > -1 || n.indexOf("(ТЕСТ)") > -1; }
+  // Т76: активен = last_activity днес или до 7 дни назад (по деня в София)
+  function isActive(r) { return !!r.last_activity && dayDiff(sofiaDay(r.last_activity), todayStr()) <= ACTIVE_DAYS; }
+  function num1(v) { return Number(v).toFixed(1).replace(".", ","); }
+  function numT(v) { var x = Math.round(Number(v) * 10) / 10; return x % 1 ? num1(x) : String(x); }   // талията: 78 / 78,5
+  function nn(v, w) { return '<span class="n' + (w ? " " + w : "") + '">' + v + "</span>"; }
+  // Т76: новите колони на coach_list_clients (старото RPC ги няма → картата е както преди, без етап)
+  function rich(r) { return "has_regime" in r || "log_mode" in r; }
+  function stage(r) {
+    if (!rich(r)) return "";
+    return r.has_regime ? "Режим" : (r.n_analysis || 0) > 0 ? "Анализ" : r.log_mode === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(r.log_days || 0, LOG_TARGET) : "Свободен лог";
+  }
+  function measCells(r) {   // [тегло + разликата | дни · талия] или [Мерки ДД.ММ | талия]
+    var wa = r.last_waist != null ? "т " + numT(r.last_waist) : "", w = r.last_weight;
+    if (w == null) return ["Мерки " + (r.last_meas_day ? "<b>" + ddmm(r.last_meas_day) + "</b>" : "—"), wa];
+    var a = '<b class="n w5">' + num1(w) + "</b> кг", b;
+    if (r.prev_weight != null && r.prev_weight_day && r.last_weight_day) {
+      var d = Math.round((w - r.prev_weight) * 10) / 10;
+      a += " " + (d === 0 ? '<span class="dl">=</span>' : '<span class="dl ' + (d > 0 ? "dup" : "ddown") + '">' + (d > 0 ? "↑" : "↓") + num1(Math.abs(d)) + "</span>");
+      b = nn(dayDiff(r.prev_weight_day, r.last_weight_day)) + " д";
+    } else b = ddmm(r.last_weight_day || r.last_meas_day);
+    return [a, b + (wa ? " · " + wa : "")];
+  }
+  function sigs(r) {   // тегловият сигнал не се повтаря, когато теглото с разликата вече е на картата
+    var wd = r.last_weight != null && r.prev_weight != null;
+    return (Array.isArray(r.d_signals) ? r.d_signals : []).map(function (s) { return String(s || "").trim(); }).filter(function (s) { return s && !(wd && /^тегло(\s|$)/i.test(s)); });
+  }
+  function cell(cls, h) { return h ? '<span class="' + cls + '">' + h + "</span>" : ""; }
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
     var tab = (r.unread_msgs || r.unread_answers) ? "razgovor" : "nachalo";
@@ -198,35 +246,61 @@
     if (r.unread_msgs) badges += '<span class="b msg">✉ ' + r.unread_msgs + (r.unread_msgs === 1 ? " ново съобщение" : " нови съобщения") + "</span>";
     if (r.unread_answers) badges += '<span class="b ans">📋 нови отговори</span>';
     if (r.pending_labs) badges += '<span class="b lab">🧪 ' + r.pending_labs + (r.pending_labs === 1 ? " за препис" : " за препис") + "</span>";
-    var ps = isPseudo(r);
+    var ps = isPseudo(r), ms = measCells(r), sg = sigs(r);
+    var t1 = "", t2 = "", n1 = "", n2 = "", fm = "", pm = "";
+    if ((r.today_n || 0) > 0) {   // днес: записи · „Изядох“ · ккал от „Изядох“
+      t1 = "Днес " + nn(r.today_n);
+      if ((r.today_eat || 0) > 0) t2 = "✅ " + nn(r.today_eat) + (r.today_eat_kcal ? " · " + nn(Math.round(r.today_eat_kcal), "w4") + " ккал" : "");
+    }
+    if (r.d_kcal && r.d_day) {   // нощната сметка: вчера (или ДД.ММ) + средно за 7 дни
+      n1 = '<span class="lb">' + (dayDiff(r.d_day, todayStr()) === 1 ? "Вчера" : ddmm(r.d_day)) + '</span> <b class="n w4">' + Math.round(r.d_kcal) + "</b> ккал";
+      if (r.avg7_kcal != null) n2 = "7 д ≈ " + nn(Math.round(r.avg7_kcal), "w4");
+    }
+    if (r.intake_missing != null) {   // формата: ✓ / липсват N; + промени днес
+      fm = r.intake_missing === 0 ? "Форма ✓" : "Форма: " + (r.intake_missing === 1 ? "липсва 1" : "липсват " + r.intake_missing);
+      var ic = r.intake_changes_today || 0;
+      if (ic > 0) fm += " · днес " + ic + (ic === 1 ? " промяна" : " промени");
+    }
+    if (r.last_client_msg && r.last_client_msg_at) {   // съобщението: денят + ✓ отговорено / ⚠ чака отговор · N д
+      var md = sofiaDay(r.last_client_msg_at), ago = dayDiff(md, todayStr());
+      pm = ago === 0 ? "днес" : ago === 1 ? "вчера" : ddmm(md);
+      if (r.last_client_msg_answered === true) pm += " ✓";
+      else if (r.last_client_msg_answered === false) pm += ' <span class="wt">⚠ чака отговор' + (ago > 0 ? " · " + ago + " д" : "") + "</span>";
+    }
     return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
-      + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (r.is_dev ? '<span class="dev">DEV</span>' : !ps ? "" : String(r.name || "").indexOf("(ТЕСТ)") > -1 ? '<span class="dev">ТЕСТ</span>' : '<span class="dev">ЧЕРНОВА</span>')
+      + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (stage(r) ? '<span class="stg">' + esc(stage(r)) + "</span>" : "") + (r.coach_self === true ? '<span class="stg">Личен</span>' : "") + (r.is_dev ? '<span class="dev">DEV</span>' : !ps ? "" : String(r.name || "").indexOf("(ТЕСТ)") > -1 ? '<span class="dev">ТЕСТ</span>' : '<span class="dev">ЧЕРНОВА</span>')
       + '<span class="when">' + esc(when(r.last_activity)) + "</span></div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
       + '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
       + '<span class="c2">' + (r.last_food_day ? "последно " + ddmm(r.last_food_day) : "още няма") + "</span>"
-      + '<span class="c3">Мерки ' + (r.last_meas_day ? "<b>" + ddmm(r.last_meas_day) + "</b>" : "—") + "</span></div>"
-      + (r.last_client_msg ? '<div class="pv">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</div>" : "")
+      + '<span class="c3">' + ms[0] + "</span>" + cell("c4", ms[1]) + cell("t1", t1) + cell("t2", t2) + cell("n1", n1) + cell("n2", n2) + cell("fm", fm) + "</div>"
+      + (r.last_client_msg ? '<div class="pv"><span class="pt">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</span>" + (pm ? '<span class="pm">· ' + pm + "</span>" : "") + "</div>" : "")
+      + (sg.length ? '<div class="sg" title="' + esc(sg.join(" · ")) + '"><span class="fl">⚑</span> ' + esc(sg.join(" · ")) + "</div>" : "")
       + "</a>";
   }
   function render() {
-    var only = lsGet(FILTER_KEY) === "1";
+    var only = lsGet(FILTER_KEY) === "1", act = lsGet(ACTIVE_KEY) === "1";
     onlyNew.classList.toggle("on", only); onlyNew.setAttribute("aria-pressed", only ? "true" : "false");
+    actBtn.classList.toggle("on", act); actBtn.setAttribute("aria-pressed", act ? "true" : "false");
     var nPs = ROWS.filter(isPseudo).length, nReal = ROWS.length - nPs, tests = nPs > 0 && lsGet(PSEUDO_KEY) === "1";
     psBtn.classList.toggle("hidden", !nPs);                  // без тестови бутонът го няма → винаги истинските
     psBtn.textContent = "Тестови · " + nPs;
     psBtn.classList.toggle("on", tests); psBtn.setAttribute("aria-pressed", tests ? "true" : "false");
     var rows = ROWS.slice().sort(function (a, b) { return String(b.last_activity || "").localeCompare(String(a.last_activity || "")); });
     rows = rows.filter(function (r) { return isPseudo(r) === tests; });   // Т54: или истинските, или тестовите
-    var nNew = rows.filter(isNew).length;                     // в текущия изглед
+    var nNew = rows.filter(isNew).length, nAct = rows.filter(isActive).length;   // в текущия изглед
     onlyNew.textContent = "Само с ново" + (nNew ? " (" + nNew + ")" : "");
+    actBtn.textContent = "Активни" + (nAct ? " (" + nAct + ")" : "");   // Т76
     if (only) rows = rows.filter(isNew);
+    if (act) rows = rows.filter(isActive);   // Т76: и двете включени → ново И активно
     $("cnt").textContent = tests ? nPs + (nPs === 1 ? " тестов" : " тестови") : nReal + (nReal === 1 ? " клиент" : " клиента");
     rowsEl.innerHTML = rows.length ? rows.map(rowHtml).join("")
-      : '<div class="state" id="emptyList">' + (tests ? "Няма ново в тестовите." : only ? "Няма ново от клиентите." : "Няма клиенти.") + "</div>";
+      : '<div class="state" id="emptyList">' + (only && (!nNew || !act) ? (tests ? "Няма ново в тестовите." : "Няма ново от клиентите.")
+        : act ? (tests ? "Няма активни в тестовите." : "Няма активни клиенти.") : tests ? "Няма ново в тестовите." : "Няма клиенти.") + "</div>";
   }
   onlyNew.addEventListener("click", function () { lsSet(FILTER_KEY, lsGet(FILTER_KEY) === "1" ? null : "1"); render(); });
   psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
+  actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, lsGet(ACTIVE_KEY) === "1" ? null : "1"); render(); });
 
   function loadList() {
     if (!ROWS.length) state("Зарежда…");
