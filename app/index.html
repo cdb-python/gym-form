@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.5.0">
+<meta name="version" content="v1.5.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -116,6 +116,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .inst .ih { font-size: 15.5px; font-weight: 700; line-height: 1.3; }
   .inst .ix { position: absolute; top: 4px; right: 4px; width: 34px; height: 34px; padding: 0; border: none; background: none; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
   .inst .ib { grid-column: 1 / -1; }
+  .iareas .inone { margin-top: 4px; }   /* Т90: „Нямам оплаквания“ — последно, малко отделено от областите */
   .inst .ib .btn { margin-top: 6px; }
   .inst ol { margin: 4px 0 0; padding-left: 22px; font-size: 14.5px; line-height: 1.6; }
   .inst p { margin: 4px 0 0; font-size: 14.5px; }
@@ -2439,6 +2440,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // cel — 09.11.2026 (Chris + CDB-GYM, по Victus D411 от 06.09): без „Повече сила“ и „Друго“. „Друго“ не е цел, а липса на отговор →
   //    motivaciya. Силата се пита в Тренировки (cel_programa „Сила“ + sila_orientir). Мярката: „казва ли ми къде е човекът“.
   var INTAKE_F = {"zhelan_izhod":{"t":"check","o":["Хранителен режим","Тренировъчна програма","Цялостен подход","Не съм сигурен"],"h":"Услугата, която търсиш. Може повече от едно. Това отваря подходящите секции по-долу (но всичко остава достъпно)."},"cel":{"t":"radio","o":["Сваляне на килограми","Форма и тонус","Качване на мускулна маса","Изчистване (рекомпозиция)","Здраве и енергия"]},"motivaciya":{"t":"area"},"ime":{"t":"text"},"pol":{"t":"radio","o":["Жена","Мъж"]},"godina_razhdane":{"t":"number","h":"Само годината, напр. 1968."},"visochina":{"t":"number"},"teglo":{"t":"number"},"zhelano_teglo":{"t":"number","h":"Килограмите, които искаш да бъдеш. Това е отправната точка за всичко по-нататък."},"taliya":{"t":"number","h":"На най-тясното, около пъпа."},"hansh":{"t":"number","h":"На най-широкото на седалището."},"teglo_trend":{"t":"radio","o":["Качва","Пада","Стабилно"]},"teglo_promyana":{"t":"text","h":"Напр. „от година — нови лекарства\" · „след раждане\" · „смяна на работа/смени\" · „стрес\"."},"cikyl":{"t":"radio","o":["Редовен","Нередовен","Спрял (менопауза)","Не съм сигурна"],"h":"Хормоните влияят силно на теглото и енергията — затова е важно за точния план.","rv":"zheniBlok"},"menopauza":{"t":"radio","o":["Да","Не","Не знам"],"h":"Напр. горещи вълни, нощно изпотяване, промени в настроението/съня.","rv":"zheniBlok"},"bremennost":{"t":"radio","o":["Не","Бременна","Кърмя","Планирам"],"h":"Важно за безопасността на режима и добавките.","rv":"zheniBlok"},"hormonalna":{"t":"text","h":"Кои — напр. противозачатъчни, хормонозаместителна терапия. Ако няма — остави празно.","rv":"zheniBlok"},"rabota":{"t":"radio","o":["Предимно седящо","На крак, в движение","Тежък физически труд","Смесено"],"h":"Колкото повече се движи тялото през деня извън тренировка, толкова повече енергия гори."},"smeni":{"t":"radio","o":["Не","Да"],"h":"Напр. 12-часови смени, ротация ден/нощ. Това мести храненето, тренировките и съня."},"smeni_cikyl":{"t":"text","h":"Напр. „12ч: ден 08–20, после нощ 20–08, после 2 почивки\".","rv":"smeniDetails"},"smeni_ritym":{"t":"area","h":"Накратко по тип ден — будене, сън, кога би тренирал(а).","rv":"smeniDetails"},"na_krak":{"t":"radio","o":["Под 2 часа","2–5 часа","5–8 часа","Над 8 часа"],"h":"Включи работа, домакинство, разходки — всичко извън седене и лежане."},"dvizhenie":{"t":"radio","o":["Малко (под 4000 крачки)","Средно (4000–8000)","Много (8000–12000)","Много високо (над 12000)"],"h":"Приблизително. Ако имаш точно число — попълни го отдолу."},"krachki_tochno":{"t":"number","h":"Ако имаш смарт часовник/гривна или приложение за здраве — виж средната стойност и я напиши."},"druga_aktivnost":{"t":"area","h":"Разходки, колоездене, градина, грижа за деца. Ако няма — остави празно."},"prekysvaniya":{"t":"radio","o":["Рядко","Понякога","Често"],"h":"Заради пътувания, семейство, работа. Помага планът да е гъвкав."},"pushene":{"t":"radio","o":["Не","Понякога","Редовно"]},"alkohol":{"t":"radio","o":["Не","Рядко (по празници)","Седмично","Често"]},"gazirani":{"t":"radio","o":["Не","Рядко","Няколко пъти седмично","Всеки ден"]},"kafe":{"t":"radio","o":["Не","1–2 на ден","3 или повече"]},"oblasti":{"t":"areas"},"drugo_sastoyanie":{"t":"text","h":"Само го назови. Ако няма — остави празно."},"lek_klas":{"t":"check","o":["Психиатрични / за нерви","Щитовидна жлеза","Кръвно / сърце","Хормонални / контрацепция","Кортикостероиди","За холестерол (статини)","За захар / диабет","Стомашно","Друго"],"h":"Лекарствата често влияят на теглото, апетита и енергията. Отметни класовете, после опиши имената отдолу."},"lek_vliyanie":{"t":"text"},"lekarstva":{"t":"area","h":"Име и доза, ако ги знаеш (напр. „Еутирокс 50 — 1 сутрин\"). Ако няма — „няма\"."},"prof_natovarvane":{"t":"text","h":"Повтарящи движения, дълго стоене в една поза, вдигане на тежко, вибрации."},"drugo_vazhno":{"t":"area"},"tip_hranene":{"t":"radio","o":["Всеяден","Вегетарианец","Веган","Пескетарианец","Смесено по дни","Друго"]},"tip_opis":{"t":"text","h":"Напр. „веган 2 дни (ср/пт), останалите с животински продукти\".","rv":"tipReveal"},"izklyucheni":{"t":"area","h":"По вкус, принцип или непоносимост. (Сериозните алергии — в секция Здраве.) Ако няма — „няма\"."},"neponosimost":{"t":"check","o":["Лактоза (млечно)","Глутен (пшеница)","Друго"],"h":"Различно от алергия — напр. подуване от определени храни."},"proteini":{"t":"check","o":["Пилешко/пуешко","Червено месо","Риба/морски","Яйца","Млечни","Растителни (бобови, тофу)","Протеин на прах"]},"hranenia_broy":{"t":"radio","o":["1–2","3","4–5","Без режим"]},"zakuska":{"t":"radio","o":["Да","Не","Понякога"]},"chasove":{"t":"text","h":"Напр. „8:00, 13:00, 20:00\"."},"hr_po_dni":{"t":"radio","o":["Горе-долу еднакво","Различно"],"h":"При смени, тренировъчни и почивни дни. Ако да — режимът ще е по тип ден."},"hr_po_dni_opis":{"t":"area","rv":"hrPoDniReveal"},"preskacha":{"t":"radio","o":["Да","Не"]},"preskacha_opis":{"t":"text","rv":"preskachaReveal"},"snaks":{"t":"text","h":"Снакове, плодове, ядки, сладко… Ако нищо — остави празно."},"den_zakuska":{"t":"text"},"den_obyad":{"t":"text"},"den_vecherya":{"t":"text"},"den_mezhdu":{"t":"text"},"gotvene":{"t":"radio","o":["Готвя си сам","Вкъщи готвят","Външна/готова храна","Смесено"]},"vreme_gotvene":{"t":"radio","o":["Малко","Средно","Имам време"]},"raznoobrazie":{"t":"radio","o":["Може едно и също всеки ден","Искам разнообразие","Без значение"],"h":"Едно и също всеки ден (по-лесно за спазване) или разнообразие?"},"glad":{"t":"radio","o":["Слаб","Нормален","Силен/постоянен"]},"glad_koga":{"t":"text","h":"Напр. „вечер\", „следобед\"."},"sladko":{"t":"radio","o":["Не","Понякога","Силно/редовно"]},"vecher_hapvane":{"t":"radio","o":["Не","Понякога","Често"]},"emo_hapvane":{"t":"radio","o":["Не","Понякога","Често"]},"voda":{"t":"radio","o":["Под 1 л","1–2 л","2–3 л","Над 3 л"],"h":"Приблизително — чиста вода (не кафе/чай)."},"zadalzhitelni":{"t":"text"},"drugo_hrana":{"t":"area"},"dobavki":{"t":"area","h":"Добавката е добавка към храната. Напр. „витамин D, магнезий, омега-3\". Ако нищо — „няма\"."},"trenira":{"t":"radio","o":["Да","Не"]},"dni":{"t":"check","o":["Пн","Вт","Ср","Чт","Пт","Сб","Нд"],"rv":"treniraDetails"},"vreme_min":{"t":"number","h":"Напр. 60.","rv":"treniraDetails"},"chas":{"t":"number","h":"Напр. 18.","rv":"treniraDetails"},"kade_kakvo":{"t":"text","h":"Напр. „в зала, машини\" или „вкъщи, със собствено тегло\".","rv":"treniraDetails"},"staj":{"t":"radio","o":["Не съм тренирал досега","Под 6 месеца","6 месеца – 2 години","2 – 5 години","Над 5 години"]},"staj_sega":{"t":"area","h":"Сплит, серии на мускул седмично, методи. За да продължим от реалното ти ниво.","rv":"stajReveal"},"staj_orientiri":{"t":"text","h":"Колко вдигаш (клек/лежанка/тяга) или с колко повторения.","rv":"stajReveal"},"dvizhenia":{"t":"check","o":["Клякане","Напади","Преса от лег","Набиране/издърпване","Мъртва тяга","Раменна преса","Нищо от изброеното"]},"s_programa":{"t":"radio","o":["Да","Не"]},"s_programa_opis":{"t":"text","rv":"programaReveal"},"cel_programa":{"t":"radio","o":["Мускулна маса","Сила","Издръжливост и кондиция","Обща форма и тонус","Подвижност и функция","Спортно-специфично","Друго"]},"sila_orientir":{"t":"text","h":"Колко вдигаш на основните движения, или с колко повторения.","rv":"silaReveal"},"sport_detail":{"t":"text","h":"Напр. „футбол, аматьорска лига, предсезон\".","rv":"sportReveal"},"cel_programa_opis":{"t":"text","h":"Напр. „да вдигам по-тежко\", „да изправя стойката\", „за плажа\"."},"kade":{"t":"radio","o":["Във фитнес зала","Вкъщи","Фитнес площадка (парк/улица)","Смесено"]},"oborudvane":{"t":"check","o":["Пълна фитнес зала","Щанга и дискове","Дъмбели/гири","Кетълбели","Ластици","Лост за набиране","Фитнес площадка (лостове/успоредки)","Кардио уреди","Само собствено тегло"]},"oborudvane_drugo":{"t":"area","h":"Конкретни машини, скрипец, TRX, шейна и т.н."},"dni_sedmica":{"t":"radio","o":["2","3","4","5","6"],"h":"По-добре по-малко, но редовно."},"grafik":{"t":"radio","o":["Редовни дни","Варира (смени)"]},"grafik_opis":{"t":"text","h":"Напр. „в почивните дни и след нощна смяна следобед\".","rv":"grafikReveal"},"minuti":{"t":"radio","o":["~30 мин","~45 мин","~60 мин","75+ мин"]},"chasove_dni":{"t":"text"},"klek_ok":{"t":"radio","o":["Да, свободно","С известен дискомфорт","Не, трудно ми е"]},"ruce_glava":{"t":"radio","o":["Да, свободно","С известен дискомфорт","Не"]},"zatrudnenia":{"t":"text","h":"Навеждане, скачане, изправяне от пода. Ако няма — остави празно."},"stil":{"t":"radio","o":["Свободни тежести","Машини","Функционално","Смесено","Нямам предпочитание"]},"nt_intensitet":{"t":"radio","o":["Тежко, малко повторения","Леко, много повторения с усещане","И двете"]},"nt_raznoobrazie":{"t":"radio","o":["Разнообразие","Същото докато го усвоя","Без значение"]},"nt_plan":{"t":"radio","o":["По ясен план","По усет в момента","Смесено"]},"lyubimi_nelyubimi":{"t":"text"},"drugo_tren":{"t":"area"},"syn_promenliv":{"t":"radio","o":["Горе-долу еднакъв","Варира"],"h":"При смени сънят често се мести — отбележи, ако е така."},"chas_lyagane":{"t":"text","h":"Приблизително, напр. „23:00\"."},"syn_chasove":{"t":"radio","o":["Под 6","6–7","7–8","Над 8"]},"syn_kachestvo":{"t":"radio","o":["Спокоен","Будене през нощта","Трудно заспиване"]},"stres":{"t":"radio","o":["Ниско","Средно","Високо"]},"energiya":{"t":"radio","o":["Добра","Пада следобед","Ниска цял ден"]},"vyzstanovyavane":{"t":"radio","o":["Добре","Средно","Бавно/често уморен"],"h":"Сила, енергия, мускулна треска — възстановяваш ли се, или често си преуморен(а)."},"syn_tochno":{"t":"text","h":"От часовник/приложение, напр. 6.5 ч."},"puls_pokoy":{"t":"number","h":"Ако часовникът го показва, сутрин."}};
+  // Т90 (Chris 11:20): въпросите с отметки, на които честният отговор е „нищо“ — изключващо хапче, ВИНАГИ последно (избереш ли го,
+  //   другите се махат; избереш ли друго — то се маха). Записът е като другите отметки: ["Нямам"]; при областите — [{key:"none", label}].
+  var IV_NONE = { neponosimost: "Нямам", lek_klas: "Не приемам лекарства", oblasti: "Нямам оплаквания" };
+  ["neponosimost", "lek_klas"].forEach(function (k) { var f = INTAKE_F[k]; if (f && f.o && f.o.indexOf(IV_NONE[k]) < 0) f.o.push(IV_NONE[k]); });
+  function ivNoneOf(v, k) { return Array.isArray(v) && v.some(function (x) { return x === IV_NONE[k] || (x && x.key === "none"); }); }
   // Кога се показват зависимите въпроси — същите правила като във формата (rev(...) в tools/forms/intake/).
   var REVEAL = {
     zheniBlok: function (d) { return d.pol === "Жена"; },
@@ -2496,7 +2502,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   попълнени · ЛИПСВАТ = видимите задължителни празни. Винаги попълнено + липсват = общо. Празен въпрос по желание не влиза никъде;
   //   попълненият влиза и в двете. (Преди: „от N“ броеше и празните по желание → 31 + 58 ≠ 96.)
   // Т69: ЕДНО правило „липсва“ — видим, задължителен (не е в INTAKE_OPTIONAL), празен. От него — и броячите, и знакът на реда.
-  function ivMiss(k, d) { d = d || IN.data; return ivVisible(k, d) && ivEmpty(d[k]) && INTAKE_OPTIONAL.indexOf(k) < 0; }
+  function ivMiss(k, d) { d = d || IN.data; return ivVisible(k, d) && ivEmpty(d[k]) && INTAKE_OPTIONAL.indexOf(k) < 0 && !ivOptNow(k, d); }
+  function ivOptNow(k, d) { return (k === "lek_vliyanie" || k === "lekarstva") && ivNoneOf(d.lek_klas, "lek_klas"); }   // Т90: „Не приемам лекарства“
   // Т69 добавка (Chris 19:21): oblasti сам е по желание (празно = „нямам“), но за всяка ОТМЕТНАТА област всеки неин видим подвъпрос
   //   (ime само при named, bp при sarce, stoynosti при labs; ogranichava също) е задължителен. Тук е правилото — и за броенето, и за знака.
   function areaUnits(v) {
@@ -2539,8 +2546,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var INTAKE_OPTIONAL = [
     "hormonalna", "druga_aktivnost", "drugo_sastoyanie", "snaks", "zatrudnenia",   // подсказка „… остави празно“
     "krachki_tochno", "syn_tochno", "puls_pokoy",                                    // числа от часовник/приложение
-    // решение на CDB-GYM, 09.11 14:05: празното тук е законен отговор („нямам“), а във формата няма опция „Нямам“ → не се броят.
-    // Ако по-късно формата получи „Нямам“ / „Нищо от изброените“, тези три се вадят оттук.
+    // решение на CDB-GYM, 09.11 14:05: празното тук е законен отговор („нямам“) → не се броят. Т90 (Chris 11:20): формата вече има
+    //   „Нямам“ / „Не приемам лекарства“ / „Нямам оплаквания“, но трите ОСТАВАТ по желание (без внезапни „липсва 1“ при всички);
+    //   отметнатото „Нямам“ е отговор (✓ „попълнено“).
     "oblasti", "lek_klas", "neponosimost",
     // Т68 (Chris 18:53, при Поля: „липсва 1, а едното е маркирано“): свободният текст към целта е добавка, не въпрос → по желание.
     "motivaciya"
@@ -2596,7 +2604,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }).join("");
       return '<label class="io ia"><input type="checkbox" data-area="' + a.key + '"' + (o ? " checked" : "") + dis + "><span>" + esc(a.label) + "</span></label>"
         + '<div class="iasub" data-sub="' + a.key + '"' + (o ? "" : " hidden") + '><div class="ih iahint">' + esc(AREA_HINT) + "</div>" + sub + "</div>";
-    }).join("") + "</div>";
+    }).join("") + '<label class="io ia inone"><input type="checkbox" data-none="1"' + (by.none ? " checked" : "") + dis + "><span>" + esc(IV_NONE.oblasti) + "</span></label>"   // Т90
+      + "</div>";
   }
   function fieldHtml(k, label) {
     var f = INTAKE_F[k] || { t: "text" }, v = IN.data[k], id = "if_" + k, dis = IN.ro ? " disabled" : "", h;
@@ -2637,7 +2646,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function ivRead(row) {
     var k = row.getAttribute("data-k"), f = INTAKE_F[k] || { t: "text" };
     if (f.t === "areas") {
-      var out = [];
+      var out = [], nn = row.querySelector("input[data-none]");
+      if (nn && nn.checked) return [{ key: "none", label: IV_NONE.oblasti }];   // Т90
       AREAS.forEach(function (a) {
         var cb = row.querySelector('input[data-area="' + a.key + '"]');
         if (!cb || !cb.checked) return;
@@ -2717,7 +2727,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     form.addEventListener("change", function (e) {
       var t = e.target, row = t.closest(".iq[data-k]");
       if (!row || (t.type !== "radio" && t.type !== "checkbox")) return;
+      var nk = row.getAttribute("data-k");
+      if (IV_NONE[nk] && t.type === "checkbox" && t.checked) {   // Т90: „Нямам“ ↔ останалите — изключват се
+        var isNone = t.hasAttribute("data-none") || t.value === IV_NONE[nk];
+        Array.prototype.forEach.call(row.querySelectorAll("input[type=checkbox]:not([data-ar])"), function (x) {
+          if (x === t) return;
+          var xNone = x.hasAttribute("data-none") || x.value === IV_NONE[nk];
+          if (isNone ? !xNone : xNone) {
+            x.checked = false;
+            if (x.hasAttribute("data-area")) { var xs = row.querySelector('[data-sub="' + x.getAttribute("data-area") + '"]'); if (xs) xs.hidden = true; }
+          }
+        });
+      }
       if (t.hasAttribute("data-area")) { var sub = row.querySelector('[data-sub="' + t.getAttribute("data-area") + '"]'); if (sub) sub.hidden = !t.checked; }
+      if (nk === "lek_klas") { var dl = Object.assign({}, IN.data); dl.lek_klas = ivRead(row); ivReveal(dl); }   // Т90: „липсва“ при лекарствата — веднага
       if (t.type === "radio" && !t.hasAttribute("data-ar")) { var d = Object.assign({}, IN.data); d[row.getAttribute("data-k")] = ivRead(row); ivReveal(d); }   // зависимите въпроси се показват веднага
       ivQueue(row, true);
     });
