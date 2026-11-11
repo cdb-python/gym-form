@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.7.0">
+<meta name="version" content="v1.8.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -607,6 +607,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop .pnote a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .ipop .pmsg { color: var(--up); font-weight: 600; }
   .now h3 .pbell { margin-left: -2px; }
+  .now h3 .pbell.ro { cursor: not-allowed; }   /* Т93: изгледите на треньора — камбанката на клиента, само за преглед (бледа като „Запиши“) */
   .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
   .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
   .ipop .ipx svg.ic { width: 18px; height: 18px; }
@@ -1764,7 +1765,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var NOWK = { message: 1, qa: 1, analysis: 1, plan_updated: 1 };   // Т81: редовете „Ново за теб“, които мигат (до натискане)
   function nowHtml(rows) {
     if (!rows.length) return "";
-    var html = '<div class="now"><h3>Ново за теб' + (COACH ? "" : infoBtn("now")) + (pushAllowed() ? pushBellHtml() : "") + "</h3>";   // Т82: ⓘ — само при клиента; Т85: камбанката
+    var html = '<div class="now"><h3>Ново за теб' + infoBtn("now") + (pushAllowed() ? pushBellHtml() : PUSH_RO ? pushRoHtml() : "") + "</h3>";   // Т85: камбанката; Т93 огледало: ⓘ и при треньора, камбанката — за преглед
     rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + (NOWK[r[0]] ? ' data-nk="' + esc(r[0] + "|" + r[1]) + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
     return html + "</div>";
   }
@@ -1788,7 +1789,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!list.length) return;
       any = true;
       if (sec.key === "instruction") list.sort(function (a, b) { return String(b.entry_date || "").localeCompare(String(a.entry_date || "")); });
-      html += '<div class="sec"><h2>' + esc(sec.label) + (sec.key === "info" && !COACH ? infoBtn("cards") : "") + "</h2>";   // Т87: ⓘ — само „Информация“
+      html += '<div class="sec"><h2>' + esc(sec.label) + (sec.key === "info" ? infoBtn("cards") : "") + "</h2>";   // Т87: ⓘ — само „Информация“
       list.forEach(function (r) { html += cardHtml(r, firstOpen); firstOpen = false; });
       html += "</div>";
     });
@@ -1871,6 +1872,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<button type="button" class="ibtn pbell' + (PUSH.on ? " on" : "") + '" data-info="push" aria-label="Известия: ' + (PUSH.on ? "включени" : "изключени")
       + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop">' + ic(PUSH.on ? "bell" : "belloff") + "</button>";
   }
+  // Т93 (Chris 11.11 14:33): треньорът (?c=, и своят акаунт там) и изгледът като клиент виждат камбанката на клиента — изключена (като
+  //   моливите от Т91б): включено = плътна, изключено = зачеркната; състоянието е от coach_push_state (абонаментите в базата). Грешка / null →
+  //   няма камбанка. Без балон и без заявки за абонамент (телефонът на треньора не се абонира).
+  var PUSH_RO = null;   // { on } — при клиента
+  function pushRoHtml() {
+    return '<button type="button" class="ibtn pbell ro' + (PUSH_RO.on ? " on" : "") + '" disabled aria-disabled="true" aria-label="Известията са ' + (PUSH_RO.on ? "включени" : "изключени") + '">'
+      + ic(PUSH_RO.on ? "bell" : "belloff") + "</button>";
+  }
+  function pushRoInit() {
+    if (!COACH && !VIEW_AS) return;
+    var args = COACH ? (COACH_CID ? { p_client_id: COACH_CID } : null) : token ? { p_token: token } : null, q;
+    if (!args) return;
+    try { q = sb.rpc("coach_push_state", args); } catch (x) { return; }
+    Promise.resolve(q).then(function (r) {
+      var d = r && !r.error ? r.data : null;
+      PUSH_RO = d && typeof d === "object" && "on" in d ? { on: d.on === true } : null;
+      refreshNow();
+    }, function () {});
+  }
   function pushBody(pop) {
     var body = pop.querySelector(".ipbody"), m = pushMode(), x;
     if (!body) return;
@@ -1884,7 +1904,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     body.insertAdjacentHTML("beforeend", '<div class="pext">' + x + "</div>");
   }
   function pushSync() {
-    Array.prototype.forEach.call(document.querySelectorAll(".pbell"), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll(".pbell:not(.ro)"), function (b) {   // Т93: камбанката за преглед — не
       b.classList.toggle("on", PUSH.on); b.setAttribute("aria-label", "Известия: " + (PUSH.on ? "включени" : "изключени"));
       var sv = b.querySelector("svg"); if (sv && sv.getAttribute("data-ic") !== (PUSH.on ? "bell" : "belloff")) sv.outerHTML = ic(PUSH.on ? "bell" : "belloff");
     });
@@ -2674,10 +2694,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     return { n: n, group: first };
   }
-  // редът: клиентът (формата се пише) — „Допълни формата за данни · липсват N“; треньорът — само информация; изгледът като клиент — нищо
+  // редът: клиентът и изгледът като клиент (Т93 огледало) — „Допълни формата за данни · липсват N“; треньорът (?c=) — „Формата за данни · …“
   function intakeNowRow() {
-    if (!IN.on || VIEW_AS) return null;
-    if (IN.ro && !COACH) return null;
+    if (!IN.on) return null;
     var m = intakeMissing();
     if (!m.n) return null;
     var miss = (m.n === 1 ? "липсва " : "липсват ") + m.n;
@@ -2749,7 +2768,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!igShown(g)) return;   // Т72: без празна карта и без „✓“; gi остава индексът в INTAKE_Q → „danni:ig_N“ сочи същия раздел
       if (first < 0) first = gi;
       var c = igCnt(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === first && IN.on && !IN.ro ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
+      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === first && IN.on ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
         + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], qLabel(q[0])); }).join("") + "</div></details>";
     });
     return html + "</div>";
@@ -4440,6 +4459,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     shInit();   // Т77
     pushInit();   // Т85
+    pushRoInit();   // Т93
     if (COACH) swMessages();   // Т88: известията на треньора (coach/sw.js)
     updateBadge(); updateDots();
     pushMissing();   // Т76: „липсват N“ → базата
