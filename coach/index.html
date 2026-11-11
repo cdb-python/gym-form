@@ -349,7 +349,22 @@
     if (s) loadList(); else show("login");
   }, function () { show("login"); });
   document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && !list.classList.contains("hidden")) loadList(); });
-  window.__coach = { reload: loadList, rows: function () { return ROWS; } };
+  // Т86 (Chris 07:51–08:00): стояло във фона ≥ 10 мин → при връщане презарежда тихо (новият код и новите данни). Тук няма
+  //   <meta name="version"> → само по времето. Пише се във входа (имейл/парола) → не; пак при следващото връщане.
+  var BGC = { at: 0, pend: false }, bgcReload = function () { location.reload(); };
+  function bgcBusy() {
+    var lg = document.getElementById("login");
+    if (lg && !lg.classList.contains("hidden") && Array.prototype.some.call(lg.querySelectorAll("input"), function (i) { return String(i.value || "").trim() !== ""; })) return true;
+    var a = document.activeElement; return !!(a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && String(a.value || "").trim());
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") { if (!BGC.at) BGC.at = Date.now(); return; }
+    var away = BGC.at ? Date.now() - BGC.at : 0; BGC.at = 0;
+    if (!BGC.pend && away < 10 * 60e3) return;
+    if (bgcBusy()) { BGC.pend = true; return; }
+    BGC.pend = false; bgcReload();
+  });
+  window.__coach = { reload: loadList, rows: function () { return ROWS; }, bg: { st: BGC, setReload: function (f) { bgcReload = f; } } };
 })();
 </script>
 </body>
