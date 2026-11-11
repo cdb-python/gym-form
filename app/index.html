@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.11.1">
+<meta name="version" content="v1.11.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -675,7 +675,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .khead button.on { color: var(--accent-dark); }
   .krow { width: 100%; box-sizing: border-box; margin: 0; padding: 8px 0; border: 0; border-top: 1px solid var(--border); background: none; color: var(--ink); font-family: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   #kRows > .krow:first-child { border-top: 0; }
-  .krow .kn { font-size: 14.5px; line-height: 1.3; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .krow .kn { font-size: 14.5px; line-height: 1.3; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }   /* Т98: до 3 реда, после „…“ */
   .krow .kv { font-size: 13px; line-height: 1.3; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .krow .kv.kk { font-weight: 700; }
   .krow .km { font-size: 14px; font-weight: 800; line-height: 1; text-align: center; }
@@ -905,6 +905,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #p-razgovor .chatwrap { flex: 1; min-height: 0; display: flex; }
   #p-razgovor .chat { flex: 1; min-height: 0; }
   body.chat-on { padding-bottom: 0; }
+  /* Т98: Кухня › „Храни“ / „Моите“ — страницата стои (както „Разговор“), храните са в бокс със собствен скрол; заглавният ред — закрепен горе.
+     Само при височина ≥ 500 px (KIT_BOXMQ): хоризонтално на телефона за бокса не остава място → страницата се скролва както досега. */
+  @media (min-height: 500px) {
+    body.kbox { padding-bottom: 0; overscroll-behavior-y: none; }
+    #p-kuhnya.on.kbox { display: flex; flex-direction: column; height: calc(100vh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); }
+    #p-kuhnya.kbox > .kseg { flex: none; }
+    #p-kuhnya.kbox #kBody { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
+    #p-kuhnya.kbox #kBody > * { flex: none; }
+    #p-kuhnya.kbox #kBody > .klist { flex: 1 1 auto; min-height: 120px; margin-bottom: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+    #p-kuhnya.kbox #kBody > .klist { scrollbar-width: none; }   /* без видима лента за скрол (ролката на мишката / пръстът) */
+    #p-kuhnya.kbox #kBody > .klist::-webkit-scrollbar { display: none; }
+    #p-kuhnya.kbox #kBody > .klist[hidden] { display: none; }
+    #p-kuhnya.kbox .klist > .khead { position: sticky; top: 0; z-index: 1; background: #fff; }
+  }
   .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--btn); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
   .cdown.show { display: block; }
   .cdown:active { background: var(--accent-dark); }
@@ -3452,6 +3466,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!IPOP.btn.isConnected || !IPOP.btn.getClientRects().length) { infoClose(); return; }
     var br = box.getBoundingClientRect(), rr = row.getBoundingClientRect(), st = IPOP.pop.style;
     st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (rr.bottom + window.scrollY + 4) + "px";
+    kitPopPlace();   // Т98: храната в бокса — цялата над лентата
   }
   function infoClose(back, viaPop, keep) {
     if (!IPOP) return;
@@ -3608,7 +3623,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (KIT.want && current !== "kuhnya") switchTab("kuhnya");
     }, function () { kitNav(false); });
   }
-  function kitShow() { if (!P.kuhnya.firstChild) kitRender(); setTimeout(kitFill, 0); }
+  function kitShow() { if (!P.kuhnya.firstChild) kitRender(); kitBoxMode(); setTimeout(kitFill, 0); }
+  // Т98: „Храни“ и „Моите“ — страницата стои, списъкът е в бокс (CSS: body.kbox, #p-kuhnya.kbox); „Ястия“ — страницата си се скролва
+  var KIT_BOXMQ = "(min-height: 500px)";   // = @media в CSS: под 500 px височина (хоризонтално) — без бокс
+  function kitInBox() { return document.body.classList.contains("kbox") && (!window.matchMedia || window.matchMedia(KIT_BOXMQ).matches); }
+  function kitBoxMode() {
+    var on = current === "kuhnya" && KIT.loaded && (KIT.seg === "foods" || KIT.seg === "mine");
+    if (P.kuhnya) P.kuhnya.classList.toggle("kbox", on);
+    document.body.classList.toggle("kbox", on);
+    if (on && window.scrollY && kitInBox()) window.scrollTo(0, 0);
+  }
   function kitRender() {
     var p = P.kuhnya; if (!p) return;
     if (!KIT.loaded) { p.innerHTML = '<div class="state">' + (KIT.err ? "Неуспешно. Опитай пак." : "Зарежда…") + "</div>"; return; }
@@ -3632,6 +3656,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function kitBody() {
     var b = document.getElementById("kBody"); if (!b) return;
+    kitBoxMode();   // Т98
     if (KIT.seg === "dishes") { b.innerHTML = kitDishesHtml(); return; }   // Т95
     var h;
     if (KIT.seg === "mine") {
@@ -3676,16 +3701,23 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     rows.insertAdjacentHTML("beforeend", KIT.list.slice(KIT.shown, n).map(kitRow).join(""));
     KIT.shown = n;
   }
-  function kitFill() {   // следващите порции, докато краят на списъка е близо до екрана (скролът не мърда)
-    var s = document.getElementById("kMore"), g = 0;
+  function kitFill() {   // следващите порции, докато краят на списъка е близо до края на бокса (Т98) / екрана (скролът не мърда)
+    var s = document.getElementById("kMore"), g = 0, box = s && s.closest(".klist");
     if (!s || current !== "kuhnya" || !s.getClientRects().length) return;
-    while (KIT.shown < KIT.list.length && s.getBoundingClientRect().top < window.innerHeight + 900 && g++ < 30) kitMore();
+    var lim = function () { return (kitInBox() && box ? box.getBoundingClientRect().bottom : window.innerHeight) + 900; };
+    while (KIT.shown < KIT.list.length && s.getBoundingClientRect().top < lim() && g++ < 30) kitMore();
   }
+  document.addEventListener("scroll", function (e) {   // Т98: скролът в бокса (не се изкачва → улавя се отгоре)
+    var t = e.target; if (!t || !t.classList || !t.classList.contains("klist") || current !== "kuhnya") return;
+    if (IPOP && IPOP.pop.classList.contains("kpop") && IPOP.ky != null && Math.abs(IPOP.btn.getBoundingClientRect().top - IPOP.ky) > 2) infoClose();   // редът на балона се е преместил (закъснялото събитие от връщането горе — не)
+    kitFill();
+  }, true);
   window.addEventListener("scroll", function () { if (current === "kuhnya") kitFill(); }, { passive: true });
   function kitList() {
     if (!document.getElementById("kRows")) return;
     KIT.list = kitFiltered(); KIT.shown = 0;
     document.getElementById("kRows").innerHTML = "";
+    var bx = document.querySelector("#p-kuhnya .klist"); if (bx && bx.scrollTop) bx.scrollTop = 0;   // Т98: нов филтър / търсене → боксът горе
     kitMore(); kitFill();
     var cnt = document.getElementById("kCnt"); if (cnt) cnt.textContent = kitCount(KIT.list.length);
     var em = document.getElementById("kEmpty"), lst = document.querySelector("#p-kuhnya .klist");
@@ -3736,10 +3768,23 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     IPOP = { btn: btn, pop: pop };
     btn.setAttribute("aria-expanded", "true");
     infoPlace(); window.addEventListener("resize", infoPlace);
-    popFit(pop); ipPush();
+    if (!kitPopPlace()) popFit(pop);   // Т98: в бокса страницата стои → балонът се мести сам
+    ipPush();
     pop.querySelector(".ipx").addEventListener("click", function () { infoClose(true); });
     pop.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("button[data-kl]"); if (b && !b.disabled) kitMark(f.id, b.getAttribute("data-kl")); });
     try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function kitPopPlace() {   // Т98: под реда; ако долу няма място до лентата — над реда; ако и там няма — колкото се събира над лентата
+    if (!IPOP || !IPOP.pop.classList.contains("kpop") || !kitInBox()) return false;
+    var pop = IPOP.pop, pr = pop.getBoundingClientRect(), rr = IPOP.btn.getBoundingClientRect(), nav = document.querySelector("nav.tabs");
+    IPOP.ky = rr.top;   // къде е редът сега (скролът в бокса го мести → балонът се затваря)
+    var lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8;
+    if (pr.bottom > lim) {
+      var top = rr.top - pr.height - 4;
+      if (top < 8) top = Math.max(8, lim - pr.height);
+      pop.style.top = (top + window.scrollY) + "px";
+    }
+    return true;
   }
   function kitMark(id, list) {   // оптимистично; „не“ от базата → връща се назад
     if (KIT.ro || !CAN_WRITE || KIT.busy[id]) return;
@@ -4870,6 +4915,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (P[tab]) agSoon(P[tab]);   // Т97: полетата на показания раздел
     paneTitle.textContent = TABS[tab];
     document.body.classList.toggle("chat-on", tab === "razgovor");
+    if (tab !== "kuhnya") document.body.classList.remove("kbox");   // Т98
     if (tab === "nachalo") refreshNow();   // Т82 Г (Chris 04:47): видяното по другия път (Разговор, анализът, въпросник, формата) — веднага, без презареждане
     try { history.replaceState(null, "", location.pathname + location.search + "#" + tab); } catch (e) {}
     if (tab === "razgovor") { window.scrollTo(0, 0); setTop(); chatBottom(); markChatRead(); }
