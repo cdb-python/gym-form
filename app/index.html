@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.6.1">
+<meta name="version" content="v1.7.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -617,6 +617,35 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop .ipbody > :last-child { margin-bottom: 0; }
   .ipop .ipq { margin: 10px 0 2px; font-size: 14.5px; font-weight: 700; line-height: 1.35; color: var(--accent-dark); }
   .ipop .ipbody > .ipq:first-child { margin-top: 2px; }
+  /* Т92: нашият часовник — балонът е като ⓘ (ширина, радиус, сянка, отстъпи, шрифт, фон на изгледа); акцентът — за избраното */
+  input.tpin { cursor: pointer; caret-color: transparent; text-align: center; font-variant-numeric: tabular-nums; }
+  input.tpin:disabled { cursor: not-allowed; }
+  .tp { position: absolute; z-index: 56; box-sizing: border-box; padding: 8px 12px 12px; background: #faf3ec; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  body.coach-on .tp { background: #f1f2f3; }
+  .tp .tph { display: flex; align-items: center; justify-content: center; gap: 6px; padding-top: 4px; }
+  .tp .tpd { box-sizing: border-box; width: 84px; height: 60px; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 40px; font-weight: 700; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; cursor: pointer; }
+  .tp .tpd.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tp .tpd:focus { outline: none; }
+  .tp button.tpd:focus-visible { box-shadow: 0 0 0 2px var(--accent-dark); }
+  .tp input.tpd { cursor: text; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
+  .tp input.tpd:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-a40, rgba(199,125,46,0.4)); }
+  .tp input.tpd[aria-invalid="true"] { border-color: #c24a4a; background: #fdecec; color: #9a3b3b; }
+  .tp .tpc { font-size: 40px; font-weight: 700; line-height: 1; color: var(--ink); }
+  .tp .tpdial { display: block; margin: 10px auto 0; touch-action: none; cursor: pointer; overflow: visible; }
+  .tp .tpface { fill: #fff; stroke: var(--border); stroke-width: 1; }
+  .tp .tpdial text { font-family: inherit; font-size: 15px; font-weight: 600; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .tp .tpdial text.in { font-size: 12.5px; font-weight: 500; fill: var(--muted); }
+  .tp .tpdial text.sel { fill: #fff; }
+  .tp .tphand { stroke: var(--accent); stroke-width: 2; }
+  .tp .tpknob, .tp .tpdot { fill: var(--accent); }
+  .tp .tpf { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-top: 10px; }
+  .tp .tpk { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 40px; height: 40px; margin: 0 auto 0 -8px; padding: 0; border: 0; border-radius: 10px; background: none; color: var(--accent-dark); cursor: pointer; }
+  .tp .tpk svg.ic { width: 24px; height: 24px; }
+  .tp .tpb { height: 40px; margin: 0; padding: 0 10px; border: 1px solid transparent; border-radius: 10px; background: none; color: var(--accent-dark); font-family: inherit; font-size: 15px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+  .tp .tpb.tpok { margin-left: 4px; padding: 0 16px; border-color: var(--btn); background: var(--btn); color: #fff; }
+  .tp .tpb:disabled { opacity: 0.55; cursor: not-allowed; }
+  .tp .tpk:focus, .tp .tpb:focus { outline: none; }
+  .tp .tpk:focus-visible, .tp .tpb:focus-visible { box-shadow: 0 0 0 2px var(--accent); }
   .ipop a[data-go] { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .card .body [data-meal].ate:not(tr) { background: var(--ate); border-radius: 8px; }
   .lhead span.lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
@@ -944,6 +973,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     basic: '<rect x="2.8" y="5" width="18.4" height="14" rx="2.2"></rect><circle cx="8.4" cy="10.4" r="2"></circle><path d="M5.4 16.2a3 3 0 0 1 6 0"></path><path d="M14.2 10h4M14.2 13.4h4"></path>',
     bell: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path>',
     belloff: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path><path d="M4 4l16 16"></path>',
+    clock: '<circle cx="12" cy="12" r="8.2"></circle><path d="M12 7.6V12l3 1.8"></path>',
     close: '<path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"></path>',
     daily: '<circle cx="13.4" cy="4.3" r="1.8"></circle><path d="M12.6 7.6l-1.4 5.8"></path><path d="M11.2 13.4l-1.6 3.4-2 3.6"></path><path d="M11.2 13.4l2.2 3.2 1.6 4"></path><path d="M12.4 8.6l2.4 2.4 2.4.6"></path><path d="M12.2 8.8l-2.4 1.4-1.2 2.8"></path>',
     down: '<path d="M12 4.5v15"></path><path d="M6.5 14 12 19.5l5.5-5.5"></path>',
@@ -955,6 +985,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     history: '<path d="M3.8 12a8.2 8.2 0 1 0 8.2-8.2 8.9 8.9 0 0 0-6.1 2.5L3.8 8.4"></path><path d="M3.8 4.2v4.2H8"></path><path d="M12 7.6V12l3.2 1.9"></path>',
     info: '<circle cx="12" cy="12" r="8.6"></circle><path d="M12 11v5.3"></path><path d="M12 7.7v.1"></path>',
     intake: '<path d="M8.5 4.8H7a2.2 2.2 0 0 0-2.2 2.2v12A2.2 2.2 0 0 0 7 21.2h10a2.2 2.2 0 0 0 2.2-2.2V7A2.2 2.2 0 0 0 17 4.8h-1.5"></path><rect x="8.5" y="3" width="7" height="3.6" rx="1.2"></rect><path d="M8.4 11h7.2M8.4 14.4h7.2M8.4 17.8h4.2"></path>',
+    keyboard: '<rect x="3" y="6.5" width="18" height="11" rx="2"></rect><path d="M6.4 9.6h1.2M9.6 9.6h1.2M12.8 9.6h1.2M16 9.6h1.2M6.4 12.2h1.2M9.6 12.2h1.2M12.8 12.2h1.2M16 12.2h1.2M8.4 14.8h7.2"></path>',
     labs: '<path d="M9 3h6"></path><path d="M10.2 3v5.8l-5 8.9A2.2 2.2 0 0 0 7.1 21h9.8a2.2 2.2 0 0 0 1.9-3.3l-5-8.9V3"></path><path d="M7.6 14.5h8.8"></path>',
     log: '<path d="M16.5 8.6V5.2a2.2 2.2 0 0 0-2.2-2.2H6.2A2.2 2.2 0 0 0 4 5.2v13.6A2.2 2.2 0 0 0 6.2 21h8.1a2.2 2.2 0 0 0 2.2-2.2v-3.4"></path><path d="M7 8h6.5M7 11.5h6.5M7 15h3"></path><path d="M18.6 7.6a1.5 1.5 0 0 1 2.1 2.1l-7.3 7.3-2.9.8.8-2.9Z"></path>',
     logout: '<path d="M9.5 20.5H6.2A2.2 2.2 0 0 1 4 18.3V5.7a2.2 2.2 0 0 1 2.2-2.2h3.3"></path><path d="M15.2 7.5 19.7 12l-4.5 4.5"></path><path d="M19.7 12H9.5"></path>',
@@ -1941,7 +1972,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var BG = { at: 0, pend: false, wait: false, go: "", goAt: 0 }, BG_LONG = 10 * 60e3, BG_SHORT = 60e3, BG_KEY = "app_bg_restore", BG_GO_WAIT = 600;
   var bgReload = function () { location.reload(); };   // тестовете я подменят (__app.bg)
   function bgDirty() {
-    if (EAT || LFIX || MFIX) return true;   // отворено „Изядох“ / поправя запис в лога / Т91: поправя или трие мерене
+    if (EAT || LFIX || MFIX || TP) return true;   // отворено „Изядох“ / поправя запис в лога / Т91: поправя или трие мерене
     var a = document.activeElement;
     if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && !/^(checkbox|radio|file|button|submit)$/i.test(a.type || "") && String(a.value || "").trim()) return true;   // пише в момента
     var f = document.getElementById("f_text"); if (f && String(f.value || "").trim()) return true;   // полето на лога (не се пази)
@@ -2223,7 +2254,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво и колко хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво и колко хапна или пи"></textarea>'
-      + '<div class="lwr"><input type="time" id="f_time" value="' + nowHM() + '" aria-label="Час">'
+      + '<div class="lwr"><input type="text" id="f_time" class="tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-label="Час" aria-haspopup="dialog" aria-expanded="false">'
       + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + "</div>"
       + '<div class="lrows" id="logToday"></div>';
     return panelHtml("log", "log", "Днес", "", inner, open, chip);
@@ -3178,6 +3209,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var EAT = null;   // отвореният банер: { el, btn, pop, name, busy }
   function eatClose(back) {
     if (!EAT) return;
+    if (TP && EAT.pop.contains(TP.field)) tpClose();   // Т92: часовникът на банера — с него
     var b = EAT.btn;
     if (EAT.pop.parentNode) EAT.pop.parentNode.removeChild(EAT.pop);
     popUnfit();
@@ -3199,7 +3231,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var name = box.getAttribute("data-meal-name"), pop = document.createElement("div");
     pop.className = "eatpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Изядох — " + name); pop.tabIndex = -1;
     pop.innerHTML = '<div class="eph">' + esc(name) + "</div>"
-      + '<div class="epr"><label class="epl">Час <input type="time" class="eptm" value="' + nowHM() + '"></label>'
+      + '<div class="epr"><label class="epl">Час <input type="text" class="eptm tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-haspopup="dialog" aria-expanded="false"></label>'
       + '<div class="epb"><button type="button" class="epno">Отказ</button><button type="button" class="epok">Запиши</button></div></div>'
       + '<div class="epmsg" role="status"></div>';
     document.body.appendChild(pop);
@@ -3287,6 +3319,142 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     infoClose();
   }, true);
   document.addEventListener("keydown", function (e) { if (IPOP && e.key === "Escape") { e.preventDefault(); infoClose(true); } });
+
+  // ════════ Т92: НАШИЯТ ЧАСОВНИК ════════
+  // Chris 11.11 14:06. Двете полета за час (#f_time в лога, .eptm в „Изядох“) са readonly (inputmode none) → натискане отваря балона
+  //   (видът на ⓘ, с ширината на картата / банера, под полето). Горе — големият час ЧЧ:ММ (натискаш часа или минутите → циферблатът
+  //   минава на тях). Циферблат 24 ч: външен кръг 1–12 (12 горе), вътрешен 13–23 и 00 горе; докосване или плъзгане; след часа → сам на
+  //   минутите. Минутите — 00, 05 … 55, плъзгането хваща и точната (числото е в кръгчето). ⌨ → цифров вид ЧЧ : ММ (0–23 / 0–59), 🕒 → обратно.
+  //   „Отказ“ / докосване извън / Esc → без промяна. „Сега“ → часовникът на текущия час (полето — едва с „Готово“). „Готово“ → „ЧЧ:ММ“ в
+  //   полето + събитие input (→ data-user, както при ръчната смяна досега). Изгледите само за четене: полето е изключено → не се отваря.
+  var TP = null;   // { field, pop, h, m, mode: "h" | "m", kb, drag, bad }
+  var TP_RO = 94, TP_RI = 60;   // радиусите на числата в квадрата 240 × 240
+  function tp2(n) { return (n < 10 ? "0" : "") + n; }
+  function tpPt(deg, r) { var a = deg * Math.PI / 180; return [Math.round((120 + r * Math.sin(a)) * 10) / 10, Math.round((120 - r * Math.cos(a)) * 10) / 10]; }
+  function tpDialHtml() {
+    var hm = TP.mode === "h", v = hm ? TP.h : TP.m, inner = hm && (v === 0 || v > 12), deg = hm ? (v % 12) * 30 : v * 6, k = tpPt(deg, inner ? TP_RI : TP_RO);
+    var s = '<circle class="tpface" cx="120" cy="120" r="118"></circle><line class="tphand" x1="120" y1="120" x2="' + k[0] + '" y2="' + k[1] + '"></line>'
+      + '<circle class="tpdot" cx="120" cy="120" r="3.5"></circle><circle class="tpknob" cx="' + k[0] + '" cy="' + k[1] + '" r="' + (inner ? 15 : 17) + '"></circle>';
+    function lab(d, r, txt, cls, on) { var p = tpPt(d, r), c = (cls || "") + (on ? (cls ? " " : "") + "sel" : ""); return '<text x="' + p[0] + '" y="' + p[1] + '"' + (c ? ' class="' + c + '"' : "") + ">" + txt + "</text>"; }
+    for (var i = 0; i < 12; i++) {
+      if (hm) { var ho = i || 12, hi = i ? i + 12 : 0; s += lab(i * 30, TP_RO, String(ho), "", v === ho) + lab(i * 30, TP_RI, tp2(hi), "in", v === hi); }
+      else s += lab(i * 30, TP_RO, tp2(i * 5), "", v === i * 5);
+    }
+    if (!hm && v % 5) s += lab(deg, TP_RO, tp2(v), "kn", true);   // точната минута — числото в кръгчето
+    return s;
+  }
+  function tpHeadHtml() {
+    if (TP.kb) return '<input type="text" class="tpd" data-p="h" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="Час" value="' + tp2(TP.h) + '"><span class="tpc">:</span>'
+      + '<input type="text" class="tpd" data-p="m" inputmode="numeric" maxlength="2" autocomplete="off" aria-label="Минути" value="' + tp2(TP.m) + '">';
+    return '<button type="button" class="tpd' + (TP.mode === "h" ? " on" : "") + '" data-p="h" aria-label="Час" aria-pressed="' + (TP.mode === "h") + '">' + tp2(TP.h) + '</button><span class="tpc">:</span>'
+      + '<button type="button" class="tpd' + (TP.mode === "m" ? " on" : "") + '" data-p="m" aria-label="Минути" aria-pressed="' + (TP.mode === "m") + '">' + tp2(TP.m) + "</button>";
+  }
+  function tpSize() { var w = TP.pop.clientWidth - 24; return Math.round(Math.max(160, Math.min(w, 260, window.innerHeight - 250))); }   // нисък екран → по-малък циферблат
+  function tpRender() {
+    var pop = TP.pop, dl = pop.querySelector(".tpdial"), k = pop.querySelector(".tpk"), D = tpSize();
+    pop.querySelector(".tph").innerHTML = tpHeadHtml();
+    dl.style.display = TP.kb ? "none" : "";
+    dl.setAttribute("width", D); dl.setAttribute("height", D);
+    if (!TP.kb) dl.innerHTML = tpDialHtml();
+    k.innerHTML = ic(TP.kb ? "clock" : "keyboard"); k.setAttribute("aria-label", TP.kb ? "Към циферблата" : "С цифри");
+    pop.querySelector(".tpb.tpok").disabled = !!TP.bad;
+  }
+  function tpPlace() {
+    if (!TP) return;
+    var f = TP.field;
+    if (!f.isConnected || !f.getClientRects().length) { tpClose(); return; }
+    var box = f.closest(".eatpop") || f.closest(".card, .mcard, details, .sec") || f.parentElement, br = box.getBoundingClientRect(), fr = f.getBoundingClientRect(), st = TP.pop.style;
+    st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (fr.bottom + window.scrollY + 4) + "px";
+  }
+  function tpResize() { tpPlace(); if (TP && !TP.kb) tpRender(); }
+  function tpClose(back) {
+    if (!TP) return;
+    var f = TP.field;
+    if (TP.pop.parentNode) TP.pop.parentNode.removeChild(TP.pop);
+    window.removeEventListener("resize", tpResize);
+    f.setAttribute("aria-expanded", "false"); TP = null;
+    if (!EAT && !IPOP) popUnfit();
+    if (back && f.isConnected) try { f.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function tpOpen(f) {
+    if (!f || f.disabled || !CAN_WRITE) return;   // изгледите само за четене — не се отваря
+    tpClose();
+    var mm = /^(\d{1,2}):(\d{2})$/.exec(f.value || "");
+    if (!mm || +mm[1] > 23 || +mm[2] > 59) mm = /^(\d{2}):(\d{2})$/.exec(nowHM());   // започва от часа в полето
+    var pop = document.createElement("div");
+    pop.className = "tp"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Час"); pop.tabIndex = -1;
+    pop.innerHTML = '<div class="tph"></div><svg class="tpdial" viewBox="0 0 240 240" aria-hidden="true" focusable="false"></svg>'
+      + '<div class="tpf"><button type="button" class="tpk"></button><button type="button" class="tpb tpno">Отказ</button><button type="button" class="tpb tpnow">Сега</button><button type="button" class="tpb tpok">Готово</button></div>';
+    document.body.appendChild(pop);
+    TP = { field: f, pop: pop, h: +mm[1], m: +mm[2], mode: "h", kb: false, drag: false, bad: false };
+    f.setAttribute("aria-expanded", "true");
+    tpPlace(); tpRender(); window.addEventListener("resize", tpResize);
+    popFit(pop);   // целият балон над лентата долу
+    tpWire(pop);
+    try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function tpPick(e) {
+    var dl = TP.pop.querySelector(".tpdial"), r = dl.getBoundingClientRect(), k = 240 / r.width;
+    var x = (e.clientX - r.left) * k - 120, y = (e.clientY - r.top) * k - 120, d = Math.sqrt(x * x + y * y), deg = (Math.atan2(x, -y) * 180 / Math.PI + 360) % 360;
+    if (TP.mode === "h") { var i = Math.round(deg / 30) % 12; TP.h = d < (TP_RO + TP_RI) / 2 ? (i ? i + 12 : 0) : (i || 12); }
+    else TP.m = Math.round(deg / 6) % 60;
+    var hd = TP.pop.querySelector('.tpd[data-p="' + TP.mode + '"]'); if (hd) hd.textContent = tp2(TP[TP.mode]);
+    dl.innerHTML = tpDialHtml();
+  }
+  function tpKbCheck() {
+    var bad = false;
+    Array.prototype.forEach.call(TP.pop.querySelectorAll("input.tpd"), function (i) {
+      var p = i.getAttribute("data-p"), v = i.value, ok = /^\d{1,2}$/.test(v) && +v <= (p === "h" ? 23 : 59);
+      i.setAttribute("aria-invalid", ok ? "false" : "true");
+      if (ok) TP[p] = +v; else bad = true;
+    });
+    TP.bad = bad; TP.pop.querySelector(".tpb.tpok").disabled = bad;
+  }
+  function tpDone() {
+    if (!TP) return;
+    if (TP.kb) tpKbCheck();
+    if (TP.bad) return;
+    var f = TP.field, v = tp2(TP.h) + ":" + tp2(TP.m);
+    tpClose(true);
+    if (f.value !== v) { f.value = v; f.dispatchEvent(new Event("input", { bubbles: true })); f.dispatchEvent(new Event("change", { bubbles: true })); }   // → data-user (както ръчната смяна)
+  }
+  function tpWire(pop) {
+    pop.addEventListener("click", function (e) {
+      var b = e.target.closest && e.target.closest("button");
+      if (!b || !TP || b.disabled) return;
+      if (b.classList.contains("tpd")) { TP.mode = b.getAttribute("data-p"); tpRender(); }
+      else if (b.classList.contains("tpk")) {
+        TP.kb = !TP.kb; TP.bad = false; tpRender();
+        if (TP.kb) { var hi = pop.querySelector('input.tpd[data-p="h"]'); try { hi.focus(); hi.select(); } catch (x) {} }
+        else try { pop.focus({ preventScroll: true }); } catch (x) {}
+      }
+      else if (b.classList.contains("tpno")) tpClose(true);
+      else if (b.classList.contains("tpnow")) { var n = /^(\d{2}):(\d{2})$/.exec(nowHM()); TP.h = +n[1]; TP.m = +n[2]; TP.bad = false; tpRender(); }
+      else if (b.classList.contains("tpok")) tpDone();
+    });
+    var dl = pop.querySelector(".tpdial");
+    dl.addEventListener("pointerdown", function (e) { if (!TP || TP.kb) return; e.preventDefault(); TP.drag = true; try { dl.setPointerCapture(e.pointerId); } catch (x) {} tpPick(e); });
+    dl.addEventListener("pointermove", function (e) { if (TP && TP.drag) { e.preventDefault(); tpPick(e); } });
+    dl.addEventListener("pointerup", function (e) { if (!TP || !TP.drag) return; TP.drag = false; tpPick(e); if (TP.mode === "h") { TP.mode = "m"; tpRender(); } });   // след часа → минутите
+    dl.addEventListener("pointercancel", function () { if (TP) TP.drag = false; });
+    pop.addEventListener("input", function (e) {
+      var t = e.target; if (!TP || !t.classList.contains("tpd")) return;
+      var v = t.value.replace(/\D/g, "").slice(0, 2); if (v !== t.value) t.value = v;
+      tpKbCheck();
+      if (t.getAttribute("data-p") === "h" && v.length === 2 && t.getAttribute("aria-invalid") === "false") { var mi = pop.querySelector('input.tpd[data-p="m"]'); try { mi.focus(); mi.select(); } catch (x) {} }
+    });
+    pop.addEventListener("keydown", function (e) { if (e.key === "Enter" && TP && TP.kb && e.target.classList && e.target.classList.contains("tpd")) { e.preventDefault(); tpDone(); } });
+  }
+  document.addEventListener("click", function (e) {
+    var f = e.target.closest && e.target.closest("input.tpin");
+    if (f) { if (TP && TP.field === f) tpClose(true); else tpOpen(f); return; }
+    if (TP && !TP.pop.contains(e.target)) tpClose();   // докосване извън → без промяна
+  }, true);
+  document.addEventListener("keydown", function (e) {
+    if (TP && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); tpClose(true); return; }   // само часовникът (банерът „Изядох“ остава)
+    var t = e.target;
+    if (!TP && t && t.classList && t.classList.contains("tpin") && (e.key === " " || (e.key === "Enter" && t.id === "f_time"))) { e.preventDefault(); tpOpen(t); }
+  }, true);
   window.addEventListener("popstate", function () {
     if (IP_BACK) {   // нашето „назад“ стигна: адресът — текущият раздел; ако междувременно е отворен балон — неговият запис сега
       IP_BACK = false;
@@ -3304,7 +3472,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (wireEat.doc) return;
     wireEat.doc = true;
     document.addEventListener("click", function (e) {   // докосване извън банера → затваря, без запис
-      if (!EAT || EAT.pop.contains(e.target)) return;
+      if (!EAT || EAT.pop.contains(e.target) || (TP && TP.pop.contains(e.target))) return;   // Т92: в часовника — не е „извън“
       if (e.target.closest && e.target.closest(".eatbtn") === EAT.btn) return;   // същият бутон → eatOpen го затваря
       eatClose();
     }, true);
@@ -4016,7 +4184,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
-    eatClose(); infoClose(); accStop();   // Т66
+    tpClose(); eatClose(); infoClose(); accStop();   // Т66 · Т92
     if (!TABS[tab]) tab = "nachalo";
     if (current) scrollMem[current] = window.scrollY;
     if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
