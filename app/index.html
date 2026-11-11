@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.1.3">
+<meta name="version" content="v1.2.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -198,6 +198,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   @media (prefers-reduced-motion: reduce) {
     .shim { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; }
     nav.tabs button.shim { background-image: linear-gradient(100deg, rgba(255,255,255,0.32), rgba(255,255,255,0.1)) !important; }
+  }
+  /* Т81 (Chris 01:35): клиентската страница — вълната вместо червените точки, в оранжевото на клиентското приложение (#c77d2e);
+     бяла по лентата долу; „без движение“ → лек неподвижен оранжев отблясък. Треньорът (body.coach-on) остава сивосинкав. */
+  body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0) 35%, rgba(199,125,46,0.24) 50%, rgba(199,125,46,0) 65%) !important; }
+  body:not(.coach-on) nav.tabs button.shim { background-image: linear-gradient(100deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 70%) !important; }
+  html.rm body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0.18), rgba(199,125,46,0.06)) !important; }
+  html.rm body:not(.coach-on) nav.tabs button.shim { background-image: linear-gradient(100deg, rgba(255,255,255,0.32), rgba(255,255,255,0.1)) !important; }
+  @media (prefers-reduced-motion: reduce) {
+    body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0.18), rgba(199,125,46,0.06)) !important; }
+    body:not(.coach-on) nav.tabs button.shim { background-image: linear-gradient(100deg, rgba(255,255,255,0.32), rgba(255,255,255,0.1)) !important; }
   }
 
   /* панели (акордеон от първо ниво в Храна и Данни) */
@@ -1112,7 +1122,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var n = unreadCount(), b = document.getElementById("chatBadge");
     b.textContent = "";   // Т39: точка като другите — без число
     b.setAttribute("data-n", String(n));
-    b.classList.toggle("show", n > 0 && !COACH);   // Т77: при треньора — вълната по иконата, не точка
+    b.classList.remove("show");   // Т77/Т81: вълната по иконата, не точка (data-n остава)
   }
   function markChatRead() {
     if (COACH) {   // треньорът отвори „Разговор" → всичко от клиента дотук е видяно (coach_read_at)
@@ -1204,7 +1214,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function h32(s) { s = String(s || ""); var h = 5381; for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
   function track(key, tab, body) { NEWC[key] = h32(body); NEWTAB[key] = tab; }
   function isNewItem(key) { return !COACH && !!NEWC[key] && SEENC[key] !== NEWC[key]; }
-  function dot(key) { return isNewItem(key) ? '<span class="ndot" data-dot="' + esc(key) + '" aria-label="ново"></span>' : ""; }
+  function dot(key) { return ""; }   // Т81: червени точки няма — новото е с вълна (shApply)
   function anyNew(pred) { return Object.keys(NEWC).some(function (k) { return pred(k) && isNewItem(k); }); }
   function trackAll() {
     NEWC = {}; NEWTAB = {};
@@ -1249,20 +1259,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       || LABS.uploads.some(function (u) { return String(u.uploaded_at || "") > s; });
     return false;
   }
-  function updateDots() {
-    var t = { nachalo: false, hrana: false, merki: false, danni: false };
-    if (COACH) shSched();   // Т77: при треньора точките на разделите ги няма — вълната по иконите (shApply)
-    else Object.keys(NEWC).forEach(function (k) { if (isNewItem(k)) t[NEWTAB[k]] = true; });
-    Object.keys(t).forEach(function (k) { var d = document.getElementById("tdot_" + k); if (d) d.classList.toggle("show", t[k]); });
-    if (COACH) return;
-    setDot('#p-hrana .card.panel[data-key="analysis"] > .ch .ttl', anyNew(function (k) { return /^an_/.test(k); }), "p_an");
-    setDot('#p-danni .card.panel[data-key="qa"] > .ch .ttl', anyNew(function (k) { return NEWTAB[k] === "danni" && !/^lab_/.test(k); }), "p_qa");
-    setDot('#p-danni .card.panel[data-key="labs"] > .ch .ttl', anyNew(function (k) { return /^lab_/.test(k); }), "p_labs");
-    Array.prototype.forEach.call(document.querySelectorAll("[data-dotkeys]"), function (h) {
-      var on = h.getAttribute("data-dotkeys").split(" ").some(isNewItem), d = h.querySelector(":scope > .ndot");
-      if (on && !d) h.insertAdjacentHTML("beforeend", '<span class="ndot" aria-label="ново"></span>');
-      if (!on && d) d.parentNode.removeChild(d);
-    });
+  function updateDots() {   // Т81: червени точки няма никъде (и при клиента) — новото е с вълна (shApply); броячите остават
+    ["nachalo", "hrana", "merki", "danni"].forEach(function (k) { var d = document.getElementById("tdot_" + k); if (d) d.classList.remove("show"); });
+    Array.prototype.forEach.call(document.querySelectorAll("#main .ndot"), function (d) { d.parentNode.removeChild(d); });
+    shSched();
   }
   // Т40: точката — в центъра на закръглението на горния десен ъгъл на реда, чието е заглавието (карта, въпросник, месец, ден):
   // центърът е на R от външния горен и десен ръб, R = border-radius на видимата му рамка; ред без своя рамка или радиус → R = 12
@@ -1289,7 +1289,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     window.addEventListener("resize", later);
   })();
   function coachMarkTab(tab) {   // Т77: разделът се отваря → вълната по иконата му спира веднага
-    if (!COACH || !/^(hrana|merki|danni|razgovor)$/.test(tab)) return;
+    if (!/^(nachalo|hrana|merki|danni|razgovor)$/.test(tab)) return;   // Т81: и при клиента
     SH.opened[tab] = true;
     var b = document.querySelector('nav.tabs button[data-tab="' + tab + '"]'); if (b) b.classList.remove("shim");
     shSched();
@@ -1304,18 +1304,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Паметта е на устройството, както досега (coach_seen_*): coach_seen_<раздел>_<id> — до кога всичко в раздела е видяно (без него —
   //   7 дни назад); coach_seen_el_<id> — видяното след това поотделно; coach_seen_at_<id> — кога е отварян клиентът (за coach/).
   //   „Разговор“: новото е по базата (coach_read_at), както досега — вълната стои на балона, докато не се види.
-  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, mine: {}, shown: {}, pressed: {}, io: null, mo: null, raf: 0 };
+  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, mine: {}, shown: {}, pressed: {}, vseen: {}, nowp: {}, io: null, mo: null, raf: 0 };
   var SH_TABS = ["hrana", "merki", "danni"], SH_FIRST_DAYS = 7;
   function shBaseKey(tab) { return "coach_seen_" + tab + "_" + COACH_CID; }
   function shTabOf(k) { return k.charAt(0) === "f" ? "hrana" : k.charAt(0) === "m" ? "merki" : k.charAt(0) === "c" ? "razgovor" : "danni"; }
   function shq(s) { return String(s).replace(/["\\]/g, "\\$&"); }
   function shInit() {
-    SH.on = COACH;
-    if (!SH.on) return;
+    SH.on = true;   // Т81: и клиентската страница
+    if (!COACH) {   // клиентът: непрочетеното от Chris (същото като „ново“ в Разговор); „Ново за теб“ — натиснатото
+      D.log.forEach(function (e) { if (e.id && e.kind === "coach" && e.note && isUnreadTs(String(e.created_at || ""))) SH.chat[e.id] = 1; });
+      try { SH.nowp = JSON.parse(lsGet("app_seen_now_" + KEY_ID) || "{}") || {}; } catch (e) { SH.nowp = {}; }
+      document.addEventListener("click", function (e) {
+        var a = e.target.closest && e.target.closest(".now a[data-nk]"); if (!a) return;
+        var k = a.getAttribute("data-nk"); SH.nowp[k] = 1; a.classList.remove("shim");
+        if (/^plan_updated\|/.test(k) && !seenOff()) lsSet("app_seen_now_" + KEY_ID, JSON.stringify(SH.nowp));   // „Планът е обновен“ — помни се
+      }, true);
+    }
+    else {
     try { SH.seen = JSON.parse(lsGet("coach_seen_el_" + COACH_CID) || "{}") || {}; } catch (e) { SH.seen = {}; }
     SH_TABS.forEach(function (t) { SH.base[t] = tsNum(lsGet(shBaseKey(t))) || Date.now() - SH_FIRST_DAYS * 864e5; });
     lsSet("coach_seen_at_" + COACH_CID, new Date(Math.max(Date.now(), tsNum(lsGet("coach_seen_at_" + COACH_CID)))).toISOString());   // за coach/: отворен сега (Т79: никога назад — списъкът може да е записал по-късно)
     D.log.forEach(function (e) { if (e.id && e.kind !== "coach" && e.note && !isQaNote(e.note) && !e.coach_read_at) SH.chat[e.id] = 1; });
+    }
     if (window.IntersectionObserver) SH.io = new IntersectionObserver(function (es) { es.forEach(function (en) { shWatch(en.target); }); }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
     if (window.MutationObserver) {
       SH.mo = new MutationObserver(shSched);
@@ -1326,7 +1336,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     window.addEventListener("pagehide", function () { shCommit(current); });
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") shCommit(current); });
   }
+  // Т81: клиентът — новото е същото като при точките (NEWC/SEENC: картите, анализът, въпросниците, датите на изследванията),
+  //   в раздела им (NEWTAB); разговорът — непрочетеното от Chris. VIEW_AS: видяното само за това посещение (SH.vseen), не се пише.
+  function shItemsClient() {
+    var it = {};
+    Object.keys(NEWC).forEach(function (k) { if (isNewItem(k) && !SH.vseen[k] && NEWTAB[k]) it["n" + k] = { tab: NEWTAB[k], ts: 0, sel: '[data-key="' + shq(k) + '"]' }; });
+    Object.keys(SH.chat).forEach(function (id) { it["c" + id] = { tab: "razgovor", ts: 0, sel: '.cmsg[data-id="' + shq(id) + '"] > .cb' }; });
+    return it;
+  }
   function shItems() {
+    if (!COACH) return shItemsClient();
     var it = {};
     function add(tab, key, ts, sel) {
       var n = tsNum(ts);
@@ -1384,12 +1403,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         for (var a = el.parentElement; a && a !== root; a = a.parentElement) if (shClosed(a) && !shPressed(a)) mark(a);   // затворено с ново — докато не се натисне
       });
     });
-    var tabs = { hrana: 0, merki: 0, danni: 0, razgovor: 0 };
+    var tabs = {};
     Object.keys(SH.items).forEach(function (k) { tabs[SH.items[k].tab] = 1; });
     Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button[data-tab]"), function (b) {
       var tb = b.getAttribute("data-tab");
       if (tabs[tb] && !SH.opened[tb]) mark(b);
     });
+    if (!COACH) Array.prototype.forEach.call(document.querySelectorAll("#p-nachalo .now a[data-nk]"), function (a) { if (!SH.nowp[a.getAttribute("data-nk")]) mark(a); });   // Т81: „Ново за теб“ — докато не се натисне
     Array.prototype.forEach.call(document.querySelectorAll(".shim"), function (el) { if (!el.__shId || stamp[el.__shId] !== el) el.classList.remove("shim"); });
     Object.keys(stamp).forEach(function (id) { stamp[id].classList.add("shim"); });
     leaves.forEach(function (el) { if (SH.io) SH.io.observe(el); });
@@ -1415,6 +1435,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function shMark(k) {   // видяно: границата на раздела напред, ако може; иначе поотделно (coach_seen_el_<id>)
     var it = SH.items[k]; if (!it) return false;
     delete SH.items[k];
+    if (!COACH) {   // Т81: клиентът — в неговата памет (app_seen_items_*); изгледът като клиент (Т71) — само за това посещение
+      if (it.tab === "razgovor") delete SH.chat[k.slice(1)];
+      else if (seenOff()) SH.vseen[k.slice(1)] = 1; else markSeen(k.slice(1));
+      return true;
+    }
     if (it.tab === "razgovor") delete SH.chat[k.slice(1)];
     else {
       var tab = it.tab; SH.seen[k] = it.ts;
@@ -1438,6 +1463,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!SH.on || !n) return;
     var k = n.getAttribute && n.getAttribute("data-key");
     n.__shPressed = true; if (k) SH.pressed[k] = 1;
+    if (n.classList) n.classList.remove("shim");   // Т81: спира веднага, не при следващото пре-рисуване
     if (n.__shk && SH.items[n.__shk]) SH.shown[n.__shk] = 1;
     shSched();
   }
@@ -1514,10 +1540,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
     return v ? '<p class="appver" id="appVer">cdb-Gym · ' + esc(v) + "</p>" : "";
   }
+  var NOWK = { message: 1, qa: 1, analysis: 1, plan_updated: 1 };   // Т81: редовете „Ново за теб“, които мигат (до натискане)
   function nowHtml(rows) {
     if (!rows.length) return "";
     var html = '<div class="now"><h3>Ново за теб</h3>';
-    rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
+    rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + (NOWK[r[0]] ? ' data-nk="' + esc(r[0] + "|" + r[1]) + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
     return html + "</div>";
   }
   // Т58: след запис във формата — само блокът „Ново за теб“ (картите в Начало не се прерисуват и не се затварят)
@@ -3026,7 +3053,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Хронология (затворена карта, като „Анализ") → месеци (най-новият отворен) → дни/дати (затворени). По един отворен на ниво.
   // Днешният ден не е в историята на храната и мерките (той е горе, в картата за писане).
   function dkAttr(keys) { return keys && keys.length ? ' data-dotkeys="' + esc(keys.join(" ")) + '"' : ""; }
-  function dotSpan(keys) { return keys && keys.some(isNewItem) ? '<span class="ndot" aria-label="ново"></span>' : ""; }
+  function dotSpan(keys) { return ""; }   // Т81
   function qcard(title, sub, body, attrs, keys) {
     return '<details class="qacard"' + (attrs ? " " + attrs : "") + '><summary><span class="qc-t"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + '</span><span class="qc-sub">' + sub + "</span></summary>"
       + '<div class="qc-body">' + body + "</div></details>";
@@ -3343,10 +3370,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (open) seenOnOpen(n);
   }
   function seenOnOpen(n) {
-    shOpened(n);   // Т77
-    markSeen(n.getAttribute("data-key"));
-    if (n.classList.contains("panel")) markOpenSeen(n);
-    if (n.getAttribute("data-key") === "labs") { var lg = labDates(); if (lg.length) markSeen("lab_" + lg[0].day); }
+    shOpened(n);   // Т77/Т79/Т81: натиснато — бутонът спира; видяното (и при клиента) се записва при напускане на раздела
   }
   // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
   // всичко и скролът до целта в ЕДИН цикъл (Т20)
@@ -3438,7 +3462,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (tab === "razgovor") { window.scrollTo(0, 0); setTop(); chatBottom(); markChatRead(); }
     else if (!noScroll) window.scrollTo(0, scrollMem[tab] || 0);
     if (tab === "hrana") refreshEatTimes();
-    markOpenSeen(P[tab]); coachMarkTab(tab); updateDots();
+    coachMarkTab(tab); updateDots();   // Т81: отворените карти — видени при напускане на раздела (вълната), не веднага
   }
   function flash(el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1600); }
   // Препратка: <a data-go="hrana:nutrition_21"> → бутонът + разгънат пътят до картата (и в хронология: карта → месец → ден).
