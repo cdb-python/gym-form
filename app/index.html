@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.3.0">
+<meta name="version" content="v1.4.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -144,12 +144,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card > .ch .chip { flex: none; margin-left: auto; padding: 1px 8px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 12px; font-weight: 700; }
   .card > .ch .chip.pend { background: #fbf0dc; color: var(--warn); }
   .card > .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
-  /* Т84: при треньора — видял ли е клиентът картата (малък сив ред; в реда с датата, вдясно; без дата — сам) */
-  .card > .date.dsn { display: flex; flex-wrap: wrap; justify-content: space-between; column-gap: 10px; }
-  .seenst { font-size: 12.5px; font-weight: 600; color: var(--muted); }
-  .an .card > .ch .seenst { display: block; margin-top: 2px; font-size: 12px; color: rgba(255,255,255,0.85); }
+  /* Т84/Т84б (Chris 07:55): при треньора — видял ли е клиентът картата. Горе вдясно, до ръбовете, на едно и също място на затворената
+     и на отворената карта (като часа в списъка на клиентите: ~6 px отгоре, ~8 px отдясно, 11,5 px, сиво, не болд). В реда, не absolute:
+     свой горен ред (.seenrow) — заглавието не влиза под него, стрелката и ⓘ остават на мястото си, датата е в своя ред под него. */
+  .seenst { font-size: 11.5px; font-weight: 400; line-height: 1.25; color: var(--muted); white-space: nowrap; }
+  .card > .seenrow { display: flex; justify-content: flex-end; margin: -8px -8px 2px 0; }
+  .card.panel[data-key="qa"] > .body .qpend > .card > .seenrow { margin: 6px 0 -4px 0; }
+  .card.panel[data-key="qa"] > .body .qpend > .card.hasr > .ch { padding-top: 2px; }
+  .an .card.hasr > .ch { flex-wrap: wrap; }
+  .an .card > .ch > .seenrow { flex: 0 0 calc(100% + 6px); display: flex; justify-content: flex-end; margin: -6px -6px 2px 0; }
+  .an .card > .ch .seenst { color: rgba(255,255,255,0.85); }
   .an .card.lx > .ch .seenst { color: var(--muted); }
-  details.qday > summary .d-lab .seenst { font-size: 12px; }
+  details.qday > summary > .seenrow { grid-column: 1 / -1; justify-self: end; margin: -6px -6px 0 0; }
+  .card.hist details.qday > summary > .seenrow { margin: -4px 0 0 0; }   /* в хронологията редът е с отстъп 10 px / 2 px → ъгълът е ~6 px отгоре, до ръба вдясно */
   .card > .body { font-size: 15.5px; margin-top: 8px; display: none; overflow-x: auto; }
   .card.open > .body { display: block; }
   .card .body p { margin: 0 0 8px; }
@@ -590,6 +597,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop { background: #faf3ec; }
   body.coach-on .ipop { background: #f1f2f3; }
   .ipop .iph { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 4px; }
+  /* Т85: „Известия“ — бутонът и редовете „само при нужда“ в балона; камбанката — до ⓘ (зачеркната = изключени) */
+  .ipop .pext { margin-top: 4px; }
+  .ipop .pext .btn { margin-top: 6px; }
+  .ipop .pext .btn:disabled { opacity: 0.6; cursor: default; }
+  .ipop .pnote { margin: 6px 0 0; }
+  .ipop .pnote a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
+  .ipop .pmsg { color: var(--up); font-weight: 600; }
+  .now h3 .pbell { margin-left: -2px; }
   .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
   .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
   .ipop .ipx svg.ic { width: 18px; height: 18px; }
@@ -897,6 +912,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     ate: '<circle cx="12" cy="12" r="8.6"></circle><path d="M8.1 12.4l2.6 2.6 5.2-5.4"></path>',
     back: '<path d="M19.5 12h-15"></path><path d="M10 6.5 4.5 12l5.5 5.5"></path>',
     basic: '<rect x="2.8" y="5" width="18.4" height="14" rx="2.2"></rect><circle cx="8.4" cy="10.4" r="2"></circle><path d="M5.4 16.2a3 3 0 0 1 6 0"></path><path d="M14.2 10h4M14.2 13.4h4"></path>',
+    bell: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path>',
+    belloff: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path><path d="M4 4l16 16"></path>',
     close: '<path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"></path>',
     daily: '<circle cx="13.4" cy="4.3" r="1.8"></circle><path d="M12.6 7.6l-1.4 5.8"></path><path d="M11.2 13.4l-1.6 3.4-2 3.6"></path><path d="M11.2 13.4l2.2 3.2 1.6 4"></path><path d="M12.4 8.6l2.4 2.4 2.4.6"></path><path d="M12.2 8.8l-2.4 1.4-1.2 2.8"></path>',
     down: '<path d="M12 4.5v15"></path><path d="M6.5 14 12 19.5l5.5-5.5"></path>',
@@ -974,6 +991,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       "Новото или промененото за теб леко проблясва в оранжево, а иконата на раздела долу пулсира. Бутоните и затворените карти светят, докато ги натиснеш, а текстът — докато си в раздела.",
       "Всяка промяна в карта, дори една дума, я прави отново нова.",
       "Видяното се помни, затова и на друг телефон или в друг браузър светва само новото."] },
+    // ⓘ/камбанка „Известия“ (Т85) — ДОСЛОВНО текстът на Chris (11.11 07:15–07:44); не се пипа без Chris. Само на клиентската страница
+    //   (клиентът, DEV, своят акаунт като клиент); не в изгледа като клиента и не при треньора. Редовете „само при нужда“ — pushBody().
+    push: { t: "Известия", b: [
+      "Когато включиш известията, телефонът ти показва известие при ново съобщение или когато в дневника има нещо ново — както при другите ти приложения.",
+      "Известието казва само, че има ново, без самия текст, за да не се вижда на заключения екран. Новото в картите идва събрано наведнъж, а нощем изчаква до сутринта.",
+      "Известията са за този телефон. Ако ползваш и друг, включи ги и там."] },
     // Т60 — „Защо 21 дни?“ (под 21 дни): петте блока, в този ред (Chris 14:30; блок 4 — Т61; 2, 3, 5 — Т62). Произходът — над LOG_TXT.
     log21: { t: "Защо 21 дни?", b: [
       ["Какво излиза от 21-те дни", "За 21 дни излиза твоята поддръжка: при колко храна теглото ти стои на място. От това число тръгва всичко след него. Един ден нищо не казва — има леки и тежки дни, делници и почивни; за 21 дни се събират всички. Затова първите три седмици са измерването — те са част от работата, не чакане."],
@@ -1609,9 +1632,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   function cardHtml(r, open, extraBody, chip) {
-    var key = cardKey(r), sl = seenLine(key);   // Т84: при треньора — видяно ли е (в реда с датата)
-    return '<div class="card' + (open ? " open" : "") + '" data-key="' + esc(key) + '">'
-      + (r.entry_date || sl ? '<div class="date' + (sl ? " dsn" : "") + '">' + (r.entry_date ? esc(fmtDate(r.entry_date)) : "") + sl + "</div>" : "")
+    var key = cardKey(r), sl = seenLine(key);   // Т84б: при треньора — видяно ли е (горе вдясно, свой ред)
+    return '<div class="card' + (open ? " open" : "") + (sl ? " hasr" : "") + '" data-key="' + esc(key) + '">'
+      + (sl ? '<div class="seenrow">' + sl + "</div>" : "")
+      + (r.entry_date ? '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>" : "")
       + '<div class="ch"><span>' + esc(r.title || "Виж") + dot(key) + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + plainBody(r.body) + (extraBody || "") + "</div></div>";
   }
@@ -1672,7 +1696,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var NOWK = { message: 1, qa: 1, analysis: 1, plan_updated: 1 };   // Т81: редовете „Ново за теб“, които мигат (до натискане)
   function nowHtml(rows) {
     if (!rows.length) return "";
-    var html = '<div class="now"><h3>Ново за теб' + (COACH ? "" : infoBtn("now")) + "</h3>";   // Т82: ⓘ — само при клиента
+    var html = '<div class="now"><h3>Ново за теб' + (COACH ? "" : infoBtn("now")) + (pushAllowed() ? pushBellHtml() : "") + "</h3>";   // Т82: ⓘ — само при клиента; Т85: камбанката
     rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + (NOWK[r[0]] ? ' data-nk="' + esc(r[0] + "|" + r[1]) + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
     return html + "</div>";
   }
@@ -1709,7 +1733,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Картата е в Начало само ако страницата НЕ е отворена като инсталирано приложение и е на телефон (iPhone/iPad/Android).
   // × я скрива за 14 дни (localStorage). Android/Chrome: бутон през beforeinstallprompt; без него — 2 стъпки през ⋮.
   // iPhone: в Safari — „Сподели“ → „Добави към началния екран“; в друг браузър — „Отвори този линк в Safari“.
-  var INST_KEY = "app_install_hidden", INST_DONE = "app_installed", INST_DAYS = 14, instPrompt = null, INST_ENV = null;
+  var INST_KEY = "app_install_hidden", INST_DONE = "app_installed", INST_DAYS = 14, instPrompt = null, INST_ENV = null, INST_FORCE = false;
   var SHARE_SVG = ic("share", "shr");
   function pwaEnv() {
     var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
@@ -1728,7 +1752,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return !!t && Date.now() - t < INST_DAYS * 864e5;
   }
   function installHtml(env) {
-    if (COACH || env.standalone || !(env.ios || env.android) || instHidden()) return "";
+    if (COACH || env.standalone || !(env.ios || env.android) || (instHidden() && !INST_FORCE)) return "";   // Т85: INST_FORCE — от балона „Известия“
     var body;
     if (env.ios && !env.iosSafari) body = "<p>Отвори този линк в <b>Safari</b>.</p>";
     else if (env.ios) body = "<ol><li><b>Сподели</b> " + SHARE_SVG + "</li><li><b>„Добави към началния екран“</b></li></ol>";
@@ -1758,6 +1782,163 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     return false;
   }
+
+  // ════════ ИЗВЕСТИЯ (Т85, Chris 07:11–07:44) ════════
+  // Web Push: камбанка до ⓘ в „Ново за теб“ — плътна = включени на това устройство; зачеркната = изключени, спрени или неподдържани.
+  // Натискане → балонът (семейството на ⓘ) с текста и бутона. Включване: разрешение → serviceWorker.ready → pushManager.subscribe →
+  // push_subscribe → push_test (пробното идва веднага). Изключване: unsubscribe + push_unsubscribe. При зареждане: разрешено и има
+  // абонамент, а базата го няма (напр. изтрит след 410) → push_subscribe тихо отново. Само клиентът, DEV и своят акаунт като клиент —
+  // никога изгледът като клиента и треньорът (телефонът на Chris не се абонира за чужди известия).
+  var PUSH_KEY = "BMj0iR-h7HxM2cgIog8uGnDxmZg9ynqAYoiVei0LlDMzk4Wue-cq0JzjFFK_i3e2vMWSS2oUwP8Pp2_Un9qmR-c";   // VAPID public (= push_public_key())
+  var PUSH = { on: false, busy: false, err: false };
+  function pushAllowed() { return !COACH && !VIEW_AS && !!token; }
+  function pushMode() {   // ios | nosupport | denied | ok
+    var e = pwaEnv();
+    if (e.ios && !e.standalone) return "ios";
+    if (!("serviceWorker" in navigator) || !navigator.serviceWorker || !("PushManager" in window) || !window.PushManager || !("Notification" in window) || !window.Notification) return "nosupport";
+    if (Notification.permission === "denied") return "denied";
+    return "ok";
+  }
+  function pushBellHtml() {
+    return '<button type="button" class="ibtn pbell' + (PUSH.on ? " on" : "") + '" data-info="push" aria-label="Известия: ' + (PUSH.on ? "включени" : "изключени")
+      + '" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop">' + ic(PUSH.on ? "bell" : "belloff") + "</button>";
+  }
+  function pushBody(pop) {
+    var body = pop.querySelector(".ipbody"), m = pushMode(), x;
+    if (!body) return;
+    if (m === "ios") x = '<p class="pnote">На iPhone известията работят само когато приложението е добавено на началния екран и е отворено от иконата му.</p>'
+      + '<p class="pnote"><a data-pinst="1">Как се добавя на началния екран</a></p>';   // текстът на линка — мой (Т85)
+    else if (m === "denied") x = '<p class="pnote">Известията са спрени от настройките на телефона. Разреши ги оттам за това приложение и се върни тук.</p>';
+    else if (m === "nosupport") x = '<p class="pnote">Този браузър не поддържа известия.</p>';   // ред на CDB-GYM — Chris още не го е видял
+    else x = '<button type="button" class="btn pbtn" id="pushBtn"' + (PUSH.busy ? " disabled" : "") + ">" + (PUSH.busy ? "…" : PUSH.on ? "Изключи известията" : "Включи известията") + "</button>"
+      + (PUSH.err ? '<p class="pnote pmsg">Не се получи. Опитай пак.</p>' : "");   // съобщението при грешка — мое (Т85)
+    var old = body.querySelector(".pext"); if (old) old.parentNode.removeChild(old);
+    body.insertAdjacentHTML("beforeend", '<div class="pext">' + x + "</div>");
+  }
+  function pushSync() {
+    Array.prototype.forEach.call(document.querySelectorAll(".pbell"), function (b) {
+      b.classList.toggle("on", PUSH.on); b.setAttribute("aria-label", "Известия: " + (PUSH.on ? "включени" : "изключени"));
+      var sv = b.querySelector("svg"); if (sv && sv.getAttribute("data-ic") !== (PUSH.on ? "bell" : "belloff")) sv.outerHTML = ic(PUSH.on ? "bell" : "belloff");
+    });
+    if (IPOP && IPOP.pop.getAttribute("data-info") === "push") { pushBody(IPOP.pop); popFit(IPOP.pop); }
+  }
+  function pushB64(s) { var p = "====".slice((s.length % 4) || 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
+  function pushPerm() {   // и старият вариант с callback (Safari)
+    return new Promise(function (res) {
+      var done = false; function f(p) { if (!done) { done = true; res(p); } }
+      try { var r = Notification.requestPermission(f); if (r && r.then) r.then(f, function () { f(Notification.permission); }); } catch (x) { f(Notification.permission); }
+    });
+  }
+  function pushSave(sub) {
+    var j = sub && sub.toJSON ? sub.toJSON() : sub, k = (j && j.keys) || {};
+    return sb.rpc("push_subscribe", { p_token: token, p_endpoint: j.endpoint, p_p256dh: k.p256dh, p_auth: k.auth, p_ua: String(navigator.userAgent || "").slice(0, 300) })
+      .then(function (r) { if (!r || r.error || r.data !== true) throw new Error("db"); });
+  }
+  function pushOn() {
+    if (PUSH.busy) return;
+    PUSH.busy = true; PUSH.err = false;
+    var perm = Notification.permission === "granted" ? Promise.resolve("granted") : pushPerm();   // в самото натискане (жест на човека)
+    pushSync();
+    perm.then(function (p) {
+      if (p !== "granted") throw new Error("perm");
+      return navigator.serviceWorker.ready;
+    }).then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (s) { return s || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushB64(PUSH_KEY) }); });
+    }).then(pushSave).then(function () {
+      PUSH.on = true;
+      try { sb.rpc("push_test", { p_token: token }).then(function () {}, function () {}); } catch (x) {}   // пробното известие — веднага
+    }).catch(function (e) {
+      PUSH.on = false;
+      if (!(e && e.message === "perm")) PUSH.err = true;   // отказ на разрешението → балонът сам показва реда за настройките
+    }).then(function () { PUSH.busy = false; pushSync(); });
+  }
+  function pushOff() {
+    if (PUSH.busy) return;
+    PUSH.busy = true; PUSH.err = false; pushSync();
+    navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+      if (!sub) return;
+      var ep = sub.endpoint;
+      return Promise.resolve(sub.unsubscribe()).catch(function () {}).then(function () { return sb.rpc("push_unsubscribe", { p_token: token, p_endpoint: ep }); });
+    }).catch(function () {}).then(function () { PUSH.on = false; PUSH.busy = false; pushSync(); });
+  }
+  function pushInit() {
+    if (!pushAllowed()) return;
+    if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) navigator.serviceWorker.addEventListener("message", function (e) {   // натиснато известие → разделът
+      var d = (e && e.data) || {}; if (d.cdb === "tab" && TABS[d.tab]) switchTab(d.tab);
+    });
+    if (pushMode() !== "ok" || Notification.permission !== "granted") { PUSH.on = false; pushSync(); return; }   // разрешението е отнето → изключено
+    navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
+      if (!sub) { PUSH.on = false; return; }
+      PUSH.on = true;
+      return sb.rpc("push_is_on", { p_token: token, p_endpoint: sub.endpoint }).then(function (r) {
+        if (r && !r.error && r.data === false) return pushSave(sub).catch(function () {});   // базата го е изтрила → тихо отново
+      });
+    }).catch(function () {}).then(pushSync);
+  }
+  document.addEventListener("click", function (e) {   // в балона (той не се затваря от своите натискания)
+    var x = e.target.closest && e.target.closest("#pushBtn, [data-pinst]"); if (!x) return;
+    if (x.id === "pushBtn") { if (PUSH.on) pushOff(); else pushOn(); return; }
+    infoClose(); INST_FORCE = true; switchTab("nachalo", true); renderInstall();   // инструкцията за инсталиране (и ако е била скрита)
+    var c = document.getElementById("instCard"); if (c) { window.scrollTo(0, Math.max(0, c.getBoundingClientRect().top + window.scrollY - 90)); flash(c); }
+  });
+
+  // ════════ ОБНОВЯВАНЕ СЛЕД ФОН (Т86, Chris 07:51–08:00) ════════
+  // Поводът: приложението стои във фона от вчера → сутринта се показва старият код (без презареждане). Правилото: скрито ≥ 10 мин →
+  // при връщане презарежда; по-кратко (≥ 1 мин), но на живо има нова версия (<meta name="version"> на страницата ≠ тази; fetch без кеш,
+  // без токена в адреса; не мине ли — нищо) → също. Тихо — без съобщение. Незаписаното не се губи: текст в полето на лога, мерките,
+  // „Изядох“, полето на формата, което се записва, поправка на запис, качване, поле, в което се пише в момента → не; пробва пак при
+  // следващото връщане. Черновите на чата и на въпросниците се пазят на телефона (localStorage) и се връщат → не спират обновяването.
+  // След презареждането: същият раздел (адресът #…), отворените карти в него и скролът (sessionStorage, веднъж). Всички режими.
+  var BG = { at: 0, pend: false }, BG_LONG = 10 * 60e3, BG_SHORT = 60e3, BG_KEY = "app_bg_restore";
+  var bgReload = function () { location.reload(); };   // тестовете я подменят (__app.bg)
+  function bgDirty() {
+    if (EAT || LFIX) return true;   // отворено „Изядох“ / поправя запис в лога
+    var a = document.activeElement;
+    if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && !/^(checkbox|radio|file|button|submit)$/i.test(a.type || "") && String(a.value || "").trim()) return true;   // пише в момента
+    var f = document.getElementById("f_text"); if (f && String(f.value || "").trim()) return true;   // полето на лога (не се пази)
+    if (Array.prototype.some.call(document.querySelectorAll('#p-merki input[id^="lg_"]'), function (i) { return String(i.value || "").trim() !== ""; })) return true;   // мерките
+    if (document.querySelector(".iq > .isv.pend, .iq > .isv.err")) return true;   // формата: записва се / не се записа
+    if (LABS.msg && LABS.msg.text === "Качва се…") return true;
+    return false;
+  }
+  function bgVersion() {
+    var m = document.querySelector('meta[name="version"]'), cur = m && m.getAttribute("content");
+    if (!cur || !window.fetch) return Promise.resolve(false);
+    try {
+      return fetch(location.pathname + "?v=" + Date.now(), { cache: "no-store", credentials: "omit" }).then(function (r) { return r && r.ok ? r.text() : ""; })
+        .then(function (h) { var x = /<meta name="version" content="([^"]+)"/.exec(h || ""); return !!x && x[1] !== cur; }, function () { return false; });
+    } catch (e) { return Promise.resolve(false); }
+  }
+  function bgSave() {
+    try {
+      var p = P[current], open = p ? Array.prototype.map.call(p.querySelectorAll(".card.open[data-key], details[open][data-key]"), function (n) { return n.getAttribute("data-key"); }) : [];
+      sessionStorage.setItem(BG_KEY, JSON.stringify({ tab: current, y: Math.round(window.scrollY), open: open }));
+    } catch (e) {}
+  }
+  function bgRestore() {
+    var s = null; try { s = JSON.parse(sessionStorage.getItem(BG_KEY) || "null"); sessionStorage.removeItem(BG_KEY); } catch (e) {}
+    if (!s || s.tab !== current || !P[current]) return;
+    (s.open || []).forEach(function (k) {
+      var n = P[current].querySelector('[data-key="' + String(k).replace(/"/g, "") + '"]');
+      if (n && !isOpen(n)) { var par = n.parentElement && n.parentElement.closest(".card, details"); if (!par || isOpen(par)) accSet(n, true, { instant: true, noScroll: true }); }
+    });
+    setTimeout(function () { window.scrollTo(0, Math.min(s.y || 0, maxScroll())); }, 0);
+  }
+  function bgCheck() {
+    var away = BG.at ? Date.now() - BG.at : 0; BG.at = 0;
+    if (!BG.pend && away < BG_SHORT) return;
+    (BG.pend || away >= BG_LONG ? Promise.resolve(true) : bgVersion()).then(function (go) {
+      if (!go) return;
+      if (bgDirty()) { BG.pend = true; return; }   // незаписано → при следващото връщане
+      BG.pend = false; bgSave(); bgReload();
+    });
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") { if (!BG.at) BG.at = Date.now(); }
+    else bgCheck();
+  });
+  window.addEventListener("pagehide", function () { if (!BG.at) BG.at = Date.now(); });
+  window.addEventListener("pageshow", function (e) { if (e && e.persisted) bgCheck(); });   // върнато от кеша на браузъра (bfcache)
 
   // ════════ ХРАНА ════════
   // Т8: „Изядох" стои САМО там, където картата го казва изрично: всеки елемент с data-meal="<име>" (обикновено <tr>).
@@ -2022,7 +2203,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var t = String(r.title || "Виж");
       var cls = /Количество/.test(t) ? "l1" : /Макроси/.test(t) ? "l2" : /Качество/.test(t) ? "l3" : /Тайминг/.test(t) ? "l4" : /Добавки/.test(t) ? "l5" : "lx";
       var open = (cls === "lx" && lx++ === 0 && i === 0); // уводът (първата карта извън пирамидата) стои отворен
-      html += '<div class="card ' + cls + (open ? " open" : "") + '" data-key="an_' + esc(r.sort) + '"><div class="ch"><span>' + esc(t) + dot("an_" + r.sort) + seenLine("an_" + r.sort) + "</span></div>"
+      var sl = seenLine("an_" + r.sort);   // Т84б: горе вдясно в заглавието
+      html += '<div class="card ' + cls + (open ? " open" : "") + (sl ? " hasr" : "") + '" data-key="an_' + esc(r.sort) + '"><div class="ch">' + (sl ? '<span class="seenrow">' + sl + "</span>" : "") + "<span>" + esc(t) + dot("an_" + r.sort) + "</span></div>"
         + '<div class="body">' + plainBody(r.body) + "</div></div>";
     });
     return cleanAnalysis(html + "</div>");
@@ -2942,6 +3124,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     pop.className = "ipop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>' + esc(f.t) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>"
       + '<div class="ipbody">' + f.b.map(function (p) { return Array.isArray(p) ? '<h3 class="ipq">' + esc(p[0]) + "</h3><p>" + infoText(p[1]) + "</p>" : "<p>" + infoText(p) + "</p>"; }).join("") + "</div>";
+    if (key === "push") pushBody(pop);   // Т85: бутонът / редовете „само при нужда“
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
     btn.setAttribute("aria-expanded", "true");
@@ -3236,7 +3419,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<span class="d-wd">' + p.wd + "</span>" + cells + "</summary>"
       + '<div class="qc-body">' + body + "</div></details>";
   }
-  function dayCount(t, sk) { return '<span class="d-lab">' + (sk ? seenLine(sk) : "") + '</span><span class="d-cnt">' + esc(t) + "</span>"; }   // Т84: sk — датата на изследването (при треньора: видяна ли е)
+  function dayCount(t) { return '<span class="d-lab"></span><span class="d-cnt">' + esc(t) + "</span>"; }
   function num1(v) { return Number(v).toFixed(1).replace(".", ","); }   // „55“ → „55,0“: запетаите една под друга
   function diff1(d) { if (d == null) return ""; if (d === 0) return "="; return (d < 0 ? "↓" : "↑") + num1(Math.abs(d)); }
   function hEmpty(t) { return '<div class="hempty">' + esc(t) + "</div>"; }
@@ -3332,7 +3515,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var g = labDates();
     if (!g.length) return "";
     var inner = histMonths("hm_labs_", g, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " дата" : " дати"); },
-      function (x) { return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя"), "lab_" + x.day), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]); },
+      function (x) { var sl = seenLine("lab_" + x.day); return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]).replace("<summary>", "<summary>" + (sl ? '<span class="seenrow">' + sl + "</span>" : "")); },   // Т84б: горе вдясно в реда на датата
       function (x) { return ["lab_" + x.day]; });
     return histCard("h_labs", "history", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
   }
@@ -3649,7 +3832,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
@@ -3829,10 +4012,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       Array.prototype.forEach.call(document.querySelectorAll("#p-hrana input, #p-hrana textarea, #p-merki input, #p-danni input"), function (el) { el.disabled = true; });
     }
     shInit();   // Т77
+    pushInit();   // Т85
     updateBadge(); updateDots();
     pushMissing();   // Т76: „липсват N“ → базата
     var h = (location.hash || "").slice(1);
     if (h && h.indexOf(":") > 0) { switchTab("nachalo"); go(h); } else switchTab(h || "nachalo");
+    bgRestore();   // Т86: след тихото презареждане — отворените карти и скролът
     setTop();
   }
 })();
