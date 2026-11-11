@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.5.1">
+<meta name="version" content="v1.6.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -662,6 +662,34 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mv { white-space: nowrap; }
   .mv .ml { color: var(--muted); }
   .md { margin-left: 3px; color: var(--muted); font-size: 13px; font-weight: 700; }
+  /* Т91: днешно мерене — ✎ поправя на място, 🗑 трие („Да изтрия ли?“ в реда); един ред наведнъж (като Т70 при храната) */
+  .mtoday .mrow .tm { min-width: 36px; }   /* стойностите в „Днес“ започват на една линия (и полетата при ✎ — под тях) */
+  .mrow .mvs { flex: 1 1 0; min-width: 0; overflow: hidden; }
+  .mrow .mvl { display: flex; flex-wrap: wrap; align-items: baseline; row-gap: 4px; margin-left: -28px; }   /* „·“ пред всяка стойност; в началото на ред остава отрязана → без висящи точки */
+  .mrow .mvl .msep { display: none; }
+  .mrow .mvl > .mv::before { content: "·"; display: inline-block; width: 28px; text-align: center; color: var(--muted); }
+  .mrow.fixing .mbx { margin-left: auto; }
+  .mrow.fixing .mvs.mfg { order: 3; flex: 0 0 100%; box-sizing: border-box; overflow: visible; display: grid; grid-template-columns: auto auto; justify-content: start; align-items: center; gap: 6px 10px; padding: 2px 0 2px 48px; }   /* полетата — под часа: етикет | поле */
+  .mrow.fixing .mfxe { order: 4; }
+  .mrow .mbx { flex: none; display: inline-flex; align-self: flex-start; margin: -5px -7px -6px 0; }
+  .mrow .mfb { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 32px; height: 32px; margin: 0; padding: 0; border: 0; background: none; color: var(--accent); font: inherit; font-size: 20px; font-weight: 800; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mrow .mfb[hidden] { display: inline-flex; visibility: hidden; }
+  .mrow .mfb svg.ic { width: 20px; height: 20px; }
+  .mrow .mfb.mdel { color: var(--muted); }
+  .mrow .mfb.on { color: var(--accent-dark); }
+  .mrow .mfb:focus { outline: none; }
+  .mrow .mfb:focus-visible { border-radius: 50%; box-shadow: inset 0 0 0 2px var(--accent); }
+  .mrow .mfe { display: contents; }
+  .mrow .mfe .ml { color: var(--muted); }
+  .mrow .mfin { display: inline-flex; align-items: baseline; gap: 4px; white-space: nowrap; }
+  .mrow input.mfi { width: 4.2em; box-sizing: border-box; margin: 0; padding: 2px 6px; font-family: inherit; font-size: 16px; line-height: 1.4; color: var(--ink); background: #fff; border: 1px solid var(--accent); border-radius: 8px; text-align: right; }
+  .mrow input.mfi.mf3 { width: 3.3em; text-align: center; }
+  .mrow .mfin .msl { color: var(--muted); }
+  .mrow .mask { flex: 0 0 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 8px; padding-top: 2px; font-weight: 700; }
+  .mrow .mask button { width: auto; margin: 0; padding: 6px 16px; font-family: inherit; font-size: 14.5px; font-weight: 700; border-radius: 9px; cursor: pointer; }
+  .mrow .mask .myes { color: #fff; background: var(--btn); border: 1px solid var(--btn); }
+  .mrow .mask .mno { color: var(--accent-dark); background: #fff; border: 1px solid var(--accent); }
+  .mrow .mfxe { flex: 0 0 100%; display: block; margin: 0; padding: 8px 10px; border: 1px solid #f3c2c2; border-radius: 9px; background: #fdecec; color: #9a3b3b; font-size: 14px; text-align: center; }
 
   /* изследвания (Т7) */
   .up .labdate { display: block; margin: 0 0 4px; font-size: 14px; font-weight: 700; text-align: left; }
@@ -941,6 +969,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     share: '<path d="M12 14.5V3.5"></path><path d="M8.3 7.2 12 3.5l3.7 3.7"></path><path d="M8.5 10H6.7a2.2 2.2 0 0 0-2.2 2.2v6.1a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-6.1a2.2 2.2 0 0 0-2.2-2.2h-1.8"></path>',
     sleep: '<path d="M12.5 3.8a6 6 0 0 0 7.7 7.7A8.4 8.4 0 1 1 12.5 3.8Z"></path><path d="M16.4 3.2h2.8l-2.8 3.2h2.8"></path>',
     training: '<path d="M8 12h8"></path><rect x="5" y="7" width="3" height="10" rx="1.2"></rect><rect x="16" y="7" width="3" height="10" rx="1.2"></rect><rect x="2.8" y="9.2" width="2.2" height="5.6" rx=".9"></rect><rect x="19" y="9.2" width="2.2" height="5.6" rx=".9"></rect>',
+    trash: '<path d="M4.5 6.5h15"></path><path d="M9.5 6.5V4.8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.7"></path><path d="M6.3 6.5l.9 12.6a1.6 1.6 0 0 0 1.6 1.4h6.4a1.6 1.6 0 0 0 1.6-1.4l.9-12.6"></path><path d="M10.2 10.3v6.6M13.8 10.3v6.6"></path>',
     upload: '<path d="M12 15V4.2"></path><path d="M7.8 8.4 12 4.2l4.2 4.2"></path><path d="M4.5 14.5v3.8a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-3.8"></path>',
     waist: '<circle cx="9.5" cy="11" r="6.5"></circle><circle cx="9.5" cy="11" r="2"></circle><path d="M15 14.5h6v3H9.5"></path><path d="M17 17.5v-1.4M19 17.5v-1.4"></path>',
     weight: '<rect x="3.5" y="3.5" width="17" height="17" rx="4"></rect><path d="M7.6 10.4a4.6 4.6 0 0 1 8.8 0Z"></path><path d="M12 10.4l1.4-2.2"></path>'
@@ -1911,7 +1940,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var BG = { at: 0, pend: false, wait: false, go: "", goAt: 0 }, BG_LONG = 10 * 60e3, BG_SHORT = 60e3, BG_KEY = "app_bg_restore", BG_GO_WAIT = 600;
   var bgReload = function () { location.reload(); };   // тестовете я подменят (__app.bg)
   function bgDirty() {
-    if (EAT || LFIX) return true;   // отворено „Изядох“ / поправя запис в лога
+    if (EAT || LFIX || MFIX) return true;   // отворено „Изядох“ / поправя запис в лога / Т91: поправя или трие мерене
     var a = document.activeElement;
     if (a && /^(INPUT|TEXTAREA)$/.test(a.tagName) && !/^(checkbox|radio|file|button|submit)$/i.test(a.type || "") && String(a.value || "").trim()) return true;   // пише в момента
     var f = document.getElementById("f_text"); if (f && String(f.value || "").trim()) return true;   // полето на лога (не се пази)
@@ -2384,10 +2413,48 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function measPast() { var t = todayStr(); return measRows().filter(function (m) { return m.day !== t; }); }
   function measDays(list) { var d = {}; list.forEach(function (m) { d[m.day] = 1; }); return Object.keys(d).length; }
   function measNavSub() { var n = measDays(measPast()); return n ? n + (n === 1 ? " мерене" : " мерения") : "още няма"; }
+  // Т91 (Chris 11.11 13:23): ✎ / 🗑 на днешно ЧИСТО мерене — ред от client_log с id, на клиента, без текст и без отговор, днес (София,
+  //   по created_at), не „от лога“. ✎ → числата стават полета (само полетата на реда), моливът — ✓; 🗑 → „Да изтрия ли?“ [Да] [Не] в реда.
+  //   Един ред наведнъж: другите ✎/🗑 се крият (като Т70). Треньорът и изгледът като клиент — без бутони (CAN_WRITE); миналите дни — без.
+  //   Базата пази същите правила (update_meas_entry — пълна подмяна на 11-те полета; delete_meas_entry).
+  var MFIX = null;   // { id, edit, ask, v: {поле: текстът в полето}, busy, err } — мерението, което се поправя / трие в момента (едно)
+  var MF_ALL = MEAS_ALL.map(function (f) { return f[0]; }).concat(["bp_sys", "bp_dia", "pulse"]);
+  function mfNum(v) { return hasVal(v) ? Number(v) : null; }
+  function measFixable(m) {
+    var e = m.e;
+    return CAN_WRITE && !!token && !!e.id && !m.food && e.kind === "client" && !String(e.note || "").trim() && !e.reply && !e.reply_to
+      && sofiaDay(e.created_at) === todayStr() && !D.log.some(function (x) { return x.reply_to === e.id; });
+  }
+  function mfEmpty() { return !MFIX || Object.keys(MFIX.v).every(function (k) { return !String(MFIX.v[k] || "").trim(); }); }
+  function mfInput(k, lbl, nmr, ph) {
+    return '<input type="text" class="mfi' + (nmr ? " mf3" : "") + '" data-k="' + k + '" inputmode="' + (nmr ? "numeric" : "decimal") + '" autocomplete="off" aria-label="' + esc(lbl) + '"'
+      + (ph ? ' placeholder="' + ph + '"' : "") + ' value="' + esc(MFIX.v[k] || "") + '">';
+  }
+  function mfEditHtml(e) {   // същият ред, числата — в полета; само полетата, които редът има
+    var parts = MEAS_ALL.filter(function (f) { return hasVal(e[f[0]]); }).map(function (f) {
+      return '<span class="mfe"><span class="ml">' + esc(f[1]) + '</span><span class="mfin">' + mfInput(f[0], f[1]) + " " + f[2] + "</span></span>";
+    });
+    if (hasBp(e)) parts.push('<span class="mfe"><span class="ml">Кръвно</span><span class="mfin">' + mfInput("bp_sys", "Кръвно — горно", true, "горно") + '<span class="msl">/</span>' + mfInput("bp_dia", "Кръвно — долно", true, "долно") + "</span></span>");
+    if (hasPulse(e)) parts.push('<span class="mfe"><span class="ml">пулс</span><span class="mfin">' + mfInput("pulse", "Пулс", true) + "</span></span>");
+    return parts.join("");
+  }
+  function measTodayRow(m) {
+    var e = m.e, tm = '<span class="tm">' + esc(nowHMof(e.created_at)) + "</span>";
+    if (!measFixable(m)) return '<div class="mrow"' + (e.id ? ' data-m="' + esc(e.id) + '"' : "") + ">" + tm + measLine(m) + (m.food ? FROM_LOG : "") + "</div>";
+    var on = MFIX && MFIX.id === e.id, ed = on && MFIX.edit && !MFIX.ask, id = esc(e.id), btns;
+    if (ed) btns = '<button type="button" class="mfb on" data-mfix="' + id + '" aria-label="Запиши поправката"' + (MFIX.busy || mfEmpty() ? " disabled" : "") + ">✓</button>"
+      + '<button type="button" class="mfb mdel" data-mdel="' + id + '" aria-label="Изтрий записа"' + (MFIX.busy ? " disabled" : "") + ">" + ic("trash") + "</button>";
+    else btns = '<button type="button" class="mfb" data-mfix="' + id + '" aria-label="Поправи записа"' + (MFIX ? " hidden" : "") + ">" + ic("edit") + "</button>"
+      + '<button type="button" class="mfb mdel" data-mdel="' + id + '" aria-label="Изтрий записа"' + (MFIX ? " hidden" : "") + ">" + ic("trash") + "</button>";
+    return '<div class="mrow mfx' + (ed ? " fixing" : "") + '" data-m="' + id + '">' + tm
+      + (ed ? '<span class="mvs mfg">' + mfEditHtml(e) + "</span>" : '<span class="mvs"><span class="mvl">' + measLine(m) + "</span></span>") + '<span class="mbx">' + btns + "</span>"
+      + (on && MFIX.ask ? '<div class="mask"><span>Да изтрия ли?</span><button type="button" class="myes" data-myes="' + id + '"' + (MFIX.busy ? " disabled" : "") + '>Да</button><button type="button" class="mno" data-mno="' + id + '"' + (MFIX.busy ? " disabled" : "") + ">Не</button></div>" : "")
+      + (on && MFIX.err ? '<div class="ok show err mfxe">' + esc(MFIX.err) + "</div>" : "") + "</div>";
+  }
   function measTodayHtml() {
     var t = todayStr(), rows = measRows().filter(function (m) { return m.day === t; });
     if (!rows.length) return "";
-    return '<div class="mtoday"><div class="mth">Днес</div>' + rows.map(function (m) { return '<div class="mrow"' + (m.e.id ? ' data-m="' + esc(m.e.id) + '"' : "") + '><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>"; }).join("") + "</div>";
+    return '<div class="mtoday"><div class="mth">Днес</div>' + rows.map(measTodayRow).join("") + "</div>";
   }
   function renderMerki() {
     function big(f) { return '<label class="mbig" for="lg_' + f[0] + '"><span class="mn">' + esc(f[1]) + '</span><input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off"><span class="mu">' + f[2] + "</span></label>"; }
@@ -2410,7 +2477,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     wireMeas();
   }
   function refreshMerki() {
-    var t = document.getElementById("mToday"); if (t) t.innerHTML = measTodayHtml();
+    var t = document.getElementById("mToday");
+    if (t) {
+      var a = document.activeElement, fk = a && a.classList && a.classList.contains("mfi") ? [a.getAttribute("data-k"), a.selectionStart, a.selectionEnd] : null;   // Т91
+      t.innerHTML = measTodayHtml();
+      if (MFIX && !MFIX.busy && !Array.prototype.some.call(t.querySelectorAll(".mrow.mfx"), function (r) { return r.getAttribute("data-m") === MFIX.id; })) { MFIX = null; t.innerHTML = measTodayHtml(); }   // редът вече не е за поправка (мина полунощ / изтрит)
+      else if (fk) { var fi = t.querySelector('input.mfi[data-k="' + fk[0] + '"]'); if (fi) { fi.focus(); try { fi.setSelectionRange(fk[1], fk[2]); } catch (x) {} } }
+    }
     var nr = document.querySelector('#p-merki [data-key="h_meas"] > .ch .sub'); if (nr) nr.textContent = measNavSub();
   }
 
@@ -3302,8 +3375,124 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       else if (e.key === "Escape" && !LFIX.busy) { e.preventDefault(); LFIX = null; refreshLogView(); }
     });
   })();
+  // Т91: поправка (✓ — същата проверка като формата; изтрито поле = махната стойност; без промяна → нищо не се пише, като Т70) и триене
+  function mfEntry(id) { return D.log.filter(function (e) { return e.id === id; })[0]; }
+  function mfFocus() { var i = document.querySelector("#mToday input.mfi"); if (i) { i.focus(); var n = i.value.length; try { i.setSelectionRange(n, n); } catch (x) {} } }
+  function mfStart(id) {
+    var e = mfEntry(id), v = {}; if (!e) return;
+    MF_ALL.forEach(function (k) { if (hasVal(e[k])) v[k] = String(Number(e[k])).replace(".", ","); });
+    if (!hasBp(e)) { delete v.bp_sys; delete v.bp_dia; }
+    MFIX = { id: id, edit: true, ask: false, v: v, busy: false, err: "" };
+    refreshMerki(); mfFocus();
+  }
+  function mfSave() {
+    if (!MFIX || MFIX.busy || !MFIX.edit || MFIX.ask) return;
+    var e = mfEntry(MFIX.id), v = MFIX.v, rec = {}, bad = false;
+    if (!e) return;
+    function say(x) { MFIX.err = x; refreshMerki(); }
+    MF_ALL.forEach(function (k) { rec[k] = null; });
+    MEAS_ALL.forEach(function (f) {
+      if (!(f[0] in v)) return;
+      var s = String(v[f[0]] || "").trim().replace(",", ".");
+      if (s === "") return;
+      var n = parseFloat(s);
+      if (!isFinite(n) || n <= 0) { bad = true; return; }
+      rec[f[0]] = n;
+    });
+    if (bad) return say("Само числа, напр. 64,2.");
+    if ("bp_sys" in v) {
+      var sv = String(v.bp_sys || "").trim(), dv = String(v.bp_dia || "").trim();
+      if (sv || dv) {
+        var sN = /^\d+$/.test(sv) ? +sv : NaN, dN = /^\d+$/.test(dv) ? +dv : NaN;
+        if (!sv || !dv) return say("Кръвно: попълни горното и долното.");
+        if (!(sN >= BP_LIM.sys[0] && sN <= BP_LIM.sys[1] && dN >= BP_LIM.dia[0] && dN <= BP_LIM.dia[1])) return say("Кръвно: горното 70–250, долното 40–150.");
+        if (sN <= dN) return say("Кръвно: горното е по-високо от долното.");
+        rec.bp_sys = sN; rec.bp_dia = dN;
+      }
+    }
+    if ("pulse" in v) {
+      var pv = String(v.pulse || "").trim();
+      if (pv) {
+        var pN = /^\d+$/.test(pv) ? +pv : NaN;
+        if (!(pN >= BP_LIM.pulse[0] && pN <= BP_LIM.pulse[1])) return say("Пулс: 30–220.");
+        rec.pulse = pN;
+      }
+    }
+    if (MF_ALL.every(function (k) { return rec[k] == null; })) return;   // всичко празно → ✓ е изключен (за това е 🗑)
+    if (MF_ALL.every(function (k) { return rec[k] === mfNum(e[k]); })) { MFIX = null; refreshMerki(); return; }   // без промяна → нищо не се пише
+    var id = MFIX.id, args = { p_token: token, p_id: id };
+    MF_ALL.forEach(function (k) { args["p_" + k] = rec[k]; });   // пълна подмяна: и 11-те (липсващите = null)
+    MFIX.busy = true; MFIX.err = ""; refreshMerki();
+    wr("update_meas_entry", args).then(function (res) {
+      if (res.error || res.data !== true) throw (res.error || new Error("fail"));
+      MF_ALL.forEach(function (k) { e[k] = rec[k]; });
+      MFIX = null; refreshMerki();
+      return refreshDiary();
+    }).catch(function () {
+      if (MFIX && MFIX.id === id) { MFIX.busy = false; MFIX.err = "Неуспешно. Опитай пак."; refreshMerki(); }
+    });
+  }
+  function mfDelete(id) {
+    if (!MFIX || MFIX.id !== id || !MFIX.ask || MFIX.busy) return;
+    MFIX.busy = true; MFIX.err = ""; refreshMerki();
+    wr("delete_meas_entry", { p_token: token, p_id: id }).then(function (res) {
+      if (res.error || res.data !== true) throw (res.error || new Error("fail"));
+      D.log = D.log.filter(function (e) { return e.id !== id; });
+      MFIX = null; refreshMerki();
+      return refreshDiary();
+    }).catch(function () {
+      if (MFIX && MFIX.id === id) { MFIX.busy = false; MFIX.err = "Неуспешно. Опитай пак."; refreshMerki(); }
+    });
+  }
+  (function wireMfix() {
+    var main = document.getElementById("main");
+    main.addEventListener("click", function (ev) {
+      var b = ev.target.closest && ev.target.closest("#mToday .mfb, #mToday .mask button"), id;
+      if (!b || b.disabled) return;
+      if ((id = b.getAttribute("data-mfix"))) { if (MFIX && MFIX.id === id && MFIX.edit && !MFIX.ask) mfSave(); else if (!MFIX) mfStart(id); }
+      else if ((id = b.getAttribute("data-mdel"))) {
+        if (!MFIX) MFIX = { id: id, edit: false, ask: true, v: {}, busy: false, err: "" };
+        else if (MFIX.id === id && !MFIX.busy) { MFIX.ask = true; MFIX.err = ""; }   // по време на поправката: питането; „Не“ връща към полетата
+        else return;
+        refreshMerki();
+      }
+      else if ((id = b.getAttribute("data-mno"))) {
+        if (!MFIX || MFIX.id !== id || MFIX.busy) return;
+        MFIX.ask = false; MFIX.err = "";
+        if (!MFIX.edit) MFIX = null;
+        refreshMerki(); mfFocus();
+      }
+      else if ((id = b.getAttribute("data-myes"))) mfDelete(id);
+    });
+    main.addEventListener("input", function (ev) {
+      var t = ev.target;
+      if (!t.classList || !t.classList.contains("mfi") || !MFIX) return;
+      MFIX.v[t.getAttribute("data-k")] = t.value;
+      var row = t.closest(".mrow"), sv = row && row.querySelector(".mfb.on"), er = row && row.querySelector(".mfxe");
+      if (sv) sv.disabled = MFIX.busy || mfEmpty();
+      if (er) { er.parentNode.removeChild(er); MFIX.err = ""; }
+    });
+    main.addEventListener("keydown", function (ev) {
+      var t = ev.target;
+      if (!t.classList || !t.classList.contains("mfi") || !MFIX) return;
+      if (ev.key === "Enter") { ev.preventDefault(); if (!mfEmpty()) mfSave(); }
+      else if (ev.key === "Escape" && !MFIX.busy) { ev.preventDefault(); MFIX = null; refreshMerki(); }
+    });
+  })();
+  // Т91: същото мерене до 10 мин (днешен ред на клиента без текст, всичките 11 полета еднакви) → не се праща втори път
+  function measDup(nv) {
+    var t = todayStr(), now = Date.now();
+    return D.log.some(function (e) {
+      return e.kind === "client" && !String(e.note || "").trim() && !e.reply_to && sofiaDay(e.created_at) === t && now - tsNum(e.created_at) < 10 * 60e3
+        && MF_ALL.every(function (k) { return mfNum(e[k]) === (nv[k] == null ? null : nv[k]); });
+    });
+  }
   function wireMeas() {
     var btn = document.getElementById("lgBtn");
+    function clearLg() {
+      MEAS_ALL.forEach(function (f) { document.getElementById("lg_" + f[0]).value = ""; });
+      ["lg_bp_sys", "lg_bp_dia", "lg_pulse"].forEach(function (id) { document.getElementById(id).value = ""; });
+    }
     function bpOff() {   // RPC-то още не приема полетата → изключи кръвното и пулса, теглото и обиколките продължават
       BP_ON = false;
       ["lg_bp_sys", "lg_bp_dia", "lg_pulse"].forEach(function (id) { var el = document.getElementById(id); el.value = ""; el.disabled = true; });
@@ -3337,6 +3526,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         }
       }
       if (!any && !bp && pulse == null) { say("Попълни поне едно поле.", true); return; }
+      var nv = { bp_sys: bp ? bp[0] : null, bp_dia: bp ? bp[1] : null, pulse: pulse };
+      MEAS_ALL.forEach(function (f) { nv[f[0]] = rec[f[0]]; });
+      if (measDup(nv)) { say("Вече е записано ✓"); clearLg(); return; }   // Т91
       var args = { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf };
       var withBp = !!bp || pulse != null;
       if (bp) { args.p_bp_sys = bp[0]; args.p_bp_dia = bp[1]; }
@@ -3344,8 +3536,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       btn.disabled = true; btn.textContent = "Записване…";
       function done(note) {
         say("Записано ✓" + (note || ""));
-        MEAS_ALL.forEach(function (f) { document.getElementById("lg_" + f[0]).value = ""; });
-        ["lg_bp_sys", "lg_bp_dia", "lg_pulse"].forEach(function (id) { document.getElementById(id).value = ""; });
+        clearLg();
         btn.disabled = false; btn.textContent = "Запиши";
         return refreshDiary();
       }
