@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.4.1">
+<meta name="version" content="v1.5.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1867,11 +1867,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return Promise.resolve(sub.unsubscribe()).catch(function () {}).then(function () { return sb.rpc("push_unsubscribe", { p_token: token, p_endpoint: ep }); });
     }).catch(function () {}).then(function () { PUSH.on = false; PUSH.busy = false; pushSync(); });
   }
+  function swMessages() {   // Т85/Т88: натиснато известие → мястото (клиентът: app/sw.js; треньорът: coach/sw.js)
+    if (swMessages.on || !navigator.serviceWorker || !navigator.serviceWorker.addEventListener) return;
+    swMessages.on = true;
+    navigator.serviceWorker.addEventListener("message", function (e) {
+      var d = (e && e.data) || {};
+      if (d.cdb === "tab" && TABS[d.tab]) notifGo(d.tab);   // по-старият worker
+      else if (d.cdb === "go" && (!COACH || !d.cid || d.cid === COACH_CID)) notifGo(d.go);
+      else if (d.cdb === "open" && COACH && d.url) { try { var u = new URL(d.url, location.href); if (u.origin === location.origin) location.href = u.href; } catch (x) {} }   // треньорът: друг клиент
+    });
+    try { if (navigator.serviceWorker.startMessages) navigator.serviceWorker.startMessages(); } catch (x) {}
+  }
   function pushInit() {
     if (!pushAllowed()) return;
-    if (navigator.serviceWorker && navigator.serviceWorker.addEventListener) navigator.serviceWorker.addEventListener("message", function (e) {   // натиснато известие → разделът
-      var d = (e && e.data) || {}; if (d.cdb === "tab" && TABS[d.tab]) switchTab(d.tab);
-    });
+    swMessages();
     if (pushMode() !== "ok" || Notification.permission !== "granted") { PUSH.on = false; pushSync(); return; }   // разрешението е отнето → изключено
     navigator.serviceWorker.ready.then(function (reg) { return reg.pushManager.getSubscription(); }).then(function (sub) {
       if (!sub) { PUSH.on = false; return; }
@@ -1895,7 +1904,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // „Изядох“, полето на формата, което се записва, поправка на запис, качване, поле, в което се пише в момента → не; пробва пак при
   // следващото връщане. Черновите на чата и на въпросниците се пазят на телефона (localStorage) и се връщат → не спират обновяването.
   // След презареждането: същият раздел (адресът #…), отворените карти в него и скролът (sessionStorage, веднъж). Всички режими.
-  var BG = { at: 0, pend: false }, BG_LONG = 10 * 60e3, BG_SHORT = 60e3, BG_KEY = "app_bg_restore";
+  // Т88 (Chris 09:10–09:19 „когато отваряш от иконата, да си отваря на хом страницата“): студеният старт и тихото презареждане след
+  //   ≥ 10 мин → НАЧАЛО (без стария раздел, карти и скрол); натиснато известие → целта му (съобщението от worker-а може да дойде преди
+  //   или след „видимо“ → 600 ms изчакване преди презареждането); новата версия при < 10 мин → остава, където е било (възстановява).
+  var BG = { at: 0, pend: false, wait: false, go: "", goAt: 0 }, BG_LONG = 10 * 60e3, BG_SHORT = 60e3, BG_KEY = "app_bg_restore", BG_GO_WAIT = 600;
   var bgReload = function () { location.reload(); };   // тестовете я подменят (__app.bg)
   function bgDirty() {
     if (EAT || LFIX) return true;   // отворено „Изядох“ / поправя запис в лога
@@ -1933,11 +1945,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function bgCheck() {
     var away = BG.at ? Date.now() - BG.at : 0; BG.at = 0;
     if (!BG.pend && away < BG_SHORT) return;
-    (BG.pend || away >= BG_LONG ? Promise.resolve(true) : bgVersion()).then(function (go) {
-      if (!go) return;
-      if (bgDirty()) { BG.pend = true; return; }   // незаписано → при следващото връщане
-      BG.pend = false; bgSave(); bgReload();
+    (BG.pend === "long" || away >= BG_LONG ? Promise.resolve("long") : BG.pend === "ver" ? Promise.resolve("ver") : bgVersion().then(function (v) { return v ? "ver" : ""; })).then(function (kind) {
+      if (!kind) return;
+      if (bgDirty()) { BG.pend = kind; return; }   // незаписано → при следващото връщане
+      BG.pend = false;
+      if (kind === "ver") { bgSave(); bgReload(); return; }   // нова версия, кратко → същото място
+      BG.wait = true;   // дълго → Начало; ако точно сега е натиснато известие — неговата цел
+      setTimeout(function () {
+        BG.wait = false;
+        var tgt = BG.go && Date.now() - BG.goAt < 5000 ? BG.go : "";
+        try { sessionStorage.removeItem(BG_KEY); } catch (e) {}
+        try { history.scrollRestoration = "manual"; } catch (e) {}   // браузърът да не върне стария скрол — Начало отгоре
+        try { history.replaceState(null, "", location.pathname + location.search + (tgt ? "#" + tgt : "")); } catch (e) {}
+        bgReload();
+      }, BG_GO_WAIT);
     });
+  }
+  // натиснато известие (съобщение от worker-а): раздел или „раздел:ключ“ (като data-go). Предстои ли презареждане — там.
+  function notifGo(target) {
+    target = String(target || ""); var tab = target.split(":")[0];
+    if (!TABS[tab]) return;
+    BG.go = target; BG.goAt = Date.now();
+    if (BG.wait) return;
+    if (target.indexOf(":") > 0) go(target, true); else switchTab(tab);
   }
   document.addEventListener("visibilitychange", function () {
     if (document.visibilityState === "hidden") { if (!BG.at) BG.at = Date.now(); }
@@ -3693,7 +3723,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
   // всичко и скролът до целта в ЕДИН цикъл (Т20)
-  function revealChanges(el, root) {
+  function revealChanges(el, root, keep) {   // Т88: keep — целта (от известие) не се брои за натисната
     var chain = [], c = el, changes = [];
     while (c && c !== root) { if (c.tagName === "DETAILS" || (c.classList && c.classList.contains("card"))) chain.unshift(c); c = c.parentElement; }
     chain.forEach(function (n) {
@@ -3704,7 +3734,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           if (s !== n && chain.indexOf(s) < 0 && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) changes.push({ n: s, open: false });
         });
       }
-      seenOnOpen(n);
+      if (!(keep && n === el)) seenOnOpen(n);
     });
     return changes;
   }
@@ -3787,7 +3817,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function flash(el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1600); }
   // Препратка: <a data-go="hrana:nutrition_21"> → бутонът + разгънат пътят до картата (и в хронология: карта → месец → ден).
   // Старите препратки към мерките в Храна (hrana:meas) водят към бутона Мерки.
-  function go(spec) {
+  function go(spec, keep, instant) {   // Т88: keep — отворено от натиснато известие; instant — при студен старт (наведнъж, без анимация)
     spec = String(spec || "").replace(/^hrana:meas$/, "merki");
     var p = spec.split(":"), tab = p[0], key = p.slice(1).join(":"), same = tab === current;
     switchTab(tab, !!key);
@@ -3800,7 +3830,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var mq = el.querySelector(".iq:not([hidden]) > .imiss, .iq:not([hidden]) .iasub:not([hidden]) > .ak > .imiss"), end = null;
       if (mq) { head = tgt; tgt = mq.parentElement; if (tgt.classList.contains("ak")) end = tgt.nextElementSibling; }   // подвъпрос: заглавието + полето
     }
-    accRun(revealChanges(el, root), { el: tgt, head: head, end: end }, false);
+    accRun(revealChanges(el, root, !!keep), { el: tgt, head: head, end: end }, !!instant);
     flash(el);
   }
   // Т34: лентата притъмнява при скрол надолу, светва при скрол нагоре/спиране — винаги тапваема (1:1 от ФКУ тракера)
@@ -3838,7 +3868,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
 
   // ════════ ЗАРЕЖДАНЕ ════════
   function safe(p) { return p.then(function (r) { return r; }, function () { return { error: true }; }); }
@@ -4019,10 +4049,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     shInit();   // Т77
     pushInit();   // Т85
+    if (COACH) swMessages();   // Т88: известията на треньора (coach/sw.js)
     updateBadge(); updateDots();
     pushMissing();   // Т76: „липсват N“ → базата
     var h = (location.hash || "").slice(1);
-    if (h && h.indexOf(":") > 0) { switchTab("nachalo"); go(h); } else switchTab(h || "nachalo");
+    if (h && h.indexOf(":") > 0) { switchTab("nachalo"); go(h, true, true); } else switchTab(h || "nachalo");   // Т88: целта от известие (или линк) — картата отворена, наведнъж
     bgRestore();   // Т86: след тихото презареждане — отворените карти и скролът
     setTop();
   }
