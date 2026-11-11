@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.11.0">
+<meta name="version" content="v1.11.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -444,6 +444,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .iform .ih { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; line-height: 1.4; }
   .iform input[type=text], .iform textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
   .iform textarea { min-height: 64px; resize: none; line-height: 1.45; }
+  /* Т97: полетата растат с текста (височината — от JS: agFit); бившите едноредови (.ag1) — един ред, който се пренася */
+  textarea.ag { resize: none; overflow-y: hidden; -webkit-appearance: none; appearance: none; }
+  .iform textarea.ag1, .ded textarea.ag1 { min-height: 0; line-height: 1.35; }
+  .card .body .qa textarea.ag { resize: none; }
   .iform input:disabled, .iform textarea:disabled { background: #f3f5f7; color: #4b5866; }
   .iopts { display: flex; flex-wrap: wrap; gap: 6px; }
   .io { display: inline-flex; align-items: center; gap: 6px; padding: 7px 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; font-size: 14.5px; line-height: 1.3; cursor: pointer; }
@@ -2884,7 +2888,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var aq = ' data-aq="' + a.key + ":" + s[0] + '"', mk = o && um[a.key + ":" + s[0]] ? IMISS : "";
         if (s[2] === "radio") return '<div class="ak"' + aq + ">" + mk + esc(s[1]) + "</div>" + optsHtml("radio", id, ["Не", "Малко", "Значително"], [val], da);
         return '<label class="ak" for="' + id + '"' + aq + ">" + mk + esc(s[1]) + "</label>"
-          + (s[2] === "area" ? '<textarea id="' + id + '" rows="2"' + da + dis + ">" + esc(val) + "</textarea>" : '<input type="text" id="' + id + '"' + da + ' value="' + esc(val) + '"' + dis + ">");
+          + (s[2] === "area" ? '<textarea class="ag" data-agmax="260" id="' + id + '" rows="2"' + da + dis + ">" + esc(val) + "</textarea>" : '<textarea class="ag ag1" rows="1" id="' + id + '"' + da + dis + ">" + esc(val) + "</textarea>");   // Т97
       }).join("");
       return '<label class="io ia"><input type="checkbox" data-area="' + a.key + '"' + (o ? " checked" : "") + dis + "><span>" + esc(a.label) + "</span></label>"
         + '<div class="iasub" data-sub="' + a.key + '"' + (o ? "" : " hidden") + '><div class="ih iahint">' + esc(AREA_HINT) + "</div>" + sub + "</div>";
@@ -2900,8 +2904,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + (qHint(k) ? '<div class="ih">' + esc(qHint(k)) + "</div>" : "");   // Т72: подсказката на смесения въпрос
     if (f.t === "radio" || f.t === "check") h += optsHtml(f.t === "radio" ? "radio" : "checkbox", id, f.o || [], Array.isArray(v) ? v : (v == null ? [] : [String(v)]));
     else if (f.t === "areas") h += areasHtml(v);
-    else if (f.t === "area") h += '<textarea id="' + id + '" rows="2"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + dis + ">" + esc(v == null ? "" : v) + "</textarea>";
-    else h += '<input type="text" id="' + id + '"' + (f.t === "number" ? ' inputmode="decimal"' : "") + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + ' value="' + esc(v == null ? "" : v) + '"' + dis + ">";
+    else if (f.t === "area") h += '<textarea class="ag" data-agmax="260" id="' + id + '" rows="2"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + dis + ">" + esc(v == null ? "" : v) + "</textarea>";
+    else if (f.t === "number") h += '<input type="text" id="' + id + '" inputmode="decimal"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + ' value="' + esc(v == null ? "" : v) + '"' + dis + ">";
+    else h += '<textarea class="ag ag1" rows="1" id="' + id + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : "") + dis + ">" + esc(v == null ? "" : v) + "</textarea>";   // Т97: свободният текст — пренася се, полето расте
     return h + '<div class="isv" aria-live="polite"></div></div>';
   }
   // Т69 (Chris 19:15): знакът „липсва“ на реда — като брояча на групата; изчезва, щом отговорът е записан (или въпросът се скрие)
@@ -3023,7 +3028,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           }
         });
       }
-      if (t.hasAttribute("data-area")) { var sub = row.querySelector('[data-sub="' + t.getAttribute("data-area") + '"]'); if (sub) sub.hidden = !t.checked; }
+      if (t.hasAttribute("data-area")) { var sub = row.querySelector('[data-sub="' + t.getAttribute("data-area") + '"]'); if (sub) { sub.hidden = !t.checked; if (t.checked) agSoon(sub); } }
       if (nk === "lek_klas") { var dl = Object.assign({}, IN.data); dl.lek_klas = ivRead(row); ivReveal(dl); }   // Т90: „липсва“ при лекарствата — веднага
       if (t.type === "radio" && !t.hasAttribute("data-ar")) { var d = Object.assign({}, IN.data); d[row.getAttribute("data-k")] = ivRead(row); ivReveal(d); }   // зависимите въпроси се показват веднага
       ivQueue(row, true);
@@ -3031,7 +3036,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     form.addEventListener("input", function (e) {
       var t = e.target, row = t.closest(".iq[data-k]");
       if (!row || t.type === "radio" || t.type === "checkbox") return;
-      if (t.tagName === "TEXTAREA") { t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight + 2, 260) + "px"; }
       ivQueue(row, false);
     });
     form.addEventListener("focusout", function (e) {
@@ -3493,6 +3497,43 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }, true);
   document.addEventListener("keydown", function (e) { if (IPOP && e.key === "Escape") { e.preventDefault(); infoClose(true); } });
 
+  // ════════ Т97: ТЕКСТОВИТЕ ПОЛЕТА РАСТАТ С ТЕКСТА ════════
+  // Chris 11.11 18:31. textarea.ag — височината е колкото текста (scrollHeight); data-agmax — горна граница, над нея скрол. textarea.ag1 —
+  //   бившите едноредови (<input type="text">): текстът се пренася по ширината, но Enter не прави нов ред, а поставеното с нов ред става интервал
+  //   (стойността е същият низ, на един ред). Пресмята се при рисуване (MutationObserver), input, focus, смяна на ширината — и когато скрито
+  //   поле се покаже (ResizeObserver), — и след смяна на стойността от кода (agWatch / agFit). Изгледите само за четене — същото.
+  //   Логът за храна, разговорът и поправката ✎ си растат по своя път (с горните граници 170 / 142 / 170 px).
+  function agFit(t) {
+    if (!t || !t.isConnected || !t.clientWidth) return;   // скрито → когато се покаже (ResizeObserver)
+    var mx = parseFloat(t.getAttribute("data-agmax")) || 0, cs = getComputedStyle(t);
+    t.style.height = "auto";
+    var h = t.scrollHeight + (cs.boxSizing === "border-box" ? (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0) : 0);
+    if (mx && h > mx) { t.style.height = mx + "px"; t.style.overflowY = "auto"; } else { t.style.height = h + "px"; t.style.overflowY = "hidden"; }
+    t.__agw = t.clientWidth;
+  }
+  var AG_RO = null;
+  try { AG_RO = new ResizeObserver(function (es) { es.forEach(function (e) { var t = e.target; if (t.clientWidth && t.clientWidth !== t.__agw) { t.__agw = t.clientWidth; setTimeout(function () { agFit(t); }, 0); } }); }); } catch (x) {}   // извън отговора на наблюдателя (без „loop“)
+  function agWatch(root) {
+    Array.prototype.forEach.call((root || document).querySelectorAll("textarea.ag"), function (t) { if (!t.__ag) { t.__ag = 1; if (AG_RO) AG_RO.observe(t); } agFit(t); });
+  }
+  try {
+    new MutationObserver(function (ms) {
+      var any = ms.some(function (m) { return Array.prototype.some.call(m.addedNodes, function (n) { return n.nodeType === 1 && (n.matches("textarea.ag") || !!n.querySelector("textarea.ag")); }); });
+      if (any) agWatch(document);
+    }).observe(document.body, { childList: true, subtree: true });
+  } catch (x) {}
+  var AG_T = 0;
+  function agSoon(root) { setTimeout(function () { agWatch(root && root.isConnected ? root : document); }, 0); }   // след показването (отворено, видимо)
+  window.addEventListener("resize", function () { clearTimeout(AG_T); AG_T = setTimeout(function () { agWatch(document); }, 60); });   // ширината (и завъртането)
+  document.addEventListener("toggle", function (e) { if (e.target && e.target.open) agSoon(e.target); }, true);   // <details> се отвори
+  document.addEventListener("input", function (e) {
+    var t = e.target; if (!t || t.tagName !== "TEXTAREA" || !t.classList.contains("ag")) return;
+    if (t.classList.contains("ag1") && /[\r\n]/.test(t.value)) { var p = t.selectionStart; t.value = t.value.replace(/\r?\n/g, " "); try { t.setSelectionRange(p, p); } catch (x) {} }
+    agFit(t);
+  }, true);
+  document.addEventListener("focusin", function (e) { var t = e.target; if (t && t.tagName === "TEXTAREA" && t.classList.contains("ag")) agFit(t); });
+  document.addEventListener("keydown", function (e) { var t = e.target; if (e.key === "Enter" && t && t.tagName === "TEXTAREA" && t.classList.contains("ag1")) e.preventDefault(); }, true);   // един ред
+
   // ════════ Т94: КУХНЯТА (каталог + списъци) ════════
   // Chris 11.11 15:21. Каталог с натурални храни (кухнята на Victus): търсачка, чипове по вид / група / произход, сортиране по П · В · М · ккал,
   //   балон на храната (като ⓘ) с ★ Харесвам · ✕ Не ям · ? Искам да опитам. „Моите“ — трите списъка. Зад превключвател: get_kitchen().on
@@ -3803,11 +3844,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function kitEdHtml() {
     var e = KIT.ed;
-    return '<div class="card ded"><label class="dlab" for="dName">Име на ястието</label><input type="text" id="dName" maxlength="80" autocomplete="off" value="' + esc(e.name) + '">'
+    return '<div class="card ded"><label class="dlab" for="dName">Име на ястието</label><textarea class="ag ag1" rows="1" id="dName" maxlength="80" autocomplete="off">' + esc(e.name) + "</textarea>"
       + '<div class="dits">' + e.items.map(kitEdRow).join("") + "</div>"
       + '<button type="button" class="dadd" data-dadd="1" aria-expanded="' + !!e.add + '"' + (e.items.length >= 20 ? " disabled" : "") + ">＋ Добави храна</button>"
       + (e.add ? '<div class="dpick"><div class="ksrch">' + ic("search") + '<input type="search" id="dQ" placeholder="Търси храна" aria-label="Търси храна" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + esc(e.q) + '"></div><div id="dRes">' + kitAddRes() + "</div></div>" : "")
-      + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
+      + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
       + (e.sized ? '<p class="dwarn">Промяната ще стане нова чернова. Оразмереното остава, докато не го оразмерим наново.</p>' : "")
       + (e.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
       + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitEdOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
@@ -4384,6 +4425,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var loc = COACH ? null : lsGet(lkey(n)), sent = sentMap[n];
         if (loc != null && sent && qaNorm(loc) === sent.text) { lsSet(lkey(n), null); loc = null; }
         ta.value = loc != null ? loc : (sent ? sent.text : "");
+        ta.classList.add("ag"); agWatch(qi);   // Т97: расте с текста
         status(qi, sent, ta);
         ta.addEventListener("input", function () {
           var s = sentMap[n], v = qaNorm(ta.value);
@@ -4612,7 +4654,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function accEase(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }   // ease-in-out cubic — една и съща за височината и за скрола
   function isOpen(n) { return n.tagName === "DETAILS" ? n.open : n.classList.contains("open"); }
   function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на движение)
-  function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); }
+  function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); if (o) agSoon(n); }   // Т97: полетата вътре — по текста
   // тялото на акордеона. <details> с повече от едно дете (или с текст направо в него) → обвива се веднъж в .dbody (Т25),
   // за да се движи ЦЯЛОТО съдържание, а не само първото дете
   function accBody(n) {
@@ -4825,6 +4867,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     navSlide(tab);
     if (tab === "kuhnya") kitShow();   // Т94
+    if (P[tab]) agSoon(P[tab]);   // Т97: полетата на показания раздел
     paneTitle.textContent = TABS[tab];
     document.body.classList.toggle("chat-on", tab === "razgovor");
     if (tab === "nachalo") refreshNow();   // Т82 Г (Chris 04:47): видяното по другия път (Разговор, анализът, въпросник, формата) — веднага, без презареждане
