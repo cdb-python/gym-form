@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.9.1">
+<meta name="version" content="v1.10.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -116,6 +116,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .inst .ih { font-size: 15.5px; font-weight: 700; line-height: 1.3; }
   .inst .ix { position: absolute; top: 4px; right: 4px; width: 34px; height: 34px; padding: 0; border: none; background: none; color: var(--muted); font-size: 22px; line-height: 1; cursor: pointer; border-radius: 8px; }
   .inst .ib { grid-column: 1 / -1; }
+  .inst.ro { opacity: 0.55; }   /* Т96: изгледите на треньора — картата на клиента (само когато той я вижда), бледа като изключеното „Запиши“ */
+  .inst.ro .ix:disabled { opacity: 1; cursor: not-allowed; }
   .iareas .inone { margin-top: 4px; }   /* Т90: „Нямам оплаквания“ — последно, малко отделено от областите */
   .inst .ib .btn { margin-top: 6px; }
   .inst ol { margin: 4px 0 0; padding-left: 22px; font-size: 14.5px; line-height: 1.6; }
@@ -1880,18 +1882,42 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return !!t && Date.now() - t < INST_DAYS * 864e5;
   }
   function installHtml(env) {
-    if (COACH || VIEW_AS || env.standalone || !(env.ios || env.android) || (instHidden() && !INST_FORCE)) return "";   // Т94в: в изгледите на треньора — никога (Chris мисли, че неговото не е инсталирано)   // Т85: INST_FORCE — от балона „Известия“
+    var pv = COACH || VIEW_AS;   // Т96: огледалото — само когато клиентът наистина я вижда (coach_app_state); вариантът — по НЕГОВИЯ телефон
+    if (pv) { if (!APP_RO) return ""; env = APP_RO.platform === "ios" ? { ios: true, iosSafari: true } : { android: true, prompt: false }; }
+    else if (env.standalone || !(env.ios || env.android) || (instHidden() && !INST_FORCE)) return "";   // Т85: INST_FORCE — от балона „Известия“
     var body;
     if (env.ios && !env.iosSafari) body = "<p>Отвори този линк в <b>Safari</b>.</p>";
     else if (env.ios) body = "<ol><li><b>Сподели</b> " + SHARE_SVG + "</li><li><b>„Добави към началния екран“</b></li></ol>";
     else if (env.prompt) body = '<button type="button" class="btn" id="instBtn">Инсталирай</button>';
     else body = "<ol><li><b>⋮</b> горе вдясно</li><li><b>„Инсталирай приложението“</b> или <b>„Добави към началния екран“</b></li></ol>";
-    return '<div class="inst" id="instCard" data-kind="' + (env.ios ? (env.iosSafari ? "ios" : "ios-other") : env.prompt ? "prompt" : "android") + '">'
+    return '<div class="inst' + (pv ? " ro" : "") + '" id="instCard" data-kind="' + (env.ios ? (env.iosSafari ? "ios" : "ios-other") : env.prompt ? "prompt" : "android") + '"' + (pv ? ' aria-disabled="true"' : "") + ">"
       + '<img src="' + window.PWA_BASE + 'icons/icon-192.png" alt="">'
       + '<div class="ih">Инсталирай на телефона</div>'
-      + '<button type="button" class="ix" id="instX" aria-label="Скрий">×</button>'
+      + '<button type="button" class="ix' + (pv ? " ro" : "") + '" id="instX" aria-label="Скрий"' + (pv ? ' disabled aria-disabled="true"' : "") + ">×</button>"
       + '<div class="ib">' + body + "</div></div>";
   }
+  // Т96: телефонът на клиента казва на базата (тихо, сървърът пише най-много веднъж на 30 мин) дали е от иконата, какъв е и дали е скрил
+  //   картата; треньорът (?c= / VIEW_AS) вижда картата само ако клиентът наистина я вижда — known && !installed && !hidden.
+  var APP_RO = null;
+  function appReport(hidden) {
+    if (COACH || VIEW_AS || !CAN_WRITE || !token) return;
+    var env = INST_ENV || pwaEnv(), a = { p_token: token, p_standalone: !!env.standalone, p_platform: env.ios ? "ios" : env.android ? "android" : "other" };
+    if (hidden) a.p_hidden = true;
+    try { Promise.resolve(sb.rpc("report_app_state", a)).then(function () {}, function () {}); } catch (x) {}
+  }
+  function appRoInit() {
+    if (!COACH && !VIEW_AS) return;
+    var a = COACH ? (COACH_CID ? { p_client_id: COACH_CID } : null) : token ? { p_token: token } : null;
+    if (!a) return;
+    try {
+      Promise.resolve(sb.rpc("coach_app_state", a)).then(function (res) {
+        var d = res && !res.error ? res.data : null;
+        APP_RO = d && typeof d === "object" && d.known === true && d.installed === false && !d.hidden_at ? d : null;
+        renderInstall();
+      }, function () {});
+    } catch (x) {}
+  }
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") appReport(false); });
   function renderInstall() {
     var host = document.getElementById("instHost");
     if (host) host.innerHTML = installHtml(INST_ENV ? Object.assign({}, INST_ENV, { prompt: !!instPrompt }) : pwaEnv());   // prompt = дали Chrome е дал beforeinstallprompt
@@ -1900,7 +1926,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   window.addEventListener("appinstalled", function () { instPrompt = null; lsSet(INST_DONE, "1"); renderInstall(); });
   function instClick(e) {
     if (COACH || VIEW_AS) return false;   // Т93б: прегледът — без действие
-    if (e.target.closest("#instX")) { lsSet(INST_KEY, String(Date.now())); renderInstall(); return true; }
+    if (e.target.closest("#instX")) { lsSet(INST_KEY, String(Date.now())); appReport(true); renderInstall(); return true; }   // Т96: и в базата
     if (e.target.closest("#instBtn") && instPrompt) {
       var p = instPrompt; instPrompt = null;
       try {
@@ -4760,6 +4786,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     shInit();   // Т77
     pushInit();   // Т85
     pushRoInit();   // Т93
+    appRoInit(); appReport(false);   // Т96
     kitLoad();   // Т94
     if (COACH) swMessages();   // Т88: известията на треньора (coach/sw.js)
     updateBadge(); updateDots();
