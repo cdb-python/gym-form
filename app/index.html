@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.15.0">
+<meta name="version" content="v1.15.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -394,14 +394,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lsum .d-nc { grid-column: 1; grid-row: 2; }
   .lsum .d-p { grid-column: 2; grid-row: 2; } .lsum .d-c { grid-column: 3; grid-row: 2; } .lsum .d-f { grid-column: 4; grid-row: 2; }
   .lrows .lsum + .lrow { border-top: none; }
-  /* Т107: „Днес е:“ — типът на деня (клиент с day_types — засега Полина); избраното — плътно; огледалото — изключени (.ro), избраното се вижда */
-  .dtrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin: 0 0 10px; }
-  .dtrow .dtl { flex: none; min-width: 3.9em; font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
-  .dtrow .dtc { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  /* Т109 (Chris 11:08 / 11:10): „График“ — вляво в реда на „Защо 21 дни?“ (картата не расте); натискане → балонът с бутоните за ДНЕС;
+     след избор надписът е избраното — плътно; огледалото — видим, изключен (.ro), балон не се отваря */
+  .lmrow #dtBox { flex: none; margin-right: auto; display: flex; align-items: center; }
+  .lmrow .lm.dtb.on { margin: -3px 0; padding: 3px 10px; border-radius: 999px; background: var(--accent); color: #fff; text-decoration: none; }
+  .lmrow .lm.dtb.ro { cursor: not-allowed; }
+  .dtpop .dtc { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 2px; }
   .dtchip { flex: none; height: 32px; margin: 0; padding: 0 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 13.5px; font-weight: 600; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .dtchip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .dtchip.ro { cursor: not-allowed; }
-  .dtrow .dte { flex: 0 0 100%; margin: 0; }
+  .dtpop .dte { margin: 8px 0 0; }
   /* Т107: типът до датата в „История на храненето“ (до деня от седмицата; подреждането на числата — без промяна) */
   .d-dt { min-width: 0; max-width: 100%; justify-self: start; padding: 0 7px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 11.5px; font-weight: 700; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .qd-food > summary > .d-dt { grid-column: 3 / 5; grid-row: 1; }   /* + празното вляво под ккал (ккал е вдясно) — „След нощна“ се събира */
@@ -1403,7 +1404,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ── състояние ──
   var D = { name: "", content: [], log: [] };     // get_client_diary
   var F = { entries: [] };                         // get_food_log (log_mode от form3L тук не се ползва)
-  var DT = { on: false, labels: [], days: {}, yk: null, busy: null, err: null };   // Т107: типът на деня (смени) — get_day_types / coach_get_day_types
+  var DT = { on: false, labels: [], days: {}, busy: null, err: null };   // Т107/Т109: типът на деня (смени) — get_day_types / coach_get_day_types
   var CALC = null;                                 // Т105: сметката на нощния скрипт по записи {<id>: {k,p,c,f,u}}; null → няма я (реалните клиенти, VIEW_AS, без RPC) — както досега
   var A = { cards: [] };                           // get_analysis
   var START = false;                               // ден 1: още няма нито една карта (освен въпросници) → „Първи стъпки"
@@ -2538,8 +2539,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function logCardHtml(open) {
     var n = logDays();
     var chip = '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
-    var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'
-      + '<div id="dtBox">' + dtHtml() + "</div>"   // Т107: „Днес е:“ (само клиент с day_types)
+    var inner = '<div class="lmrow"><span id="dtBox">' + dtBtnHtml() + '</span><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'   // Т109: „График“ вляво
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво и колко хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво и колко хапна или пи"></textarea>'
       + '<div class="lwr"><input type="text" id="f_time" class="tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-label="Час" aria-haspopup="dialog" aria-expanded="false">'
@@ -2565,6 +2565,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function daysWord(n) { return n + (n === 1 ? " ден" : " дни"); }
   function foodNavSub() { var n = foodPastDays().length; return n ? daysWord(n) : "още няма"; }
   function refreshLogView() {
+    dtRender();   // Т109: нов ден → пак „График“
     var n = logDays(), key = n >= LOG_TARGET ? "done" : "info", today = todayStr();
     var cnt = document.getElementById("logCnt");
     if (cnt) { cnt.textContent = logCounter(n); cnt.classList.toggle("inf", n >= LOG_TARGET); }
@@ -3584,6 +3585,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function infoOpen(btn) {
     if (btn.getAttribute("data-info") === "kfood") return kitOpen(btn);   // Т94: храна от кухнята
     if (btn.getAttribute("data-info") === "kfilt") return kitFiltOpen(btn);   // Т102ж: балонът „Филтри“
+    if (btn.getAttribute("data-info") === "dtype") return dtOpen(btn);   // Т109: „График“
     var key = btn.getAttribute("data-info"), f = INFO[key], same = IPOP && IPOP.btn === btn;
     infoClose(false, false, !same && !!f);   // към друг балон — записът в историята остава
     if (same || !f) return;
@@ -5108,11 +5110,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     Array.prototype.forEach.call(nw.querySelectorAll("[data-key]"), function (x) { var o = !!open[x.getAttribute("data-key")]; if (x.tagName === "DETAILS") x.open = o; else x.classList.toggle("open", o); });
     old.parentNode.replaceChild(nw, old);
   }
-  // Т107 (Chris 12.11 10:14, въпросът на Полина): „Днес е:“ — типът на деня с едно натискане. Вижда се само при клиент с етикети
-  //   (clients.day_types ≠ null — решава сървърът: on; Chris 10:18 — засега само Полина). Клиентът и изгледът като клиент —
-  //   get_day_types; треньорът (?c=) — coach_get_day_types. Запис — set_day_type (днес или вчера), веднага на екрана, при грешка — обратно.
-  //   „Вчера:“ — същият ред, ако при зареждането вчера няма избор (остава до следващото, за да се поправи). Огледалото — бутоните изключени.
-  function dtYday() { return new Date(Date.parse(todayStr() + "T12:00:00Z") - 86400000).toISOString().slice(0, 10); }
+  // Т107 (Chris 12.11 10:14, въпросът на Полина) → Т109 (Chris 11:08 / 11:10): типът на деня — „График“ вляво в реда на „Защо 21 дни?“.
+  //   Вижда се само при клиент с етикети (clients.day_types ≠ null — решава сървърът: on; засега само Полина). Клиентът и изгледът като
+  //   клиент — get_day_types; треньорът (?c=) — coach_get_day_types. Натискане → балонът (механизмът на ⓘ, data-info="dtype") с бутоните;
+  //   избор → set_day_type за ДНЕС, балонът се затваря сам, надписът става избраното; натискане на избрания → маха избора („График“).
+  //   Нов ден → пак „График“. „Вчера“ отпада (Т109). Грешка → изборът се връща, балонът остава с „Неуспешно. Опитай пак.“
+  //   Огледалото (?c=, VIEW_AS): надписът се вижда, бутонът е изключен — балон не се отваря.
   function dtLoad() {
     var q;
     try { q = COACH ? sb.rpc("coach_get_day_types", { p_client_id: COACH_CID }) : sb.rpc("get_day_types", { p_token: token }); } catch (x) { return; }
@@ -5122,41 +5125,69 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var lb = (Array.isArray(d.labels) ? d.labels : []).filter(function (x) { return typeof x === "string" && x.trim(); });
       if (!lb.length) return;
       DT.on = true; DT.labels = lb; DT.days = d.days && typeof d.days === "object" && !Array.isArray(d.days) ? d.days : {};
-      DT.yk = DT.days[dtYday()] ? null : dtYday();
       dtRender(); calcRefresh();   // историята — с типа до датата
     });
   }
-  function dtRow(day, lbl) {
-    var cur = DT.days[day] || null, ro = !CAN_WRITE;
-    return '<div class="dtrow" data-dtday="' + day + '"><span class="dtl">' + lbl + '</span><span class="dtc">' + DT.labels.map(function (t) {
-      var on = cur === t;
-      return '<button type="button" class="dtchip' + (on ? " on" : "") + (ro ? " ro" : "") + '"' + (ro ? ' disabled aria-disabled="true"' : ' data-dt="' + esc(t) + '"') + ' aria-pressed="' + on + '">' + esc(t) + "</button>";
-    }).join("") + "</span>" + (DT.err === day ? '<div class="ok show err dte">Неуспешно. Опитай пак.</div>' : "") + "</div>";
-  }
-  function dtHtml() {
+  function dtBtnHtml() {
     if (!DT.on) return "";
-    var y = dtYday();
-    return dtRow(todayStr(), "Днес е:") + (DT.yk === y ? dtRow(y, "Вчера:") : "");
+    var cur = DT.days[todayStr()] || null, ro = !CAN_WRITE;
+    return '<button type="button" class="lm dtb' + (cur ? " on" : "") + (ro ? " ro" : "") + '" id="dtBtn"' + (ro ? ' disabled aria-disabled="true"' : ' data-info="dtype" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"') + ">" + esc(cur || "График") + "</button>";
   }
-  function dtRender() { var b = document.getElementById("dtBox"); if (b) b.innerHTML = dtHtml(); }
+  function dtRender() {   // надписът — на място (балонът остава закачен за същия бутон)
+    var box = document.getElementById("dtBox"), b = document.getElementById("dtBtn");
+    if (!box) return;
+    if (!DT.on) { box.innerHTML = ""; return; }
+    if (!b) { box.innerHTML = dtBtnHtml(); return; }
+    var cur = DT.days[todayStr()] || null;
+    b.textContent = cur || "График"; b.classList.toggle("on", !!cur);
+  }
+  function dtPopHtml() {
+    var cur = DT.days[todayStr()] || null;
+    return DT.labels.map(function (t) { var on = cur === t; return '<button type="button" class="dtchip' + (on ? " on" : "") + '" data-dt="' + esc(t) + '" aria-pressed="' + on + '">' + esc(t) + "</button>"; }).join("");
+  }
+  function dtPopSync() {
+    if (!IPOP || !IPOP.pop.classList.contains("dtpop")) return;
+    IPOP.pop.querySelector(".dtc").innerHTML = dtPopHtml();
+    var e = IPOP.pop.querySelector(".dte");
+    if (DT.err && !e) IPOP.pop.insertAdjacentHTML("beforeend", '<div class="ok show err dte">Неуспешно. Опитай пак.</div>');
+    else if (!DT.err && e) e.parentNode.removeChild(e);
+  }
+  function dtOpen(btn) {
+    var same = IPOP && IPOP.btn === btn;
+    infoClose(false, false, !same);
+    if (same || !DT.on || !CAN_WRITE) return;
+    var pop = document.createElement("div");
+    pop.className = "ipop dtpop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "График"); pop.setAttribute("data-info", "dtype"); pop.tabIndex = -1;
+    pop.innerHTML = '<div class="iph"><b>График</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="dtc">' + dtPopHtml() + "</div>";
+    document.body.appendChild(pop);
+    IPOP = { btn: btn, pop: pop };
+    DT.err = null;
+    btn.setAttribute("aria-expanded", "true");
+    infoPlace(); window.addEventListener("resize", infoPlace);
+    popFit(pop);
+    ipPush();
+    pop.querySelector(".ipx").addEventListener("click", function () { infoClose(true); });
+    pop.addEventListener("click", function (e) {   // избор / смяна; натискане на избрания → маха избора
+      var b = e.target.closest && e.target.closest(".dtchip[data-dt]");
+      if (!b || !CAN_WRITE || DT.busy) return;
+      var day = todayStr(), t = b.getAttribute("data-dt");
+      dtSet(day, DT.days[day] === t ? null : t);
+    });
+    try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
   function dtSet(day, nv) {
     var prev = DT.days[day] || null;
     if (nv) DT.days[day] = nv; else delete DT.days[day];
-    DT.busy = day; DT.err = null; dtRender();
+    DT.busy = day; DT.err = null; dtPopSync();
     var q;
     try { q = sb.rpc("set_day_type", { p_token: token, p_day: day, p_type: nv }); } catch (x) { q = Promise.reject(x); }
     safe(Promise.resolve(q)).then(function (r) {
       DT.busy = null;
-      if (!r || r.error || r.data !== true) { if (prev) DT.days[day] = prev; else delete DT.days[day]; DT.err = day; }
+      if (!r || r.error || r.data !== true) { if (prev) DT.days[day] = prev; else delete DT.days[day]; DT.err = day; dtPopSync(); return; }   // балонът остава
+      if (IPOP && IPOP.pop.classList.contains("dtpop")) infoClose(true);   // записано → балонът се затваря сам
       dtRender(); calcRefresh();
     });
   }
-  document.addEventListener("click", function (e) {   // избор / смяна; натискане на избрания → маха избора
-    var b = e.target && e.target.closest && e.target.closest(".dtchip[data-dt]");
-    if (!b || !CAN_WRITE || !DT.on || DT.busy) return;
-    var day = b.closest(".dtrow").getAttribute("data-dtday"), t = b.getAttribute("data-dt");
-    dtSet(day, DT.days[day] === t ? null : t);
-  });
   function measHistHtml() {
     var past = measPast();
     var inner = !past.length ? hEmpty("Още няма минали мерения.") : histMonths("hm_meas_", past, function (m) { return m.day; },
