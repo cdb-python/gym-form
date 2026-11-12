@@ -108,11 +108,6 @@
   /* Т76 (Chris 22:09–22:10): часът на последната активност — закотвен горе вдясно, до ръбовете на картата (≈ 6 px отгоре, 8 px отдясно), дребен.
      Остава в реда (не absolute) → мястото му е запазено: името и чиповете не влизат под него, а при теснота се съкращават те. Редът с името не слиза. */
   .row .when { flex: none; align-self: flex-start; margin: -5px -5px 0 auto; color: var(--muted); font-size: 11.5px; line-height: 1.25; white-space: nowrap; }
-  /* Т110 (Chris 12.11 14:47): клиентът е отворил приложението след последното си писане → „писа … · отвори …“ (същото сиво). Ако до него
-     името не се побира цяло → „отвори …“ слиза на втори ред под часа, вдясно (двата реда са в височината на реда с името — той не расте). */
-  .row .when.wo { text-align: right; }
-  .row .when.stk .w2 { display: block; }
-  .row .when.stk .ws { display: none; }
   .row .dev { flex: none; padding: 0 7px; border-radius: 6px; background: #e7eaee; color: #4b5866; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
   /* Т76: етапът („Режим“, „Анализ“, „21 дни · ден N“, „Свободен лог“) и „Личен“ — малки сиви чипове до името */
   .row .stg { flex: none; max-width: 9em; padding: 0 7px; border-radius: 6px; background: var(--soft); color: #4b5866; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -137,7 +132,7 @@
   .row .l2 .lb { display: inline-block; min-width: 3.1em; }   /* „Вчера“ / „ДД.ММ“ — ккал едно под друго */
   .row .l2 b, .row .pv .pm b { color: var(--accent-dark); font-weight: 700; }   /* Т76в: всички стойности — болд; етикетите — не */
   /* Т76в (Chris 22:41 „да се знае кое къде свършва“): едра болд „·“ между отделните неща (и между колоните), не между етикет и стойност */
-  .row .l2 .sp, .row .pv .sp, .row .sg .sp, .row .when .sp { font-size: 1.4em; font-weight: 800; line-height: 0; vertical-align: -0.1em; }
+  .row .l2 .sp, .row .pv .sp, .row .sg .sp { font-size: 1.4em; font-weight: 800; line-height: 0; vertical-align: -0.1em; }
   /* Т46: разликата в теглото — нагоре червено, надолу зелено (семантично, както в app/); „=“ — сиво */
   .row .l2 .dl { font-weight: 700; } .row .l2 .dl.dup { color: #c43d3d; } .row .l2 .dl.ddown { color: #2e7d5b; }
   .row .pv { display: flex; gap: 5px; margin-top: 4px; color: #46525e; font-size: 13.5px; overflow: hidden; white-space: nowrap; }
@@ -408,20 +403,12 @@
   //   Подредбата: по-късното от писането (last_activity) и отварянето. Вълната (shimRow), „Активни“ и кликът остават по last_activity.
   function tms(ts) { return Date.parse(ts || "") || 0; }
   function lastAt(r) { return Math.max(tms(r.last_activity), tms(r.last_open)); }
+  // Т110б (Chris 12.11 15:47): в ъгъла — само последното. Отворил след писането → „отвори …“ (същото сиво); иначе (писането е последно,
+  //   равни, на вид еднакви, няма last_open) → часът на писането, точно както преди Т110. Един ред.
   function whenHtml(r) {
     var a = tms(r.last_activity), o = tms(r.last_open), wa = when(r.last_activity), wo = when(r.last_open);
-    if (!(o > a) || wo === wa) return '<span class="when">' + esc(wa) + "</span>";   // не е по-късно (или на вид е същото) → както преди
-    if (!a) return '<span class="when">' + esc("отвори " + wo) + "</span>";
-    return '<span class="when wo"><span class="w1">' + esc("писа " + wa) + '</span><span class="w2"><span class="ws"> ' + DOT + " </span>" + esc("отвори " + wo) + "</span></span>";
+    return '<span class="when">' + esc(o > a && wo !== wa ? "отвори " + wo : wa) + "</span>";
   }
-  // Т110: „писа … · отвори …“ на един ред, ако името до него се побира цяло; иначе „отвори …“ — на втори ред под часа, вдясно
-  function fitWhen() {
-    var ws = Array.prototype.slice.call(rowsEl.querySelectorAll(".when.wo"));
-    ws.forEach(function (w) { w.classList.remove("stk"); });
-    ws.map(function (w) { var nm = w.parentNode.querySelector(".nm"); return !!nm && nm.scrollWidth > nm.clientWidth; })
-      .forEach(function (cut, i) { ws[i].classList.toggle("stk", cut); });
-  }
-  window.addEventListener("resize", fitWhen);
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
     var tab = "nachalo";   // Т79 (Chris 23:54): винаги „Начало“ — лентата долу показва (с вълна) къде има ново; разделът го избира той
@@ -479,7 +466,6 @@
     c.setAttribute("aria-label", "Всички — " + n + (tests ? (n === 1 ? " тестов" : " тестови") : (n === 1 ? " клиент" : " клиента")));
     rowsEl.innerHTML = rows.length ? rows.map(rowHtml).join("")
       : '<div class="state" id="emptyList">' + (act ? (tests ? "Няма активни в тестовите." : "Няма активни клиенти.") : "Няма клиенти.") + "</div>";
-    fitWhen();
   }
   psBtn.addEventListener("click", function () { lsSet(PSEUDO_KEY, lsGet(PSEUDO_KEY) === "1" ? null : "1"); render(); });
   // Т77: натиснат клиент → отворен сега (вълната му спира и при връщане назад)
