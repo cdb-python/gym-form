@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.16.0">
+<meta name="version" content="v1.16.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -602,6 +602,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.hist details.qacard > summary { padding: 10px 2px; min-height: 0; }
   .card.hist details.qacard[open] > summary { border-bottom: none; }
   .card.hist details.qacard .qc-body { padding: 0 2px 10px; }
+  .card[data-key="h_labs"] details.qacard .qc-body { padding-left: 14px; }   /* Т112в: без месеците — таблицата на същата ширина като преди (отстъпът на месеца) */
   .card.panel .card.panel.hist { margin: 10px 0 0; }
   .card.panel .card.panel.hist > .body { padding: 0 0 4px 12px; background: none; }
   details.qacard .iold { color: var(--muted); text-decoration: line-through; }
@@ -3070,16 +3071,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (on && !m) row.insertAdjacentHTML("afterbegin", IMISS);
     else if (!on && m) row.removeChild(m);
   }
+  // Т112б (Chris 12.11 17:51 „по-добре да се затваря старият, ако отвориш нов … и по подразбиране всичко затворено, като отвориш менюто“):
+  //   разделите — по един отворен; всички затворени, когато формата се покаже наново: влизане в „Данни“ или отваряне на картата „Форма за данни“
+  //   (без движение — не се вижда). Скокът danni:ig_N отваря точно този раздел. Автозаписът не пререндерира формата → отвореният остава.
+  function fxCloseAll() { if (P.danni) Array.prototype.forEach.call(P.danni.querySelectorAll(".iform > details.fx[open]"), function (d) { d.open = false; d.__target = null; }); }
   function intakeHtml() {
     var head;
     if (!IN.on) head = '<p class="ioff" id="intakeOff">' + esc(INTAKE_OFF_TXT) + "</p>";
     else head = "";
-    var html = '<div class="iform" id="intakeForm">' + head, first = -1;
+    var html = '<div class="iform acc" id="intakeForm">' + head;   // Т112б: .acc — разделите по един отворен (accSet / revealChanges)
     INTAKE_Q.forEach(function (g, gi) {
       if (!igShown(g)) return;   // Т72: без празна карта и без „✓“; gi остава индексът в INTAKE_Q → „danni:ig_N“ сочи същия раздел
-      if (first < 0) first = gi;
       var c = igCnt(g[1].map(function (q) { return q[0]; }));
-      html += '<details class="fx" data-key="ig_' + gi + '"' + (START && gi === first && IN.on ? " open" : "") + "><summary>" + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
+      html += '<details class="fx" data-key="ig_' + gi + '"><summary>' + igTitle(g[0], g[2]) + '<span class="cnt' + (c.ok ? " igok" : "") + '" id="igc_' + gi + '"' + igCntAttrs(c) + ">" + esc(c.txt) + "</span></summary>"
         + '<div class="fxb">' + g[1].map(function (q) { return fieldHtml(q[0], qLabel(q[0])); }).join("") + "</div></details>";
     });
     return html + "</div>";
@@ -5056,10 +5060,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var dd = dayDiff(k, todayStr()), wd = dd === 0 ? "днес" : dd === 1 ? "вчера" : WD_SHORT[new Date(k + "T12:00:00Z").getUTCDay()];
     return { date: String(k).slice(8, 10) + "." + String(k).slice(5, 7), wd: wd };
   }
-  function qday(k, kind, cells, body, attrs, keys) {
+  function qday(k, kind, cells, body, attrs, keys, wd) {   // Т112в: wd — друго във втората колона (изследванията: годината)
     var p = dayParts(k);
     return '<details class="qacard qday ' + kind + '"' + (attrs ? " " + attrs : "") + '><summary><span class="d-date"' + dkAttr(keys) + ">" + p.date + dotSpan(keys) + "</span>"
-      + '<span class="d-wd">' + p.wd + "</span>" + cells + "</summary>"
+      + '<span class="d-wd">' + (wd != null ? esc(wd) : p.wd) + "</span>" + cells + "</summary>"
       + '<div class="qc-body">' + body + "</div></details>";
   }
   function dayCount(t) { return '<span class="d-lab"></span><span class="d-cnt">' + esc(t) + "</span>"; }
@@ -5094,6 +5098,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<div class="card hm' + (open ? " open" : "") + '" data-key="' + key + '"><div class="ch' + (extra ? " hmx" : "") + '"><span class="hmt"' + dkAttr(keys) + ">" + esc(monthLabel(ym)) + dotSpan(keys) + "</span>"
       + '<span class="hsub">' + esc(sub) + "</span>" + (extra || "") + '</div><div class="body"><div class="acc">' + inner + "</div></div></div>";
   }
+  // Т112 (Chris 12.11 17:48 „искам да се отварят всички, ако реша, за да съпоставям дните и стойностите нагледно“): в двете истории —
+  //   храненето и мерките — месеците и дните се отварят независимо (.acc.multi: отварянето не затваря братята; затваря се с натискане).
+  //   Само тези две карти; всички други акордеони — по един на ниво (Т11).
+  function multiAcc(h) { return h.replace(/<div class="acc">/g, '<div class="acc multi">'); }
   // месеците: най-новият горе и отворен; вътре — дните/датите като затворени акордеони
   function histMonths(prefix, items, dayOf, subOf, itemHtml, keysOf, extraOf) {
     return monthsOf(items.map(dayOf)).map(function (m, i) {
@@ -5111,7 +5119,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var dt = DT.on ? DT.days[g.day] : null, dts = dt ? '<span class="d-dt">' + esc(dt) + "</span>" : "";   // Т107: типът до датата
         return qday(g.day, (s.n ? "qd-food" : "qd-cnt") + (dt ? " hdt" : ""), s.n ? dts + sumCells(s) : dt ? dts + '<span class="d-cnt">' + esc(entriesWord(g.rows.length)) + "</span>" : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
       }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; });   // Т106: средното под месеца — само при сметката
-    return histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food");
+    return multiAcc(histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food"));   // Т112
   }
   // Т106 (Chris 12.11 09:58): средното на ден за месеца — само от завършените дни (историята е без днес) с числа и без несметнати записи
   //   („+ N без сметка“ дърпа средното надолу); % — от средните (П×4, В×4, М×9). Няма такъв ден → без ред.
@@ -5241,7 +5249,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + diff1(dif) + '</span><span class="d-src">' + (m.food ? FROM_LOG : "") + "</span>";
         return qday(m.day, "qd-meas", cells, '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
       });
-    return histCard("h_meas", "history", "История на мерките", measNavSub(), inner);
+    return multiAcc(histCard("h_meas", "history", "История на мерките", measNavSub(), inner));   // Т112
   }
   function ichgHistHtml() {
     var ch = ivChanges().sort(function (a, b) { return tsNum(b.changed_at) - tsNum(a.changed_at); });   // Т72: без скритите
@@ -5269,12 +5277,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           + '<div class="qcqa">' + plainBody(x.r.body) + "</div></div>";
       }, function (x) { return [cardKey(x.r)]; }) + "</div>";
   }
+  // Т112в (Chris 12.11 17:53 „всички таблици без месеци, по дати, затворени, в една листа … с дата в заглавието … сортирани от нови към стари“):
+  //   плосък списък — по един ред за дата (най-новата горе), всички затворени; по един отворен (.acc, както в другите хронологии).
+  //   Без месеца годината би се загубила → във втората колона вместо деня от седмицата стои годината.
   function labsHistHtml() {
     var g = labDates();
     if (!g.length) return "";
-    var inner = histMonths("hm_labs_", g, function (x) { return x.day; }, function (list) { return list.length + (list.length === 1 ? " дата" : " дати"); },
-      function (x) { var sl = seenLine("lab_" + x.day); return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day]).replace("<summary>", "<summary>" + (sl ? '<span class="seenrow">' + sl + "</span>" : "")); },   // Т84б: горе вдясно в реда на датата
-      function (x) { return ["lab_" + x.day]; });
+    var inner = g.map(function (x) {
+      var sl = seenLine("lab_" + x.day);   // Т84б: горе вдясно в реда на датата
+      return qday(x.day, "qd-cnt", dayCount(x.rows.length + (x.rows.length === 1 ? " показател" : " показателя")), labTable(x), 'data-day="' + x.day + '" data-key="lab_' + x.day + '"', ["lab_" + x.day], x.day.slice(0, 4))
+        .replace("<summary>", "<summary>" + (sl ? '<span class="seenrow">' + sl + "</span>" : ""));
+    }).join("");
     return histCard("h_labs", "history", "Хронология на изследванията", g.length + (g.length === 1 ? " дата" : " дати"), inner, g.map(function (x) { return "lab_" + x.day; }));
   }
   // Т50: преписаните файлове — месецът и денят по uploaded_at (София), най-новото горе; датите на изследванията — от преписа (upload_id)
@@ -5430,10 +5443,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function accSet(n, open, opts) {
     opts = opts || {};
+    if (open && n.getAttribute("data-key") === "intake") fxCloseAll();   // Т112б: картата „Форма за данни“ се отваря → разделите затворени
     var changes = [{ n: n, open: open }];
-    if (open) {   // по един отворен на ниво (.acc): брат, който се затваря, върви в СЪЩИЯ цикъл
+    if (open) {   // по един отворен на ниво (.acc): брат, който се затваря, върви в СЪЩИЯ цикъл; Т112: .acc.multi — не
       var par = n.parentElement;
-      if (par && par.classList.contains("acc")) Array.prototype.forEach.call(par.children, function (s) {
+      if (par && par.classList.contains("acc") && !par.classList.contains("multi")) Array.prototype.forEach.call(par.children, function (s) {
         if (s !== n && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) changes.push({ n: s, open: false });
       });
     }
@@ -5452,7 +5466,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!wantOpen(n)) {
         changes.push({ n: n, open: true });
         var par = n.parentElement;
-        if (par && par.classList.contains("acc")) Array.prototype.forEach.call(par.children, function (s) {
+        if (par && par.classList.contains("acc") && !par.classList.contains("multi")) Array.prototype.forEach.call(par.children, function (s) {   // Т112
           if (s !== n && chain.indexOf(s) < 0 && (s.tagName === "DETAILS" || s.classList.contains("card")) && wantOpen(s)) changes.push({ n: s, open: false });
         });
       }
@@ -5519,6 +5533,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!TABS[tab] || (tab === "kuhnya" && !KIT.nav)) tab = "nachalo";   // Т94: кухнята — само когато бутонът я има
     if (current) scrollMem[current] = window.scrollY;
     if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
+    if (tab === "danni" && current !== tab) fxCloseAll();   // Т112б: влизане в „Данни“ → разделите на формата затворени
     current = tab;
     Object.keys(P).forEach(function (k) { P[k].classList.toggle("on", k === tab); });
     Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function (b) {
