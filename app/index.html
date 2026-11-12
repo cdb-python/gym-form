@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.13.1">
+<meta name="version" content="v1.13.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1933,8 +1933,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var news = D.content.filter(function (r) { return r.section === "info" && /какво е новото/i.test(r.title || "") && r.entry_date; })[0];
     if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["plan_updated", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
     if (anaRowOn()) rows.push(["analysis", "Анализът на храненето ти е готов", "hrana:analysis"]);   // Т93б
-    var w = lastWeight();
-    if (START) return rows;   // ден 1: теглото е стъпка 3 в „Първи стъпки" — не се повтаря тук
+    var w = lastWeight();   // Т104: редът за теглото е винаги, и в ден 1 (START) — държи блока „Ново за теб“ (ⓘ + камбанката); „Първи стъпки“ под него — без промяна
     rows.push(w ? ["weight", "Последно тегло: " + num1(w.w) + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["weight", "Още няма записано тегло", "merki"]);
     return rows;
   }
