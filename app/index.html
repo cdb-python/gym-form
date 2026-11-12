@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.15.1">
+<meta name="version" content="v1.16.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -146,12 +146,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.open > .ch::after { content: "▾"; }
   .card > .ch .chip { flex: none; margin-left: auto; padding: 1px 8px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 12px; font-weight: 700; }
   .card > .ch .chip.pend { background: #fbf0dc; color: var(--warn); }
-  .card > .date { font-size: 13px; color: var(--muted); font-weight: 600; margin: 0 0 4px; }
   /* Т84/Т84б (Chris 07:55): при треньора — видял ли е клиентът картата. Горе вдясно, до ръбовете, на едно и също място на затворената
      и на отворената карта (като часа в списъка на клиентите: ~6 px отгоре, ~8 px отдясно, 11,5 px, сиво, не болд). В реда, не absolute:
      свой горен ред (.seenrow) — заглавието не влиза под него, стрелката и ⓘ остават на мястото си, датата е в своя ред под него. */
   .seenst { font-size: 11.5px; font-weight: 400; line-height: 1.25; color: var(--muted); white-space: nowrap; }
   .card > .seenrow { display: flex; justify-content: flex-end; margin: -8px -8px 2px 0; }
+  /* Т111 (Chris 12.11 16:20): датата на картата — горе вдясно, дребна и сива като часа в списъка на треньора (вместо реда над заглавието).
+     При треньора е в същия ред, вляво от „видяно“ („видяно“ остава в ъгъла, Т84б); не се събират ли (тясно + най-дългото „видяно“) —
+     датата слиза под него, вдясно (wrap-reverse). */
+  .card > .seenrow { flex-wrap: wrap-reverse; column-gap: 10px; }
+  .cdate { font-size: 11.5px; font-weight: 400; line-height: 1.25; color: var(--muted); white-space: nowrap; }
   .card.panel[data-key="qa"] > .body .qpend > .card > .seenrow { margin: 6px 0 -4px 0; }
   .card.panel[data-key="qa"] > .body .qpend > .card.hasr > .ch { padding-top: 2px; }
   .an .card.hasr > .ch { flex-wrap: wrap; }
@@ -201,7 +205,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hbtn.out svg.ic { width: 18px; height: 18px; }
   #whoBtn .ar svg.ic { width: 15px; height: 15px; vertical-align: -2px; }
   .card .body details.fx > .fxb p:first-child { margin-top: 0; }
-  .card .body a[data-go], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
+  .card .body a[data-go], .card .body a[data-arch], .now a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; cursor: pointer; }
   .flash { outline: 2px solid var(--accent); outline-offset: 2px; transition: outline-color 0.4s; }
   /* Т77 (Chris 10.11 22:17): при треньора новото от предното му влизане — светла вълна, която минава през цялата карта отляво надясно
      (~1,8 s, непрекъснато, без мигане), докато не бъде видяна. Само фонът (под текста) → четенето не се пречи. Сивосинкаво на бялото,
@@ -489,6 +493,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   /* Т11: хронологиите — акордеони в същата страница: карта (като „Анализ") → месеци → дни/дати; по един отворен на ниво */
   .card.panel.hist { margin: 12px 0; }
+  /* Т111: „Архив“ — най-долу в Начало, затворен; вътре по-старите версии на картите (затворени, със своята дата, само за четене).
+     Празен — само в изгледите на треньора: блед и изключен, „Празно“ (огледалото); ⓘ се отваря. */
+  .card.panel.archbox { margin-top: 18px; }
+  .card.panel.archbox > .body > .acc > .card { border-left-width: 3px; margin: 0 0 10px; }
+  .card.panel.archbox.ro { opacity: 0.55; }
+  .card.panel.archbox.ro > .ch { cursor: not-allowed; }
+  .card.panel.archbox .acc .body :disabled { cursor: not-allowed; }
+  .card.panel.archbox .acc .body textarea:disabled { background: #f3f5f7; }   /* като изключеното поле във формата */
   .card.panel.hist > .body { padding: 10px 10px 2px; }
   .acc > .card.hm { padding: 0; border-left-width: 3px; margin: 0 0 8px; overflow: hidden; }
   .card.hm > .ch { padding: 12px 14px; font-size: 15px; gap: 8px; }
@@ -1236,6 +1248,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       "Отваря се малко прозорче с часа. Ако храненето е било по-рано, смени часа и натисни „Запиши“.",
       "Храненето влиза в лога ти заедно с храните, калориите и макросите (белтъчини, въглехидрати и мазнини) — не е нужно да пишеш нищо друго.",
       "Ако е имало промяна — друго ястие, по-голяма порция или нещо в повече — запиши го със свои думи в полето на лога. Така се вижда реалният ден, а не само планът."] },
+    // ⓘ „Архив“ (Т111) — ДОСЛОВНО текстът, одобрен от Chris (12.11 16:27); не се пипа без него
+    archive: { t: "Архив", b: [
+      "Тук са по-старите версии на картите. Когато нещо се смени — нови изследвания или нов план, — новата карта е горе, а предишната се мести тук със своята дата. Най-скоро преместената е най-отгоре. Така всичко досега остава под ръка и може да се сравни."] },
     // ⓘ „Лог“ — ДОСЛОВНО текстът на Chris (15:08); не се пипа без него
     log: { t: "Лог", b: [
       "Тук пишеш всичко, което ядеш и пиеш — най-добре в момента, или до края на деня.",
@@ -1402,7 +1417,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   if (!COACH_CID && sb.auth && sb.auth.getSession) sb.auth.getSession().then(function (r) { COACH_SESSION_HERE = !!(r && r.data && r.data.session); }, function () {});
 
   // ── състояние ──
-  var D = { name: "", content: [], log: [] };     // get_client_diary
+  var D = { name: "", content: [], log: [] };
+  var ARCH = [];   // Т111: секция 'arch' — видимият архив (отделно от D.content: не е съдържание за START, „ново“, видяно, въпросници)     // get_client_diary
   var F = { entries: [] };                         // get_food_log (log_mode от form3L тук не се ползва)
   var DT = { on: false, labels: [], days: {}, busy: null, err: null };   // Т107/Т109: типът на деня (смени) — get_day_types / coach_get_day_types
   var CALC = null;                                 // Т105: сметката на нощния скрипт по записи {<id>: {k,p,c,f,u}}; null → няма я (реалните клиенти, VIEW_AS, без RPC) — както досега
@@ -1928,9 +1944,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function cardHtml(r, open, extraBody, chip) {
     var key = cardKey(r), sl = seenLine(key);   // Т84б: при треньора — видяно ли е (горе вдясно, свой ред)
-    return '<div class="card' + (open ? " open" : "") + (sl ? " hasr" : "") + '" data-key="' + esc(key) + '">'
-      + (sl ? '<div class="seenrow">' + sl + "</div>" : "")
-      + (r.entry_date ? '<div class="date">' + esc(fmtDate(r.entry_date)) + "</div>" : "")
+    var dt = r.entry_date ? '<span class="cdate">' + esc(fmtDate(r.entry_date)) + "</span>" : "";   // Т111: датата — горе вдясно, в същия ред (вляво от „видяно“)
+    return '<div class="card' + (open ? " open" : "") + (sl || dt ? " hasr" : "") + '" data-key="' + esc(key) + '">'
+      + (sl || dt ? '<div class="seenrow">' + dt + sl + "</div>" : "")
       + '<div class="ch"><span>' + esc(r.title || "Виж") + dot(key) + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + plainBody(r.body) + (extraBody || "") + "</div></div>";
   }
@@ -1938,6 +1954,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<div class="card panel' + (open ? " open" : "") + '" data-key="' + key + '">'
       + '<div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl">' + esc(title) + (info ? infoBtn(info) : "") + (sub ? '<span class="sub">' + esc(sub) + "</span>" : "") + "</span>" + (chip || "") + "</div>"
       + '<div class="body">' + inner + "</div></div>";
+  }
+
+  // ── Т111: „Архив“ — секция 'arch' (по-старите версии на картите): най-долу в Начало, затворен; вътре — затворени карти със своята дата,
+  //   най-скоро преместената горе (archived_at, после датата на картата). Само за четене; без „ново“ и без видяно (не е в D.content).
+  //   Празен: при клиента — няма го; в изгледите на треньора (?c= / VIEW_AS) — блед, изключен, „Празно“ (огледалото).
+  function archSort(a, b) { return (Date.parse(b.archived_at || "") || 0) - (Date.parse(a.archived_at || "") || 0) || String(b.entry_date || "").localeCompare(String(a.entry_date || "")); }
+  function archHtml() {
+    var n = ARCH.length, ro = !n && (COACH || VIEW_AS);
+    if (!n && !ro) return "";
+    var h = panelHtml("archbox", "history", "Архив", n ? n + (n === 1 ? " карта" : " карти") : "Празно",
+      n ? '<div class="acc">' + ARCH.slice().sort(archSort).map(function (r) { return cardHtml(r, false); }).join("") + "</div>" : "", false, null, "archive");
+    return h.replace('<div class="card panel', '<div class="card panel archbox' + (ro ? ' ro" aria-disabled="true' : ""));
+  }
+  function archRo(root) {   // формите и въпросите в архивните карти — изключени
+    Array.prototype.forEach.call(root.querySelectorAll(".archbox .acc .body input, .archbox .acc .body textarea, .archbox .acc .body select, .archbox .acc .body button"), function (x) {
+      x.disabled = true; x.setAttribute("aria-disabled", "true"); if (x.tagName === "BUTTON") x.classList.add("ro");   // .ro — само на бутоните (както навсякъде)
+    });
+  }
+  function archGo(k) {   // <a class="arch" data-arch="arch_9001"> в карта → Начало, „Архив“ и тази карта отворени, превъртяно, осветено; непознат ключ → нищо
+    k = String(k || "");
+    if (!/^arch_\d+$/.test(k) || !P.nachalo.querySelector('.archbox [data-key="' + k + '"]')) return;
+    go("nachalo:" + k);
   }
 
   // ════════ НАЧАЛО ════════
@@ -2019,7 +2057,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       html += "</div>";
     });
     if (!any) html += '<div class="state">Планът ти още се подготвя. Скоро тук ще има съдържание.</div>';
-    P.nachalo.innerHTML = html + appVerHtml();
+    P.nachalo.innerHTML = html + archHtml() + appVerHtml();   // Т111: „Архив“ — най-долу
+    archRo(P.nachalo);
     renderInstall();
   }
 
@@ -5541,6 +5580,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   document.getElementById("main").addEventListener("click", function (e) {
     if (instClick(e)) return;
     if (e.target.closest(".anprint")) { if (printPrep(true)) { try { window.print(); } catch (x) { printPrep(false); } } return; }
+    var ak = e.target.closest("a[data-arch]");   // Т111
+    if (ak) { e.preventDefault(); archGo(ak.getAttribute("data-arch")); return; }
     var g = e.target.closest("[data-go]");
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
@@ -5549,6 +5590,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!ch) return;
     var card = ch.parentElement;
     if (!card || !card.classList.contains("card")) return;
+    if (card.classList.contains("ro") && card.classList.contains("archbox")) return;   // Т111: празният архив (изгледите на треньора) — не се отваря
     var open = !wantOpen(card);
     accSet(card, open);
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
@@ -5696,7 +5738,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   function boot(diary, food, analysis, nm, intake) {
-    D = { name: diary.name || "", content: diary.content || [], log: diary.log || [] };
+    D = { name: diary.name || "", content: (diary.content || []).filter(function (r) { return r.section !== "arch"; }), log: diary.log || [] };
+    ARCH = (diary.content || []).filter(function (r) { return r.section === "arch"; });   // Т111
     if (!COACH) { SEEN_ON = !!diary.seen_items && typeof diary.seen_items === "object"; SEEN_DB = diary.seen_items || {}; }   // Т84 (при треньора — coachBoot)
     if (food) F = { entries: food.entries || [] };
     if (analysis) A = { cards: analysis.cards || [] };
