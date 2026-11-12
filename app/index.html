@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.14.0">
+<meta name="version" content="v1.14.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -476,6 +476,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.hm.open > .ch { border-bottom: 1px solid var(--border); background: var(--soft); }
   .card.hm > .ch .hmt { flex: 1 1 auto; min-width: 0; color: var(--accent-dark); }
   .card.hm > .ch .hsub { flex: none; color: var(--muted); font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+  /* Т106: под заглавието на месеца — средното на ден; колоните — като при деня (ккал под ккал, П под П…), стрелката остава в първия ред */
+  .card.hm > .ch.hmx { flex-wrap: wrap; row-gap: 4px; }
+  .hm-avg { order: 1; flex: 0 0 100%; min-width: 0; display: grid; grid-template-columns: minmax(0, 1fr) 40px 40px 36px 10px; column-gap: 5px; row-gap: 1px; align-items: baseline; }
+  .hm-avg .ma-l { grid-column: 1; grid-row: 1; min-width: 0; font-size: 11.5px; font-weight: 600; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hm-avg .d-kc { grid-column: 2 / 5; grid-row: 1; }
+  .hm-avg .d-nc { grid-column: 1; grid-row: 2; }
+  .hm-avg .d-p { grid-column: 2; grid-row: 2; } .hm-avg .d-c { grid-column: 3; grid-row: 2; } .hm-avg .d-f { grid-column: 4; grid-row: 2; }
+  @media (max-width: 359px) { .hm-avg { grid-template-columns: minmax(0, 1fr) 38px 38px 34px 10px; column-gap: 4px; } .hm-avg .d-nc.d-pc { grid-column: 1 / 6; grid-row: 3; } }   /* тясно — % на свой ред, както при деня */
   .card.hm > .body { margin: 0; padding: 8px 8px 0; background: #fafbfc; }
   .acc > details.qacard { margin: 0 0 8px; }
   details.qacard { background: var(--card); border: 1px solid var(--border); border-left: 4px solid var(--edge); border-radius: 12px; overflow: hidden; }
@@ -5020,16 +5028,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<div class="card panel hist" data-key="' + key + '"><div class="ch"><span class="ico">' + ic(ico) + '</span><span class="ttl"><span class="htt"' + dkAttr(keys) + ">" + esc(title) + dotSpan(keys) + "</span>" + (info ? infoBtn(info) : "")
       + '<span class="sub">' + esc(sub) + '</span></span></div><div class="body"><div class="acc">' + inner + "</div></div></div>";
   }
-  function monthCard(key, ym, sub, inner, open, keys) {
-    return '<div class="card hm' + (open ? " open" : "") + '" data-key="' + key + '"><div class="ch"><span class="hmt"' + dkAttr(keys) + ">" + esc(monthLabel(ym)) + dotSpan(keys) + "</span>"
-      + '<span class="hsub">' + esc(sub) + '</span></div><div class="body"><div class="acc">' + inner + "</div></div></div>";
+  function monthCard(key, ym, sub, inner, open, keys, extra) {   // Т106: extra — втори ред под заглавието (средното в храненето)
+    return '<div class="card hm' + (open ? " open" : "") + '" data-key="' + key + '"><div class="ch' + (extra ? " hmx" : "") + '"><span class="hmt"' + dkAttr(keys) + ">" + esc(monthLabel(ym)) + dotSpan(keys) + "</span>"
+      + '<span class="hsub">' + esc(sub) + "</span>" + (extra || "") + '</div><div class="body"><div class="acc">' + inner + "</div></div></div>";
   }
   // месеците: най-новият горе и отворен; вътре — дните/датите като затворени акордеони
-  function histMonths(prefix, items, dayOf, subOf, itemHtml, keysOf) {
+  function histMonths(prefix, items, dayOf, subOf, itemHtml, keysOf, extraOf) {
     return monthsOf(items.map(dayOf)).map(function (m, i) {
       var list = items.filter(function (x) { return dayOf(x).slice(0, 7) === m.ym; });
       var keys = keysOf ? list.map(keysOf).reduce(function (a, k) { return a.concat(k); }, []) : null;
-      return monthCard(prefix + m.ym, m.ym, subOf(list), list.map(itemHtml).join(""), i === 0, keys);
+      return monthCard(prefix + m.ym, m.ym, subOf(list), list.map(itemHtml).join(""), i === 0, keys, extraOf ? extraOf(list) : "");
     }).join("");
   }
   function foodHistHtml() {
@@ -5039,8 +5047,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (g) {
         var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
         return qday(g.day, s.n ? "qd-food" : "qd-cnt", s.n ? sumCells(s) : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
-      });
+      }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; });   // Т106: средното под месеца — само при сметката
     return histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food");
+  }
+  // Т106 (Chris 12.11 09:58): средното на ден за месеца — само от завършените дни (историята е без днес) с числа и без несметнати записи
+  //   („+ N без сметка“ дърпа средното надолу); % — от средните (П×4, В×4, М×9). Няма такъв ден → без ред.
+  function monthAvgHtml(list) {
+    var n = 0, a = { k: 0, p: 0, c: 0, f: 0 };
+    list.forEach(function (g) { var s = daySum(g.rows); if (!s.n || s.nc) return; n++; a.k += s.k; a.p += s.p; a.c += s.c; a.f += s.f; });
+    if (!n) return "";
+    var m = { k: a.k / n, p: a.p / n, c: a.c / n, f: a.f / n };
+    return '<div class="hm-avg"><span class="ma-l">средно на ден</span><span class="d-kc">' + Math.round(m.k) + " ккал</span>"
+      + '<span class="d-nc d-pc">' + pctCell(m) + '</span><span class="d-m d-p">П ' + Math.round(m.p) + '</span><span class="d-m d-c">В ' + Math.round(m.c) + '</span><span class="d-m d-f">М ' + Math.round(m.f) + "</span></div>";
   }
   // Т105 (Chris 12.11 09:18): сметката на нощния скрипт за всеки свободен запис (food_entry_calc). Клиентът и изгледът като клиент — get_food_calc
   //   (обект само при coach_self, иначе null → както досега); треньорът (?c=) — coach_get_food_calc, за всеки клиент. Грешка (RPC-то го няма) → както досега.
