@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.14.2">
+<meta name="version" content="v1.15.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -394,6 +394,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lsum .d-nc { grid-column: 1; grid-row: 2; }
   .lsum .d-p { grid-column: 2; grid-row: 2; } .lsum .d-c { grid-column: 3; grid-row: 2; } .lsum .d-f { grid-column: 4; grid-row: 2; }
   .lrows .lsum + .lrow { border-top: none; }
+  /* Т107: „Днес е:“ — типът на деня (клиент с day_types — засега Полина); избраното — плътно; огледалото — изключени (.ro), избраното се вижда */
+  .dtrow { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 8px; margin: 0 0 10px; }
+  .dtrow .dtl { flex: none; min-width: 3.9em; font-size: 13px; font-weight: 700; color: var(--accent-dark); white-space: nowrap; }
+  .dtrow .dtc { flex: 1 1 0; min-width: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .dtchip { flex: none; height: 32px; margin: 0; padding: 0 11px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 13.5px; font-weight: 600; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .dtchip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .dtchip.ro { cursor: not-allowed; }
+  .dtrow .dte { flex: 0 0 100%; margin: 0; }
+  /* Т107: типът до датата в „История на храненето“ (до деня от седмицата; подреждането на числата — без промяна) */
+  .d-dt { min-width: 0; max-width: 100%; justify-self: start; padding: 0 7px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 11.5px; font-weight: 700; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .qd-food > summary > .d-dt { grid-column: 3 / 5; grid-row: 1; }   /* + празното вляво под ккал (ккал е вдясно) — „След нощна“ се събира */
+  @media (max-width: 359px) { .qd-food > summary > .d-dt { grid-column: 1 / 4; grid-row: 2; } .qd-food.hdt > summary > .d-nc { grid-column: 1 / 7; grid-row: 3; } }   /* тясно — под датата */
   .lempty { margin: 4px 0 8px; color: var(--muted); font-size: 14px; }
   .lmon { display: flex; align-items: center; gap: 10px; margin: 16px 0 8px; color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
   .lmon::before, .lmon::after { content: ""; flex: 1; height: 1px; background: var(--border); }
@@ -1391,6 +1403,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ── състояние ──
   var D = { name: "", content: [], log: [] };     // get_client_diary
   var F = { entries: [] };                         // get_food_log (log_mode от form3L тук не се ползва)
+  var DT = { on: false, labels: [], days: {}, yk: null, busy: null, err: null };   // Т107: типът на деня (смени) — get_day_types / coach_get_day_types
   var CALC = null;                                 // Т105: сметката на нощния скрипт по записи {<id>: {k,p,c,f,u}}; null → няма я (реалните клиенти, VIEW_AS, без RPC) — както досега
   var A = { cards: [] };                           // get_analysis
   var START = false;                               // ден 1: още няма нито една карта (освен въпросници) → „Първи стъпки"
@@ -2526,6 +2539,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var n = logDays();
     var chip = '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
     var inner = '<div class="lmrow"><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'
+      + '<div id="dtBox">' + dtHtml() + "</div>"   // Т107: „Днес е:“ (само клиент с day_types)
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво и колко хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво и колко хапна или пи"></textarea>'
       + '<div class="lwr"><input type="text" id="f_time" class="tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-label="Час" aria-haspopup="dialog" aria-expanded="false">'
@@ -5053,7 +5067,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       function (list) { return daysWord(list.length) + " · " + entriesWord(list.reduce(function (a, g) { return a + g.rows.length; }, 0)); },
       function (g) {
         var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
-        return qday(g.day, s.n ? "qd-food" : "qd-cnt", s.n ? sumCells(s) : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
+        var dt = DT.on ? DT.days[g.day] : null, dts = dt ? '<span class="d-dt">' + esc(dt) + "</span>" : "";   // Т107: типът до датата
+        return qday(g.day, (s.n ? "qd-food" : "qd-cnt") + (dt ? " hdt" : ""), s.n ? dts + sumCells(s) : dt ? dts + '<span class="d-cnt">' + esc(entriesWord(g.rows.length)) + "</span>" : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
       }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; });   // Т106: средното под месеца — само при сметката
     return histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food");
   }
@@ -5093,6 +5108,55 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     Array.prototype.forEach.call(nw.querySelectorAll("[data-key]"), function (x) { var o = !!open[x.getAttribute("data-key")]; if (x.tagName === "DETAILS") x.open = o; else x.classList.toggle("open", o); });
     old.parentNode.replaceChild(nw, old);
   }
+  // Т107 (Chris 12.11 10:14, въпросът на Полина): „Днес е:“ — типът на деня с едно натискане. Вижда се само при клиент с етикети
+  //   (clients.day_types ≠ null — решава сървърът: on; Chris 10:18 — засега само Полина). Клиентът и изгледът като клиент —
+  //   get_day_types; треньорът (?c=) — coach_get_day_types. Запис — set_day_type (днес или вчера), веднага на екрана, при грешка — обратно.
+  //   „Вчера:“ — същият ред, ако при зареждането вчера няма избор (остава до следващото, за да се поправи). Огледалото — бутоните изключени.
+  function dtYday() { return new Date(Date.parse(todayStr() + "T12:00:00Z") - 86400000).toISOString().slice(0, 10); }
+  function dtLoad() {
+    var q;
+    try { q = COACH ? sb.rpc("coach_get_day_types", { p_client_id: COACH_CID }) : sb.rpc("get_day_types", { p_token: token }); } catch (x) { return; }
+    safe(Promise.resolve(q)).then(function (r) {
+      var d = r && !r.error ? r.data : null;
+      if (!d || d.on !== true) return;
+      var lb = (Array.isArray(d.labels) ? d.labels : []).filter(function (x) { return typeof x === "string" && x.trim(); });
+      if (!lb.length) return;
+      DT.on = true; DT.labels = lb; DT.days = d.days && typeof d.days === "object" && !Array.isArray(d.days) ? d.days : {};
+      DT.yk = DT.days[dtYday()] ? null : dtYday();
+      dtRender(); calcRefresh();   // историята — с типа до датата
+    });
+  }
+  function dtRow(day, lbl) {
+    var cur = DT.days[day] || null, ro = !CAN_WRITE;
+    return '<div class="dtrow" data-dtday="' + day + '"><span class="dtl">' + lbl + '</span><span class="dtc">' + DT.labels.map(function (t) {
+      var on = cur === t;
+      return '<button type="button" class="dtchip' + (on ? " on" : "") + (ro ? " ro" : "") + '"' + (ro ? ' disabled aria-disabled="true"' : ' data-dt="' + esc(t) + '"') + ' aria-pressed="' + on + '">' + esc(t) + "</button>";
+    }).join("") + "</span>" + (DT.err === day ? '<div class="ok show err dte">Неуспешно. Опитай пак.</div>' : "") + "</div>";
+  }
+  function dtHtml() {
+    if (!DT.on) return "";
+    var y = dtYday();
+    return dtRow(todayStr(), "Днес е:") + (DT.yk === y ? dtRow(y, "Вчера:") : "");
+  }
+  function dtRender() { var b = document.getElementById("dtBox"); if (b) b.innerHTML = dtHtml(); }
+  function dtSet(day, nv) {
+    var prev = DT.days[day] || null;
+    if (nv) DT.days[day] = nv; else delete DT.days[day];
+    DT.busy = day; DT.err = null; dtRender();
+    var q;
+    try { q = sb.rpc("set_day_type", { p_token: token, p_day: day, p_type: nv }); } catch (x) { q = Promise.reject(x); }
+    safe(Promise.resolve(q)).then(function (r) {
+      DT.busy = null;
+      if (!r || r.error || r.data !== true) { if (prev) DT.days[day] = prev; else delete DT.days[day]; DT.err = day; }
+      dtRender(); calcRefresh();
+    });
+  }
+  document.addEventListener("click", function (e) {   // избор / смяна; натискане на избрания → маха избора
+    var b = e.target && e.target.closest && e.target.closest(".dtchip[data-dt]");
+    if (!b || !CAN_WRITE || !DT.on || DT.busy) return;
+    var day = b.closest(".dtrow").getAttribute("data-dtday"), t = b.getAttribute("data-dt");
+    dtSet(day, DT.days[day] === t ? null : t);
+  });
   function measHistHtml() {
     var past = measPast();
     var inner = !past.length ? hEmpty("Още няма минали мерения.") : histMonths("hm_meas_", past, function (m) { return m.day; },
@@ -5645,6 +5709,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     appRoInit(); appReport(false);   // Т96
     kitLoad();   // Т94
     calcLoad();   // Т105
+    dtLoad();   // Т107
     if (COACH) swMessages();   // Т88: известията на треньора (coach/sw.js)
     updateBadge(); updateDots();
     pushMissing();   // Т76: „липсват N“ → базата
