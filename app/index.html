@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.23.0">
+<meta name="version" content="v1.24.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1653,17 +1653,36 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     b.setAttribute("data-n", String(n));
     b.classList.remove("show");   // Т77/Т81: вълната по иконата, не точка (data-n остава)
   }
+  // ── Т122: реакцията на другия, още невидяна (клиентът и изгледът като клиента — на треньора; ?c= — на клиента). Махнатата — не.
+  //   Изгледът като клиента не пише „видяно“ — в посещението е прочетено (VA_RX), както при съобщенията (VA_SEEN).
+  var VA_RX = null;
+  function rxAt(e) { return COACH ? e.react_client_at : e.react_coach_at; }
+  function rxNew(e) {
+    if (!e || !e.id || e.deleted_at) return false;
+    var em = COACH ? e.react_client : e.react_coach, at = rxAt(e), sn = COACH ? e.react_client_seen_at : e.react_coach_seen_at;
+    if (!em || !at) return false;
+    if (VIEW_AS && VA_RX && tsNum(VA_RX) >= tsNum(at)) return false;
+    return !sn || tsNum(sn) < tsNum(at);
+  }
+  function rxNewList() { return D.log.filter(rxNew).sort(function (a, b) { return tsNum(rxAt(b)) - tsNum(rxAt(a)); }); }
+  function rxWave() {   // новите реакции → вълната на балона (и иконата „Разговор“) — и когато дойдат с опресняване (Т121)
+    if (!SH.on) return;
+    var add = false;
+    D.log.forEach(function (e) { if (rxNew(e) && SH.rxa[e.id] !== rxAt(e)) { SH.chat[e.id] = 1; SH.rxa[e.id] = rxAt(e); add = true; } });   // сменената — пак, и ако старата вълна още свети
+    if (add) { if (current !== "razgovor") SH.opened.razgovor = false; shSched(); }   // и иконата — пак, както при ново съобщение
+  }
   function markChatRead() {
     if (COACH) {   // треньорът отвори „Разговор" → всичко от клиента дотук е видяно (coach_read_at)
-      var rows = coachUnreadRows();
-      if (rows.length) sb.rpc("coach_mark_read", { p_client_id: COACH_CID }).then(function (res) {
-        if (res && !res.error) { var now = new Date().toISOString(); rows.forEach(function (e) { e.coach_read_at = now; }); updateBadge(); refreshNow(); }   // Т82: и редът в „Ново за теб“
+      var rows = coachUnreadRows(), rxs = D.log.filter(rxNew);   // Т122: и новите реакции на клиента
+      if (rows.length || rxs.length) sb.rpc("coach_mark_read", { p_client_id: COACH_CID }).then(function (res) {
+        if (res && !res.error) { var now = new Date().toISOString(); rows.forEach(function (e) { e.coach_read_at = now; }); rxs.forEach(function (e) { e.react_client_seen_at = now; }); updateBadge(); refreshNow(); }   // Т82: и редът в „Ново за теб“
       }, function () {});
       return;
     }
     var newest = coachEvents().reduce(function (a, ts) { return (!a || ts > a) ? ts : a; }, null);
     if (newest && !VIEW_AS) { lsSet(SEEN_KEY, newest); seenTs = newest; }   // Т71: треньорът, гледащ като клиента, не „чете“ вместо него
     else if (newest) { VA_SEEN = newest; seenTs = newest; }   // Т82: …но в това посещение е прочетено и за него (без запис)
+    if (VIEW_AS) VA_RX = new Date().toISOString();   // Т122: и реакциите — само в посещението
     updateBadge(); refreshNow();   // Т82: редът в „Ново за теб“ — по новото състояние
     markSeenDb();
   }
@@ -1687,11 +1706,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var seenBusy = false;
   function markSeenDb() {
     if (COACH || (COACH_SESSION_HERE && !COACH_SELF) || !DB_SEEN || seenBusy || current !== "razgovor" || document.visibilityState === "hidden") return;   // Т73: своят акаунт — „видяно“ като клиент
-    if (!D.log.some(function (e) { return e.kind === "coach" && !e.read_at; })) return;
+    var rxs = D.log.filter(rxNew);   // Т122: и новите реакции на треньора
+    if (!D.log.some(function (e) { return e.kind === "coach" && !e.read_at; }) && !rxs.length) return;
     seenBusy = true;
     wr("mark_seen", { p_token: token }).then(function (res) {
       seenBusy = false;
-      if (res && !res.error) { var now = new Date().toISOString(); D.log.forEach(function (e) { if (e.kind === "coach" && !e.read_at) e.read_at = now; }); }
+      if (res && !res.error) { var now = new Date().toISOString(); D.log.forEach(function (e) { if (e.kind === "coach" && !e.read_at) e.read_at = now; }); rxs.forEach(function (e) { e.react_coach_seen_at = now; }); refreshNow(); }
     }, function () { seenBusy = false; });
   }
   document.addEventListener("visibilitychange", function () {
@@ -1965,7 +1985,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Паметта е на устройството, както досега (coach_seen_*): coach_seen_<раздел>_<id> — до кога всичко в раздела е видяно (без него —
   //   7 дни назад); coach_seen_el_<id> — видяното след това поотделно; coach_seen_at_<id> — кога е отварян клиентът (за coach/).
   //   „Разговор“: новото е по базата (coach_read_at), както досега — вълната стои на балона, докато не се види.
-  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, mine: {}, shown: {}, pressed: {}, vseen: {}, nowp: {}, io: null, mo: null, raf: 0 };
+  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, rxa: {}, mine: {}, shown: {}, pressed: {}, vseen: {}, nowp: {}, io: null, mo: null, raf: 0 };
   var SH_TABS = ["hrana", "merki", "danni"], SH_FIRST_DAYS = 7;
   function shBaseKey(tab) { return "coach_seen_" + tab + "_" + COACH_CID; }
   function shTabOf(k) { return k.charAt(0) === "f" ? "hrana" : k.charAt(0) === "m" ? "merki" : k.charAt(0) === "c" ? "razgovor" : "danni"; }
@@ -1976,6 +1996,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       D.log.forEach(function (e) {
         if (e.id && e.kind === "coach" && e.note && isUnreadTs(String(e.created_at || ""))) SH.chat[e.id] = 1;
         if (e.id && e.reply && isUnreadTs(String(e.reply_at || e.created_at || ""))) SH.chat["r-" + e.id] = 1;   // Т84: и старите отговори
+        if (rxNew(e)) { SH.chat[e.id] = 1; SH.rxa[e.id] = rxAt(e); }   // Т122: новата реакция на треньора
       });
       F.entries.forEach(function (e) { if (e.id && e.kind === "coach" && e.text && isUnreadTs(String(e.created_at || ""))) SH.chat["f-" + e.id] = 1; });   // Т84: и бележките от храна-лога
       try { SH.nowp = JSON.parse(lsGet("app_seen_now_" + KEY_ID) || "{}") || {}; } catch (e) { SH.nowp = {}; }
@@ -1989,7 +2010,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     try { SH.seen = JSON.parse(lsGet("coach_seen_el_" + COACH_CID) || "{}") || {}; } catch (e) { SH.seen = {}; }
     SH_TABS.forEach(function (t) { SH.base[t] = tsNum(lsGet(shBaseKey(t))) || Date.now() - SH_FIRST_DAYS * 864e5; });
     lsSet("coach_seen_at_" + COACH_CID, new Date(Math.max(Date.now(), tsNum(lsGet("coach_seen_at_" + COACH_CID)))).toISOString());   // за coach/: отворен сега (Т79: никога назад — списъкът може да е записал по-късно)
-    D.log.forEach(function (e) { if (e.id && e.kind !== "coach" && e.note && !isQaNote(e.note) && !e.coach_read_at && !e.deleted_at) SH.chat[e.id] = 1; });   // Т114: изтритото — без вълна
+    D.log.forEach(function (e) { if (e.id && e.kind !== "coach" && e.note && !isQaNote(e.note) && !e.coach_read_at && !e.deleted_at) SH.chat[e.id] = 1; if (rxNew(e)) { SH.chat[e.id] = 1; SH.rxa[e.id] = rxAt(e); } });   // Т122: и новата реакция на клиента   // Т114: изтритото — без вълна
     }
     if (window.IntersectionObserver) SH.io = new IntersectionObserver(function (es) { es.forEach(function (en) { shWatch(en.target); }); }, { threshold: [0, 0.25, 0.5, 0.75, 1] });
     if (window.MutationObserver) {
@@ -2021,6 +2042,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       it[key] = { tab: tab, ts: n, sel: sel };
     }
     F.entries.forEach(function (e) { if (e.kind !== "coach") { var id = e.id || e.created_at; add("hrana", "f" + id, e.created_at, '[data-f="' + shq(id) + '"]'); } });
+    D.log.forEach(function (e) { if (e.kind === "coach" && e.id && SH.chat[e.id]) it["c" + e.id] = { tab: "razgovor", ts: tsNum(e.react_client_at || e.created_at), sel: '.cmsg[data-id="' + shq(e.id) + '"] > .cb' }; });   // Т122: реакция на клиента върху мое съобщение
     D.log.forEach(function (e) {
       if (e.kind === "coach") return;
       if (e.id && hasMeas(e)) add("merki", "m" + e.id, e.created_at, '[data-m="' + shq(e.id) + '"], [data-key="hd_meas_' + shq(e.id) + '"]');
@@ -2212,6 +2234,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function nowRows() {
     var rows = [], nU = unreadCount();
     if (nU) rows.push(["message", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + (COACH ? " от " + clientShort() : ""), "razgovor"]);   // Т82: при клиента без „от Chris“
+    var rx0 = rxNewList()[0];   // Т122: най-новата невидяна реакция на другия
+    if (rx0) rows.push(["message", (COACH ? clientShort() : "Chris") + " реагира " + (COACH ? rx0.react_client : rx0.react_coach), "razgovor"]);
     D.content.forEach(function (r) {
       if (!isQaCard(r)) return;
       var c = qaCounts(r);
@@ -3954,6 +3978,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       D.log = res.data.log || []; computeLastClient();
       refreshChat(keepChat); updateBadge(); markDelivered();   // Т115
       refreshMerki();
+      rxWave(); refreshNow();   // Т122: нова реакция (и с реалното време — Т121) → вълната и „Ново за теб“
       if (current === "razgovor") markChatRead();
       if (START) renderNachalo();   // „Първи стъпки" (тегло ✓)
     });
