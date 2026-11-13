@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.20.0">
+<meta name="version" content="v1.21.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1072,6 +1072,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ctk:focus-visible { border-radius: 6px; box-shadow: inset 0 0 0 2px var(--accent); }
   .ctki { margin: 2px 4px 0; color: var(--muted); font-size: 12px; }
   .ctki span { white-space: nowrap; }
+  /* Т116 (Chris 13.11 08:41): реакции — лентата най-горе в менюто; хапчето в долния ъгъл на балона (при моите — вляво, при другия — вдясно,
+     там където долу няма час); до две реакции (на клиента и на треньора). Без известие, без „ново“, без точки. */
+  .crxbar { display: flex; gap: 2px; padding: 4px 6px 6px; border-bottom: 1px solid var(--border); }
+  .cmenu .crxbar button.crb { flex: 1 1 0; width: auto; min-width: 0; padding: 7px 0; border: none; border-radius: 10px; background: none; font-size: 22px; line-height: 1; text-align: center; }
+  .cmenu .crxbar button.crb.on { background: var(--soft); box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .cmenu .crxbar button.crb.ro { opacity: 0.45; }
+  .cmsg > .cb { position: relative; }
+  .cmsg.hrx > .cb { margin-bottom: 13px; }
+  .crx { position: absolute; bottom: -14px; z-index: 1; display: inline-flex; align-items: center; gap: 2px; margin: 0; padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-family: inherit; font-size: 13.5px; line-height: 1.4; color: var(--ink); box-shadow: 0 1px 3px rgba(28,39,51,0.12); white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .cmsg.me .crx { left: 10px; }
+  .cmsg.them .crx { right: 10px; }
+  button.crx { cursor: pointer; }
+  .crx .rn { margin-left: 2px; font-size: 12px; font-weight: 700; color: var(--muted); }
   .cmsg.me .ctki { text-align: right; }
   /* Т29: името на клиента в шапката на треньора → меню с линковете към неговата страница */
   #whoBtn { padding: 2px 8px; margin: 0; border: none; border-radius: 8px; background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1534,7 +1547,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }
       else if (note) items.push({ ts: e.created_at, id: e.id, mine: isMine(coach), coach: coach, note: note, meas: meas, to: e.reply_to, ans: e.deleted_at ? null : e.id, readAt: coach ? (e.read_at || null) : null, newIn: newIn,
         eid: e.id, ed: e.edited_at || null, hist: Array.isArray(e.note_history) && e.note_history.length ? e.note_history : null, del: e.deleted_at ? (e.deleted_by || "?") : "", nodel: !!e.reply,   // Т114
-        tk: isMine(coach) && e.id && !e.deleted_at ? { rd: (coach ? e.read_at : e.coach_read_at) || null, dl: e.delivered_at || null } : null });   // Т115: прочетено от другия · доставено
+        tk: isMine(coach) && e.id && !e.deleted_at ? { rd: (coach ? e.read_at : e.coach_read_at) || null, dl: e.delivered_at || null } : null,   // Т115: прочетено от другия · доставено
+        rx: e.id && !e.deleted_at && "react_client" in e ? { c: e.react_client || null, k: e.react_coach || null } : null });   // Т116: на клиента · на треньора
       else if (meas) items.push({ sys: meas, ts: e.created_at, id: e.id });
       if (e.reply) items.push({ ts: e.reply_at || e.created_at, id: e.id ? "r-" + e.id : null, mine: isMine(true), coach: true, note: String(e.reply), to: e.id, ans: e.id, legacy: true });   // Т84: id — за вълната
     });
@@ -1625,6 +1639,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   // ── Т114б (Chris 13.11 10:58): „Отговори“ — само в менюто; под балона: час · отметките · „редактирано“ (при треньора — и „изтрито“)
   // ── Т114: менюто при задържане; редакция; „Изтрий за двамата“ (меко — deleted_at; при клиента редът не идва)
+  // Т116: реакциите — по една на човек на съобщение; същата отново → маха я; друга → сменя я. Хапчето: докосване → маха своята.
+  var REACTS = ["❤️", "😄", "😮", "😢", "😡", "👍"], RX_NAME = { "❤️": "сърце", "😄": "смях", "😮": "изненада", "😢": "тъга", "😡": "гняв", "👍": "палец нагоре" };
+  function rxMine(m) { return m.rx ? m.rx[COACH ? "k" : "c"] : null; }
+  function rxPill(m) {
+    var r = m.rx; if (!r || (!r.c && !r.k)) return "";
+    var both = r.c && r.k, same = both && r.c === r.k, mine = rxMine(m), act = (COACH || CAN_WRITE) && !!mine;
+    var inner = same ? r.c + '<span class="rn">2</span>' : [r.c, r.k].filter(Boolean).join("");
+    var lbl = "Реакции: " + [r.c, r.k].filter(Boolean).map(function (x) { return RX_NAME[x] || x; }).join(", ");
+    return act ? '<button type="button" class="crx mine" data-rxp="' + esc(m.id) + '" aria-label="' + esc(lbl + " — махни своята") + '">' + inner + "</button>"
+      : '<span class="crx" role="img" aria-label="' + esc(lbl) + '">' + inner + "</span>";
+  }
   var CTK = {};   // Т115: отворените „доставено · прочетено“
   function tkWhen(ts) { return fmtDate(sofiaDay(ts)).slice(0, 5) + " " + fmtTime(ts); }
   function tkHtml(m) {   // прочетено → оранжеви ✓✓; доставено (или прочетено) → сиви ✓✓; иначе — записано, ✓
@@ -1680,11 +1705,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var isNew = COACH ? !!m.newIn : (!m.mine && isUnreadTs(String(m.ts || "")));
       if (m.id) CITEMS[m.id] = m;
       var hs = COACH && !!m.hist, hOpen = hs && !!CHIST[m.id], ask = CDEL && CDEL.item === m.id, dis = ask && CDEL.busy ? " disabled" : "";
-      out += '<div class="cmsg ' + (m.mine ? "me" : "them") + (m.del ? " cdel" : "") + '"' + idAttr + '><div class="cb">'
+      out += '<div class="cmsg ' + (m.mine ? "me" : "them") + (m.del ? " cdel" : "") + (rxPill(m) ? " hrx" : "") + '"' + idAttr + '><div class="cb">'
         + (m.mine ? "" : '<div class="cwho">' + esc(whoLabel(!!m.coach)) + "</div>")
         + (p ? '<div class="cq" data-goto="' + esc(m.to) + '"><b>' + esc(whoLabel(p.kind === "coach")) + "</b>" + esc(quoteText(p)) + "</div>" : "")
         + (m.meas ? '<div class="cm">' + esc(m.meas) + "</div>" : "")
-        + msgHtml(m.note) + '</div><div class="cmeta"><span>' + esc(time) + "</span>"
+        + msgHtml(m.note) + rxPill(m) + '</div><div class="cmeta"><span>' + esc(time) + "</span>"
         + (m.tk ? tkHtml(m) : "")   // Т115
         + (m.del ? '<span class="cdl">изтрито</span>' : "")
         + (m.ed ? (hs ? '<button type="button" class="ced" data-hist="' + esc(m.id) + '" aria-expanded="' + hOpen + '">редактирано</button>' : '<span class="ced">редактирано</span>') : "")
@@ -3673,7 +3698,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var LP = null, LPSUP = 0, TT = 0;
     function lpCancel() { if (LP) { clearTimeout(LP.t); LP = null; } }
     box.addEventListener("pointerdown", function (e) {
-      lpCancel();
+      lpCancel(); LPSUP = 0;   // Т116: ново докосване → щракването от предишното пускане вече няма да дойде (iPhone често не го праща)
       if (e.pointerType === "mouse") return;   // мишката — десният бутон (contextmenu)
       var cb = e.target.closest && e.target.closest(".cmsg > .cb");
       if (!cb) return;
@@ -3701,7 +3726,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (cmDelOk(m)) list.push(["del", "Изтрий за двамата", "cmdel"]);
       var el = document.createElement("div");
       el.className = "cmenu"; el.setAttribute("role", "menu"); el.setAttribute("aria-label", "Съобщение"); el.tabIndex = -1;
-      el.innerHTML = list.map(function (x) {
+      var cur = rxMine(m), bar = m.rx ? '<div class="crxbar" role="group" aria-label="Реакция">' + REACTS.map(function (x) {   // Т116: най-горе — реакциите
+        return '<button type="button" class="crb' + (cur === x ? " on" : "") + (act ? "" : " ro") + '" data-rx="' + x + '" aria-label="' + RX_NAME[x] + '" aria-pressed="' + (cur === x) + '"' + (act ? "" : ' disabled aria-disabled="true"') + ">" + x + "</button>";
+      }).join("") + "</div>" : "";
+      el.innerHTML = bar + list.map(function (x) {
         var off = (x[0] === "edit" || x[0] === "del") && !act;   // изгледът като клиента: виждат се, изключени
         return '<button type="button" role="menuitem" data-ma="' + x[0] + '"' + (x[2] || off ? ' class="' + (x[2] + (off ? " ro" : "")).trim() + '"' : "") + (off ? ' disabled aria-disabled="true"' : "") + ">" + x[1] + "</button>";
       }).join("");
@@ -3718,6 +3746,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       msg.classList.add("cmon");
       place();
       el.addEventListener("click", function (ev) {
+        var rb = ev.target.closest("button[data-rx]");   // Т116: същата → маха; друга → сменя
+        if (rb) { if (rb.disabled || !act) return; cmClose(); var x = rb.getAttribute("data-rx"); setReact(m, rxMine(m) === x ? null : x); return; }
         var b = ev.target.closest("button[data-ma]");
         if (!b || b.disabled) return;
         var a = b.getAttribute("data-ma");
@@ -3728,6 +3758,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         else if (a === "del" && act) { CDEL = { item: m.id, id: m.eid, busy: false, err: false }; refreshChat(true); cShow(m.id, ".cask"); }
       });
       if (mouse) try { el.focus({ preventScroll: true }); } catch (x) {}   // докосване: полето за писане не губи фокус (клавиатурата не скача)
+    }
+    function setReact(m, em) {   // Т116: set_reaction / coach_set_reaction; без известие и без „ново“ (базата не праща нищо)
+      if (!(COACH || CAN_WRITE) || !m.eid) return;
+      (COACH ? sb.rpc("coach_set_reaction", { p_id: m.eid, p_emoji: em }) : wr("set_reaction", { p_token: token, p_id: m.eid, p_emoji: em })).then(function (res) {
+        if (res.error || res.data !== true) throw (res.error || new Error("fail"));
+        D.log.forEach(function (e) { if (e.id === m.eid) e[COACH ? "react_coach" : "react_client"] = em; });
+        refreshChat(true);
+      }).catch(function () { toast("Неуспешно. Опитай пак."); });
     }
     function toast(s) {
       var t = document.getElementById("cToast"); if (!t) return;
@@ -3796,6 +3834,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }).catch(function () { if (CDEL === x) { x.busy = false; x.err = true; refreshChat(true); } });
     }
     box.addEventListener("click", function (e) {
+      var px = e.target.closest(".crx[data-rxp]");   // Т116: хапчето → маха своята реакция
+      if (px) { var pm = CITEMS[px.getAttribute("data-rxp")]; if (pm && rxMine(pm) && (COACH || CAN_WRITE)) setReact(pm, null); return; }
       var tb = e.target.closest(".ctk[data-tk]");   // Т115: отметките → кога е доставено / прочетено
       if (tb) { var tid = tb.getAttribute("data-tk"); if (CTK[tid]) delete CTK[tid]; else CTK[tid] = 1; refreshChat(true); if (CTK[tid]) cShow(tid, ".ctki"); return; }
       var hb = e.target.closest(".ced[data-hist]");   // Т114: треньорът — предишните текстове
