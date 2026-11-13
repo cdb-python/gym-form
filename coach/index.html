@@ -486,6 +486,7 @@
       if (res.error) { state(/forbidden|42501|permission/i.test(String(res.error.message || res.error.code)) ? "Този акаунт няма достъп до клиентите." : "Списъкът не се зареди. Опитай пак."); outBtn.style.display = "block"; return; }
       ROWS = res.data || [];
       show("list"); render();
+      sb.rpc("coach_mark_delivered").then(function () {}, function () {});   // Т115: съобщенията на клиентите са стигнали до треньора („доставено“ при тях); без RPC-то — нищо
     }, function () { state("Няма връзка. Опитай пак."); });
   }
 
