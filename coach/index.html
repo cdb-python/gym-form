@@ -480,13 +480,38 @@
   $("cnt").addEventListener("click", function () { lsSet(ACTIVE_KEY, null); render(); });
   actBtn.addEventListener("click", function () { lsSet(ACTIVE_KEY, "1"); render(); });
 
+  // Т121 (Chris 13.11 13:46): списъкът в реално време — сигнал без съдържание по темата на треньора (coach_rt_topic) → списъкът наново,
+  //   с debounce 400 мс. Резерва: каналът не е SUBSCRIBED (няма тема / паднал) → докато списъкът се вижда и страницата е видима — на 20 с.
+  var RTC = { ch: null, ok: false, deb: 0, poll: 0, ms: window.__RT_POLL_MS || 20000, started: false };
+  function rtcPoll() {
+    clearInterval(RTC.poll); RTC.poll = 0;
+    if (RTC.ok) return;
+    RTC.poll = setInterval(function () { if (!RTC.ok && document.visibilityState === "visible" && !list.classList.contains("hidden")) loadList(); }, RTC.ms);
+  }
+  function rtcStart() {
+    if (RTC.started) return;
+    RTC.started = true;
+    sb.rpc("coach_rt_topic").then(function (res) {
+      var topic = res && !res.error ? res.data : null;
+      if (topic && sb.channel) {
+        try {
+          RTC.ch = sb.channel(topic, { config: { broadcast: { self: false } } }).on("broadcast", { event: "chat" }, function () {
+            clearTimeout(RTC.deb); RTC.deb = setTimeout(loadList, 400);
+          }).subscribe(function (st) { RTC.ok = st === "SUBSCRIBED"; rtcPoll(); });
+        } catch (x) { RTC.ch = null; RTC.ok = false; }
+      }
+      rtcPoll();
+    }, function () { rtcPoll(); });
+  }
+  window.__coachRt = function () { return { ok: RTC.ok, ms: RTC.ms, polling: !!RTC.poll }; };
   function loadList() {
     if (!ROWS.length) state("Зарежда…");
     return sb.rpc("coach_list_clients").then(function (res) {
       if (res.error) { state(/forbidden|42501|permission/i.test(String(res.error.message || res.error.code)) ? "Този акаунт няма достъп до клиентите." : "Списъкът не се зареди. Опитай пак."); outBtn.style.display = "block"; return; }
       ROWS = res.data || [];
       show("list"); render();
-      sb.rpc("coach_mark_delivered").then(function () {}, function () {});   // Т115: съобщенията на клиентите са стигнали до треньора („доставено“ при тях); без RPC-то — нищо
+      sb.rpc("coach_mark_delivered").then(function () {}, function () {});   // Т115
+      rtcStart();   // Т121: съобщенията на клиентите са стигнали до треньора („доставено“ при тях); без RPC-то — нищо
     }, function () { state("Няма връзка. Опитай пак."); });
   }
 
