@@ -210,8 +210,8 @@
     "Храната, теглото и мерките не звънят — те светят в списъка, както досега.",
     "Известията са за този телефон."] };
   var CP = { on: false, busy: false, err: false, pop: null, inited: false }, bellBtn = $("bellBtn");
-  var BELL_P = '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path>';
-  function cpIcon(on) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-ic="' + (on ? "bell" : "belloff") + '">' + BELL_P + (on ? "" : '<path d="M4 4l16 16"></path>') + "</svg>"; }
+  var BELL_P = '<path d="M7 10.1a5 5 0 0 1 10 0v4.2c0 1.1.6 2 1.6 2.8H5.4c1-.8 1.6-1.7 1.6-2.8Z"></path><path d="M10.2 19.5a2 2 0 0 0 3.6 0"></path><path d="M12 5.1V3.5"></path>';   // Т123: същите пътища като в приложението (комплектът)
+  function cpIcon(on) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-ic="' + (on ? "bell" : "belloff") + '">' + BELL_P + (on ? "" : '<path d="M4.2 4.2l15.6 15.6"></path>') + "</svg>"; }
   function cpMode() {
     var ua = navigator.userAgent, ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     var sa = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
