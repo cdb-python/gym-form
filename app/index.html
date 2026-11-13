@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.24.1">
+<meta name="version" content="v1.24.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1112,7 +1112,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --bg: #f4f6f8; --btn: #5f6b78;   /* Т45: без крема и оранжевото на клиента (бял на --btn 5,4) */
   }
   /* Т19: шапката на треньора — [←]  заглавие  [Изход]; страничните колони са еднакво широки → заглавието е точно в средата */
-  header.h3 { display: grid; grid-template-columns: 90px minmax(0, 1fr) 90px; align-items: center; column-gap: 8px; padding: 8px 12px; }
+  header.h3 { display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; column-gap: 8px; padding: 8px 12px; }
   header.h3 > .wrap { min-width: 0; margin: 0; }   /* Т45: без auto полета → клетката е точно средната колона, дългото име не я разширява */
   header.h3.vab { grid-template-columns: 36px minmax(0, 1fr) 36px; }   /* Т45: само ← (без „Изход“) — двете странични колони са еднакви */
   header.vas p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1120,8 +1120,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
   .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
   .hbtn.back { justify-self: start; width: 36px; padding: 0; font-size: 19px; }
-  .hbtn.out { justify-self: end; }
-  @media (max-width: 359px) { header.h3 { grid-template-columns: 36px minmax(0, 1fr) 36px; } .hbtn.out { width: 36px; padding: 0; } .hbtn.out span { display: none; } }
+  .hbtn.out { justify-self: end; width: 36px; padding: 0; }   /* Т124 (Chris 18:45): само иконата в квадрат като ← — на всички ширини; „Изход“ остава в aria-label и title */
   header.h3 > .wrap { padding: 0 !important; }
   .cflash .cb { outline: 2px solid var(--accent); outline-offset: 1px; }
   .cform { margin-top: 10px; flex: none; }
@@ -6205,7 +6204,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var h = document.getElementById("hdr");
     h.classList.add("h3");
     h.insertAdjacentHTML("afterbegin", '<a class="hbtn back" href="' + esc(COACH_URL) + '" id="coachBack" aria-label="Към списъка с клиенти">' + ic("back") + "</a>");
-    h.insertAdjacentHTML("beforeend", '<button type="button" class="hbtn out" id="coachOut" aria-label="Изход" title="Изход">' + ic("logout") + '<span>Изход</span></button>');
+    h.insertAdjacentHTML("beforeend", '<button type="button" class="hbtn out" id="coachOut" aria-label="Изход" title="Изход">' + ic("logout") + "</button>");
     document.getElementById("coachOut").addEventListener("click", function () {
       var b = this; b.disabled = true;
       var done = function () { coachNav(COACH_URL); };
