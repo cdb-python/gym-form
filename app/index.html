@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.22.1">
+<meta name="version" content="v1.23.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1488,7 +1488,36 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var SELF_W = false;
   function wr(name, args) {
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
-    return sb.rpc(name, args).then(function (res) { if (res && !res.error) selfWrote(); return res; });
+    var own = !/^(mark_seen|mark_delivered|client_mark_items_seen|report_app_state|set_intake_missing|push_)/.test(name);   // Т121: служебното не е „свой запис“
+    if (own) rtOwn();   // Т121: сигналът от собствения запис — пропуснат (данните идват по стария път)
+    return sb.rpc(name, args).then(function (res) { if (res && !res.error) { selfWrote(); if (own) rtOwn(); } return res; });
+  }
+  // ── Т121 (Chris 13.11 13:46 „чатът се бави, иска рефреш“): реално време. Базата праща по тайната тема сигнал БЕЗ съдържание ({t: chat});
+  //   приложението само тегли дневника наново (refreshDiary — със старите права), с debounce 400 мс. Собственото писане вече е изтеглено →
+  //   сигнал до 2 с след него се пропуска. Резерва: каналът не е SUBSCRIBED (паднал, няма тема — старата база) → докато „Разговор“ е на екрана
+  //   и страницата е видима — на 20 с; на заден план — нищо. Клиентът — своята тема; ?c= — темата на клиента; изгледът като клиента — също (само чете).
+  var RT = { ch: null, topic: null, ok: false, deb: 0, own: 0, poll: 0, ms: window.__RT_POLL_MS || 20000, sig: 0 };
+  function rtOwn() { RT.own = Date.now(); }
+  function rtSig() {
+    RT.sig = Date.now();
+    if (Date.now() - RT.own < 2000) return;
+    clearTimeout(RT.deb);
+    RT.deb = setTimeout(function () { refreshDiary(true); }, 400);
+  }
+  function rtPoll() {
+    clearInterval(RT.poll); RT.poll = 0;
+    if (RT.ok) return;
+    RT.poll = setInterval(function () { if (!RT.ok && current === "razgovor" && document.visibilityState === "visible") refreshDiary(true); }, RT.ms);
+  }
+  function rtStart(topic) {
+    if (topic && !RT.ch && sb.channel) {
+      RT.topic = topic;
+      try {
+        RT.ch = sb.channel(topic, { config: { broadcast: { self: false } } }).on("broadcast", { event: "chat" }, rtSig)
+          .subscribe(function (st) { RT.ok = st === "SUBSCRIBED"; rtPoll(); });
+      } catch (x) { RT.ch = null; RT.ok = false; }
+    }
+    rtPoll();
   }
   // Т75: написаното тук от самия него не светва точката „ново“ на треньора в раздела, в който е (coach_seen_<раздел>)
   function selfWrote() { if (SELF_W) { SH.mine[current] = Date.now() - 15000; shSched(); } }   // Т77: написаното от него сега (±15 s за часовника) в този раздел — видяно; записите от клиентската страница не се пипат
@@ -3794,6 +3823,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     function setReact(m, em) {   // Т116: set_reaction / coach_set_reaction; без известие и без „ново“ (базата не праща нищо)
       if (!(COACH || CAN_WRITE) || !m.eid) return;
+      rtOwn();   // Т121
       (COACH ? sb.rpc("coach_set_reaction", { p_id: m.eid, p_emoji: em }) : wr("set_reaction", { p_token: token, p_id: m.eid, p_emoji: em })).then(function (res) {
         if (res.error || res.data !== true) throw (res.error || new Error("fail"));
         D.log.forEach(function (e) { if (e.id === m.eid) e[COACH ? "react_coach" : "react_client"] = em; });
@@ -3839,6 +3869,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var x = CEDIT;
       if (txt === String(x.orig).trim()) { endEdit(); return; }   // без промяна → нищо не се пише
       cSend.disabled = true; cErr.classList.remove("show");
+      rtOwn();   // Т121
       (COACH ? sb.rpc("coach_edit_message", { p_id: x.id, p_note: txt }) : wr("edit_message", { p_token: token, p_id: x.id, p_note: txt })).then(function (res) {
         if (res.error || res.data !== true) throw (res.error || new Error("fail"));
         var now = new Date().toISOString();
@@ -3855,6 +3886,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function delMsg() {
       var x = CDEL; if (!x || x.busy || !(COACH || CAN_WRITE)) return;
       x.busy = true; x.err = false; refreshChat(true);
+      rtOwn();   // Т121
       (COACH ? sb.rpc("coach_delete_message", { p_id: x.id }) : wr("delete_message", { p_token: token, p_id: x.id })).then(function (res) {
         if (res.error || res.data !== true) throw (res.error || new Error("fail"));
         if (COACH) D.log.forEach(function (e) { if (e.id === x.id) { e.deleted_at = new Date().toISOString(); e.deleted_by = "coach"; } });
@@ -3890,6 +3922,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var args = COACH ? { p_client_id: COACH_CID, p_note: txt } : { p_token: token, p_note: txt };
       if (replyTo) args.p_reply_to = replyTo;
       cSend.disabled = true; cErr.classList.remove("show");
+      rtOwn();   // Т121
       (COACH ? sb.rpc("coach_add_message", args) : wr("add_log_entry", args)).then(function (res) {
         if (res.error || res.data === false || res.data == null) throw (res.error || new Error("fail"));
         cText.value = ""; lsSet(DRAFT, null); setReply(null); growC(); sendState();
@@ -6069,7 +6102,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { rt: function () { return { topic: RT.topic, ok: RT.ok, ms: RT.ms, polling: !!RT.poll, own: RT.own, sig: RT.sig }; }, renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
   window.__app.kitFit = kitFit;   // Т100: сверката със солвъра на Python (тестовете)
 
   // ════════ ЗАРЕЖДАНЕ ════════
@@ -6246,6 +6279,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     loading.style.display = "none";
     trackAll(); seenSync(true);   // Т84: видяното само в паметта на телефона → базата (веднъж, approx)
     markDelivered();   // Т115
+    if (COACH) sb.rpc("coach_client_rt_topic", { p_client_id: COACH_CID }).then(function (res) { rtStart(res && !res.error ? res.data : null); }, function () { rtStart(null); });   // Т121
+    else rtStart(diary.rt_topic || null);
     renderNachalo(); renderHrana(); renderMerki(); renderDanni(); renderRazgovor();
     alignAll();
     if (COACH && !SELF_W) {   // само за четене: полетата извън чата не се пишат
