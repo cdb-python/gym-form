@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.18.0">
+<meta name="version" content="v1.19.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1051,9 +1051,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cb a { color: var(--accent-dark); font-weight: 600; word-break: break-all; }
   .cmeta { display: flex; align-items: center; gap: 10px; padding: 2px 4px 0; color: var(--muted); font-size: 12px; }
   .cnew { padding: 0 7px; border-radius: 999px; background: #e0821e; color: #fff; font-size: 11px; font-weight: 700; }
-  .crep { padding: 0; border: none; background: none; color: var(--accent-dark); font-size: 12.5px; font-weight: 600; cursor: pointer; }
-  .cseen { color: var(--muted); font-size: 11.5px; }
-  .cseen.on { color: #2f6fb0; font-weight: 700; }
+  /* Т115 (Chris 13.11 08:41): отметките под СВОИТЕ съобщения, до часа — ✓ записано · ✓✓ доставено (сиви) · ✓✓ прочетено (оранжеви —
+     оранжевото на „ново“). Докосване → „доставено ДД.ММ ЧЧ:ММ · прочетено ДД.ММ ЧЧ:ММ“. Думите „видяно“ / „изпратено“ отпадат. */
+  .ctk { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-width: 24px; padding: 6px; margin: -6px; border: none; background: none; font-family: inherit; font-size: 13px; font-weight: 700; line-height: 1; color: var(--muted); cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ctk .t2 { margin-left: -0.4em; }
+  .ctk.rd { color: #d97a17; }   /* оранжевото на „ново“ (#e0821e), една идея по-тъмно — символ ≥ 3 на бяло (3,11; #e0821e е 2,85); и при треньора, както „ново“ */
+  .ctk:focus { outline: none; }
+  .ctk:focus-visible { border-radius: 6px; box-shadow: inset 0 0 0 2px var(--accent); }
+  .ctki { margin: 2px 4px 0; color: var(--muted); font-size: 12px; }
+  .ctki span { white-space: nowrap; }
+  .cmsg.me .ctki { text-align: right; }
   /* Т29: името на клиента в шапката на треньора → меню с линковете към неговата страница */
   #whoBtn { padding: 2px 8px; margin: 0; border: none; border-radius: 8px; background: none; color: inherit; font: inherit; font-size: 14px; cursor: pointer; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #whoBtn:hover, #whoBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); }
@@ -1510,7 +1517,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         items.push({ sys: again ? "Променен отговор във „" + tl + "“ — виж в Данни" : "Отговорите на „" + tl + "“ са изпратени — виж в Данни", sic: again ? "edit" : "qa", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa", newIn: newIn });
       }
       else if (note) items.push({ ts: e.created_at, id: e.id, mine: isMine(coach), coach: coach, note: note, meas: meas, to: e.reply_to, ans: e.deleted_at ? null : e.id, readAt: coach ? (e.read_at || null) : null, newIn: newIn,
-        eid: e.id, ed: e.edited_at || null, hist: Array.isArray(e.note_history) && e.note_history.length ? e.note_history : null, del: e.deleted_at ? (e.deleted_by || "?") : "", nodel: !!e.reply });   // Т114
+        eid: e.id, ed: e.edited_at || null, hist: Array.isArray(e.note_history) && e.note_history.length ? e.note_history : null, del: e.deleted_at ? (e.deleted_by || "?") : "", nodel: !!e.reply,   // Т114
+        tk: isMine(coach) && e.id && !e.deleted_at ? { rd: (coach ? e.read_at : e.coach_read_at) || null, dl: e.delivered_at || null } : null });   // Т115: прочетено от другия · доставено
       else if (meas) items.push({ sys: meas, ts: e.created_at, id: e.id });
       if (e.reply) items.push({ ts: e.reply_at || e.created_at, id: e.id ? "r-" + e.id : null, mine: isMine(true), coach: true, note: String(e.reply), to: e.id, ans: e.id, legacy: true });   // Т84: id — за вълната
     });
@@ -1520,13 +1528,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     if (COACH) intakeChangeItems().forEach(function (x) { items.push(x); });   // Т65: промените във „Форма за данни“ (по ден) — САМО при треньора; клиентът не ги вижда в Разговор
     items.sort(function (a, b) { return tsNum(a.ts) - tsNum(b.ts); });
-    // „видяно" (режим треньор): под последния балон на треньора преди следващото действие на клиента
-    if (COACH) items.forEach(function (m, i) {
-      if (!m.coach || m.legacy || m.sys || m.del) return;
-      var nx = items[i + 1];
-      if (nx && nx.coach && !nx.sys) return;
-      m.seenTag = m.readAt ? "видяно " + seenWhen(m.readAt) : (i === items.length - 1 ? "изпратено" : "");
-    });
+    // Т115: „видяно“ / „изпратено“ под последния балон на треньора → отметките под всяко свое съобщение (и при клиента) — chatHtml
     return items;
   }
   function seenWhen(ts) { var d = sofiaDay(ts); return (d === todayStr() ? "" : fmtDate(d).slice(0, 5) + " ") + fmtTime(ts); }
@@ -1573,6 +1575,22 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     updateBadge(); refreshNow();   // Т82: редът в „Ново за теб“ — по новото състояние
     markSeenDb();
   }
+  // Т115: „доставено“ = приложението на другия е изтеглило съобщенията — при зареждане и опресняване. Клиентът: mark_delivered
+  //   (не изгледът като клиента, не устройство с вход на треньора — освен своя акаунт; правилата на mark_seen, Т73); треньорът:
+  //   coach_mark_delivered. Само ако базата вече дава delivered_at (иначе нищо не се вика).
+  var delivBusy = false;
+  function markDelivered() {
+    if (delivBusy) return;
+    var coachSide = COACH, mine = function (e) { return coachSide ? e.kind !== "coach" && !!String(e.note || "").trim() : e.kind === "coach"; };
+    var todo = function (e) { return mine(e) && "delivered_at" in e && !e.delivered_at && !e.deleted_at; };
+    if (!D.log.some(todo)) return;
+    if (!coachSide && (!CAN_WRITE || VIEW_AS || ((VIEWER || COACH_SESSION_HERE) && !COACH_SELF))) return;
+    delivBusy = true;
+    (coachSide ? sb.rpc("coach_mark_delivered") : sb.rpc("mark_delivered", { p_token: token })).then(function (res) {
+      delivBusy = false;
+      if (res && !res.error) { var now = new Date().toISOString(); D.log.forEach(function (e) { if (todo(e)) e.delivered_at = now; }); }
+    }, function () { delivBusy = false; });
+  }
   // Клиентът: „Разговор" е на екрана → съобщенията на треньора са видени (mark_seen). Само ако базата го поддържа.
   var seenBusy = false;
   function markSeenDb() {
@@ -1589,7 +1607,22 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (COACH) { refreshDiary(); return; }   // треньорът се връща към раздела → ново от клиента
     markSeenDb();
   });
+  // ── Т114б (Chris 13.11 10:58): „Отговори“ — само в менюто; под балона: час · отметките · „редактирано“ (при треньора — и „изтрито“)
   // ── Т114: менюто при задържане; редакция; „Изтрий за двамата“ (меко — deleted_at; при клиента редът не идва)
+  var CTK = {};   // Т115: отворените „доставено · прочетено“
+  function tkWhen(ts) { return fmtDate(sofiaDay(ts)).slice(0, 5) + " " + fmtTime(ts); }
+  function tkHtml(m) {   // прочетено → оранжеви ✓✓; доставено (или прочетено) → сиви ✓✓; иначе — записано, ✓
+    var t = m.tk, s = t.rd ? "rd" : t.dl ? "dl" : "sv";
+    return '<button type="button" class="ctk ' + s + '" data-tk="' + esc(m.id) + '" aria-expanded="' + !!CTK[m.id] + '" aria-label="' + (s === "rd" ? "Прочетено" : s === "dl" ? "Доставено" : "Записано") + '">✓'
+      + (s === "sv" ? "" : '<span class="t2">✓</span>') + "</button>";
+  }
+  function tkInfo(m) {
+    var t = m.tk, dl = t.dl || t.rd, p = [];   // прочетеното е и доставено (старите съобщения нямат „доставено“ преди прочитането)
+    if (dl) p.push("доставено " + tkWhen(dl));
+    if (t.rd) p.push("прочетено " + tkWhen(t.rd));
+    if (!p.length) p.push("записано " + tkWhen(m.ts));
+    return '<div class="ctki">' + p.map(function (x) { return "<span>" + esc(x) + "</span>"; }).join(" · ") + "</div>";
+  }
   var CMENU = null, CEDIT = null, CDEL = null, CHIST = {}, CITEMS = {};   // отвореното меню · редакцията · питането „Да изтрия ли?“ · отворените истории · балоните по id
   function cmOwn(m) { return !!m.mine && !!m.eid && !m.del; }   // свое и истински ред в client_log (не старият reply, не бележка от храна-лога)
   function cmDelOk(m) { return cmOwn(m) && !m.meas && !m.nodel; }   // с мерене в реда / със стар отговор в него — без триене (иначе изчезва и то)
@@ -1636,12 +1669,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         + (p ? '<div class="cq" data-goto="' + esc(m.to) + '"><b>' + esc(whoLabel(p.kind === "coach")) + "</b>" + esc(quoteText(p)) + "</div>" : "")
         + (m.meas ? '<div class="cm">' + esc(m.meas) + "</div>" : "")
         + msgHtml(m.note) + '</div><div class="cmeta"><span>' + esc(time) + "</span>"
+        + (m.tk ? tkHtml(m) : "")   // Т115
         + (m.del ? '<span class="cdl">изтрито</span>' : "")
         + (m.ed ? (hs ? '<button type="button" class="ced" data-hist="' + esc(m.id) + '" aria-expanded="' + hOpen + '">редактирано</button>' : '<span class="ced">редактирано</span>') : "")
-        + (m.seenTag ? '<span class="cseen' + (m.readAt ? " on" : "") + '">' + esc(m.seenTag) + "</span>" : "")
         + (isNew ? '<span class="cnew">ново</span>' : "")
-        + (m.ans ? '<button type="button" class="crep" data-reply="' + esc(m.ans) + '">Отговори</button>' : "")
         + "</div>"
+        + (m.tk && CTK[m.id] ? tkInfo(m) : "")
         + (hOpen ? chHist(m.hist) : "")
         + "</div>"
         + (ask ? '<div class="cask ' + (m.mine ? "me" : "them") + '" data-for="' + esc(m.id) + '"><span>Да изтрия ли?</span><button type="button" class="myes" data-cyes="1"' + dis + '>Да</button><button type="button" class="mno" data-cno="1"' + dis + ">Не</button>"
@@ -3696,12 +3729,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }).catch(function () { if (CDEL === x) { x.busy = false; x.err = true; refreshChat(true); } });
     }
     box.addEventListener("click", function (e) {
+      var tb = e.target.closest(".ctk[data-tk]");   // Т115: отметките → кога е доставено / прочетено
+      if (tb) { var tid = tb.getAttribute("data-tk"); if (CTK[tid]) delete CTK[tid]; else CTK[tid] = 1; refreshChat(true); if (CTK[tid]) cShow(tid, ".ctki"); return; }
       var hb = e.target.closest(".ced[data-hist]");   // Т114: треньорът — предишните текстове
       if (hb) { var hid = hb.getAttribute("data-hist"); if (CHIST[hid]) delete CHIST[hid]; else CHIST[hid] = 1; refreshChat(true); if (CHIST[hid]) cShow(hid, ".chist"); return; }
       if (e.target.closest("[data-cno]")) { if (CDEL && !CDEL.busy) { CDEL = null; refreshChat(true); } return; }
       if (e.target.closest("[data-cyes]")) { delMsg(); return; }
-      var rep = e.target.closest(".crep");
-      if (rep) { userReply(rep.getAttribute("data-reply")); return; }
       var q = e.target.closest(".cq");
       if (!q) return;
       var tgt = box.querySelector('[data-id="' + q.getAttribute("data-goto") + '"]');
@@ -3746,7 +3779,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return q.then(function (res) {
       if (!res || res.error || !res.data) return;
       D.log = res.data.log || []; computeLastClient();
-      refreshChat(keepChat); updateBadge();
+      refreshChat(keepChat); updateBadge(); markDelivered();   // Т115
       refreshMerki();
       if (current === "razgovor") markChatRead();
       if (START) renderNachalo();   // „Първи стъпки" (тегло ✓)
@@ -6068,6 +6101,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     computeLastClient();
     loading.style.display = "none";
     trackAll(); seenSync(true);   // Т84: видяното само в паметта на телефона → базата (веднъж, approx)
+    markDelivered();   // Т115
     renderNachalo(); renderHrana(); renderMerki(); renderDanni(); renderRazgovor();
     alignAll();
     if (COACH && !SELF_W) {   // само за четене: полетата извън чата не се пишат
