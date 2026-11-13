@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.21.0">
+<meta name="version" content="v1.22.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -901,6 +901,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mbp input { flex: 1 1 0; min-width: 0; width: 0; padding: 9px 8px; font-size: 17px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; text-align: center; }
   .mbp .msl { flex: none; color: var(--muted); font-size: 18px; }
   .mbp .mu { flex: 0 0 44px; color: var(--muted); font-size: 13px; }
+  @media (max-width: 359px) { .mbp { flex-wrap: wrap; row-gap: 4px; } .mbp .mn { flex: 0 0 100%; } }   /* Т119: на 320 „Кръвно“ — на свой ред; полетата под него на цялата ширина (подсказките „горно“/„долно“ се виждат цели) */
   .msm .mu { flex-basis: 44px; font-size: 13px; }
   .mgrid .ioff { margin: 0; padding: 8px 10px; border: 1px dashed #d9b46a; border-radius: 9px; background: #fbf0dc; color: var(--warn); font-size: 13px; font-weight: 700; }
   .mgrid .ioff[hidden] { display: none; }
@@ -1530,6 +1531,37 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function qaTitleOf(t) { var s = String(t || ""); if (!isQaNote(s)) return ""; return s.slice(QA_HEAD.length).split("\n")[0].trim(); }
   function msgHtml(s) { return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/\n/g, "<br>"); }
   function dayLabelChat(ts) { try { return new Date(ts).toLocaleDateString("bg-BG", { day: "numeric", month: "long", year: "numeric", timeZone: "Europe/Sofia" }); } catch (e) { return ""; } }
+  // ── Т119: „Променен отговор …“ → кои отговори са сменени. Повторното изпращане носи само сменените (qaParse ги натрупва) → сравнение
+  //   с натрупаното от ПО-РАННИТЕ записи със същото заглавие: различен текст или нов отговор. Махнат отговор не се праща (празното не тръгва).
+  function qaAns(note) {
+    var out = {}, n = String(note || ""), head = QA_HEAD + qaTitleOf(n) + "\n";
+    if (!isQaNote(n) || n.indexOf(head) !== 0) return out;
+    n.slice(head.length).split(/\n\s*\n/).forEach(function (blk) { var m = /^(\d+)\.[^\n]*\n→ ([\s\S]+)$/.exec(blk.trim()); if (m) out[m[1]] = qaNorm(m[2]); });
+    return out;
+  }
+  function qaChangedNs(id) {
+    var e = D.log.filter(function (x) { return x.id === id; })[0];
+    if (!e) return [];
+    var tl = qaTitleOf(e.note), t0 = tsNum(e.created_at), before = {}, any = false, now = qaAns(e.note);
+    D.log.filter(function (x) { return x.kind !== "coach" && x.id !== id && isQaNote(x.note) && qaTitleOf(x.note) === tl && tsNum(x.created_at) < t0; })
+      .sort(function (a, b) { return tsNum(a.created_at) - tsNum(b.created_at); })
+      .forEach(function (x) { any = true; var a = qaAns(x.note); Object.keys(a).forEach(function (k) { before[k] = a[k]; }); });
+    if (!any) return [];
+    return Object.keys(now).filter(function (k) { return before[k] !== now[k]; }).sort(function (a, b) { return a - b; });
+  }
+  var QSH = [];   // сменените отговори, които светят — докато си в Данни (вълната е .shim; художникът им не ги пипа: __qsh)
+  function qshClear() { QSH.forEach(function (el) { el.__qsh = false; el.classList.remove("shim"); }); QSH = []; }
+  function qaGoChanged(id, spec) {
+    var ns = qaChangedNs(id), key = String(spec || "").split(":").slice(1).join(":"), root = P.danni;
+    qshClear();
+    if (!ns.length || !key) { go(spec); return; }   // без разлика → само до въпросника
+    switchTab("danni", true);
+    var card = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
+    var els = card ? ns.map(function (n) { return card.querySelector('.qa .qi[data-n="' + n + '"]'); }).filter(Boolean) : [];
+    if (!els.length) { go(spec); return; }
+    els.forEach(function (el) { el.__qsh = true; el.classList.add("shim"); QSH.push(el); });
+    accRun(revealChanges(els[0], root, false), { el: els[0] }, false);   // екранът — до първия сменен
+  }
   function quoteText(e) { if (e.deleted_at) return "Изтрито съобщение"; if (isQaNote(e.note)) return "Отговорите на въпросника"; return notePreview(e.note) || logSummary(e); }   // Т114: изтритото (само при треньора)
   // Кой е „аз" в чата: клиентът на своята страница, Chris в режим треньор.
   function isMine(coachRow) { return COACH ? coachRow : !coachRow; }
@@ -1543,7 +1575,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var newIn = COACH && !coach && !e.coach_read_at && !e.deleted_at;   // треньорът: още невидяно от клиента (Т114: изтритото — не)
       if (!coach && isQaNote(note)) {
         var tl = qaTitleOf(note), again = !!seenQa[tl]; seenQa[tl] = 1;
-        items.push({ sys: again ? "Променен отговор във „" + tl + "“ — виж в Данни" : "Отговорите на „" + tl + "“ са изпратени — виж в Данни", sic: again ? "edit" : "qa", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa", newIn: newIn });
+        items.push({ sys: again ? "Променен отговор във „" + tl + "“ — виж в Данни" : "Отговорите на „" + tl + "“ са изпратени — виж в Данни", sic: again ? "edit" : "qa", ts: e.created_at, id: e.id, go: qaKeyByTitle[tl] ? "danni:" + qaKeyByTitle[tl] : "danni:qa", newIn: newIn,
+          qch: again ? e.id : null });   // Т119: кой запис — за сменените отговори
       }
       else if (note) items.push({ ts: e.created_at, id: e.id, mine: isMine(coach), coach: coach, note: note, meas: meas, to: e.reply_to, ans: e.deleted_at ? null : e.id, readAt: coach ? (e.read_at || null) : null, newIn: newIn,
         eid: e.id, ed: e.edited_at || null, hist: Array.isArray(e.note_history) && e.note_history.length ? e.note_history : null, del: e.deleted_at ? (e.deleted_by || "?") : "", nodel: !!e.reply,   // Т114
@@ -1700,7 +1733,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           + m.det.map(function (l) { return '<span class="csl">' + esc(l) + "</span>"; }).join("") + (m.more ? '<span class="csl csm">… › виж всички</span>' : "") + "</div>";
         return;
       }
-      if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + ">" + (m.sic ? ic(m.sic) : "") + esc(m.sys) + (time ? " · " + esc(time) : "") + (m.newIn ? ' <span class="cnew">ново</span>' : "") + "</div>"; return; }
+      if (m.sys) { out += '<div class="csys"' + idAttr + (m.go ? ' data-go="' + esc(m.go) + '"' : "") + (m.qch ? ' data-qch="' + esc(m.qch) + '"' : "") + ">" + (m.sic ? ic(m.sic) : "") + esc(m.sys) + (time ? " · " + esc(time) : "") + (m.newIn ? ' <span class="cnew">ново</span>' : "") + "</div>"; return; }
       var p = m.to && byId[m.to];
       var isNew = COACH ? !!m.newIn : (!m.mine && isUnreadTs(String(m.ts || "")));
       if (m.id) CITEMS[m.id] = m;
@@ -2015,7 +2048,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (tabs[tb] && !SH.opened[tb]) mark(b);
     });
     if (!COACH) Array.prototype.forEach.call(document.querySelectorAll("#p-nachalo .now a[data-nk]"), function (a) { if (!SH.nowp[a.getAttribute("data-nk")]) mark(a); });   // Т81: „Ново за теб“ — докато не се натисне
-    Array.prototype.forEach.call(document.querySelectorAll(".shim"), function (el) { if (!el.__shId || stamp[el.__shId] !== el) { el.classList.remove("shim"); el.classList.remove("shhd"); el.classList.remove("shdk"); } });
+    Array.prototype.forEach.call(document.querySelectorAll(".shim"), function (el) { if (el.__qsh) return; /* Т119: сменените отговори — свои */ if (!el.__shId || stamp[el.__shId] !== el) { el.classList.remove("shim"); el.classList.remove("shhd"); el.classList.remove("shdk"); } });
     Object.keys(stamp).forEach(function (id) { stamp[id].classList.add("shim"); shBand(stamp[id]); });   // Т82: отвореното — само ивицата
     leaves.forEach(function (el) { if (SH.io) SH.io.observe(el); });
     shWatchAll(leaves);
@@ -5955,6 +5988,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!TABS[tab] || (tab === "kuhnya" && !KIT.nav)) tab = "nachalo";   // Т94: кухнята — само когато бутонът я има
     if (current) scrollMem[current] = window.scrollY;
     if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
+    if (current === "danni" && tab !== "danni") qshClear();   // Т119: вълната на сменените отговори спира при излизане
     if (tab === "danni" && current !== tab) fxCloseAll();   // Т112б: влизане в „Данни“ → разделите на формата затворени
     current = tab;
     Object.keys(P).forEach(function (k) { P[k].classList.toggle("on", k === tab); });
@@ -6019,6 +6053,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (e.target.closest(".anprint")) { if (printPrep(true)) { try { window.print(); } catch (x) { printPrep(false); } } return; }
     var ak = e.target.closest("a[data-arch]");   // Т111
     if (ak) { e.preventDefault(); archGo(ak.getAttribute("data-arch")); return; }
+    var qc = e.target.closest("[data-qch]");   // Т119: „Променен отговор …“ → въпросникът, сменените — с вълната
+    if (qc) { e.preventDefault(); qaGoChanged(qc.getAttribute("data-qch"), qc.getAttribute("data-go")); return; }
     var g = e.target.closest("[data-go]");
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
