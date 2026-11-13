@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.24.0">
+<meta name="version" content="v1.24.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -671,8 +671,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop .pnote { margin: 6px 0 0; }
   .ipop .pnote a { color: var(--accent-dark); font-weight: 700; text-decoration: underline; cursor: pointer; }
   .ipop .pmsg { color: var(--up); font-weight: 600; }
-  .now h3 .pbell { margin-left: -2px; }
+  /* Т123: камбанката от комплекта — отстоянието ⓘ↔камбанката по мастилото = заглавие↔ⓘ (~7,6–7,9 px); зоните 32 px се застъпват —
+     камбанката отрязана отляво с 5 px (и за натискане), така границата е по средата между двете иконки */
+  .now h3 .pbell { margin-left: -4px; clip-path: inset(0 0 0 5px); }
   .now h3 .pbell.ro { cursor: not-allowed; }   /* Т93: изгледите на треньора — камбанката на клиента, само за преглед (бледа като „Запиши“) */
+  .now h3 .pbell.ro.own { opacity: 1; }   /* Т123 (Chris 17:26): собственият му акаунт (?c=) — в цвета на ⓘ; само цветът, пак само за преглед */
   .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
   .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
   .ipop .ipx svg.ic { width: 18px; height: 18px; }
@@ -1281,8 +1284,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     ate: '<circle cx="12" cy="12" r="8.6"></circle><path d="M8.1 12.4l2.6 2.6 5.2-5.4"></path>',
     back: '<path d="M19.5 12h-15"></path><path d="M10 6.5 4.5 12l5.5 5.5"></path>',
     basic: '<rect x="2.8" y="5" width="18.4" height="14" rx="2.2"></rect><circle cx="8.4" cy="10.4" r="2"></circle><path d="M5.4 16.2a3 3 0 0 1 6 0"></path><path d="M14.2 10h4M14.2 13.4h4"></path>',
-    bell: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path>',
-    belloff: '<path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.6 2.1H4.9Z"></path><path d="M10.1 20.6a2 2 0 0 0 3.8 0"></path><path d="M12 5.5V3.8"></path><path d="M4 4l16 16"></path>',
+    bell: '<path d="M7 10.1a5 5 0 0 1 10 0v4.2c0 1.1.6 2 1.6 2.8H5.4c1-.8 1.6-1.7 1.6-2.8Z"></path><path d="M10.2 19.5a2 2 0 0 0 3.6 0"></path><path d="M12 5.1V3.5"></path>',
+    belloff: '<path d="M7 10.1a5 5 0 0 1 10 0v4.2c0 1.1.6 2 1.6 2.8H5.4c1-.8 1.6-1.7 1.6-2.8Z"></path><path d="M10.2 19.5a2 2 0 0 0 3.6 0"></path><path d="M12 5.1V3.5"></path><path d="M4.2 4.2l15.6 15.6"></path>',
     clock: '<circle cx="12" cy="12" r="8.2"></circle><path d="M12 7.6V12l3 1.8"></path>',
     close: '<path d="M6.2 6.2l11.6 11.6M17.8 6.2 6.2 17.8"></path>',
     daily: '<circle cx="13.4" cy="4.3" r="1.8"></circle><path d="M12.6 7.6l-1.4 5.8"></path><path d="M11.2 13.4l-1.6 3.4-2 3.6"></path><path d="M11.2 13.4l2.2 3.2 1.6 4"></path><path d="M12.4 8.6l2.4 2.4 2.4.6"></path><path d="M12.2 8.8l-2.4 1.4-1.2 2.8"></path>',
@@ -1486,6 +1489,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   както при всеки клиент (чатът: coach_mark_read / coach_add_message), плюс клиентските неща през токена от coach_client_link
   //   (храна, „Изядох“, молив, мерки, формата, изследванията). Без токен → само за преглед, както досега. Точките на клиента (Т71) — не.
   var SELF_W = false;
+  var COACH_OWN = false;   // Т123: ?c= на собствения акаунт (client.coach_self) — и без токен; само за цвета на камбанката
   function wr(name, args) {
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
     var own = !/^(mark_seen|mark_delivered|client_mark_items_seen|report_app_state|set_intake_missing|push_)/.test(name);   // Т121: служебното не е „свой запис“
@@ -2408,7 +2412,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   няма камбанка. Без балон и без заявки за абонамент (телефонът на треньора не се абонира).
   var PUSH_RO = null;   // { on } — при клиента
   function pushRoHtml() {
-    return '<button type="button" class="ibtn pbell ro' + (PUSH_RO.on ? " on" : "") + '" disabled aria-disabled="true" aria-label="Известията са ' + (PUSH_RO.on ? "включени" : "изключени") + '">'
+    return '<button type="button" class="ibtn pbell ro' + (PUSH_RO.on ? " on" : "") + (COACH_OWN ? " own" : "") + '" disabled aria-disabled="true" aria-label="Известията са ' + (PUSH_RO.on ? "включени" : "изключени") + '">'
       + ic(PUSH_RO.on ? "bell" : "belloff") + "</button>";
   }
   function pushRoInit() {
@@ -6234,6 +6238,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return safe(sb.rpc("coach_get_client", { p_client_id: COACH_CID })).then(function (res) {
         if (res.error || !res.data) { coachGate(res.error ? "Няма достъп или няма връзка. Влез отново." : "Няма такъв клиент."); return; }
         var b = res.data, cl = b.client || {};
+        COACH_OWN = cl.coach_self === true;   // Т123
         if (cl.coach_self === true) {   // Т75: своят акаунт → токенът за клиентските неща (без пренасочване)
           return safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID })).then(function (lk) {
             var L = lk && !lk.error && lk.data;
