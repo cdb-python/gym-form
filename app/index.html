@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.16.1">
+<meta name="version" content="v1.17.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -380,6 +380,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lrow textarea.lfix { display: block; width: 100%; box-sizing: border-box; margin: -3px 0; padding: 3px 7px; font-family: inherit; font-size: 16px; line-height: 1.45; color: var(--ink); background: #fff; border: 1px solid var(--accent); border-radius: 8px; resize: none; overflow-y: auto; white-space: pre-wrap; }
   .lrow .lfxe { flex: 0 0 100%; display: block; margin: 0; padding: 8px 10px; border: 1px solid #f3c2c2; border-radius: 9px; background: #fdecec; color: #9a3b3b; font-size: 14px; text-align: center; }
   .lrow .lfd { flex: 0 0 100%; box-sizing: border-box; padding-left: 50px; margin-top: 1px; color: var(--muted); font-size: 13px; font-weight: 400; line-height: 1.4; overflow-wrap: anywhere; }
+  /* Т113: ✎ и 🗑 в една кутия вдясно (като в мерките); 🗑 е най-вдясно на всеки ред (една колона), ✎ — пред него; „Изядох“ — само 🗑.
+     „Да изтрия ли?“ [Да] [Не] — на свой ред в реда (Т91). Сборът „Общо днес“ се отмества с колоната на 🗑 → ккал на деня над ккал на „Изядох“. */
+  .lrow .lbx { flex: none; display: inline-flex; align-self: flex-start; margin: -5px -7px -6px -4px; }
+  .lrow .lbx .lfx { margin: 0; }
+  .lrow .ldel { display: inline-flex; flex: none; align-items: center; justify-content: center; box-sizing: border-box; width: 32px; height: 32px; margin: 0; padding: 0; border: 0; background: none; color: var(--muted); font: inherit; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .lrow .ldel[hidden] { display: inline-flex; visibility: hidden; }
+  .lrow .ldel.ro { cursor: not-allowed; }
+  .lrow .ldel svg.ic { width: 20px; height: 20px; }
+  .lrow .ldel:focus { outline: none; }
+  .lrow .ldel:focus-visible { border-radius: 50%; box-shadow: inset 0 0 0 2px var(--accent); }
+  .lrow.asking { flex-wrap: wrap; row-gap: 6px; }
+  .lrow .mask { flex: 0 0 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 8px; padding-top: 2px; font-weight: 700; }
+  .lrow .mask button { width: auto; margin: 0; padding: 6px 16px; font-family: inherit; font-size: 14.5px; font-weight: 700; border-radius: 9px; cursor: pointer; }
+  .lrow .mask .myes { color: #fff; background: var(--btn); border: 1px solid var(--btn); }
+  .lrow .mask .mno { color: var(--accent-dark); background: #fff; border: 1px solid var(--accent); }
   /* Т56: сборът на деня (модел ФКУ тракер): ккал горе вдясно; П · В · М на втория ред — всяко в своя колона (цифра под цифра); „+ N без сметка“ вляво */
   .d-kc { text-align: right; font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 700; white-space: nowrap; color: var(--ink); }
   .d-m { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; font-weight: 600; white-space: nowrap; color: var(--accent-dark); }
@@ -398,6 +413,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lsum .d-nc { grid-column: 1; grid-row: 2; }
   .lsum .d-p { grid-column: 2; grid-row: 2; } .lsum .d-c { grid-column: 3; grid-row: 2; } .lsum .d-f { grid-column: 4; grid-row: 2; }
   .lrows .lsum + .lrow { border-top: none; }
+  .lsum.hb { padding-right: 31px; }   /* Т113: колоната на 🗑 (32 − 7 − 4 + 10) → ккал на деня точно над ккал на „Изядох“ */
   /* Т109 (Chris 11:08 / 11:10): „График“ — вляво в реда на „Защо 21 дни?“ (картата не расте); натискане → балонът с бутоните за ДНЕС;
      след избор надписът е избраното — плътно; огледалото — видим, изключен (.ro), балон не се отваря */
   .lmrow #dtBox { flex: none; margin-right: auto; display: flex; align-items: center; }
@@ -2518,37 +2534,57 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<span class="d-m d-p">П <b>' + Math.round(s.p) + '</b></span><span class="d-m d-c">В <b>' + Math.round(s.c) + '</b></span><span class="d-m d-f">М <b>' + Math.round(s.f) + "</b></span>";   // Т108: буква | число
   }
   // Т70 (Chris 10.11 14:00): молив ✎ до ДНЕШНИЯ свободен запис → текстът се поправя на място (курсорът в края), моливът става ✓,
-  //   ✓ записва (update_food_entry). Без триене на записа; празното не се праща. Миналите дни (историята), „Изядох“ (✅ — носи числата
+  //   ✓ записва (update_food_entry). Празното не се праща (за триене е 🗑 — Т113). Миналите дни (историята), „Изядох“ (✅ — носи числата
   //   от картата) — без молив; треньорът и изгледът като клиент — моливът изключен (Т91б). Сървърът пази същите правила. Записът трябва да има id (get_food_log).
   // Т91б (Chris 11.11 14:03): треньорът (?c=) и изгледът като клиент виждат молива, където го вижда клиентът — изключен (roBtn).
-  var LFIX = null;   // { id, val, busy, err } — записът, който се поправя в момента (един)
+  // Т113 (Chris 13.11 08:31): 🗑 до днешния запис — свободния (до ✎) и „✅ Изядох“ (само 🗑: числата са от картата, не се поправя).
+  //   🗑 → „Да изтрия ли?“ [Да] [Не] в самия ред (модел Т91); един ред наведнъж — докато трае поправка или питане, другите ✎/🗑 се крият;
+  //   по време на поправката 🗑 стои до ✓ (питането; „Не“ връща към текста). Да → delete_food_entry; редът изчезва, сборът, броячът и
+  //   „Изядох“ в режима се смятат наново (от записите). Миналите дни — без бутони; огледалото — 🗑 изключен (roBtn, Т91б).
+  var LFIX = null;   // { id, val, busy, err, edit, ask } — записът, който се поправя (edit) или чие триене се пита (ask) в момента (един)
   function fixShown(v) {   // правилото на молива без CAN_WRITE
     var e = v.e, raw = String(e.text || "").trim();
     return !!e.id && e.kind === "client" && logDayOf(e) === todayStr() && !!raw && raw.charAt(0) !== "✅" && !v.ate;
   }
   function canFix(v) { return CAN_WRITE && fixShown(v); }
+  function delShown(v) {   // Т113: правилото на коша без CAN_WRITE — и „✅ Изядох“
+    var e = v.e;
+    return !!e.id && e.kind === "client" && logDayOf(e) === todayStr() && !!String(e.text || "").trim();
+  }
+  function lfEdit(id) { return !!LFIX && LFIX.id === id && LFIX.edit && !LFIX.ask; }
+  function delBtn(v) {
+    var id = v.e.id;
+    return '<button type="button" class="ldel" data-del="' + esc(id) + '" aria-label="Изтрий записа"' + (lfEdit(id) ? (LFIX.busy ? " disabled" : "") : LFIX ? " hidden" : "") + ">" + ic("trash") + "</button>";
+  }
+  function lbxHtml(v) {   // Т113: [✎] [🗑] — при „Изядох“ само [🗑]
+    if (!delShown(v)) return "";
+    var w = CAN_WRITE;
+    return '<span class="lbx">' + (fixShown(v) ? (w ? fixBtn(v) : roBtn("lfx", "Поправи записа", ic("edit"))) : "")
+      + (w ? delBtn(v) : roBtn("ldel", "Изтрий записа", ic("trash"))) + "</span>";
+  }
   function roBtn(cls, lbl, inner) {   // Т91б: видим, изключен, без data-атрибута за действие — не се натиска, нищо не се отваря
     return '<button type="button" class="' + cls + ' ro" disabled aria-disabled="true" aria-label="' + lbl + '">' + inner + "</button>";
   }
   function fixTail(e) { var raw = String(e.text || "").trim(), m = TIME_TAIL.exec(raw); return m ? raw.slice(m[1].length) : ""; }   // „ — в ЧЧ:ММ“ остава
   function fixBtn(v) {
-    var on = LFIX && LFIX.id === v.e.id;
+    var on = lfEdit(v.e.id);
     if (on) return '<button type="button" class="lfx on" data-fix="' + esc(v.e.id) + '" aria-label="Запиши поправката"' + (!LFIX.val.trim() || LFIX.busy ? " disabled" : "") + ">✓</button>";
     return '<button type="button" class="lfx" data-fix="' + esc(v.e.id) + '" aria-label="Поправи записа"' + (LFIX ? " hidden" : "") + ">" + ic("edit") + "</button>";
   }
   function logLine(v) {
-    var parts = [], e = v.e, fix = canFix(v), editing = fix && LFIX && LFIX.id === e.id;
+    var parts = [], e = v.e, fix = canFix(v), editing = fix && lfEdit(e.id), asking = CAN_WRITE && delShown(v) && !!LFIX && LFIX.id === e.id && LFIX.ask;
     if (editing) parts.push('<textarea class="lfix" rows="1" aria-label="Текстът на записа">' + esc(LFIX.val) + "</textarea>");
     else if (v.text) parts.push(v.ate ? ic("ate", "icl") + esc(v.text.slice(2)) : esc(v.text));   // Т43: записът остава „✅ …“, на екрана — иконата
     if (e.weight != null && e.weight !== "") parts.push('<span class="wt">' + ic("weight", "icl") + esc(num1(e.weight)) + " кг</span>");
     if (e.waist != null && e.waist !== "") parts.push('<span class="wt">' + ic("waist", "icl") + "талия " + esc(num1(e.waist)) + " см</span>");
     if (e.height != null && e.height !== "") parts.push('<span class="wt">' + ic("height", "icl") + "ръст " + esc(e.height) + " см</span>");
     var snap = v.ate && ((v.num && !v.approx) || v.foods);   // Т56: ккал вдясно, храните на сив ред отдолу
-    return '<div class="lrow' + (v.ate ? " ate" : "") + (snap ? " snap" : "") + (editing ? " fixing" : "") + '"' + (fix ? ' data-eid="' + esc(e.id) + '"' : "") + ' data-f="' + esc(e.id || e.created_at || "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(editing ? " " : " · ") + "</span>"
+    return '<div class="lrow' + (v.ate ? " ate" : "") + (snap ? " snap" : "") + (editing ? " fixing" : "") + (asking ? " asking" : "") + '"' + (fix ? ' data-eid="' + esc(e.id) + '"' : "") + ' data-f="' + esc(e.id || e.created_at || "") + '"><span class="tm">' + esc(v.tm) + '</span><span class="tx">' + parts.join(editing ? " " : " · ") + "</span>"
       + (v.num ? '<span class="lk' + (v.approx ? " ap" : "") + '">' + (v.approx ? "≈ " : "") + Math.round(v.num.k) + " ккал</span>" : "")   // Т105: „≈“ — сметката на нощния скрипт
-      + (fix ? fixBtn(v) : fixShown(v) ? roBtn("lfx", "Поправи записа", ic("edit")) : "")
+      + lbxHtml(v)   // Т113: ✎ и 🗑
       + (snap && v.foods ? '<span class="lfd">' + esc(v.foods) + "</span>" : "")
-      + (editing && LFIX.err ? '<div class="ok show err lfxe">Неуспешно. Опитай пак.</div>' : "") + "</div>";
+      + (asking ? '<div class="mask"><span>Да изтрия ли?</span><button type="button" class="myes" data-lyes="' + esc(e.id) + '"' + (LFIX.busy ? " disabled" : "") + '>Да</button><button type="button" class="mno" data-lno="' + esc(e.id) + '"' + (LFIX.busy ? " disabled" : "") + ">Не</button></div>" : "")
+      + ((editing || asking) && LFIX.err ? '<div class="ok show err lfxe">Неуспешно. Опитай пак.</div>' : "") + "</div>";
   }
   // Групи по ден (най-новият горе); в деня — по часа, най-късното горе (както LogScreen).
   function logGroups() {
@@ -2619,11 +2655,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // без запис днес: бутонът вече казва „Няма записи днес“; приветливият ред е само за съвсем празен лог
     var ts = tg ? daySum(tg.rows) : null;   // Т56: сборът днес (само ако има записи с числа)
     var fa = document.activeElement, ff = fa && fa.classList && fa.classList.contains("lfix") ? [fa.selectionStart, fa.selectionEnd] : null;   // Т70
-    if (tEl) tEl.innerHTML = tg ? (ts.n ? '<div class="lsum" id="logSum"><span class="ls-l">Общо днес</span>' + sumCells(ts) + "</div>" : "") + tg.rows.map(logLine).join("")
-      : past ? "" : '<p class="lempty">Още няма нито един запис.</p>';
+    function rowsHtml() {
+      return tg ? (ts.n ? '<div class="lsum' + (tg.rows.some(delShown) ? " hb" : "") + '" id="logSum"><span class="ls-l">Общо днес</span>' + sumCells(ts) + "</div>" : "") + tg.rows.map(logLine).join("")
+        : past ? "" : '<p class="lempty">Още няма нито един запис.</p>';
+    }
+    if (tEl) {
+      tEl.innerHTML = rowsHtml();
+      if (LFIX && !LFIX.busy && !Array.prototype.some.call(tEl.querySelectorAll(".lrow.fixing, .lrow.asking"), function (r) { return r.getAttribute("data-f") === LFIX.id; })) {
+        LFIX = null; tEl.innerHTML = rowsHtml();   // записът вече не е за поправка / триене (мина полунощ, изтрит) → другите ✎/🗑 се връщат
+      }
+    }
     var fx = tEl && tEl.querySelector("textarea.lfix");
     if (fx) { fixGrow(fx); if (ff) { fx.focus(); fx.setSelectionRange(ff[0], ff[1]); } }
-    else if (LFIX && !LFIX.busy) LFIX = null;   // записът вече не е за поправка (напр. мина полунощ)
     var nr = document.querySelector('#p-hrana [data-key="h_food"] > .ch .sub');
     if (nr) nr.textContent = foodNavSub();
     logBtnState();
@@ -4728,13 +4771,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function fixEntry(id) { return F.entries.filter(function (e) { return e.id === id; })[0]; }
   function fixStart(id) {
     var e = fixEntry(id); if (!e) return;
-    LFIX = { id: id, val: logView(e).text, busy: false, err: false };
+    LFIX = { id: id, val: logView(e).text, busy: false, err: false, edit: true, ask: false };
     refreshLogView();
     var t = document.querySelector("#logToday textarea.lfix");
     if (t) { t.focus(); var n = t.value.length; t.setSelectionRange(n, n); }   // маркерът — в края
   }
   function fixSave() {
-    if (!LFIX || LFIX.busy) return;
+    if (!LFIX || LFIX.busy || !LFIX.edit || LFIX.ask) return;
     var e = fixEntry(LFIX.id), tv = LFIX.val.trim();
     if (!e || !tv) return;   // празно не се праща (записът не се трие)
     if (tv === logView(e).text.trim()) { LFIX = null; refreshLogView(); return; }   // без промяна → нищо не се пише
@@ -4756,6 +4799,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var id = b.getAttribute("data-fix");
       if (LFIX && LFIX.id === id) fixSave(); else if (!LFIX) fixStart(id);
     });
+    main.addEventListener("click", function (e) {   // Т113: 🗑 → питането; Не → назад (към текста, ако е от поправката); Да → триене
+      var b = e.target.closest && e.target.closest("#logToday .ldel, #logToday .lrow .mask button"), id;
+      if (!b || b.disabled || !CAN_WRITE) return;
+      if ((id = b.getAttribute("data-del"))) {
+        if (!LFIX) LFIX = { id: id, val: "", busy: false, err: false, edit: false, ask: true };
+        else if (LFIX.id === id && !LFIX.busy) { LFIX.ask = true; LFIX.err = false; }
+        else return;
+        refreshLogView();
+      }
+      else if ((id = b.getAttribute("data-lno"))) {
+        if (!LFIX || LFIX.id !== id || LFIX.busy) return;
+        LFIX.ask = false; LFIX.err = false;
+        if (!LFIX.edit) LFIX = null;
+        refreshLogView();
+        var t = document.querySelector("#logToday textarea.lfix");
+        if (t) { t.focus(); var n = t.value.length; t.setSelectionRange(n, n); }
+      }
+      else if ((id = b.getAttribute("data-lyes"))) delEntry(id);
+    });
     main.addEventListener("input", function (e) {
       var t = e.target;
       if (!t.classList || !t.classList.contains("lfix") || !LFIX) return;
@@ -4771,6 +4833,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       else if (e.key === "Escape" && !LFIX.busy) { e.preventDefault(); LFIX = null; refreshLogView(); }
     });
   })();
+  function delEntry(id) {   // Т113
+    if (!LFIX || LFIX.id !== id || !LFIX.ask || LFIX.busy) return;
+    LFIX.busy = true; LFIX.err = false; refreshLogView();
+    wr("delete_food_entry", { p_token: token, p_id: id }).then(function (res) {
+      if (res.error || res.data !== true) throw (res.error || new Error("fail"));
+      F.entries = F.entries.filter(function (e) { return e.id !== id; }); computeLastClient();
+      LFIX = null; refreshLogView(); refreshMealMarks();
+      if (START) renderNachalo();
+      return refreshFood();
+    }).catch(function () {
+      if (LFIX && LFIX.id === id) { LFIX.busy = false; LFIX.err = true; refreshLogView(); }
+    });
+  }
   // Т91: поправка (✓ — същата проверка като формата; изтрито поле = махната стойност; без промяна → нищо не се пише, като Т70) и триене
   function mfEntry(id) { return D.log.filter(function (e) { return e.id === id; })[0]; }
   function mfFocus() { var i = document.querySelector("#mToday input.mfi"); if (i) { i.focus(); var n = i.value.length; try { i.setSelectionRange(n, n); } catch (x) {} } }
