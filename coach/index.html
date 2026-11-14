@@ -166,7 +166,7 @@
   </form>
 
   <div class="hidden" id="list">
-    <div class="tools"><button type="button" class="chipbtn cnt" id="cnt" aria-pressed="true"></button><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Активни</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тестови</button></div>
+    <div class="tools"><button type="button" class="chipbtn cnt" id="cnt" aria-pressed="true"></button><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Актив</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тест</button></div>
     <div id="rows"></div>
   </div>
 </div>
@@ -479,12 +479,12 @@
     actBtn.classList.toggle("on", act); actBtn.setAttribute("aria-pressed", act ? "true" : "false");
     var nPs = ROWS.filter(isPseudo).length, nReal = ROWS.length - nPs, tests = nPs > 0 && lsGet(PSEUDO_KEY) === "1";
     psBtn.classList.toggle("hidden", !nPs);                  // без тестови бутонът го няма → винаги истинските
-    psBtn.textContent = "Тестови · " + nPs;
+    psBtn.textContent = "Тест · " + nPs;   // Т139 (Chris 14.11 17:05): „Тестови“ → „Тест“
     psBtn.classList.toggle("on", tests); psBtn.setAttribute("aria-pressed", tests ? "true" : "false");
     var rows = ROWS.slice().sort(function (a, b) { return lastAt(b) - lastAt(a); });   // Т110: по-късното от писането и отварянето
     rows = rows.filter(function (r) { return isPseudo(r) === tests; });   // Т54: или истинските, или тестовите
     var nAct = rows.filter(isActive).length;   // в текущия изглед
-    actBtn.textContent = "Активни" + (nAct ? " (" + nAct + ")" : "");   // Т76
+    actBtn.textContent = "Актив" + (nAct ? " (" + nAct + ")" : "");   // Т76; Т139 (Chris 14.11 17:05): „Активни“ → „Актив“
     // Т131 (Chris 13:58 „21 да си остава … логиката е да не се сменя“): броят е винаги всички в изгледа (истинските; в „Тестови“ — тестовите),
     //   и при „Активни“ — колко са активните, казва самият бутон „Активни (N)“
     var n = rows.length, c = $("cnt");
