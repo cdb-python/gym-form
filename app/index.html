@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.26.0">
+<meta name="version" content="v1.26.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -210,16 +210,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т77 (Chris 10.11 22:17): при треньора новото от предното му влизане — светла вълна, която минава през цялата карта отляво надясно
      (~1,8 s, непрекъснато, без мигане), докато не бъде видяна. Само фонът (под текста) → четенето не се пречи. Сивосинкаво на бялото,
      бяло на сивата лента долу. „Без движение“ (prefers-reduced-motion / REDUCE) → само лек неподвижен отблясък. */
-  .shim { background-image: linear-gradient(100deg, rgba(120,140,165,0) 35%, rgba(120,140,165,0.22) 50%, rgba(120,140,165,0) 65%) !important; background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear infinite; }
+  .shim { background-image: linear-gradient(100deg, rgba(120,140,165,0) 35%, rgba(120,140,165,0.22) 50%, rgba(120,140,165,0) 65%) !important; background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear 3; }   /* Т129: три минавания и спира */
   @keyframes shimw { from { background-position: 100% 0; } to { background-position: 0% 0; } }
-  html.rm .shim { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; }
+  html.rm .shim, .shim.shend { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; }   /* Т129: .shend — след трите минавания */
   @media (prefers-reduced-motion: reduce) {
     .shim { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; }
   }
   /* Т81 (Chris 01:35): клиентската страница — вълната вместо червените точки, в оранжевото на клиентското приложение (#c77d2e);
      „без движение“ → лек неподвижен оранжев отблясък. Треньорът (body.coach-on) остава сивосинкав. Лентата долу — Т82 (пулс). */
   body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0) 35%, rgba(199,125,46,0.24) 50%, rgba(199,125,46,0) 65%) !important; }
-  html.rm body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0.18), rgba(199,125,46,0.06)) !important; }
+  html.rm body:not(.coach-on) .shim, body:not(.coach-on) .shim.shend { background-image: linear-gradient(100deg, rgba(199,125,46,0.18), rgba(199,125,46,0.06)) !important; }
   @media (prefers-reduced-motion: reduce) {
     body:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(199,125,46,0.18), rgba(199,125,46,0.06)) !important; }
   }
@@ -228,15 +228,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      разделът се отваря). И при треньора, и при клиента. Т83 (Chris 05:24): без белия ореол — товари, „като светофар“; само размерът.
      „Без движение“ → иконата стои неподвижно уголемена (1,12): знакът остава, без анимация (transform — нищо не се разместява). */
   :root nav.tabs button.shim[data-tab] { background-image: none !important; animation: none !important; }
-  nav.tabs button.shim .nav-ic { animation: shpulse 1.6s ease-in-out infinite; will-change: transform; }
-  @keyframes shpulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.12); }
-  }
-  html.rm nav.tabs button.shim .nav-ic { animation: none; transform: scale(1.12); }
-  @media (prefers-reduced-motion: reduce) {
-    nav.tabs button.shim .nav-ic { animation: none; transform: scale(1.12); }
-  }
+  /* Т129 (Chris 14.11 13:46 „връщаме червените точки при иконите в ботом бара и махаме пулсирането“): иконата не мърда; „ново“ в
+     раздела — червената точка от Т39 (.tdot / .badge: 4 px, горе вдясно, бял ръб 1 px), докато разделът не се отвори (както беше пулсът) */
+  nav.tabs button.shim .tdot, nav.tabs button.shim .badge { display: block; }
   /* Т82: отворена карта / група с вълна (първата карта е отворена, а текстът се вълнува, докато си в раздела — Т79) → вълната минава
      само в горната ивица, висока колкото затворената карта (--shh: заглавието + отстъпите, мери го shBand); отдолу картата е чиста.
      Заглавие със свой плътен фон (отворен панел, месец, картите на анализа) скрива фона на картата → там вълната е на самото заглавие
@@ -249,8 +243,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      Без движение — същото, неподвижно. Пулсът на иконите долу е отделен. Стар браузър без min() → остава цялото (както преди). */
   .shim { background-size: 300% min(100%, 53px) !important; }
   .card.shim:not(.open), details.shim:not([open]), .now a.shim { background-size: 300% 100% !important; }
-  html.rm .shim { background-size: 100% min(100%, 53px) !important; }
-  html.rm .card.shim:not(.open), html.rm details.shim:not([open]), html.rm .now a.shim { background-size: 100% 100% !important; }
+  html.rm .shim, .shim.shend { background-size: 100% min(100%, 53px) !important; }
+  html.rm .card.shim:not(.open), html.rm details.shim:not([open]), html.rm .now a.shim, .card.shim.shend:not(.open), details.shim.shend:not([open]), .now a.shim.shend { background-size: 100% 100% !important; }
   @media (prefers-reduced-motion: reduce) {
     .shim { background-size: 100% min(100%, 53px) !important; }
     .card.shim:not(.open), details.shim:not([open]), .now a.shim { background-size: 100% 100% !important; }
@@ -259,12 +253,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body:not(.coach-on) .shim { --shc: 199,125,46; --sha: 0.24; --shs: 0.18; --she: 0.06; }
   .shim.shhd.shdk { --shc: 255,255,255; --sha: 0.4; --shs: 0.3; --she: 0.1; }
   .card.open.shim, details[open].shim { background-size: 300% var(--shh, 0px) !important; }
-  html.rm .card.open.shim, html.rm details[open].shim { background-size: 100% var(--shh, 0px) !important; }
+  html.rm .card.open.shim, html.rm details[open].shim, .card.open.shim.shend, details[open].shim.shend { background-size: 100% var(--shh, 0px) !important; }
   @media (prefers-reduced-motion: reduce) { .card.open.shim, details[open].shim { background-size: 100% var(--shh, 0px) !important; } }
   :root .card.open.shim.shhd, :root details[open].shim.shhd { background-image: none !important; animation: none !important; }
   .card.open.shim.shhd > .ch, details[open].shim.shhd > summary { background-image: linear-gradient(100deg, rgba(var(--shc),0) 35%, rgba(var(--shc),var(--sha)) 50%, rgba(var(--shc),0) 65%) !important;
-    background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear infinite; }
-  html.rm .card.open.shim.shhd > .ch, html.rm details[open].shim.shhd > summary { animation: none; background-image: linear-gradient(100deg, rgba(var(--shc),var(--shs)), rgba(var(--shc),var(--she))) !important; background-size: 100% 100% !important; }
+    background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear 3; }
+  html.rm .card.open.shim.shhd > .ch, html.rm details[open].shim.shhd > summary, .card.open.shim.shhd.shend > .ch, details[open].shim.shhd.shend > summary { animation: none; background-image: linear-gradient(100deg, rgba(var(--shc),var(--shs)), rgba(var(--shc),var(--she))) !important; background-size: 100% 100% !important; }
   @media (prefers-reduced-motion: reduce) {
     .card.open.shim.shhd > .ch, details[open].shim.shhd > summary { animation: none; background-image: linear-gradient(100deg, rgba(var(--shc),var(--shs)), rgba(var(--shc),var(--she))) !important; background-size: 100% 100% !important; }
   }
@@ -2029,7 +2023,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Паметта е на устройството, както досега (coach_seen_*): coach_seen_<раздел>_<id> — до кога всичко в раздела е видяно (без него —
   //   7 дни назад); coach_seen_el_<id> — видяното след това поотделно; coach_seen_at_<id> — кога е отварян клиентът (за coach/).
   //   „Разговор“: новото е по базата (coach_read_at), както досега — вълната стои на балона, докато не се види.
-  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, rxa: {}, mine: {}, shown: {}, pressed: {}, vseen: {}, nowp: {}, io: null, mo: null, raf: 0 };
+  var SH = { on: false, items: {}, seen: {}, base: {}, opened: {}, chat: {}, rxa: {}, mine: {}, shown: {}, pressed: {}, vseen: {}, nowp: {}, io: null, mo: null, raf: 0, done: {} };   // Т129: done — минало три пъти в този показ
   var SH_TABS = ["hrana", "merki", "danni"], SH_FIRST_DAYS = 7;
   function shBaseKey(tab) { return "coach_seen_" + tab + "_" + COACH_CID; }
   function shTabOf(k) { return k.charAt(0) === "f" ? "hrana" : k.charAt(0) === "m" ? "merki" : k.charAt(0) === "c" ? "razgovor" : "danni"; }
@@ -2062,6 +2056,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       SH.mo.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ["class", "open"] });
     }
     window.addEventListener("resize", shSched);   // Т82: ивицата се мери отново (заглавието може да се пренесе)
+    document.addEventListener("animationend", function (e) {   // Т129: трите минавания свършиха → бледо, неподвижно (.shend); помни се за показа
+      if (e.animationName !== "shimw") return;
+      var el = e.target.closest && e.target.closest(".shim"); if (!el) return;
+      el.classList.add("shend"); var id = shId(el); if (id) SH.done[id] = 1;
+    }, true);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(shSched);
     window.addEventListener("scroll", function () { if (SH.ws) return; SH.ws = setTimeout(function () { SH.ws = 0; shWatchAll(); }, 120); }, { passive: true });   // и без наблюдателя / ако той закъснее
     // Т79: излиза от страницата (← към списъка, затваря, приложението отива на заден план) → показаното в раздела става видяно
@@ -2143,11 +2142,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (tabs[tb] && !SH.opened[tb]) mark(b);
     });
     if (!COACH) Array.prototype.forEach.call(document.querySelectorAll("#p-nachalo .now a[data-nk]"), function (a) { if (!SH.nowp[a.getAttribute("data-nk")]) mark(a); });   // Т81: „Ново за теб“ — докато не се натисне
-    Array.prototype.forEach.call(document.querySelectorAll(".shim"), function (el) { if (el.__qsh) return; /* Т119: сменените отговори — свои */ if (!el.__shId || stamp[el.__shId] !== el) { el.classList.remove("shim"); el.classList.remove("shhd"); el.classList.remove("shdk"); } });
-    Object.keys(stamp).forEach(function (id) { stamp[id].classList.add("shim"); shBand(stamp[id]); });   // Т82: отвореното — само ивицата
+    Array.prototype.forEach.call(document.querySelectorAll(".shim"), function (el) { if (el.__qsh) return; /* Т119: сменените отговори — свои */ if (!el.__shId || stamp[el.__shId] !== el) { el.classList.remove("shim"); el.classList.remove("shhd"); el.classList.remove("shdk"); el.classList.remove("shend"); } });
+    Object.keys(stamp).forEach(function (id) { var el = stamp[id]; el.classList.add("shim"); if (!el.classList.contains("shend") && SH.done[shId(el)]) el.classList.add("shend"); shBand(el); });   // Т82: отвореното — само ивицата; Т129: пресъздаденото (опресняване) не започва отначало
     leaves.forEach(function (el) { if (SH.io) SH.io.observe(el); });
     shWatchAll(leaves);
     if (SH.mo) SH.mo.takeRecords();   // своите промени по класа не пускат нов кръг
+  }
+  // Т129 (Chris 13:46 „да флашва само три пъти и да спира само“): кое е минало — по новото (ключът) или по data-key / раздела / реда в
+  //   „Ново за теб“; нов показ (смяна на раздела — всичко; отваряне — вътре в отвореното) → пак три пъти
+  function shId(el) {
+    if (!el || !el.getAttribute) return "";
+    var k = el.getAttribute("data-key") || el.getAttribute("data-nk") || el.getAttribute("data-tab") || el.getAttribute("data-f") || el.getAttribute("data-m") || el.getAttribute("data-id") || "";
+    return (el.__shk || "") + "|" + k;
+  }
+  function shReplay(root) {
+    if (!root) { SH.done = {}; root = document; }
+    var list = Array.prototype.slice.call(root.querySelectorAll(".shend"));
+    if (root.classList && root.classList.contains("shend")) list.push(root);
+    list.forEach(function (el) { el.classList.remove("shend"); delete SH.done[shId(el)]; });
   }
   // Т82: отворен контейнер с вълна → ивицата горе = затворената карта: от горния ръб (вътре в рамката) до долу на заглавието + долният
   //   отстъп (--shh). Скрит (друг раздел) → не се мери; мери се, щом се покаже (смяната на раздела пуска shApply). Заглавие с плътен фон
@@ -6160,7 +6172,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       });
     }
     accRun(changes, opts.noScroll || !accHead(n) ? null : open ? { open: n } : { close: n }, !!opts.instant);
-    if (open) seenOnOpen(n);
+    if (open) { seenOnOpen(n); shReplay(n); }   // Т129: отваряне → вътре проблясва пак (три пъти)
   }
   function seenOnOpen(n) {
     shOpened(n);   // Т77/Т79/Т81: натиснато — бутонът спира; видяното (и при клиента) се записва при напускане на раздела
@@ -6244,6 +6256,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (current === "danni" && tab !== "danni") qshClear();   // Т119: вълната на сменените отговори спира при излизане
     if (tab === "danni" && current !== tab) fxCloseAll();   // Т112б: влизане в „Данни“ → разделите на формата затворени
     current = tab;
+    shReplay();   // Т129: нов показ → проблясването пак (три пъти)
     Object.keys(P).forEach(function (k) { P[k].classList.toggle("on", k === tab); });
     Array.prototype.forEach.call(document.querySelectorAll("nav.tabs button"), function (b) {
       var on = b.getAttribute("data-tab") === tab;
