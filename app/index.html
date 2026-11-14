@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.27.0">
+<meta name="version" content="v1.27.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2674,12 +2674,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   храненето: името + час (по подразбиране сега) + „Запиши“ / „Отказ“. Пише САМО „Запиши“; Отказ / Esc / докосване извън → без запис.
   //   По един отворен банер. Записът е както в Т8: add_food_entry „✅ <име> — ядено ЧЧ:ММ“ за днес. Без data-meal → без бутон.
   function foodClient() { return F.entries.filter(function (e) { return e.kind !== "coach"; }); }
-  // Т128 (Chris 14.11 12:48–12:52): денят на храната — по живота, не по календара. Ако вчера е „Нощна“ (График), до 08:00 „днес“ за
-  //   храната е вчерашният ден (смяната свършва в 8). Сървърът смята същото (_food_today / _food_day в t128_food_day.sql) и сам слага
+  // Т128 (Chris 14.11 12:48–12:52): денят на храната — по живота, не по календара. Ако вчера е „Нощна“ (График), до 10:00 „днес“ за
+  //   храната е вчерашният ден (Т138, Chris 14.11 15:19: в 10:00 — смяната и сънят след нея). Сървърът смята същото (_food_today / _food_day в t128_food_day.sql) и сам слага
   //   entry_date при запис (и правило 1: часът в записа е по-късен от сега + 30 мин → вчера). Мерките и чатът — по календара (todayStr).
   function foodToday() {
     var t = todayStr(), y = new Date(Date.parse(t + "T12:00:00Z") - 86400000).toISOString().slice(0, 10);
-    return nowHM() < "08:00" && DT.days[y] === "Нощна" ? y : t;
+    return nowHM() < "10:00" && DT.days[y] === "Нощна" ? y : t;   // Т138: 10:00 (беше 08:00)
   }
   // ✎ / 🗑: записите от днешния ден на храната ИЛИ записани до 2 ч назад (току-що записан „вчерашен“ — стои в историята; сървърът е същият)
   function foodFixDay(e) { return logDayOf(e) === foodToday() || Date.now() - tsNum(e.created_at) < 2 * 3600e3; }
