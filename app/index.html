@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.26.1">
+<meta name="version" content="v1.27.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -339,6 +339,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* логът (модел Victus LogScreen): брояч „N / 21“ → „∞“ · днес отгоре разгънат · миналите дни свити · групи по месеци · ред = час + текст */
   .card.panel > .ch .lcnt { flex: none; padding: 2px 10px; border-radius: 999px; background: var(--soft2); color: var(--accent-dark); font-size: 14px; font-weight: 800; white-space: nowrap; }
   .card.panel > .ch .lcnt.inf { font-size: 19px; line-height: 1.15; padding: 0 11px; }
+  /* Т132: „Днес“ с целта — заглавието в строежа на ред от историята (Т105/Т108: колоните 35/40/41, ккал над тях, ▾ най-вдясно);
+     под „Днес“: % (от ккал на деня), „ядене“ и „г/кг“ — всеки със своите П · В · М, цифра под цифра. Вижда се и при затворена карта. */
+  .card.panel > .ch.ftgh { display: grid; grid-template-columns: auto minmax(0, 1fr) 35px 40px 41px 10px; column-gap: 5px; row-gap: 2px; align-items: baseline; }
+  .ch.ftgh > .ico { grid-column: 1; grid-row: 1; align-self: center; }
+  .ch.ftgh > .ttl { grid-column: 2; grid-row: 1; }
+  .ch.ftgh > .d-kc { grid-column: 3 / 6; grid-row: 1; }
+  .card.panel > .ch.ftgh::after { grid-column: 6; grid-row: 1; }
+  .ch.ftgh > .fl { grid-column: 1 / 3; }   /* под иконата: % на 375 иска ~144 px, колоната на „Днес“ е ~138 */
+  .ch.ftgh > .d-p { grid-column: 3; } .ch.ftgh > .d-c { grid-column: 4; } .ch.ftgh > .d-f { grid-column: 5; }
+  .ch.ftgh > .r2 { grid-row: 2; } .ch.ftgh > .r3 { grid-row: 3; } .ch.ftgh > .r4 { grid-row: 4; }
+  .ch.ftgh > .d-nc { font-weight: 600; }
+  .ch.ftgh .ftl { display: inline-block; min-width: 3.1em; }   /* „ядене“ / „г/кг“ — числото след тях на една линия */
+  @media (max-width: 359px) { .ch.ftgh > .fl.r2 { grid-column: 1 / 6; grid-row: 3; } .ch.ftgh > .r3 { grid-row: 4; } .ch.ftgh > .r4 { grid-row: 5; } }   /* тясно — % на свой ред (като историята, Т105) */
   /* Т16: линкът е на заглавния ред, преди значката; обяснението се разгъва под реда на цялата ширина (плавно, Т12) */
   .lmrow { display: flex; justify-content: flex-end; margin: 0 0 8px; }   /* Т31: вдясно, над полето */
   .lmrow .lm { flex: none; margin: -6px 0; padding: 6px 0; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; }
@@ -1934,7 +1947,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function seenLine(key) {
     if (!COACH || !SEEN_ON || !FPALL[key]) return "";
     var s = SEEN_DB[key], ok = !!s && s.h === FPALL[key];
-    var txt = !s ? "невидяно" : ok ? (s.approx ? "видяно преди " + seenDM(s.at) : "видяно " + seenDM(s.at) + " · " + seenHM(s.at)) : "невидяно · промяна след " + seenDM(s.at) + " · " + seenHM(s.at);
+    // Т133 (Chris 14.11 14:27): днес / вчера с думата („видяно днес 14:13“, „видяно вчера 09:01“), по-рано — както досега („12.11 · 09:01“)
+    var dd = s ? dayDiff(sofiaDay(s.at), todayStr()) : 9, dw = dd === 0 ? "днес" : dd === 1 ? "вчера" : "";
+    var txt = !s ? "невидяно" : ok ? (s.approx ? "видяно преди " + (dw || seenDM(s.at)) : "видяно " + (dw ? dw + " " + seenHM(s.at) : seenDM(s.at) + " · " + seenHM(s.at))) : "невидяно · промяна след " + seenDM(s.at) + " · " + seenHM(s.at);
     return '<span class="seenst' + (ok ? " ok" : "") + '" data-seen="' + esc(key) + '">' + esc(txt) + "</span>";
   }
   // Т71 (Chris 10.11 14:19 „аз само мога да разглеждам и да чатя от мое име нищо друго“): треньорът (COACH) и изгледът като клиент
@@ -2278,7 +2293,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т28: последното тегло по слятата поредица на Мерки (ден с мерене в client_log има предимство пред реда от лога)
   function lastWeight() {
     var r = measRows().filter(function (m) { return hasVal(m.e.weight); })[0];
-    return r ? { w: r.e.weight, at: r.e.created_at } : null;
+    return r ? { w: r.e.weight, at: r.e.created_at, d: r.diff.weight } : null;   // Т135: d — разликата спрямо предишното тегло (както в „Мерки“)
   }
   // „Първи стъпки“: има ли тегло отнякъде (client_log или храна-лога)
   function anyWeight() {
@@ -2289,6 +2304,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function nowRows() {
     var rows = [], nU = unreadCount();
+    if (ftOn()) {   // Т132: постоянен ред най-горе (не „ново“ — без проблясване) → „Храна“, „Днес“ отворена
+      var fd = FT.day;
+      rows.push(["goal", "Твоите макроси · " + fmtInt(fd.kc) + " ккал · П " + Math.round(fd.p) + " · В " + Math.round(fd.c) + " · М " + Math.round(fd.f), "hrana:log"]);
+    }
     if (nU) rows.push(["message", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + (COACH ? " от " + clientShort() : ""), "razgovor"]);   // Т82: при клиента без „от Chris“
     var rx0 = rxNewList()[0];   // Т122: най-новата невидяна реакция на другия
     if (rx0) rows.push(["message", (COACH ? clientShort() : "Chris") + " реагира " + (COACH ? rx0.react_client : rx0.react_coach), "razgovor"]);
@@ -2302,7 +2321,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["plan_updated", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
     if (anaRowOn()) rows.push(["analysis", "Анализът на храненето ти е готов", "hrana:analysis"]);   // Т93б
     var w = lastWeight();   // Т104: редът за теглото е винаги, и в ден 1 (START) — държи блока „Ново за теб“ (ⓘ + камбанката); „Първи стъпки“ под него — без промяна
-    rows.push(w ? ["weight", "Последно тегло: " + num1(w.w) + " кг · " + fmtDate(sofiaDay(w.at)), "merki"] : ["weight", "Още няма записано тегло", "merki"]);
+    // Т135 (Chris 14.11 14:31): след „кг“ — разликата спрямо предишното тегло (същата поредица и число като в „Мерки“): −0,3 зелено, +0,2 червено;
+    //   равно или няма предишно → нищо
+    var wd = w && w.d ? (w.d < 0 ? "−" : "+") + num1(Math.abs(w.d)) : "";
+    rows.push(w ? ["weight", "Последно тегло: " + num1(w.w) + " кг" + (wd ? " " + wd : "") + " · " + fmtDate(sofiaDay(w.at)), "merki", null,
+      wd ? esc("Последно тегло: " + num1(w.w) + " кг") + ' <span class="md ' + (w.d < 0 ? "ddown" : "dup") + '">' + wd + "</span> · " + esc(fmtDate(sofiaDay(w.at))) : null] : ["weight", "Още няма записано тегло", "merki"]);
     return rows;
   }
   // Ден 1 (още няма карти): какво следва, с препратки към мястото на всяка стъпка.
@@ -2327,7 +2350,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function nowHtml(rows) {
     if (!rows.length) return "";
     var html = '<div class="now"><h3>Ново за теб' + infoBtn("now") + (pushAllowed() ? pushBellHtml() : PUSH_RO ? pushRoHtml() : "") + "</h3>";   // Т85: камбанката; Т93 огледало: ⓘ и при треньора, камбанката — за преглед
-    rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + (NOWK[r[0]] ? ' data-nk="' + esc(r[0] + "|" + r[1]) + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + esc(r[1]) + "</span></a>"; });
+    rows.forEach(function (r) { html += '<a data-go="' + esc(r[2]) + '"' + (r[3] ? ' id="' + r[3] + '"' : "") + (NOWK[r[0]] ? ' data-nk="' + esc(r[0] + "|" + r[1]) + '"' : "") + '><span class="i">' + ic(r[0]) + '</span><span class="x">' + (r[4] || esc(r[1])) + "</span></a>"; });   // Т135: r[4] — готов HTML (разликата в цвят)
     return html + "</div>";
   }
   // Т58: след запис във формата — само блокът „Ново за теб“ (картите в Начало не се прерисуват и не се затварят)
@@ -2905,15 +2928,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Вътре най-горе „Защо 21 дни?“ (Т60: отваря балон — INFO.log21 / log_done), после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
   // Миналите дни са в „История на храненето“ (отделната карта под нея).
   function logCardHtml(open) {
-    var n = logDays();
-    var chip = '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
+    var n = logDays(), ft = ftOn();   // Т132: целта — вместо брояча
+    var chip = ft ? ftHeadHtml() : '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
     var inner = '<div class="lmrow"><span id="dtBox">' + dtBtnHtml() + '</span><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'   // Т109: „График“ вляво
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво и колко хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво и колко хапна или пи"></textarea>'
       + '<div class="lwr"><input type="text" id="f_time" class="tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-label="Час" aria-haspopup="dialog" aria-expanded="false">'
       + '<button type="button" id="f_save" class="idle" disabled></button></div><div class="ok" id="f_msg"></div>' + "</div>"
       + '<div class="lrows" id="logToday"></div>';
-    return panelHtml("log", "log", "Днес", "", inner, open, chip);
+    var h = panelHtml("log", "log", "Днес", "", inner, open, chip);
+    return ft ? h.replace('<div class="ch">', '<div class="ch ftgh">') : h;
   }
   // режим с храни = поне една nutrition карта с елемент [data-meal] (там е „Изядох“). Т64: вече НЕ решава дали логът е отворен
   //   (винаги е отворен) — остава само за ⓘ „Изядох“ до заглавието „Режимът“.
@@ -2935,6 +2959,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function foodNavSub() { var n = foodPastDays().length; return n ? daysWord(n) : "още няма"; }
   function refreshLogView() {
     dtRender();   // Т109: нов ден → пак „График“
+    ftHeadSync();   // Т132: заглавието с целта (теглото / 21-вият ден)
     var n = logDays(), key = n >= LOG_TARGET ? "done" : "info", today = foodToday();   // Т128: днешният списък и сборът — денят на храната
     var cnt = document.getElementById("logCnt");
     if (cnt) { cnt.textContent = logCounter(n); cnt.classList.toggle("inf", n >= LOG_TARGET); }
@@ -5858,6 +5883,50 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       CALC = d; calcRefresh();
     });
   }
+  // Т132 (Chris 14.11 14:17–14:22): целта за храната видима в апа — get_food_target (клиентът и изгледът като клиент) /
+  //   coach_get_food_target (?c=): {day:{p,c,f,kc}, meal:{p,c,f,kc}, meals, snack} или null. Показва се при цел И (свой акаунт ИЛИ 21 дни лог);
+  //   иначе — както досега (броячът x / 21). Грешка (RPC-то го няма) → както досега. Данните само се четат.
+  var FT = null;
+  function ftNum(o) { return !!o && typeof o === "object" && ["p", "c", "f", "kc"].every(function (k) { return typeof o[k] === "number" && isFinite(o[k]) && o[k] >= 0; }); }
+  function ftOn() { return !!FT && FT.day.kc > 0 && (COACH_SELF || COACH_OWN || logDays() >= LOG_TARGET); }
+  function ftLoad() {
+    var q;
+    try { q = COACH ? sb.rpc("coach_get_food_target", { p_client_id: COACH_CID }) : sb.rpc("get_food_target", { p_token: token }); } catch (x) { return; }
+    safe(Promise.resolve(q)).then(function (r) {
+      var d = r && !r.error ? r.data : null;
+      if (!d || typeof d !== "object" || !ftNum(d.day)) return;
+      FT = { day: d.day, meal: ftNum(d.meal) ? d.meal : null };
+      ftHeadSync(); refreshNow();
+    });
+  }
+  // заглавието на „Днес“ в строежа на ред от историята (Т105): ккал горе вдясно; % долу вляво, грамовете долу вдясно; + „ядене“ и „г/кг“
+  function ftHeadHtml() {
+    var d = FT.day, m = FT.meal, w = lastWeight(), wk = w && Number(w.w) > 0 ? Number(w.w) : 0;
+    function pc(x, k) { return Math.round(x * k * 100 / d.kc); }
+    function g(r, o, f) { return '<span class="d-m d-p ' + r + '">П <b>' + f(o.p) + '</b></span><span class="d-m d-c ' + r + '">В <b>' + f(o.c) + '</b></span><span class="d-m d-f ' + r + '">М <b>' + f(o.f) + "</b></span>"; }
+    function n0(x) { return String(Math.round(x)); }
+    function n2(x) { return (x / wk).toFixed(2).replace(".", ","); }
+    var pct = [pc(d.p, 4), pc(d.c, 4), pc(d.f, 9)].map(function (x) { return (x < 10 ? " " : "") + x; });
+    return '<span class="d-kc">' + fmtInt(d.kc) + " ккал</span>"
+      + '<span class="d-nc d-pc fl r2"><span>П ' + pct[0] + " %</span> · <span>В " + pct[1] + " %</span> · <span>М " + pct[2] + " %</span></span>" + g("r2", d, n0)
+      + (m ? '<span class="d-nc fl r3"><span class="ftl">ядене</span> ' + fmtInt(m.kc) + " ккал</span>" + g("r3", m, n0) : "")
+      + (wk ? '<span class="d-nc fl r4"><span class="ftl">г/кг</span> ' + (d.kc / wk).toFixed(1).replace(".", ",") + " ккал</span>" + g("r4", d, n2) : "");
+  }
+  function logChInner() {   // = съдържанието на .ch от panelHtml("log", "log", "Днес", "", …, chip)
+    var n = logDays();
+    var chip = ftOn() ? ftHeadHtml() : '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
+    return '<span class="ico">' + ic("log") + '</span><span class="ttl">Днес</span>' + chip;
+  }
+  function ftHeadSync() {   // на място: целта дойде / теглото се смени / 21-вият ден
+    var ch = P.hrana && P.hrana.querySelector('.card.panel[data-key="log"] > .ch');
+    if (!ch) return;
+    var on = ftOn(), w = lastWeight(), sig = on ? JSON.stringify(FT) + "|" + (w ? w.w : "") : "off|" + logDays();
+    if (ch.__ft === sig) return;
+    var was = ch.__ft; ch.__ft = sig;
+    if (was === undefined && !on) return;   // първото рисуване без цел — logCardHtml вече го направи
+    ch.classList.toggle("ftgh", on);
+    ch.innerHTML = logChInner();
+  }
   function calcRefresh() {   // „Общо днес“ и историята — на място; отворените месеци и дни остават отворени
     if (!P.hrana) return;
     refreshLogView();
@@ -6526,6 +6595,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     appRoInit(); appReport(false);   // Т96
     kitLoad();   // Т94
     calcLoad();   // Т105
+    ftLoad();   // Т132
     dtLoad();   // Т107
     if (COACH) swMessages();   // Т88: известията на треньора (coach/sw.js)
     updateBadge(); updateDots();
