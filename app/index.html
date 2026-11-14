@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.24.3">
+<meta name="version" content="v1.25.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -908,6 +908,37 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .msm .mu { flex-basis: 44px; font-size: 13px; }
   .mgrid .ioff { margin: 0; padding: 8px 10px; border: 1px dashed #d9b46a; border-radius: 9px; background: #fbf0dc; color: var(--warn); font-size: 13px; font-weight: 700; }
   .mgrid .ioff[hidden] { display: none; }
+  /* Т127: „Още мерки“ и „От часовника“ — един ред (втората отсреща, вдясно); всяка отваря свой блок под реда; по един отворен (.acc) */
+  .mmrow { position: relative; margin: 2px 0 0; border-top: 1px solid var(--border); padding-top: 4px; }
+  .mmrow > .mmore { margin: 0; border-top: 0; padding-top: 0; }
+  .mmrow > .mwatch > summary { position: absolute; top: 4px; right: 0; }
+  .mwh { margin: 4px 0 -2px; color: var(--muted); font-size: 12.5px; font-weight: 700; }
+  .mwn { display: block; margin: -3px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.35; }
+  /* Т127: отвореният ден в историята — блоковете; всеки ред е мрежа: етикет · стойност (дясно) · мерна единица · разлика (дясно) */
+  .mrow.mday { display: block; position: relative; }   /* блоковете — цялата ширина; часът — горе вдясно, на реда на първото заглавие */
+  .mrow.mday > .tm { position: absolute; top: 5px; right: 0; }
+  .mrow.mday .mblk:first-child .mbh { padding-right: 48px; }
+  .mblk + .mblk, .mblks .mcx + .mblk { margin-top: 6px; }
+  .mbh { margin: 0 0 1px; color: var(--muted); font-size: 11.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; }
+  .mblk .mv { display: grid; grid-template-columns: minmax(0, 1fr) 6.8ch 3.2em 4.4em; align-items: baseline; column-gap: 5px; white-space: normal; padding: 1px 0; }
+  .mblk .mv > .ml { grid-column: 1; }
+  .mblk .mv > b { grid-column: 2; text-align: right; white-space: nowrap; }
+  .mblk .mv > .mvu { grid-column: 3; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .mblk .mv > .md { grid-column: 4; margin: 0; text-align: right; white-space: nowrap; }
+  .mblk b.v0::after, .mblk .md.v0::after { content: ",0"; visibility: hidden; }   /* целите — запетая под запетая */
+  .mblk .mcalc > .ml { font-style: italic; }   /* сметнато от теглото */
+  .md.dup.gup, .d-diff.dup.gup { color: var(--down); }   /* Т127б: тук ↑ е добро — зелено */
+  .md.ddown.gup, .d-diff.ddown.gup { color: var(--up); }   /* ↓ — червено */
+  .mblks .mcx { padding-left: 0; margin-top: 2px; }
+  /* Т127: сравнението — над историята (числата — Т30: цяла част дясно, запетая под запетая) */
+  .mcmp { padding: 12px 14px 10px; }
+  .mcmp .mth { margin-bottom: 4px; }
+  .mct { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+  .mct th { padding: 2px 0 4px 6px; color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; white-space: nowrap; }
+  .mct td { padding: 3px 0 3px 6px; text-align: right; vertical-align: baseline; white-space: nowrap; }
+  .mct td:first-child, .mct th:first-child { width: 36%; padding-left: 0; text-align: left; white-space: normal; }
+  .mct .mvu { color: var(--muted); font-size: 12.5px; }
+  .mct .mcs { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.25; }
   input:disabled { background: #f3f5f7; }
   .msep { color: var(--muted); }
   .mok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
@@ -3023,7 +3054,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var BP_LIM = { sys: [70, 250], dia: [40, 150], pulse: [30, 220] };
   function hasBp(e) { return e.bp_sys != null && e.bp_sys !== "" && e.bp_dia != null && e.bp_dia !== ""; }
   function hasPulse(e) { return e.pulse != null && e.pulse !== ""; }
-  function hasMeas(e) { return hasBp(e) || hasPulse(e) || MEAS_ALL.some(function (f) { return e[f[0]] != null && e[f[0]] !== ""; }); }
+  function hasMeas(e) { return hasBp(e) || hasPulse(e) || MEAS_ALL.some(function (f) { return e[f[0]] != null && e[f[0]] !== ""; }) || hasWatch(e); }   // Т127: и ред само от часовника
+  // Т127 (Chris 14.11 12:19–12:28): „От часовника“ — ръчно вписване от часовник/тракер; 10 полета, всички по желание.
+  //   [ключ, етикет, мерна единица, късият етикет (празно = етикетът), знаци след запетаята, [от, до] — границите на базата (t127_watch_meas.sql)]
+  var WATCH_BODY = [["fat_pct", "Мазнини", "%", "", 1, [2, 70]], ["smm", "Скелетен мускул", "кг", "", 1, [10, 80]], ["water", "Вода", "кг", "", 1, [15, 90]], ["bmr", "BMR", "ккал", "", 0, [800, 4000]]];
+  var WATCH_SLEEP = [["sleep_h", "Сън", "ч", "", 1, [0, 16]], ["sleep_score", "Оценка на съня", "от 100", "", 0, [0, 100]], ["rhr", "Пулс в покой", "уд/мин", "", 0, [25, 150]],
+    ["hrv", "HRV", "ms", "", 0, [5, 300]], ["stress", "Стрес", "от 100", "", 0, [0, 100]], ["steps", "Стъпки (вчера)", "", "Стъпки", 0, [0, 150000]]];
+  var WATCH_ALL = WATCH_BODY.concat(WATCH_SLEEP);
+  var WATCH_ON = null;   // като BP_ON: null = още не е ясно; false = базата още не приема полетата („ще се включат след обновяване“)
+  var WATCH_MARK = '<span class="mfrom">часовник</span>';   // затвореният ден в историята — като „от лога“
+  function hasWatch(e) { return WATCH_ALL.some(function (f) { return e[f[0]] != null && e[f[0]] !== ""; }); }
+  function fmtInt(n) { return String(Math.round(Math.abs(Number(n)))).replace(/\B(?=(\d{3})+(?!\d))/g, " "); }   // 1918 → „1 918“
+  function wVal(f, v) { return f[4] ? num1(v) : fmtInt(v); }
+  function diffTxtN(d, dec) { if (d == null) return ""; if (dec) return diffTxt(d); return d === 0 ? " = 0" : " " + (d < 0 ? "↓" : "↑") + fmtInt(Math.abs(d)); }
+  // вписаното → { v: число | null } или { err }: сънят приема и „6:24“ (→ 6,4); целите — без запетая; интервалите („9 503“) се махат
+  function wParse(f, raw) {
+    var s = String(raw == null ? "" : raw).replace(/[\s ]/g, ""), n = NaN, m;
+    if (s === "") return { v: null };
+    if (f[0] === "sleep_h" && (m = /^(\d{1,2}):([0-5]?\d)$/.exec(s))) n = +m[1] + (+m[2]) / 60;
+    else if (f[4] ? /^\d+([.,]\d+)?$/.test(s) : /^\d+$/.test(s)) n = parseFloat(s.replace(",", "."));
+    if (isFinite(n) && f[4]) n = Math.round(n * 10) / 10;
+    if (!isFinite(n) || n < f[5][0] || n > f[5][1]) return { err: f[1] + ": " + (f[0] === "sleep_h" ? "0–16 ч, напр. 6,4 или 6:24." : (f[4] ? "" : "цяло число ") + fmtInt(f[5][0]) + "–" + fmtInt(f[5][1]) + (f[2] ? " " + f[2] : "") + ".") };
+    return { v: n };
+  }
   // Т28: теглата/талиите от храна-лога (food_log, старата форма) — само за дни БЕЗ мерене в client_log; в един ден — последното
   function hasVal(v) { return v != null && v !== ""; }
   function foodMeas(clDays) {
@@ -3041,13 +3094,23 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var cl = D.log.filter(function (e) { return e.kind !== "coach" && hasMeas(e); }), clDays = {};
     cl.forEach(function (e) { clDays[e.entry_date || sofiaDay(e.created_at)] = 1; });
     var rows = cl.concat(foodMeas(clDays)).sort(function (a, b) { return tsNum(b.created_at) - tsNum(a.created_at); });
+    // Т127: мазнини кг = тегло × % и чиста маса = тегло − мазнини кг — само ако в деня има тегло (от реда; иначе последното тегло на деня)
+    var dayW = {};
+    rows.forEach(function (e) { var d = e.entry_date || sofiaDay(e.created_at); if (hasVal(e.weight) && dayW[d] == null) dayW[d] = Number(e.weight); });
+    var calc = rows.map(function (e) {
+      var w = hasVal(e.weight) ? Number(e.weight) : dayW[e.entry_date || sofiaDay(e.created_at)];
+      if (w == null || !hasVal(e.fat_pct)) return null;
+      var fk = Math.round(w * Number(e.fat_pct) / 10) / 10;
+      return { fat_kg: fk, lean: Math.round((w - fk) * 10) / 10 };
+    });
     return rows.map(function (e, i) {
       var diff = {};
-      MEAS_ALL.forEach(function (f) {
+      MEAS_ALL.concat(WATCH_ALL).forEach(function (f) {
         var k = f[0]; if (e[k] == null || e[k] === "") return;
         for (var j = i + 1; j < rows.length; j++) if (rows[j][k] != null && rows[j][k] !== "") { diff[k] = Math.round((Number(e[k]) - Number(rows[j][k])) * 10) / 10; break; }
       });
-      return { e: e, day: e.entry_date || sofiaDay(e.created_at), diff: diff, food: !!e._food };
+      if (calc[i]) ["fat_kg", "lean"].forEach(function (k) { for (var j = i + 1; j < rows.length; j++) if (calc[j]) { diff[k] = Math.round((calc[i][k] - calc[j][k]) * 10) / 10; break; } });
+      return { e: e, day: e.entry_date || sofiaDay(e.created_at), diff: diff, food: !!e._food, calc: calc[i] };
     });
   }
   var FROM_LOG = '<span class="mfrom">от лога</span>';
@@ -3061,7 +3124,62 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     if (hasBp(m.e)) parts.push('<span class="mv mbpv"><span class="ml">Кръвно</span> <b>' + esc(m.e.bp_sys) + "/" + esc(m.e.bp_dia) + "</b></span>");
     if (hasPulse(m.e)) parts.push('<span class="mv mbpv"><span class="ml">пулс</span> <b>' + esc(m.e.pulse) + "</b></span>");
+    WATCH_ALL.forEach(function (f) { if (hasVal(m.e[f[0]])) parts.push(mvHtml(mShort(f), wVal(f, m.e[f[0]]), f[2], m.diff[f[0]], f[4], "", f[0])); });   // Т127: „Днес“ — и от часовника
     return parts.join('<span class="msep"> · </span>');
+  }
+  // Т127: една стойност — разметката от measLine (.mv / .ml / b / .md); мерната единица — в свой span (колона в историята); цяло число → b.v0
+  // Т127б (CDB-GYM 12:58): цветът на стрелката — по посоката, която е добра за полето. Тук ↑ е добро (зелено), ↓ — червено (.gup);
+  //   другите (тегло, обиколките, мазнини % и кг, пулс в покой, стрес) — както досега: ↑ червено, ↓ зелено. Кръвното и пулсът — без оценка.
+  var GOOD_UP = { smm: 1, lean: 1, water: 1, bmr: 1, sleep_h: 1, sleep_score: 1, hrv: 1, steps: 1 };
+  function mvHtml(lbl, val, unit, d, dec, cls, k) {
+    return '<span class="mv' + (cls ? " " + cls : "") + '"><span class="ml">' + esc(lbl) + "</span> <b" + (dec ? "" : ' class="v0"') + ">" + esc(val) + "</b>"
+      + (unit ? ' <span class="mvu">' + esc(unit) + "</span>" : "")
+      + (d != null ? '<span class="md' + (d < 0 ? " ddown" : d > 0 ? " dup" : "") + (dec ? "" : " v0") + (GOOD_UP[k] ? " gup" : "") + '">' + esc(diffTxtN(d, dec)) + "</span>" : "") + "</span>";
+  }
+  // Т127: отвореният ден в историята — три блока, винаги в този ред; празен блок не се показва. Числата — в колони (етикет · стойност
+  //   дясно · мерна единица · разлика), цифра под цифра, запетая под запетая (целите — с невидимо „,0“ отдясно, .mblk b.v0::after).
+  function measBlocks(m) {
+    var e = m.e, c = m.calc;
+    function blk(t, rows) { return rows.length ? '<div class="mblk"><div class="mbh">' + esc(t) + "</div>" + rows.join("") + "</div>" : ""; }
+    function wf(k) { var f = WATCH_ALL.filter(function (x) { return x[0] === k; })[0]; return hasVal(e[k]) ? [mvHtml(mShort(f), wVal(f, e[k]), f[2], m.diff[k], f[4], "", k)] : []; }
+    var met = MEAS_ALL.filter(function (f) { return hasVal(e[f[0]]); }).map(function (f) { return mvHtml(mShort(f), num1(e[f[0]]), f[2], m.diff[f[0]], 1); });
+    if (hasBp(e)) met.push(mvHtml("Кръвно", e.bp_sys + "/" + e.bp_dia, "", null, 0, "mbpv"));
+    if (hasPulse(e)) met.push(mvHtml("пулс", String(e.pulse), "", null, 0, "mbpv"));
+    var bc = wf("fat_pct").concat(c ? [mvHtml("Мазнини", num1(c.fat_kg), "кг", m.diff.fat_kg, 1, "mcalc")] : [], wf("smm"),
+      c ? [mvHtml("Чиста маса", num1(c.lean), "кг", m.diff.lean, 1, "mcalc", "lean")] : [], wf("water"), wf("bmr"));
+    var sl = [].concat.apply([], WATCH_SLEEP.map(function (f) { return wf(f[0]); }));
+    return blk("Метър", met) + mcxHtml(m) + blk("Часовник · телесен състав (гладно)", bc) + blk("Часовник · сън и възстановяване", sl);
+  }
+  // Т127: сравнението — над историята: база (първият запис на полето) · преди 7 дни · сега. Телесният състав — мерене срещу мерене
+  //   (последното до днес−7 / последното изобщо); сънят и пулсът в покой — средно за 7 дни (сега: днес−6…днес; преди 7 дни: днес−13…днес−7;
+  //   по едно на ден — последното). Ред без данни не се показва; таблицата — само от 2 записа нагоре. Числата подравнява Т30 (alignCols).
+  var CMP_ROWS = [["weight", "Тегло", "кг"], ["waist", "Талия", "см"], ["fat_pct", "Мазнини", "%"], ["smm", "Скелетен мускул", "кг"], ["sleep_h", "Сън", "ч", 1], ["rhr", "Пулс в покой", "уд/мин", 1]];
+  function measCmp() {
+    var rows = measRows(), t = todayStr();
+    if (rows.length < 2) return [];
+    return CMP_ROWS.map(function (r) {
+      var k = r[0], s = rows.filter(function (m) { return hasVal(m.e[k]); });   // най-новото първо
+      if (!s.length) return null;
+      function avg(a, b) {
+        var seen = {}, sum = 0, n = 0;
+        s.forEach(function (m) { var dd = dayDiff(m.day, t); if (dd < a || dd > b || seen[m.day]) return; seen[m.day] = 1; sum += Number(m.e[k]); n++; });
+        return n ? Math.round(sum / n * 10) / 10 : null;
+      }
+      var p7 = s.filter(function (m) { return dayDiff(m.day, t) >= 7; })[0];
+      return { k: k, lbl: r[1], unit: r[2], avg: !!r[3], base: Number(s[s.length - 1].e[k]),
+        prev: r[3] ? avg(7, 13) : (p7 ? Number(p7.e[k]) : null), now: r[3] ? avg(0, 6) : Number(s[0].e[k]) };
+    }).filter(function (x) { return x && (x.base != null || x.prev != null || x.now != null); });
+  }
+  function measCmpHtml() {
+    var R = measCmp();
+    if (!R.length) return "";
+    function cell(v, int) { return '<td class="mcn">' + (v == null ? "—" : int && v === Math.round(v) ? fmtInt(v) : num1(v)) + "</td>"; }
+    return '<div class="mcard mcmp" data-key="meas_cmp"><div class="mth">Сравнение</div><table class="mct"><tr><th></th><th>база</th><th>преди 7 дни</th><th>сега</th></tr>'
+      + R.map(function (x) {
+        var int = x.k === "rhr";
+        return "<tr><td>" + esc(x.lbl) + ' <span class="mvu">' + esc(x.unit) + "</span>" + (x.avg ? ' <span class="mcs">средно 7 дни</span>' : "") + "</td>"
+          + cell(x.base, int) + cell(x.prev, int) + cell(x.now, int) + "</tr>";
+      }).join("") + "</table></div>";
   }
   function measPast() { var t = todayStr(); return measRows().filter(function (m) { return m.day !== t; }); }
   function measDays(list) { var d = {}; list.forEach(function (m) { d[m.day] = 1; }); return Object.keys(d).length; }
@@ -3071,7 +3189,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Един ред наведнъж: другите ✎/🗑 се крият (като Т70). Треньорът и изгледът като клиент — бутоните изключени (Т91б); миналите дни — без.
   //   Базата пази същите правила (update_meas_entry — пълна подмяна на 11-те полета; delete_meas_entry).
   var MFIX = null;   // { id, edit, ask, v: {поле: текстът в полето}, busy, err } — мерението, което се поправя / трие в момента (едно)
-  var MF_ALL = MEAS_ALL.map(function (f) { return f[0]; }).concat(["bp_sys", "bp_dia", "pulse"]);
+  var MF_OLD = MEAS_ALL.map(function (f) { return f[0]; }).concat(["bp_sys", "bp_dia", "pulse"]);   // 11-те: пращат се винаги (и null)
+  var MF_ALL = MF_OLD.concat(WATCH_ALL.map(function (f) { return f[0]; }));   // Т127: + 10-те от часовника (пращат се само със стойност — стара база)
   function mfNum(v) { return hasVal(v) ? Number(v) : null; }
   function measShown(m) {   // правилото без CAN_WRITE (Т91б: в изгледите на треньора — видими, изключени)
     var e = m.e;
@@ -3092,6 +3211,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (hasBp(e)) parts.push('<span class="mfe"><span class="ml">Кръвно</span><span class="mfin">' + mfInput("bp_sys", "Кръвно — горно", true, "горно") + '<span class="msl">/</span>' + mfInput("bp_dia", "Кръвно — долно", true, "долно") + "</span></span>");
     if (hasPulse(e)) parts.push('<span class="mfe"><span class="ml">пулс</span><span class="mfin">' + mfInput("pulse", "Пулс", true) + "</span></span>");
     if (hasBp(e) || hasPulse(e)) parts.push(hint("bp"));
+    WATCH_ALL.filter(function (f) { return hasVal(e[f[0]]); }).forEach(function (f) {   // Т127: и от часовника (до 3 цифри — тясното поле)
+      parts.push('<span class="mfe"><span class="ml">' + esc(mShort(f)) + '</span><span class="mfin">' + mfInput(f[0], f[1], !f[4] && f[5][1] <= 300) + (f[2] ? " " + esc(f[2]) : "") + "</span></span>");
+    });
     return parts.join("");
   }
   // ── Т117: ръстът — от формата с данни (visochina; под 3 → метри → × 100); при треньора — талия/ръст и мазнини по обиколки
@@ -3163,18 +3285,30 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var dt = todayStr();
     // кръвното е включено, ако базата вече го връща (редовете имат bp_sys); при празен дневник — пробва и се изключва при отказ
     if (BP_ON === null) BP_ON = !D.log.length || D.log.some(function (e) { return "bp_sys" in e; });
+    if (WATCH_ON === null) WATCH_ON = !D.log.length || D.log.some(function (e) { return "fat_pct" in e; });   // Т127: същото правило
+    function wfield(f) {   // Т127: сънят — без inputmode (и „6:24“); целите — numeric
+      return '<div class="mfw"><label class="msm" for="lg_' + f[0] + '"><span class="mn">' + esc(f[1]) + '</span><input type="text"' + (f[0] === "sleep_h" ? "" : ' inputmode="' + (f[4] ? "decimal" : "numeric") + '"')
+        + ' id="lg_' + f[0] + '" autocomplete="off"' + (WATCH_ON ? "" : " disabled") + '><span class="mu">' + esc(f[2]) + "</span></label></div>";
+    }
+    var watch = '<details class="mmore mwatch" id="mWatch"><summary>От часовника</summary><div class="mgrid">'   // Т127: отсреща на реда на „Още мерки“; свой блок под реда
+      + '<p class="ioff" id="wOff"' + (WATCH_ON ? " hidden" : "") + ">Полетата от часовника ще се включат след обновяване.</p>"
+      + '<div class="mwh">Телесен състав · сутрин на гладно, след тоалетна</div>' + WATCH_BODY.map(wfield).join("")
+      + '<span class="mwn">Мазнините в кг и чистата маса ги смята апът от теглото.</span>'
+      + '<div class="mwh">Сън и възстановяване · за изминалата нощ и вчера</div>' + WATCH_SLEEP.map(wfield).join("") + "</div></details>";
     P.merki.innerHTML = '<div class="mcard" data-key="meas">'
       + '<div class="mhead"><b>Ново мерене' + infoBtn("merki") + '</b><span id="mDate">Днес, ' + esc(fmtDate(dt).slice(0, 5)) + "</span></div>"
       + rstHtml()   // Т117
       + MEAS_MAIN.map(big).join("")
+      + '<div class="mmrow acc">'   // Т127: двата надписа на един ред; по един отворен блок (.acc)
       + '<details class="mmore" id="mMore"><summary>Още мерки</summary><div class="mgrid">'
       + '<p class="ioff" id="bpOff"' + (BP_ON ? " hidden" : "") + ">Кръвното и пулсът ще се включат след обновяване.</p>"
       + '<div class="mbp"><span class="mn">Кръвно</span><input type="text" inputmode="numeric" id="lg_bp_sys" aria-label="Кръвно — горно" aria-describedby="mh_bp" placeholder="горно" autocomplete="off"' + (BP_ON ? "" : " disabled") + '>'
       + '<span class="msl">/</span><input type="text" inputmode="numeric" id="lg_bp_dia" aria-label="Кръвно — долно" aria-describedby="mh_bp" placeholder="долно" autocomplete="off"' + (BP_ON ? "" : " disabled") + '><span class="mu">mmHg</span></div>'
       + '<div class="mfw"><label class="msm" for="lg_pulse"><span class="mn">Пулс</span><input type="text" inputmode="numeric" id="lg_pulse" aria-describedby="mh_bp" autocomplete="off"' + (BP_ON ? "" : " disabled") + '><span class="mu">уд/мин</span></label>' + hint("bp") + "</div>"   // Т117: за кръвното и пулса — един надпис
-      + MEAS_MORE.map(small).join("") + "</div></details>"
+      + MEAS_MORE.map(small).join("") + "</div></details>" + watch + "</div>"
       + '<button type="button" class="btn" id="lgBtn"' + (CAN_WRITE ? "" : " disabled") + '>Запиши</button><div class="ok mok" id="lgOk"></div>'
       + '<div id="mToday">' + measTodayHtml() + "</div></div>"
+      + '<div id="mCmp">' + measCmpHtml() + "</div>"   // Т127
       + measHistHtml();
     wireMeas();
   }
@@ -3187,6 +3321,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       else if (fk) { var fi = t.querySelector('input.mfi[data-k="' + fk[0] + '"]'); if (fi) { fi.focus(); try { fi.setSelectionRange(fk[1], fk[2]); } catch (x) {} } }
     }
     var nr = document.querySelector('#p-merki [data-key="h_meas"] > .ch .sub'); if (nr) nr.textContent = measNavSub();
+    var cm = document.getElementById("mCmp"); if (cm) { cm.innerHTML = measCmpHtml(); alignAll(cm); }   // Т127: „сега“ — и днешното
   }
 
   // ════════ ДАННИ ════════
@@ -5338,10 +5473,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         rec.pulse = pN;
       }
     }
+    var werr = "";   // Т127: от часовника — границите на базата; сънят и „6:24“
+    WATCH_ALL.forEach(function (f) { if (werr || !(f[0] in v)) return; var r = wParse(f, v[f[0]]); if (r.err) werr = r.err; else rec[f[0]] = r.v; });
+    if (werr) return say(werr);
     if (MF_ALL.every(function (k) { return rec[k] == null; })) return;   // всичко празно → ✓ е изключен (за това е 🗑)
     if (MF_ALL.every(function (k) { return rec[k] === mfNum(e[k]); })) { MFIX = null; refreshMerki(); return; }   // без промяна → нищо не се пише
     var id = MFIX.id, args = { p_token: token, p_id: id };
-    MF_ALL.forEach(function (k) { args["p_" + k] = rec[k]; });   // пълна подмяна: и 11-те (липсващите = null)
+    MF_OLD.forEach(function (k) { args["p_" + k] = rec[k]; });   // пълна подмяна: и 11-те (липсващите = null)
+    WATCH_ALL.forEach(function (f) { if (rec[f[0]] != null) args["p_" + f[0]] = rec[f[0]]; });   // Т127: липсващото = null по подразбиране в базата
     MFIX.busy = true; MFIX.err = ""; refreshMerki();
     wr("update_meas_entry", args).then(function (res) {
       if (res.error || res.data !== true) throw (res.error || new Error("fail"));
@@ -5412,6 +5551,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function clearLg() {
       MEAS_ALL.forEach(function (f) { document.getElementById("lg_" + f[0]).value = ""; });
       ["lg_bp_sys", "lg_bp_dia", "lg_pulse"].forEach(function (id) { document.getElementById(id).value = ""; });
+      WATCH_ALL.forEach(function (f) { document.getElementById("lg_" + f[0]).value = ""; });   // Т127
+    }
+    function watchOff() {   // Т127: базата още не приема полетата от часовника (стар кеш) → изключени; другите продължават
+      WATCH_ON = false;
+      WATCH_ALL.forEach(function (f) { var el = document.getElementById("lg_" + f[0]); el.value = ""; el.disabled = true; });
+      document.getElementById("wOff").hidden = false;
     }
     function bpOff() {   // RPC-то още не приема полетата → изключи кръвното и пулса, теглото и обиколките продължават
       BP_ON = false;
@@ -5445,14 +5590,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
           pulse = pN;
         }
       }
-      if (!any && !bp && pulse == null) { say("Попълни поне едно поле.", true); return; }
+      var wv = {}, anyW = false, werr = "";   // Т127: от часовника
+      if (WATCH_ON) WATCH_ALL.forEach(function (f) { if (werr) return; var r = wParse(f, document.getElementById("lg_" + f[0]).value); if (r.err) werr = r.err; else if (r.v != null) { wv[f[0]] = r.v; anyW = true; } });
+      if (werr) { say(werr, true); return; }
+      if (!any && !bp && pulse == null && !anyW) { say("Попълни поне едно поле.", true); return; }
       var nv = { bp_sys: bp ? bp[0] : null, bp_dia: bp ? bp[1] : null, pulse: pulse };
       MEAS_ALL.forEach(function (f) { nv[f[0]] = rec[f[0]]; });
+      WATCH_ALL.forEach(function (f) { nv[f[0]] = f[0] in wv ? wv[f[0]] : null; });
       if (measDup(nv)) { say("Вече е записано ✓"); clearLg(); return; }   // Т91
       var args = { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf };
-      var withBp = !!bp || pulse != null;
+      var withBp = !!bp || pulse != null, noteW = "";
       if (bp) { args.p_bp_sys = bp[0]; args.p_bp_dia = bp[1]; }
       if (pulse != null) args.p_pulse = pulse;
+      Object.keys(wv).forEach(function (k) { args["p_" + k] = wv[k]; });   // Т127: само със стойност
       btn.disabled = true; btn.textContent = "Записване…";
       function done(note) {
         say("Записано ✓" + (note || ""));
@@ -5461,18 +5611,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         return refreshDiary();
       }
       function fail(t) { btn.disabled = !CAN_WRITE; btn.textContent = "Запиши"; say(t || "Неуспешно. Опитай пак.", true); }
-      wr("add_log_entry", args).then(function (res) {
+      function bpStep(res) {
         if (res.error && withBp && (res.error.code === "PGRST202" || /could not find the function|bp_sys|p_pulse/i.test(String(res.error.message || "")))) {
           bpOff();
-          if (!any) { fail("Кръвното и пулсът ще се включат след обновяване."); return; }
+          if (!any) { fail(noteW ? "Кръвното, пулсът и полетата от часовника ще се включат след обновяване." : "Кръвното и пулсът ще се включат след обновяване."); return; }
           delete args.p_bp_sys; delete args.p_bp_dia; delete args.p_pulse;
           return wr("add_log_entry", args).then(function (r2) {
             if (r2.error || r2.data === false) throw (r2.error || new Error("fail"));
-            return done(" — кръвното и пулсът ще се включат след обновяване.");
+            return done(noteW ? " — кръвното, пулсът и полетата от часовника ще се включат след обновяване." : " — кръвното и пулсът ще се включат след обновяване.");
           });
         }
         if (res.error || res.data === false) throw (res.error || new Error("fail"));
-        return done();
+        return done(noteW);
+      }
+      wr("add_log_entry", args).then(function (res) {
+        // Т127: базата още не знае полетата от часовника (стар кеш) → изключи ги и прати останалото (после — правилото за кръвното)
+        if (res.error && anyW && (res.error.code === "PGRST202" || /could not find the function|fat_pct|p_smm|p_water|p_bmr|p_sleep|p_rhr|p_hrv|p_stress|p_steps/i.test(String(res.error.message || "")))) {
+          watchOff();
+          Object.keys(wv).forEach(function (k) { delete args["p_" + k]; });
+          if (!any && !withBp) { fail("Полетата от часовника ще се включат след обновяване."); return; }
+          noteW = " — полетата от часовника ще се включат след обновяване.";
+          return wr("add_log_entry", args).then(bpStep);
+        }
+        return bpStep(res);
       }).catch(function () { fail(); });
     });
   }
@@ -5770,9 +5931,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         if (hasVal(m.e.weight)) { val = num1(m.e.weight) + " кг"; dif = m.diff.weight; }
         else if (hasVal(m.e.waist)) { lab = "талия"; val = num1(m.e.waist) + " см"; dif = m.diff.waist; }
         else if (hasBp(m.e)) { lab = "кръвно"; val = esc(m.e.bp_sys) + "/" + esc(m.e.bp_dia); }
-        if (dif != null) dk = dif < 0 ? " ddown" : dif > 0 ? " dup" : "";
-        var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + diff1(dif) + '</span><span class="d-src">' + (m.food ? FROM_LOG : "") + "</span>";
-        return qday(m.day, "qd-meas", cells, '<div class="mrow"><span class="tm">' + esc(nowHMof(m.e.created_at)) + "</span>" + measLine(m) + (m.food ? FROM_LOG : "") + mcxHtml(m) + "</div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
+        var wf = !val && WATCH_ALL.filter(function (f) { return hasVal(m.e[f[0]]); })[0], dtx;   // Т127: ред само от часовника — първото му поле
+        if (wf) { lab = esc(mShort(wf).toLowerCase()); val = esc(wVal(wf, m.e[wf[0]])) + (wf[2] ? " " + esc(wf[2]) : ""); dif = m.diff[wf[0]]; }
+        if (dif != null) dk = (dif < 0 ? " ddown" : dif > 0 ? " dup" : "") + (wf && GOOD_UP[wf[0]] ? " gup" : "");   // Т127б
+        dtx =wf && !wf[4] ? diffTxtN(dif, 0).trim() : diff1(dif);
+        var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + dtx + '</span><span class="d-src">' + (m.food ? FROM_LOG : hasWatch(m.e) ? WATCH_MARK : "") + "</span>";
+        return qday(m.day, "qd-meas", cells, '<div class="mrow mday"><span class="tm">' + esc(nowHMof(m.e.created_at)) + '</span><div class="mblks">' + measBlocks(m) + (m.food ? FROM_LOG : "") + "</div></div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
       });
     return multiAcc(histCard("h_meas", "history", "История на мерките", measNavSub(), inner));   // Т112
   }
