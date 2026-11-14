@@ -463,8 +463,10 @@
     rows = rows.filter(function (r) { return isPseudo(r) === tests; });   // Т54: или истинските, или тестовите
     var nAct = rows.filter(isActive).length;   // в текущия изглед
     actBtn.textContent = "Активни" + (nAct ? " (" + nAct + ")" : "");   // Т76
+    // Т131 (Chris 13:58 „21 да си остава … логиката е да не се сменя“): броят е винаги всички в изгледа (истинските; в „Тестови“ — тестовите),
+    //   и при „Активни“ — колко са активните, казва самият бутон „Активни (N)“
+    var n = rows.length, c = $("cnt");
     if (act) rows = rows.filter(isActive);
-    var n = rows.length, c = $("cnt");   // Т76б: колко се виждат сега (при „Активни“ — активните; в „Тестови“ — тестовите)
     c.textContent = String(n);
     c.classList.toggle("on", !act); c.setAttribute("aria-pressed", act ? "false" : "true");   // Т78: „всички“ е избран, когато „Активни“ не е
     c.setAttribute("aria-label", "Всички — " + n + (tests ? (n === 1 ? " тестов" : " тестови") : (n === 1 ? " клиент" : " клиента")));
