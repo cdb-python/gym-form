@@ -182,7 +182,7 @@
   var LOG_TARGET = 21;                       // същият праг като в tools/app (модел Victus)
   var PSEUDO_KEY = "coach_show_pseudo";      // Т53/Т54: изгледът „Тестови“ включен на това устройство
   var ACTIVE_KEY = "coach_only_active";      // Т76: „Активни“ включен на това устройство
-  var ACTIVE_DAYS = 7;                       // Т76: активност до седмица назад (днес и 7-те дни преди него)
+  var ACTIVE_DAYS = 1;                       // Т76 → Т136: днес и вчера (беше: до седмица назад)
 
   var $ = function (id) { return document.getElementById(id); };
   var loading = $("loading"), login = $("login"), list = $("list"), rowsEl = $("rows"), outBtn = $("outBtn"), psBtn = $("psBtn"), actBtn = $("actBtn");
@@ -370,7 +370,8 @@
   var SHD = {};   // Т129: редовете, чиято вълна вече мина три пъти в този показ
   function shimRow(r) { var at = openedAt(r.client_id); return at ? (Date.parse(r.last_activity || "") || 0) > at : isNew(r); }
   // Т76: активен = last_activity днес или до 7 дни назад (по деня в София)
-  function isActive(r) { return !!r.last_activity && dayDiff(sofiaDay(r.last_activity), todayStr()) <= ACTIVE_DAYS; }
+  // Т136 (Chris 14.11 14:34): „Активни“ — писали ИЛИ чели днес или вчера (по-късното от last_activity и last_open — lastAt, Т110; София, от 00:00 вчера)
+  function isActive(r) { var t = lastAt(r); return t > 0 && dayDiff(sofiaDay(t), todayStr()) <= ACTIVE_DAYS; }
   function num1(v) { return Number(v).toFixed(1).replace(".", ","); }
   function numT(v) { var x = Math.round(Number(v) * 10) / 10; return x % 1 ? num1(x) : String(x); }   // талията: 78 / 78,5
   function nn(v, w) { return '<b class="n' + (w ? " " + w : "") + '">' + v + "</b>"; }   // Т76в: стойността — болд, в слот
@@ -402,6 +403,19 @@
     return (Array.isArray(r.d_signals) ? r.d_signals : []).map(function (s) { return String(s || "").trim(); }).filter(function (s) { return s && !(wd && /^тегло(\s|$)/i.test(s)); });
   }
   function cell(cls, h) { return h ? '<span class="' + cls + '">' + h + "</span>" : ""; }
+  // Т134 (Chris 14.11 14:24–14:28 „да се знае, че вървят винаги заедно с акаунта — като скачени съдове“): целта за храната — същият
+  //   източник и същото правило като в апа (Т132): цел И (собствен акаунт ИЛИ 21 дни лог). coach_food_targets() — едно извикване за
+  //   списъка; няма го (старата база) / грешка → картата както досега.
+  var FTS = {};
+  function ftsLoad() {
+    var q; try { q = sb.rpc("coach_food_targets"); } catch (x) { return Promise.resolve(); }
+    return Promise.resolve(q).then(function (res) {
+      if (!res || res.error || !Array.isArray(res.data)) return;
+      var m = {}; res.data.forEach(function (x) { if (x && x.client_id && x.target && x.target.day && x.target.day.kc > 0) m[x.client_id] = x.target.day; });
+      FTS = m; if (!list.classList.contains("hidden")) render();
+    }, function () {});
+  }
+  function ftOf(r) { var d = FTS[r.client_id]; return d && (r.coach_self === true || (r.log_days || 0) >= LOG_TARGET) ? d : null; }
   // Т110: last_open — последното отваряне на приложението от клиента (новата колона; старото RPC я няма → както преди).
   //   Подредбата: по-късното от писането (last_activity) и отварянето. Вълната (shimRow), „Активни“ и кликът остават по last_activity.
   function tms(ts) { return Date.parse(ts || "") || 0; }
@@ -430,6 +444,11 @@
       n1 = '<span class="lb">' + (dayDiff(r.d_day, todayStr()) === 1 ? "Вчера" : ddmm(r.d_day)) + '</span> <b class="n w4">' + Math.round(r.d_kcal) + "</b>" + NB + "ккал";
       if (r.avg7_kcal != null) n2 = grps(["7" + NB + "д" + NB + "≈" + NB + nn(Math.round(r.avg7_kcal), "w4")], true);
     }
+    var ft = ftOf(r);   // Т134: „Вчера“ — % от целта на деня (цяло); 7 д — (%) в скоби
+    if (ft && r.d_kcal && r.d_day) {
+      var pc = function (k) { return Math.round(k * 100 / ft.kc); };
+      n2 = grps([nn(pc(r.d_kcal)) + NB + "%", r.avg7_kcal != null ? "7" + NB + "д" + NB + "≈" + NB + nn(Math.round(r.avg7_kcal), "w4") + NB + "(" + pc(r.avg7_kcal) + NB + "%)" : ""], true);
+    }
     var ic = r.intake_changes_today || 0;   // формата: ✓ / липсват N; + промени днес (Т76в: и при липсващо N — „Форма · днес N промени“)
     if (r.intake_missing != null || ic > 0) {
       fm = grps(["Форма" + (r.intake_missing == null ? "" : r.intake_missing === 0 ? NB + "<b>✓</b>" : ":" + NB + "<b>" + (r.intake_missing === 1 ? "липсва" + NB + "1" : "липсват" + NB + r.intake_missing) + "</b>"),
@@ -445,8 +464,11 @@
       + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (stage(r) ? '<span class="stg">' + esc(stage(r)) + "</span>" : "") + (r.coach_self === true ? '<span class="stg">Личен</span>' : "") + (r.is_dev ? '<span class="dev">DEV</span>' : !ps ? "" : String(r.name || "").indexOf("(ТЕСТ)") > -1 ? '<span class="dev">ТЕСТ</span>' : '<span class="dev">ЧЕРНОВА</span>')
       + whenHtml(r) + "</div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
-      + '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
-      + '<span class="c2">' + grps([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"], true) + "</span>"
+      + (ft   // Т134: при цел — „Цел {ккал} • П · В · М“ вместо „Лог x/21 • последно …“ (ккал — в слота на „Вчера“, едно под друго)
+        ? '<div class="l2"><span class="c1"><span class="lb">Цел</span> <b class="n w4">' + Math.round(ft.kc) + "</b>" + NB + "ккал</span>"
+          + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))], true) + "</span>"
+        : '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
+          + '<span class="c2">' + grps([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"], true) + "</span>")
       + '<span class="c3">' + ms[0] + "</span>" + cell("c4", ms[1]) + cell("t1", t1) + cell("t2", t2) + cell("n1", n1) + cell("n2", n2) + cell("fm", fm) + "</div>"
       + (r.last_client_msg ? '<div class="pv"><span class="pt">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</span>" + (pm ? '<span class="pm">' + LEAD + pm + "</span>" : "") + "</div>" : "")
       + (sg.length ? '<div class="sg" title="' + esc(sg.join(" · ")) + '"><span class="fl">⚑</span> ' + sg.map(esc).join(SEP) + "</div>" : "")
@@ -523,6 +545,7 @@
   window.__coachRt = function () { return { ok: RTC.ok, ms: RTC.ms, polling: !!RTC.poll }; };
   function loadList() {
     if (!ROWS.length) state("Зарежда…");
+    ftsLoad();   // Т134: целите — успоредно; идват → картите се пре-рисуват
     return sb.rpc("coach_list_clients").then(function (res) {
       if (res.error) { state(/forbidden|42501|permission/i.test(String(res.error.message || res.error.code)) ? "Този акаунт няма достъп до клиентите." : "Списъкът не се зареди. Опитай пак."); outBtn.style.display = "block"; return; }
       ROWS = res.data || [];
