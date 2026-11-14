@@ -101,9 +101,10 @@
   .row.new { border-left-color: #e0821e; }
   /* Т77 (Chris 10.11 22:17): клиент с ново от последното отваряне — светла вълна през цялата карта (~1,8 s, непрекъснато), докато не го
      отвориш. Само фонът (под текста). „Без движение“ (prefers-reduced-motion) → лек неподвижен отблясък. Същото като в app/ при треньора. */
-  .shim { background-image: linear-gradient(100deg, rgba(120,140,165,0) 35%, rgba(120,140,165,0.22) 50%, rgba(120,140,165,0) 65%) !important; background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear infinite; }
+  .shim { background-image: linear-gradient(100deg, rgba(120,140,165,0) 35%, rgba(120,140,165,0.22) 50%, rgba(120,140,165,0) 65%) !important; background-size: 300% 100% !important; background-repeat: no-repeat !important; animation: shimw 1.8s linear 3; }   /* Т129 (Chris 13:46): три минавания и спира */
   @keyframes shimw { from { background-position: 100% 0; } to { background-position: 0% 0; } }
   @media (prefers-reduced-motion: reduce) { .shim { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; } }
+  .shim.shend { animation: none; background-image: linear-gradient(100deg, rgba(120,140,165,0.16), rgba(120,140,165,0.05)) !important; background-size: 100% 100% !important; }   /* Т129: след трите — бледият неподвижен вариант (като „без движение“) */
   .row .l1 { display: flex; align-items: baseline; gap: 8px; }
   .row .nm { flex: 0 1 auto; min-width: 0; font-weight: 700; font-size: 16px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* Т76: чиповете — веднага след името; при теснота отстъпва името (…) */
   /* Т76 (Chris 22:09–22:10): часът на последната активност — закотвен горе вдясно, до ръбовете на картата (≈ 6 px отгоре, 8 px отдясно), дребен.
@@ -366,6 +367,7 @@
     if (!t) ["hrana", "merki", "danni"].forEach(function (k) { t = Math.max(t, Date.parse(lsGet("coach_seen_" + k + "_" + id) || "") || 0); });
     return t;
   }
+  var SHD = {};   // Т129: редовете, чиято вълна вече мина три пъти в този показ
   function shimRow(r) { var at = openedAt(r.client_id); return at ? (Date.parse(r.last_activity || "") || 0) > at : isNew(r); }
   // Т76: активен = last_activity днес или до 7 дни назад (по деня в София)
   function isActive(r) { return !!r.last_activity && dayDiff(sofiaDay(r.last_activity), todayStr()) <= ACTIVE_DAYS; }
@@ -408,7 +410,8 @@
   //   равни, на вид еднакви, няма last_open) → часът на писането, точно както преди Т110. Един ред.
   function whenHtml(r) {
     var a = tms(r.last_activity), o = tms(r.last_open), wa = when(r.last_activity), wo = when(r.last_open);
-    return '<span class="when">' + esc(o > a && wo !== wa ? "отвори " + wo : wa) + "</span>";
+    // Т130 (Chris 14.11 13:53 „дали само е гледал, или е логвал / пълнил мерки“): думата пред часа — „чете …“ (отворил след писането) / „писа …“
+    return '<span class="when">' + esc(o > a && wo !== wa ? "чете " + wo : wa ? "писа " + wa : "") + "</span>";
   }
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
@@ -438,7 +441,7 @@
       if (r.last_client_msg_answered === true) pm += " ✓";
       else if (r.last_client_msg_answered === false) pm += ' <span class="wt">⚠ чака отговор' + (ago > 0 ? SEP + ago + NB + "д" : "") + "</span>";
     }
-    return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + (shimRow(r) ? " shim" : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
+    return '<a class="row' + (isNew(r) ? " new" : "") + (ps ? " ps" : "") + (shimRow(r) ? " shim" + (SHD[r.client_id] ? " shend" : "") : "") + '" data-id="' + esc(r.client_id) + '" href="' + esc(APP_URL) + "?c=" + encodeURIComponent(r.client_id) + "#" + tab + '">'
       + '<div class="l1"><span class="nm">' + esc(r.name || "(без име)") + "</span>" + (stage(r) ? '<span class="stg">' + esc(stage(r)) + "</span>" : "") + (r.coach_self === true ? '<span class="stg">Личен</span>' : "") + (r.is_dev ? '<span class="dev">DEV</span>' : !ps ? "" : String(r.name || "").indexOf("(ТЕСТ)") > -1 ? '<span class="dev">ТЕСТ</span>' : '<span class="dev">ЧЕРНОВА</span>')
       + whenHtml(r) + "</div>"
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
@@ -475,7 +478,18 @@
     var id = a.getAttribute("data-id"), r = ROWS.filter(function (x) { return x.client_id === id; })[0];
     // Т79: сега или последната активност — по-късното (часовникът на сървъра може да е напред спрямо телефона)
     lsSet(SEEN_AT + id, new Date(Math.max(Date.now(), (r && Date.parse(r.last_activity || "")) || 0)).toISOString());
-    a.classList.remove("shim");
+    a.classList.remove("shim"); a.classList.remove("shend");
+  });
+  // Т129: трите минавания свършиха → .shend (помни се за реда, докато страницата е на екрана: опресняването на списъка не го пуска отначало);
+  //   страницата пак е видима (нов показ) → пак три пъти
+  document.addEventListener("animationend", function (e) {
+    if (e.animationName !== "shimw") return;
+    var a = e.target.closest && e.target.closest(".row.shim[data-id]"); if (!a) return;
+    a.classList.add("shend"); SHD[a.getAttribute("data-id")] = 1;
+  }, true);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState !== "visible") return;
+    SHD = {}; Array.prototype.forEach.call(document.querySelectorAll(".row.shend"), function (a) { a.classList.remove("shend"); });
   });
   // Т78: „всички“ (броят) и „Активни“ — един избор; натиснатият остава избран (не превключва обратно)
   $("cnt").addEventListener("click", function () { lsSet(ACTIVE_KEY, null); render(); });
