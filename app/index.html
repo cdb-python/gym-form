@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.29.0">
+<meta name="version" content="v1.30.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -132,7 +132,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
   /* Т140 (Chris 15.11 12:02 / 14:08) → Т140б (14:45): ред 1 „cdb-Victus · <Име>“ — целият ред е бутонът към балона „Какво е Victus“
      (зоната за пръст — 24 px, без да разширява реда); дългото име се реже с „…“, „cdb-Victus ·“ остава цяло. При треньора името е свой
-     бутон (връзката към клиента) до „cdb-Victus“, не вътре в него. Ред 2, малък — „лична платформа за пълноценен начин на живот“. Ред 3 — разделът (голямото). */
+     бутон (връзката към клиента) до „cdb-Victus“, не вътре в него. Ред 2, малък — „платформа за пълноценен начин на живот“ (Т140в, Chris 15:17: без „лична“). Ред 3 — разделът (голямото). */
   header p#brand { display: flex; justify-content: center; align-items: baseline; min-width: 0; margin: 0 0 1px; font-size: 14px; line-height: 1.3; opacity: 1; overflow: visible; white-space: nowrap; }
   #brandBtn { display: inline-flex; align-items: baseline; min-width: 0; box-sizing: border-box; max-width: 100%; margin: -4px 0; padding: 4px 8px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; line-height: inherit; letter-spacing: normal; cursor: pointer; white-space: nowrap; overflow: hidden; vertical-align: top; }
   #brandBtn b, #brand .bsep { flex: none; }
@@ -709,6 +709,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop .ipbody > :last-child { margin-bottom: 0; }
   .ipop .ipq { margin: 10px 0 2px; font-size: 14.5px; font-weight: 700; line-height: 1.35; color: var(--accent-dark); }
   .ipop .ipbody > .ipq:first-child { margin-top: 2px; }
+  /* Т143: страницата „Victus“ — цял екран над всичко (и над лентата долу); горе [←] „Victus“ като шапката; текстът в колоната на картите */
+  html.vp-on, html.vp-on body { overflow: hidden; }
+  #vpage { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); }
+  #vpage .vph { flex: none; display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; column-gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background: var(--accent); color: #fff; }
+  #vpage .vph h1 { margin: 0; font-size: 19px; line-height: 1.3; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #vpage .vpb { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+  #vpage .vpa { box-sizing: border-box; max-width: 640px; margin: 0 auto; padding: 18px 16px calc(28px + env(safe-area-inset-bottom, 0px)); font-size: 15.5px; line-height: 1.55; overflow-wrap: anywhere; }
+  #vpage .vpt { margin: 0 0 14px; font-size: 20px; line-height: 1.3; }
+  #vpage h3 { margin: 20px 0 6px; font-size: 16.5px; line-height: 1.35; }
+  #vpage p { margin: 0 0 10px; }
+  #vpage ul { margin: 0 0 10px; padding-left: 20px; }
+  #vpage li { margin: 0 0 6px; }
+  #vpage .vsrc { font-size: 13px; line-height: 1.45; color: var(--muted); }
+  #vpage h3.vsrc { margin-top: 26px; font-weight: 700; }
+  /* Т143 (Chris 15:28): цитатът — оранжев от нашите (#8a5a1a = --accent-dark на клиента; 5,2–5,9:1 на всички светли фонове), и при
+     треньора (там --accent-dark е сив) — затова свой токен; всичко останало — както е */
+  :root { --quote: #8a5a1a; }
+  #vpage .vq { margin: 4px 0 14px; padding: 0 0 0 12px; border-left: 3px solid var(--quote); color: var(--quote); }
+  .ipop p.vq { color: var(--quote); }
   /* Т92: нашият часовник — балонът е като ⓘ (ширина, радиус, сянка, отстъпи, шрифт, фон на изгледа); акцентът — за избраното */
   input.tpin { cursor: pointer; caret-color: transparent; text-align: center; font-variant-numeric: tabular-nums; }
   input.tpin:disabled { cursor: not-allowed; }
@@ -1287,7 +1306,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 <body>
 <header id="hdr">
   <p id="brand"><button type="button" id="brandBtn" data-info="victus" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"><b>cdb-<span class="bv">Victus</span></b><span class="bsep"> · </span><span id="who"></span></button></p>
-  <p id="tagline">лична платформа за пълноценен начин на живот</p>
+  <p id="tagline">платформа за пълноценен начин на живот</p>
   <div class="wrap" style="padding:0 4px;">
     <h1 id="paneTitle">Дашборд</h1>
   </div>
@@ -1465,8 +1484,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       ["Логът продължава", "Броячът спира на 21, но логът продължава. Когато нещо не върви, отговорът обикновено се вижда в записите от дните преди това."],
       ["Теглото и талията", "Кантарът не вижда всичко: тялото може да се промени, без теглото да мръдне — например когато мускулът се увеличава, а мазнините намаляват. Затова мерим и талията — в {merki|Мерки}."],
       ["Режимът се донастройва", "Режимът е изграден по твоите числа. Тялото отговаря на него и по този отговор режимът се донастройва — това е нормалната част от работата."]] },
-    // Т140 (Chris 15.11 14:08): балонът зад малкия ред в шапката — текстът на Chris дословно, абзаците както ги даде
-    victus: { t: "Какво е Victus", b: ["Victus (лат.) — начин на живот.", "Не диета, а това как живееш всеки ден: храната, водата, движението, почивката и грижата за тялото.", "Тук първо се вижда как живееш: 21 дни записваш какво ядеш и колко тежиш. След това всичко се гради върху това, което вече правиш — храна, движение и здраве, с „защо“ до всяко число.", "Целта е да се научиш да се справяш сам.", "cdb — човекът зад метода. Victus — методът."] }
+    // Т140 (Chris 15.11 14:08) → Т140в (15:17): балонът зад „cdb-Victus“ в шапката — текстът на Chris дословно; „Как започва“ и „Целта“ — подзаглавия
+    victus: { t: "Какво е Victus", b: ["Victus е латинска дума. Идва от „vivere“ — живея — и означава прехрана и начин на живот: това, с което и как човек живее всеки ден.", "Още в древен Рим думата е по-широка от „диета“: храната, издръжката, навиците и начинът, по който човек подрежда живота си.", "Оттук идва и смисълът тук: важно е не само да живееш, а как живееш. Храненето, движението, почивката и навиците са част от това.", ["Как започва", "Първо се вижда как живееш: 21 дни записваш какво ядеш и колко тежиш. След това препоръките се съобразяват с реалния ти живот. Всяко число има своето обяснение — знаеш не само какво да правиш, но и защо."], ["Целта", "Здраве, сила и енергия, които остават. И да се научиш да се справяш сам."], "|q|„Не се опитвам да променя тялото си, за да живея.\nАз променям начина си на живот, за да може тялото ми да изразява най-доброто, на което е способно.“", "Начин на живот, не диета.\ncdb — човекът зад метода. Victus — методът.", "{vpage:victus|Прочети повече →}"] }   // Т140в (Chris 15:28): methodology/victus_meaning.md, „Краткият текст“ — дословно; „|q|“ — цитатът (оранжев)
   };
   // Т72: първото изречение на „Форма за данни“, докато тренировките са скрити (boot го слага на мястото на INFO.intake.b[0])
   var INFO_INTAKE_NOTR = "Това са основните данни за теб — цел, здраве, хранене и сън. По тях се прави и настройва планът ти.";
@@ -1902,6 +1921,88 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return { n: n, open: open, title: title };
   }
 
+  // ════════ Т142 (Chris 15.11 13:06 / 13:32): ЛЕКАРСТВАТА В „ДОПЪЛНИТЕЛНИ ВЪПРОСИ“ ════════
+  // Записаните във „Форма за данни“ лекарства (lekarstva — свободен текст: всеки ред, „;“ или „, “ + главна буква е отделно лекарство;
+  //   без имена → отметнатите класове lek_klas) → за всяко въпросник с три въпроса: доза · от кога · за какво. Периодично — „Лекарствата —
+  //   ДД.ММ.ГГГГ“ с два въпроса: 30 дни след последния отговор за лекарствата и веднага при смяна на лекарствата във формата (CDB-GYM —
+  //   честотата не е казана от Chris). Първото периодично питане — 30 дни след отговорите за самите лекарства. Въпросниците не са в
+  //   базата: правят се тук от формата и отговорите (бележките „📋 Отговори — …“, както всеки въпросник) → едно и също при клиента, ?c=
+  //   и изгледа като клиента, отговорите — при треньора (📋 в списъка). Отговореният въпросник за лекарство, което вече го няма, остава в изпратените.
+  var MED_QA = "Лекарство", MED_CHK = "Лекарствата — ", MED_DAYS = 30;
+  var MED_Q = ["Каква е дозата — колко и колко пъти на ден?", "От кога го приемаш?", "За какво го приемаш?"];
+  var MED_QK = ["Как се казва лекарството и каква е дозата — колко и колко пъти на ден?", "От кога го приемаш?", "За какво го приемаш?"];   // отметнат клас, без име
+  var MED_C = ["Приемаш ли лекарствата така, както са назначени?", "Как се чувстваш с тях?"];
+  var MED_INTRO = "Лекарствата често влияят на теглото, апетита и енергията. Затова за всяко лекарство от „Форма за данни“ има три кратки въпроса — по тях храненето и движението се съобразяват с него.";
+  var MED_CINTRO = "Веднъж месечно и когато смениш нещо в лекарствата във „Форма за данни“, тук има два въпроса за тях. Така навреме се вижда, ако нещо при тях се е променило.";
+  function medTitle(nm) { return MED_QA + " „" + nm + "“"; }
+  function isMedTitle(t) { return String(t || "").indexOf(MED_QA + " „") === 0; }
+  function isMedChk(t) { return String(t || "").indexOf(MED_CHK) === 0; }
+  function medNone(t) { return /^(няма|нямам|не|не приемам( лекарства)?|никакви|-|—|–|0)$/i.test(String(t || "").replace(/[.!]+$/, "").trim()); }
+  function medList() {
+    var d = IN.data || {}, kl = Array.isArray(d.lek_klas) ? d.lek_klas : [], out = [];
+    if (!IN.on || ivNoneOf(kl, "lek_klas")) return out;
+    function add(nm, cls) {
+      nm = String(nm || "").replace(/["<>„“]/g, "").replace(/^\s*(?:[-–—•*·]|\d+[.)])\s*/, "").replace(/\s+/g, " ").replace(/[.,;]+$/, "").trim().slice(0, 90);
+      if (nm && !medNone(nm) && out.every(function (o) { return o.name.toLowerCase() !== nm.toLowerCase(); })) out.push({ name: nm, cls: cls });
+    }
+    String(typeof d.lekarstva === "string" ? d.lekarstva : "").split(/\n|;/).forEach(function (ln) { ln.split(/,\s*(?=[A-ZА-Я])/).forEach(function (x) { add(x, false); }); });
+    if (!out.length) kl.forEach(function (k) { var nm = typeof k === "string" ? k : k && k.label; if (nm !== IV_NONE.lek_klas) add(nm, true); });
+    return out;
+  }
+  function dayPlus(d, n) { var x = new Date(d + "T12:00:00Z"); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+  function medDue(meds) {   // денят, от който периодичното питане чака отговор (или null)
+    if (!meds.length) return null;
+    var lastChk = 0, firstMed = 0, lastChg = 0;
+    D.log.forEach(function (e) {
+      if (e.kind === "coach") return;
+      var t = qaTitleOf(e.note), at = tsNum(e.created_at);
+      if (isMedChk(t)) lastChk = Math.max(lastChk, at); else if (isMedTitle(t)) firstMed = firstMed ? Math.min(firstMed, at) : at;
+    });
+    if (!lastChk && !firstMed) return null;   // първо — въпросите за самите лекарства
+    (IN.changes || []).forEach(function (c) { if (c.key === "lekarstva" || c.key === "lek_klas") lastChg = Math.max(lastChg, tsNum(c.changed_at)); });
+    var base = lastChk || firstMed, day = lastChg > base ? sofiaDay(lastChg) : dayPlus(sofiaDay(base), MED_DAYS);
+    return day <= todayStr() ? day : null;
+  }
+  function medCard(title, qs, intro) {   // qs — текстовете (номер по реда) или [номер, текст]
+    var body = "<p>" + esc(intro) + '</p><div class="qa" data-qa="' + esc(title) + '">' + qs.map(function (q, i) {
+      var n = Array.isArray(q) ? q[0] : String(i + 1), t = Array.isArray(q) ? q[1] : q;
+      return '<div class="qi" data-n="' + esc(n) + '"><div class="qq">' + esc(n) + ". " + esc(t) + "</div><textarea></textarea></div>";
+    }).join("") + '<button type="button" class="qabtn">Изпрати отговорите</button><div class="qaok"></div></div>';
+    return { section: "medqa", sort: parseInt(h32(title), 36), title: title, body: body, entry_date: null, medqa: true };
+  }
+  function medCards() {
+    var meds = medList(), out = [], have = {}, due = medDue(meds), fromLog = {};
+    function add(c) { if (!have[c.title]) { have[c.title] = 1; out.push(c); } }
+    if (due) add(medCard(MED_CHK + fmtDate(due), MED_C, MED_CINTRO));
+    meds.forEach(function (m) { add(medCard(medTitle(m.name), m.cls ? MED_QK : MED_Q, MED_INTRO)); });
+    // отговорените, които вече не са във формата (махнато лекарство, минало периодично питане) — само отговорените въпроси, от самите бележки
+    D.log.forEach(function (e) {
+      var t = e.kind === "coach" ? "" : qaTitleOf(e.note);
+      if (!isMedChk(t) && !isMedTitle(t)) return;
+      var m = fromLog[t] || (fromLog[t] = {});
+      String(e.note).slice((QA_HEAD + t + "\n").length).split(/\n\s*\n/).forEach(function (blk) { var x = /^(\d+)\.\s*([^\n]*)\n→ /.exec(blk.trim()); if (x) m[x[1]] = x[2].trim(); });
+    });
+    Object.keys(fromLog).forEach(function (t) {
+      var m = fromLog[t], ns = Object.keys(m).sort(function (a, b) { return a - b; });
+      if (ns.length) add(medCard(t, ns.map(function (n) { return [n, m[n]]; }), isMedChk(t) ? MED_CINTRO : MED_INTRO));
+    });
+    return out;
+  }
+  function medSync() { D.content = D.content.filter(function (r) { return !r.medqa; }).concat(medCards()); }
+  function medTitles() { return D.content.filter(function (r) { return r.medqa; }).map(function (r) { return r.title; }).join("|"); }
+  function medRefresh() {   // формата или отговорите са сменени → само кутията с въпросите, „Ново за теб“ и новото (без да се пипа формата)
+    var was = medTitles();
+    medSync();
+    if (medTitles() === was) return;   // същите въпросници → кутията не се пипа (писаното поле и отворените карти остават)
+    var pn = P.danni && P.danni.querySelector('.card.panel[data-key="qa"]');
+    if (pn) {
+      var q = qaPanel(), tmp = document.createElement("div");
+      tmp.innerHTML = panelHtml("qa", "qa", "Допълнителни въпроси", q.open ? q.open + " чакат отговор" : "", q.inner, pn.classList.contains("open"));
+      var nw = tmp.firstChild; pn.parentNode.replaceChild(nw, pn); wireQa(nw); alignAll(nw);
+    }
+    trackAll(); updateDots(); if (START) renderNachalo(); else refreshNow();
+  }
+
   // ════════ ЧЕРВЕНИ ТОЧКИ (Т9) — „ново и още невидяно", както в приложенията на телефона ════════
   // Клиентът: картата е „видяна", когато е отворена. Пази се на устройството: ключ на картата → отпечатък (хеш) на заглавие+тяло.
   // Промени ли се тялото, отпечатъкът е друг → пак точка. Първо отваряне на устройството → всичко е ново.
@@ -2334,11 +2435,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (nU) rows.push(["message", nU + (nU === 1 ? " ново съобщение" : " нови съобщения") + (COACH ? " от " + clientShort() : ""), "razgovor"]);   // Т82: при клиента без „от Chris“
     var rx0 = rxNewList()[0];   // Т122: най-новата невидяна реакция на другия
     if (rx0) rows.push(["message", (COACH ? clientShort() : "Chris") + " реагира " + (COACH ? rx0.react_client : rx0.react_coach), "razgovor"]);
+    var medN = 0, medK = null;   // Т142: въпросите за лекарствата — един ред
     D.content.forEach(function (r) {
       if (!isQaCard(r)) return;
       var c = qaCounts(r);
+      if (r.medqa) { if (c.open) { medN += c.open; medK = medK || cardKey(r); } return; }
       if (c.open) rows.push(["qa", "„" + c.title + "“ — " + (c.open === c.n ? (c.n === 1 ? "1 въпрос чака отговор" : c.n + " въпроса чакат отговор") : c.open + " от " + c.n + " без отговор"), "danni:" + cardKey(r)]);
     });
+    if (medN) rows.push(["qa", "Въпроси за лекарствата — " + (medN === 1 ? "1 чака отговор" : medN + " чакат отговор"), "danni:" + medK]);
     var im = intakeNowRow(); if (im) rows.push(im);   // Т58: формата за данни — липсващите
     var news = D.content.filter(function (r) { return r.section === "info" && /какво е новото/i.test(r.title || "") && r.entry_date; })[0];
     if (news && dayDiff(String(news.entry_date).slice(0, 10), todayStr()) <= 14) rows.push(["plan_updated", "Планът е обновен на " + fmtDate(news.entry_date), "nachalo:" + cardKey(news)]);
@@ -3674,6 +3778,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (res.error || res.data !== true) throw (res.error || new Error("fail"));
       st.busy = false; st.err = false; st.saved = true; IN.data[k] = v;
       ivStatus(row, "ok"); ivAfter();
+      if (k === "lekarstva" || k === "lek_klas") medRefresh();   // Т142
       if (st.again) { st.again = false; ivPush(row); }
     }).catch(function () {
       st.busy = false; st.err = true; ivStatus(row, "err");
@@ -3702,6 +3807,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       sb.rpc("get_intake", { p_token: token }).then(function (res) {
         if (res && !res.error && res.data) {
           IN.changes = res.data.changes || []; refreshChat();
+          medRefresh();   // Т142: смяната на лекарствата → периодичното питане (кутията — само ако списъкът се смени)
           rerenderHist("h_ichg", ichgHistHtml());
         }
       }, function () {});
@@ -3939,13 +4045,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
 
-  function renderDanni() {
-    var html = "", openCards = [], openQa = 0, sentN = qaSent().length;
-    // Т22: две кутии — картата и месецът. Горе чакащите въпросници (леки редове); под тях месеците с изпратените (най-новият отворен).
+  // Т22: две кутии — картата и месецът. Горе чакащите въпросници (леки редове); под тях месеците с изпратените (най-новият отворен).
+  //   Т142: редът на чакащите — тези от треньора (както са), после „Лекарствата — …“, после лекарствата по реда във формата.
+  function qaPanel() {
+    var openCards = [], openQa = 0, sentN = qaSent().length;
     D.content.filter(isQaCard).forEach(function (r) { var c = qaCounts(r); if (c.open || !c.n) { openQa += c.open; openCards.push(r); } });
     var qaInner = openCards.length ? '<div class="acc qpend">' + openCards.map(function (r) { var c = qaCounts(r); return cardHtml(r, false, "", c.open ? '<span class="chip pend">' + c.open + " без отговор</span>" : ""); }).join("") + "</div>"
       : '<p class="empty" id="qaEmpty">' + (sentN ? "В момента няма въпроси, които чакат отговор." : "В момента няма допълнителни въпроси.") + "</p>";
     if (sentN) qaInner += qaSentHtml();
+    return { inner: qaInner, open: openQa };
+  }
+  function renderDanni() {
+    var html = "", q = qaPanel(), qaInner = q.inner, openQa = q.open;
     var ic = intakeCount(intakeKeys()), nch = ivChanges().length;
     html += panelHtml("intake", "intake", "Форма за данни", "попълнено " + ic[0] + " от " + ic[1],
       '<div class="card open" style="border:none;padding:0;background:none;margin:0"><div class="body" style="margin:0">' + intakeHtml()
@@ -4196,6 +4307,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return q.then(function (res) {
       if (!res || res.error || !res.data) return;
       D.log = res.data.log || []; computeLastClient();
+      medSync();   // Т142: отговорените — в изпратените; периодичното питане — по последния отговор
       refreshChat(keepChat); updateBadge(); markDelivered();   // Т115
       refreshMerki();
       rxWave(); refreshNow();   // Т122: нова реакция (и с реалното време — Т121) → вълната и „Ново за теб“
@@ -4340,7 +4452,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var pop = document.createElement("div");
     pop.className = "ipop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>' + esc(f.t) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>"
-      + '<div class="ipbody">' + f.b.map(function (p) { return Array.isArray(p) ? '<h3 class="ipq">' + esc(p[0]) + "</h3><p>" + infoText(p[1]) + "</p>" : "<p>" + infoText(p) + "</p>"; }).join("") + "</div>";
+      + '<div class="ipbody">' + f.b.map(function (p) { return Array.isArray(p) ? '<h3 class="ipq">' + esc(p[0]) + "</h3><p>" + infoText(p[1]) + "</p>" : p.indexOf("|q|") === 0 ? '<p class="vq">' + infoText(p.slice(3)).replace(/\n/g, "<br>") + "</p>" : "<p>" + infoText(p).replace(/\n/g, "<br>") + "</p>"; }).join("") + "</div>";   // Т140в: „|q|“ — цитат; нов ред → <br>
     if (key === "push") pushBody(pop);   // Т85: бутонът / редовете „само при нужда“
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
@@ -4357,12 +4469,45 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!IPOP) return;
     if (IPOP.pop.contains(e.target)) {
       var g = e.target.closest("[data-go]");   // линк в балона → затваря и отива
+      if (g && /^vpage:/.test(g.getAttribute("data-go"))) { e.preventDefault(); e.stopPropagation(); var had = IP_HIST; infoClose(false, false, true); IP_HIST = false; vpOpen(g.getAttribute("data-go").slice(6), had); return; }   // Т143
       if (g) { e.preventDefault(); e.stopPropagation(); var spec = g.getAttribute("data-go"); infoClose(); go(spec); }
       return;
     }
     infoClose();
   }, true);
   document.addEventListener("keydown", function (e) { if (IPOP && e.key === "Escape") { e.preventDefault(); infoClose(true); } });
+
+  // ════════ Т143 (Chris 15.11 15:28): СТРАНИЦАТА „VICTUS“ — „Прочети повече →“ от балона „Какво е Victus“ ════════
+  // Цял екран вътре в аппа, еднакъв за всички (текстът — тук, не в базата; дословно methodology/victus_meaning.md, „Пълният текст“).
+  //   Горе [←] „Victus“; ← и системното „Назад“ връщат там, откъдето е отворена (разделът и мястото в него не се пипат — страницата е
+  //   слой отгоре). Историята: записът на балона минава към страницата (без нов запис). Огледалото: същото в ?c= и изгледа като клиента.
+  var VPAGE = { victus: { t: "Victus", h: '<h2 class="vpt">VICTUS — име, смисъл и философия</h2><h3>Думата</h3><p>Victus (vīctus, род. пад. vīctūs) е латинско съществително от мъжки род, четвърто склонение. Идва от глагола vīvō, vīvere — „живея“. Буквално: това, с което се живее — прехрана, издръжка, начин на живот.</p><p>В латинския има и друга, еднаква на вид дума — victus, „победен“, от vincō, „побеждавам“. Тя е с друг произход и друг смисъл.</p><h3>Какво значи у римляните</h3><ul><li>Начин на живот — навиците, възпитанието и начинът, по който човек подрежда живота си. Цицерон и Цезар използват думата точно в този смисъл.</li><li>Прехрана и издръжка — храната и всичко, което е нужно, за да се поддържа животът.</li><li>Хранене — не отделни храни, а целият начин, по който човек се храни.</li><li>В римското право — юристът Улпиан пише, че под „victus“ се разбира храната, питието, грижата за тялото и всичко, което е нужно на човека, за да живее. Лабеон добавя и облеклото, а Гай допълва и онова, което служи за защита и грижа за тялото.</li></ul><p>Още в Античността victus е много по-широко от днешното „диета“.</p><h3>Vita и Victus</h3><p>Vita значи живот — това, че живееш, жизненият път. Victus сочи средствата и начина, по които този живот се поддържа. Римляните не са ги противопоставяли като учение, но двете думи една до друга дават проста идея: важно е не само да живееш, а как живееш.</p><h3>Философията на cdb-Victus</h3><ul><li>Начин на живот, не временна диета. Храненето и движението са част от всеки ден, не усилие с краен срок.</li><li>Навици, които остават. Резултатът има стойност, когато може да се запази.</li><li>Наука и човек. Знанието за храненето, тялото и тренировката се прилага към реалния живот на конкретния човек.</li><li>Здраве, сила и енергия. Целта не е само килограмът, а форма, движение и качество на живота.</li><li>Разбиране и самостоятелност. Не просто следваш препоръки, а разбираш защо работят. Целта е постепенно да можеш сам да вземаш информирани решения за храненето, движението и здравето си.</li></ul><p>Пътят: наблюдаваш → разбираш → променяш → научаваш се да управляваш сам.</p><h3>Посланието</h3><p>Грижата за тялото не е наказание, ограничение или временна борба. Тя е част от това как живееш.</p><p>Не е нужно да чакаш определено тегло, форма или възраст, за да започнеш. Всяко ежедневно решение има значение — как се храниш, колко се движиш, как се възстановяваш, какви навици градиш.</p><p>Затова Victus казва:</p><blockquote class="vq">„Не се опитвам да променя тялото си, за да живея.<br>Аз променям начина си на живот, за да може тялото ми да изразява най-доброто, на което е способно.“</blockquote><p>Затова „Начин на живот, не диета“ не е просто лозунг. Това е съвременното послание, което влагаме в историческия смисъл на Victus.</p><p>cdb — човекът зад метода. Victus — методът.</p><h3 class="vsrc">Източници</h3><p class="vsrc">Lewis &amp; Short, A Latin Dictionary — victus; vita · Цицерон, De inventione 1.25.35; Brutus 25.95 · Цезар, De bello Gallico 1.31 · Дигести на Юстиниан 50.16.43 (Улпиан, Лабеон) и 50.16.44 (Гай).</p>' } };
+  var VP = null, VP_HIST = false;
+  function vpOpen(key, hasEntry) {
+    var pg = VPAGE[key]; if (!pg) return;
+    if (VP) vpClose(true);
+    var el = document.createElement("div");
+    el.id = "vpage"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-labelledby", "vpT"); el.setAttribute("data-vp", key);
+    el.innerHTML = '<div class="vph"><button type="button" class="hbtn back" id="vpBack" aria-label="Назад">' + ic("back") + '</button><h1 id="vpT">' + esc(pg.t) + '</h1><span class="hside" aria-hidden="true"></span></div>'
+      + '<div class="vpb"><article class="vpa">' + pg.h + "</article></div>";
+    document.body.appendChild(el);
+    document.documentElement.classList.add("vp-on");
+    VP = { key: key, el: el, from: document.activeElement };
+    if (hasEntry) VP_HIST = true; else if (!IP_BACK) { try { history.pushState({ vpage: key }, "", location.href); VP_HIST = true; } catch (x) {} }
+    el.querySelector("#vpBack").addEventListener("click", function () { vpClose(false); });
+    try { el.querySelector("#vpBack").focus({ preventScroll: true }); } catch (x) {}
+  }
+  function vpClose(viaPop) {
+    if (!VP) return;
+    var el = VP.el, from = VP.from; VP = null;
+    if (el.parentNode) el.parentNode.removeChild(el);
+    document.documentElement.classList.remove("vp-on");
+    if (viaPop) VP_HIST = false;
+    else if (VP_HIST) { VP_HIST = false; IP_BACK = true; try { history.back(); } catch (x) { IP_BACK = false; } }
+    var bb = document.getElementById("brandBtn");
+    try { (from && from.isConnected ? from : bb).focus({ preventScroll: true }); } catch (x) {}
+  }
+  document.addEventListener("keydown", function (e) { if (VP && !IPOP && e.key === "Escape") { e.preventDefault(); vpClose(false); } });
 
   // ════════ Т97: ТЕКСТОВИТЕ ПОЛЕТА РАСТАТ С ТЕКСТА ════════
   // Chris 11.11 18:31. textarea.ag — височината е колкото текста (scrollHeight); data-agmax — горна граница, над нея скрол. textarea.ag1 —
@@ -5386,6 +5531,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (IPOP) ipPush();
       return;
     }
+    if (VP && VP_HIST) { vpClose(true); return; }   // Т143: страницата „Victus“
     if (IPOP && IP_HIST) infoClose(true, true);   // „Назад“ на телефона/браузъра
   });
   function wireEat() {
@@ -5739,8 +5885,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       Array.prototype.forEach.call(items, function (qi) {
         var n = qi.getAttribute("data-n"), ta = qi.querySelector("textarea");
         if (!ta) return;
-        if (COACH) ta.readOnly = true;   // треньорът вижда изпратените отговори, не ги пише
-        var loc = COACH ? null : lsGet(lkey(n)), sent = sentMap[n];
+        var roQa = COACH || !CAN_WRITE;   // Т142 (огледалото): и в изгледа като клиента / само за четене — полетата не се пишат, без чернова от устройството
+        if (roQa) ta.readOnly = true;   // треньорът вижда изпратените отговори, не ги пише
+        var loc = roQa ? null : lsGet(lkey(n)), sent = sentMap[n];
         if (loc != null && sent && qaNorm(loc) === sent.text) { lsSet(lkey(n), null); loc = null; }
         ta.value = loc != null ? loc : (sent ? sent.text : "");
         ta.classList.add("ag"); agWatch(qi);   // Т97: расте с текста
@@ -6598,6 +6745,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     IN.ro = !IN.on || !CAN_WRITE;   // треньорът: CAN_WRITE е false → само за четене
     TRAIN_ON = !!(intake && !intake.error && intake.training === true);   // Т72: само изрично true; иначе тренировките са скрити
     if (!TRAIN_ON) INFO.intake.b[0] = INFO_INTAKE_NOTR;
+    medSync();   // Т142: въпросниците за лекарствата — от формата и отговорите
     START = !D.content.some(function (r) { return !isQaCard(r) && shownSection(r); });   // Т65: archive_* и непознатите секции не се броят
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
