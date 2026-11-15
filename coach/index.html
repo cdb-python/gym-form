@@ -385,6 +385,19 @@
     if (!rich(r)) return "";
     return r.has_regime ? "Режим" : (r.n_analysis || 0) > 0 ? "Анализ" : r.log_mode === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(r.log_days || 0, LOG_TARGET) : "Свободен лог";
   }
+  // Броячът + готовността (Chris 15.11 14:08): поддръжката излиза при ≥ 14 дни с храна и ≥ 3 тегления, първото и последното на ≥ 14 дни
+  //   (methodology/macro_model.md § 2.2). В лога (без анализ и без режим) до „последно“: „храна X/14 · тегления Y/3“; изпълненото — ✓;
+  //   3 тегления, но по-близо от 14 дни → и „период N/14 д“. Дните с храна — log_days (броячът на апа); тегленията — log_weigh_n /
+  //   log_weigh_span (поредицата на „Мерки“, от първия ден с храна). Старото RPC (без колоните) → картата както преди.
+  var RD_FOOD = 14, RD_W = 3, RD_SPAN = 14;
+  function rdOf(v, max) { return '<b><span class="n">' + v + "</span>/" + max + "</b>"; }
+  function readyCells(r) {
+    if (!("log_weigh_n" in r) || r.has_regime || (r.n_analysis || 0) > 0 || !((r.log_days || 0) > 0)) return [];
+    var fd = r.log_days || 0, wn = r.log_weigh_n || 0, sp = r.log_weigh_span || 0, wok = wn >= RD_W && sp >= RD_SPAN;
+    var out = ["храна" + NB + (fd >= RD_FOOD ? "<b>✓</b>" : rdOf(fd, RD_FOOD)), "тегления" + NB + (wok ? "<b>✓</b>" : rdOf(wn, RD_W))];
+    if (wn >= RD_W && !wok) out.push("период" + NB + rdOf(sp, RD_SPAN) + NB + "д");
+    return out;
+  }
   function measCells(r) {   // [тегло + разликата | · дни · т · х] или [Мерки ДД.ММ | · т · х]
     var th = [], w = r.last_weight;
     if (r.last_waist != null) th.push(lv("т", numT(r.last_waist)));   // т = талия
@@ -468,7 +481,7 @@
         ? '<div class="l2"><span class="c1"><span class="lb">Цел</span> <b class="n w4">' + Math.round(ft.kc) + "</b>" + NB + "ккал</span>"
           + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))], true) + "</span>"
         : '<div class="l2"><span class="c1">Лог <b class="lg">' + (days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
-          + '<span class="c2">' + grps([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"], true) + "</span>")
+          + '<span class="c2">' + grps(readyCells(r).concat([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"]), true) + "</span>")
       + '<span class="c3">' + ms[0] + "</span>" + cell("c4", ms[1]) + cell("t1", t1) + cell("t2", t2) + cell("n1", n1) + cell("n2", n2) + cell("fm", fm) + "</div>"
       + (r.last_client_msg ? '<div class="pv"><span class="pt">„' + esc(String(r.last_client_msg).replace(/\s+/g, " ")) + "“</span>" + (pm ? '<span class="pm">' + LEAD + pm + "</span>" : "") + "</div>" : "")
       + (sg.length ? '<div class="sg" title="' + esc(sg.join(" · ")) + '"><span class="fl">⚑</span> ' + sg.map(esc).join(SEP) + "</div>" : "")
