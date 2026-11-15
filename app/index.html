@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.28.0">
+<meta name="version" content="v1.28.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -130,12 +130,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   header { position: relative; background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
   header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
-  /* Т140 (Chris 15.11 12:02 / 14:08): малкият ред горе — „cdb-Victus · лична платформа за персонално здраве“; под него името, после заглавието
-     на раздела (голямото). Целият ред е бутонът към балона „Какво е Victus“ (зоната за пръст — 24 px, без да разширява реда). Където не се
-     събира на един ред (320 px), се пренася на две части — „cdb-Victus ·“ и „лична платформа …“, без да се реже. */
-  header p#brand { margin: 0 0 3px; font-size: 12px; line-height: 1.3; opacity: 1; overflow: visible; }
-  #brandBtn { display: inline-block; box-sizing: border-box; max-width: 100%; margin: -4px 0; padding: 4px 8px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; line-height: inherit; letter-spacing: normal; opacity: 0.92; cursor: pointer; white-space: normal; overflow: hidden; vertical-align: top; }
-  #brandBtn .nw { white-space: nowrap; }
+  /* Т140 (Chris 15.11 12:02 / 14:08) → Т140б (14:45): ред 1 „cdb-Victus · <Име>“ — целият ред е бутонът към балона „Какво е Victus“
+     (зоната за пръст — 24 px, без да разширява реда); дългото име се реже с „…“, „cdb-Victus ·“ остава цяло. При треньора името е свой
+     бутон (връзката към клиента) до „cdb-Victus“, не вътре в него. Ред 2, малък — „лична платформа за пълноценен начин на живот“. Ред 3 — разделът (голямото). */
+  header p#brand { display: flex; justify-content: center; align-items: baseline; min-width: 0; margin: 0 0 1px; font-size: 14px; line-height: 1.3; opacity: 1; overflow: visible; white-space: nowrap; }
+  #brandBtn { display: inline-flex; align-items: baseline; min-width: 0; box-sizing: border-box; max-width: 100%; margin: -4px 0; padding: 4px 8px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; line-height: inherit; letter-spacing: normal; cursor: pointer; white-space: nowrap; overflow: hidden; vertical-align: top; }
+  #brandBtn b, #brand .bsep { flex: none; }
+  #brand .bsep { white-space: pre; }
+  #brand .bsep:has(+ #who:empty) { display: none; }   /* преди името да дойде — само „cdb-Victus“ */
+  #brand #who { display: block; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #brand #who #whoBtn { margin: -2px 0; }
+  header p#tagline { margin: 0 0 2px; font-size: 12px; line-height: 1.3; opacity: 0.88; }
+  header:not(.h3) p#tagline { margin-left: -8px; margin-right: -8px; }   /* 320 px: на един ред — 8 px от полето на шапката (остават 8) */
   #brandBtn:hover, #brandBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); opacity: 1; }
   #brandBtn b { font-weight: 700; }
   #brandBtn .bv { text-decoration: underline dotted; text-underline-offset: 2px; }
@@ -1165,6 +1171,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   header.h3.vab { grid-template-columns: 36px minmax(0, 1fr) 36px; }   /* Т45: само ← (без „Изход“) — двете странични колони са еднакви */
   header.vas p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   header.h3 h1, header.h3 p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header.h3 > #tagline { grid-column: 1 / -1; grid-row: 2; min-width: 0; }   /* Т140б: и подредът — на цялата ширина, над [←] заглавие [Изход] */
   header.h3 > #brand { grid-column: 1 / -1; grid-row: 1; min-width: 0; overflow: visible; }   /* Т140: при треньора — на цялата ширина над [←] име · заглавие [Изход] */
   .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
   .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
@@ -1279,10 +1286,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </head>
 <body>
 <header id="hdr">
-  <p id="brand"><button type="button" id="brandBtn" data-info="victus" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"><span class="nw"><b>cdb-<span class="bv">Victus</span></b> ·</span> <span class="nw">лична платформа за персонално здраве</span></button></p>
+  <p id="brand"><button type="button" id="brandBtn" data-info="victus" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"><b>cdb-<span class="bv">Victus</span></b><span class="bsep"> · </span><span id="who"></span></button></p>
+  <p id="tagline">лична платформа за пълноценен начин на живот</p>
   <div class="wrap" style="padding:0 4px;">
-    <p id="who">&nbsp;</p>
-    <h1 id="paneTitle">Начало</h1>
+    <h1 id="paneTitle">Дашборд</h1>
   </div>
 </header>
 
@@ -1299,7 +1306,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 <nav class="tabs" id="tabs" aria-label="Раздели">
  <span class="nav-mlayer" id="navLayer" aria-hidden="true"><span class="nav-slide" id="navSlide"></span></span>
  <div class="nav-pill nav-main">
-  <button type="button" data-tab="nachalo" aria-label="Начало" title="Начало"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.077" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.855 0.693) scale(0.929)"><path d="M12 3.15c.49 0 .96.16 1.35.46l6.5 5.06c.6.46.95 1.17.95 1.93v8.2a2.4 2.4 0 0 1-2.4 2.4H5.6a2.4 2.4 0 0 1-2.4-2.4v-8.2c0-.76.35-1.47.95-1.93l6.5-5.06c.39-.3.86-.46 1.35-.46Z"></path><path d="M9.15 21.2v-4.55a2.85 2.85 0 0 1 5.7 0v4.55"></path></g></svg></span><span class="tdot" id="tdot_nachalo"></span></button>
+  <button type="button" data-tab="nachalo" aria-label="Дашборд" title="Дашборд"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.077" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.855 0.693) scale(0.929)"><path d="M12 3.15c.49 0 .96.16 1.35.46l6.5 5.06c.6.46.95 1.17.95 1.93v8.2a2.4 2.4 0 0 1-2.4 2.4H5.6a2.4 2.4 0 0 1-2.4-2.4v-8.2c0-.76.35-1.47.95-1.93l6.5-5.06c.39-.3.86-.46 1.35-.46Z"></path><path d="M9.15 21.2v-4.55a2.85 2.85 0 0 1 5.7 0v4.55"></path></g></svg></span><span class="tdot" id="tdot_nachalo"></span></button>
   <button type="button" data-tab="hrana" aria-label="Храна" title="Храна"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.075" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(-0.208 0.838) scale(0.93)"><path d="M4.4 2.9v3.6a1.75 1.75 0 0 0 3.5 0V2.9"></path><path d="M6.15 2.9v3.6M6.15 8.25V21.1"></path><circle cx="12.4" cy="12" r="3.6"></circle><path d="M8.6 6.3a6.4 6.4 0 0 1 7.6 0"></path><path d="M8.6 17.7a6.4 6.4 0 0 0 7.6 0"></path><path d="M19.6 2.9c1.45 1.75 2.25 3.95 2.25 6.25v3.4h-4.5V9.15c0-2.3.8-4.5 2.25-6.25Z"></path><path d="M19.6 12.55V21.1"></path></g></svg></span><span class="tdot" id="tdot_hrana"></span></button>
   <button type="button" data-tab="merki" aria-label="Мерки" title="Мерки"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.074" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.824 0.777) scale(0.931)"><circle cx="12" cy="6.81" r="2.87"></circle><path d="M9.57 8.33H7.44Q5.42 8.33 4.86 10.28L2.32 19.17Q2.04 20.14 3.05 20.14H20.95Q21.96 20.14 21.68 19.17L19.14 10.28Q18.58 8.33 16.56 8.33H14.43"></path><path d="M13.9 12.38L14.95 12.34L15.28 12.44L15.92 12.8L16.33 13.41L16.33 13.54L16.18 13.65L15.38 13.85L15.25 13.81L15.08 13.56L14.85 13.37L14.45 13.27L14.04 13.37L13.82 13.48L13.52 13.77L13.31 14.49L13.32 15.06L13.49 15.66L13.66 15.91L13.9 16.09L14.21 16.2L14.62 16.22L15.02 16.12L15.23 15.99L15.25 15.5L15.19 15.39L14.62 15.37L14.51 15.31L14.51 14.51L14.7 14.45L16.29 14.47L16.35 14.66L16.34 16.6L16.29 16.71L15.78 16.96L15.28 17.13L14.79 17.15L14.53 17.23L13.79 17.13L13.19 16.88L12.89 16.68L12.68 16.47L12.4 15.99L12.23 15.49L12.13 14.91L12.13 14.58L12.31 13.75L12.59 13.18L13.06 12.72L13.62 12.44L13.9 12.38ZM7.5 12.48L7.7 12.42L8.54 12.42L8.65 12.48L8.67 13.98L8.71 14.08L9.76 13.05L10.19 12.47L10.4 12.42L11.58 12.42L11.67 12.47L10.44 13.73L10.06 14.2L10.02 14.32L10.23 14.7L11.83 16.98L11.81 17.05L10.65 17.06L10.44 17.02L9.55 15.55L9.24 15.1L9.14 15.06L8.68 15.52L8.65 17L8.46 17.06L7.61 17.06L7.5 17L7.5 12.48Z" fill="currentColor" stroke="none" fill-rule="evenodd"></path></g></svg></span><span class="tdot" id="tdot_merki"></span></button>
   <button type="button" data-tab="razgovor" aria-label="Разговор" title="Разговор"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.061" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><g transform="translate(0.688 0.876) scale(0.943)"><path d="M15.4 7.4h3.8a2.2 2.2 0 0 1 2.2 2.2v5.4a2.2 2.2 0 0 1-2.2 2.2h-.4V20l-3.6-2.8h-3.6a2.2 2.2 0 0 1-2.2-2.2v-1.8"></path><path d="M4.8 3.6h8.4a2.2 2.2 0 0 1 2.2 2.2V11a2.2 2.2 0 0 1-2.2 2.2H8.6L5.2 16v-2.8h-.4A2.2 2.2 0 0 1 2.6 11V5.8a2.2 2.2 0 0 1 2.2-2.2Z"></path><circle cx="5.6" cy="8.4" r=".5" fill="currentColor"></circle><circle cx="9" cy="8.4" r=".5" fill="currentColor"></circle><circle cx="12.4" cy="8.4" r=".5" fill="currentColor"></circle></g></svg></span><span class="badge" id="chatBadge"></span></button>
@@ -1316,7 +1323,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var SB_KEY = "sb_publishable_4UGeheRP-noXzmxP5tuthg_dfeeMPDd";
   var sb = window.supabase.createClient(SB_URL, SB_KEY);
 
-  var TABS = { nachalo: "Начало", hrana: "Храна", kuhnya: "Храни", merki: "Мерки", danni: "Данни", razgovor: "Разговор" };   // Т94: „Кухня“ — само при включена кухня (изгледите на треньора — винаги)
+  // Т140б (Chris 15.11 14:45): „нямаме начало, имаме дашборд, така ще го водим в бъдеще навсякъде, бутона си е къщичка“ — само видимото име; ключът остава nachalo
+  var TABS = { nachalo: "Дашборд", hrana: "Храна", kuhnya: "Храни", merki: "Мерки", danni: "Данни", razgovor: "Разговор" };   // Т94: „Кухня“ — само при включена кухня (изгледите на треньора — винаги)
   // Начало: всички раздели без nutrition (той е в Храна). Редът = SECTIONS на tools/me/ (SSOT), без nutrition.
   var HOME_SECTIONS = [
     { key: "info", label: "Информация" },
@@ -1537,7 +1545,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т47: ЕДИН надпис „ЧЕРНОВА“ в шапката, на ред под името — у клиента (и DEV, и изгледът като клиент); при треньора (?c=) — не.
   var DRAFT_MARK = false;   // ← ЕДИНСТВЕНОТО място: false = надписът изчезва навсякъде. Т57 (09.11.2026): всички живи → false
   if (window.CDB_DRAFT_MARK === false) DRAFT_MARK = false;   // само за теста (mock: nomark=1)
-  if (DRAFT_MARK && !COACH_CID) document.getElementById("who").insertAdjacentHTML("afterend", '<p class="dmark" id="draftMark"><span>ЧЕРНОВА</span></p>');
+  if (DRAFT_MARK && !COACH_CID) document.getElementById("brand").insertAdjacentHTML("afterend", '<p class="dmark" id="draftMark"><span>ЧЕРНОВА</span></p>');
   var COACH = false;                                // става true, когато има сесия
   var COACH_URL = window.CDB_COACH_URL || "../coach/";
   if (!token && !COACH_CID) { showMissingToken("cdbgym_app_token"); return; }
@@ -6592,6 +6600,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     D.content.forEach(function (r) { if (isQaCard(r)) { var c = qaCounts(r); if (c.title) qaKeyByTitle[c.title] = cardKey(r); } });
     who.textContent = D.name;
     if (COACH) {
+      var bbx = document.getElementById("brandBtn");   // Т140б: името е свой бутон (връзката) — до „cdb-Victus“, не вътре в бутона на балона
+      bbx.parentNode.appendChild(bbx.querySelector(".bsep")); bbx.parentNode.appendChild(who);
       who.innerHTML = '<button type="button" id="whoBtn" aria-haspopup="menu" aria-expanded="false"><span class="wn">' + esc(D.name) + '</span><span class="ar" aria-hidden="true">' + ic("open") + "</span></button>";
       document.getElementById("whoBtn").addEventListener("click", function (e) { e.stopPropagation(); linkMenu(); });
     }
