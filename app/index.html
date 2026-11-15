@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.27.1">
+<meta name="version" content="v1.28.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -130,6 +130,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   header { position: relative; background: var(--accent); color: #fff; padding: 12px 16px 12px; text-align: center; }
   header h1 { margin: 0; font-size: 19px; line-height: 1.3; }
   header p { margin: 0; font-size: 14px; opacity: 0.92; }
+  /* Т140 (Chris 15.11 12:02 / 14:08): малкият ред горе — „cdb-Victus · лична платформа за персонално здраве“; под него името, после заглавието
+     на раздела (голямото). Целият ред е бутонът към балона „Какво е Victus“ (зоната за пръст — 24 px, без да разширява реда). Където не се
+     събира на един ред (320 px), се пренася на две части — „cdb-Victus ·“ и „лична платформа …“, без да се реже. */
+  header p#brand { margin: 0 0 3px; font-size: 12px; line-height: 1.3; opacity: 1; overflow: visible; }
+  #brandBtn { display: inline-block; box-sizing: border-box; max-width: 100%; margin: -4px 0; padding: 4px 8px; border: 0; border-radius: 8px; background: none; color: inherit; font: inherit; line-height: inherit; letter-spacing: normal; opacity: 0.92; cursor: pointer; white-space: normal; overflow: hidden; vertical-align: top; }
+  #brandBtn .nw { white-space: nowrap; }
+  #brandBtn:hover, #brandBtn[aria-expanded="true"] { background: rgba(255,255,255,0.16); opacity: 1; }
+  #brandBtn b { font-weight: 700; }
+  #brandBtn .bv { text-decoration: underline dotted; text-underline-offset: 2px; }
   .wrap { max-width: 640px; margin: 0 auto; padding: 0 14px; }
   #main { display: flow-root; }   /* Т25: долното поле на последната карта остава вътре → височината на съдържанието се мери точно */
   .pane { display: none; }
@@ -1156,6 +1165,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   header.h3.vab { grid-template-columns: 36px minmax(0, 1fr) 36px; }   /* Т45: само ← (без „Изход“) — двете странични колони са еднакви */
   header.vas p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   header.h3 h1, header.h3 p { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  header.h3 > #brand { grid-column: 1 / -1; grid-row: 1; min-width: 0; overflow: visible; }   /* Т140: при треньора — на цялата ширина над [←] име · заглавие [Изход] */
   .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
   .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
   .hbtn.back { justify-self: start; width: 36px; padding: 0; font-size: 19px; }
@@ -1269,9 +1279,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 </head>
 <body>
 <header id="hdr">
+  <p id="brand"><button type="button" id="brandBtn" data-info="victus" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"><span class="nw"><b>cdb-<span class="bv">Victus</span></b> ·</span> <span class="nw">лична платформа за персонално здраве</span></button></p>
   <div class="wrap" style="padding:0 4px;">
-    <h1 id="paneTitle">Начало</h1>
     <p id="who">&nbsp;</p>
+    <h1 id="paneTitle">Начало</h1>
   </div>
 </header>
 
@@ -1443,7 +1454,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     log_done: { t: "Какво следва?", b: [
       ["Логът продължава", "Броячът спира на 21, но логът продължава. Когато нещо не върви, отговорът обикновено се вижда в записите от дните преди това."],
       ["Теглото и талията", "Кантарът не вижда всичко: тялото може да се промени, без теглото да мръдне — например когато мускулът се увеличава, а мазнините намаляват. Затова мерим и талията — в {merki|Мерки}."],
-      ["Режимът се донастройва", "Режимът е изграден по твоите числа. Тялото отговаря на него и по този отговор режимът се донастройва — това е нормалната част от работата."]] }
+      ["Режимът се донастройва", "Режимът е изграден по твоите числа. Тялото отговаря на него и по този отговор режимът се донастройва — това е нормалната част от работата."]] },
+    // Т140 (Chris 15.11 14:08): балонът зад малкия ред в шапката — текстът на Chris дословно, абзаците както ги даде
+    victus: { t: "Какво е Victus", b: ["Victus (лат.) — начин на живот.", "Не диета, а това как живееш всеки ден: храната, водата, движението, почивката и грижата за тялото.", "Тук първо се вижда как живееш: 21 дни записваш какво ядеш и колко тежиш. След това всичко се гради върху това, което вече правиш — храна, движение и здраве, с „защо“ до всяко число.", "Целта е да се научиш да се справяш сам.", "cdb — човекът зад метода. Victus — методът."] }
   };
   // Т72: първото изречение на „Форма за данни“, докато тренировките са скрити (boot го слага на мястото на INFO.intake.b[0])
   var INFO_INTAKE_NOTR = "Това са основните данни за теб — цел, здраве, хранене и сън. По тях се прави и настройва планът ти.";
@@ -4287,6 +4300,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var box = infoBox(IPOP.btn), row = infoRow(IPOP.btn);
     if (!IPOP.btn.isConnected || !IPOP.btn.getClientRects().length) { infoClose(); return; }
     var br = box.getBoundingClientRect(), rr = row.getBoundingClientRect(), st = IPOP.pop.style;
+    if (IPOP.btn.id === "brandBtn") {   // Т140: балонът „Какво е Victus“ — под цялата шапка, с ширината на картите
+      var mn = document.getElementById("main"), mc = getComputedStyle(mn), mr = mn.getBoundingClientRect(), pl = parseFloat(mc.paddingLeft) || 0, pr = parseFloat(mc.paddingRight) || 0;
+      br = { left: mr.left + pl, width: mr.width - pl - pr }; rr = document.getElementById("hdr").getBoundingClientRect();
+    }
     st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (rr.bottom + window.scrollY + 4) + "px";
     kitPopPlace();   // Т98: храната в бокса — цялата над лентата
     kitFiltPlace();   // Т102ж: „Филтри“ — височината до лентата
