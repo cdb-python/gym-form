@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.33.0">
+<meta name="version" content="v1.33.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -4265,6 +4265,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     html += panelHtml("labs", "labs", "Изследвания", labsSub(), labsHtml(), false, null, "labs");
     P.danni.innerHTML = html;
     wireIntake(); wireQa(); wireLabs();
+    if (current === "danni") qaReadSoon();   // Т146: пре-рисуване (нови отговори), докато е на показ
   }
 
   // ════════ РАЗГОВОР ════════
@@ -6716,7 +6717,41 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     accRun(changes, opts.noScroll || !accHead(n) ? null : open ? { open: n } : { close: n }, !!opts.instant);
     if (open) { seenOnOpen(n); shReplay(n); }   // Т129: отваряне → вътре проблясва пак (три пъти)
   }
+  // ── Т146 (Chris 15.11 21:49 „📋 нови отговори“ при Поля не гасне; 22:05 „да“): при треньора (?c=) отговорите на въпросник ставаха
+  //   видени (coach_read_at) само с „Разговор“ (coach_mark_read), а Chris ги чете в картата им в „Данни“. Сега: щом карта с въпросник е
+  //   на показ — отворена, с отворен път до нея, в показания раздел (и авто-отворените: панелът, най-новият месец на „Отговорени“) —
+  //   нейните още невидени редове „📋 Отговори — <заглавието>“ отиват в coach_mark_answers_read (точно тези id; чатът и чуждите — не).
+  //   После тук: coach_read_at, значката, „Ново за теб“. Само треньорът — не изгледът като клиента, не клиентът. Грешка (старата база) —
+  //   тихо, нищо не се сменя; същите id не се пращат пак в това посещение. Списъкът (coach/) — при следващото му зареждане.
+  var QA_RD = {}, QA_RD_T = 0;
+  function qaReadSoon() { if (!COACH || VIEW_AS) return; clearTimeout(QA_RD_T); QA_RD_T = setTimeout(qaReadScan, 60); }
+  function qaReadScan() {
+    QA_RD_T = 0;
+    if (!COACH || VIEW_AS || !current || !P[current] || !P[current].classList.contains("on")) return;
+    var root = P[current], titles = {}, shown = {};
+    D.content.filter(isQaCard).forEach(function (r) { var t = qaCounts(r).title; if (t) titles[cardKey(r)] = t; });
+    function acc(n) { return n.tagName === "DETAILS" || (!!n.classList && n.classList.contains("card")); }
+    Array.prototype.forEach.call(root.querySelectorAll("[data-key]"), function (el) {
+      var t = titles[el.getAttribute("data-key")]; if (!t || shown[t]) return;
+      if (acc(el) && !wantOpen(el)) return;
+      for (var a = el.parentElement; a && a !== root; a = a.parentElement) if (acc(a) && !wantOpen(a)) return;
+      shown[t] = 1;
+    });
+    var rows = D.log.filter(function (e) { return e.id && e.kind !== "coach" && !e.coach_read_at && !e.deleted_at && isQaNote(e.note) && shown[qaTitleOf(e.note)] && !QA_RD[e.id]; });
+    if (!rows.length) return;
+    var ids = rows.map(function (e) { return e.id; });
+    ids.forEach(function (id) { QA_RD[id] = 1; });
+    try {
+      sb.rpc("coach_mark_answers_read", { p_client_id: COACH_CID, p_ids: ids }).then(function (res) {
+        if (!res || res.error) return;   // старата база / грешка — тихо
+        var now = new Date().toISOString();
+        rows.forEach(function (e) { if (!e.coach_read_at) e.coach_read_at = now; });
+        updateBadge(); refreshNow(); updateDots();
+      }, function () {});
+    } catch (e) {}
+  }
   function seenOnOpen(n) {
+    qaReadSoon();   // Т146: карта с въпросник отворена (и пътят до нея) → отговорите — видени при треньора
     shOpened(n);   // Т77/Т79/Т81: натиснато — бутонът спира; видяното (и при клиента) се записва при напускане на раздела
   }
   // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
@@ -6816,6 +6851,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (tab === "razgovor") { window.scrollTo(0, 0); setTop(); chatBottom(); markChatRead(); }
     else if (!noScroll) window.scrollTo(0, scrollMem[tab] || 0);
     if (tab === "hrana") refreshEatTimes();
+    qaReadSoon();   // Т146: показаният раздел — и авто-отворените карти с въпросник
     coachMarkTab(tab); updateDots();   // Т81: отворените карти — видени при напускане на раздела (вълната), не веднага
   }
   function flash(el) { el.classList.add("flash"); setTimeout(function () { el.classList.remove("flash"); }, 1600); }
