@@ -60,6 +60,7 @@
   .hbtn.bell svg * { vector-effect: non-scaling-stroke; }
   .npop { position: absolute; z-index: 50; box-sizing: border-box; padding: 8px 12px 12px; background: #f1f2f3; border: 1px solid var(--accent); border-radius: 12px;
     box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; color: var(--ink); font-size: 14.5px; line-height: 1.45; text-align: left; max-height: 75vh; overflow-y: auto; }
+  .npop { scrollbar-width: none; } .npop::-webkit-scrollbar { display: none; }   /* Т160 (Chris 16.11 23:49): балонът — без лента за скрол; скролът остава */
   .npop .nph { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 4px; }
   .npop .nph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; line-height: 1.3; }
   .npop .npx { flex: none; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); font-size: 22px; line-height: 1; cursor: pointer; }
