@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.39.0">
+<meta name="version" content="v1.40.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -955,6 +955,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ktb > .per { font-weight: 700; }
   .dish .ktb, .bank .ktb { margin: 8px 0 0; }
   .card .body .bank div.bki { padding-left: 0; color: var(--ink); }
+  /* Т158б: рецептата — полетата (готово, порции, резен), живата таблица; „Изядох“ на рецепта — порция · резен · грамове */
+  .ded .drf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0 4px; }
+  .ded .drf label { display: grid; gap: 3px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
+  .ded .drf input { box-sizing: border-box; width: 100%; height: 36px; padding: 0 8px; font: inherit; font-size: 15px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); }
+  .ded .drec { margin: 10px 0 0; }
+  .bank .bkn i { font-style: normal; color: var(--muted); font-size: 12.5px; font-weight: 500; }
+  .eatpop .epam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
+  .eatpop .epam button { height: 34px; margin: 0; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .eatpop .epam button.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .eatpop .epam input { box-sizing: border-box; width: 80px; height: 34px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; border: 1px solid var(--border); border-radius: 8px; color: var(--ink); }
+  .eatpop .epam input[hidden] { display: none; }
   .ded .dstsel { font: inherit; font-size: 13.5px; height: 30px; padding: 0 6px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); max-width: 100%; }
   .kpop .kunh { margin: 0 0 4px; color: var(--muted); font-size: 12.5px; font-weight: 700; }
   .kpop .kun { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 14px; row-gap: 3px; font-size: 14px; }
@@ -4842,7 +4853,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (same || !box || !el || !CAN_WRITE) return;   // истински клиент / треньор: банер не се отваря (и wr() не пише)
     var name = box.getAttribute("data-meal-name"), pop = document.createElement("div");
     pop.className = "eatpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Изядох — " + name); pop.tabIndex = -1;
-    pop.innerHTML = '<div class="eph">' + esc(name) + "</div>"
+    var rcp = el.hasAttribute("data-rec") ? KIT.dishes.filter(function (x) { return String(x.id) === el.getAttribute("data-dish"); })[0] : null;   // Т158б
+    pop.innerHTML = '<div class="eph">' + esc(name) + "</div>" + (rcp ? kitEatAmtHtml(rcp) : "")
       + '<div class="epr"><label class="epl">Час <input type="text" class="eptm tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-haspopup="dialog" aria-expanded="false"></label>'
       + '<div class="epb"><button type="button" class="epno">Отказ</button><button type="button" class="epok">Запиши</button></div></div>'
       + '<div class="epmsg" role="status"></div>';
@@ -4852,6 +4864,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     eatPlace(); window.addEventListener("resize", eatPlace);
     popFit(pop);   // целият банер над лентата долу
     pop.querySelector(".epno").addEventListener("click", function () { eatClose(true); });
+    pop.addEventListener("click", function (e) {   // Т158б: колко — порция · резен · грамове
+      var b = e.target.closest && e.target.closest("[data-epam]"); if (!b) return;
+      Array.prototype.forEach.call(pop.querySelectorAll("[data-epam]"), function (x) { var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); });
+      var gi = pop.querySelector(".epg"); if (gi) { gi.hidden = b.getAttribute("data-epam") !== "grams"; if (!gi.hidden) { if (!gi.value) gi.value = "100"; try { gi.focus({ preventScroll: true }); } catch (x) {} } }
+    });
     pop.querySelector(".epok").addEventListener("click", eatSave);
     pop.querySelector(".eptm").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); eatSave(); } });
     try { pop.focus({ preventScroll: true }); } catch (x) {}
@@ -4862,7 +4879,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!/^\d{2}:\d{2}$/.test(hm)) { msg.textContent = "Избери час."; return; }
     cur.busy = true; okb.disabled = true; msg.textContent = "";
     var did = cur.el.getAttribute("data-dish"), snap = did ? null : mealSnap(cur.el, cur.name);   // Т56: храните + числата от картата
-    var text = did ? kitEatText(did, cur.name, hm) : "✅ " + cur.name + " — ядено " + hm + (snap.foods ? "\n" + snap.foods : "") + (snap.num ? "\n" + numLine(snap.num) : "");   // Т100: ястие от банката
+    var amt = did && cur.el.hasAttribute("data-rec") ? kitEatAmt(cur.pop, did) : null;   // Т158б: колко от рецептата
+    if (amt === false) { cur.busy = false; okb.disabled = false; msg.textContent = "Напиши грамовете."; return; }
+    var text = did ? kitEatText(did, cur.name, hm, amt) : "✅ " + cur.name + " — ядено " + hm + (snap.foods ? "\n" + snap.foods : "") + (snap.num ? "\n" + numLine(snap.num) : "");   // Т100: ястие от банката
     wr("add_food_entry", { p_token: token, p_text: text, p_weight: null, p_waist: null, p_height: null }).then(function (res) {
       if (res.error || res.data === false) throw (res.error || new Error("fail"));
       cur.saved = true;
@@ -5605,16 +5624,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return on ? '<button type="button" class="' + cls + '" ' + attr + '="' + esc(id) + '"' + (lbl ? ' aria-label="' + lbl + '"' : "") + ">" + inner + "</button>" : roBtn(cls, lbl || "", inner);
   }
   function kitDishCard(d) {
-    var sized = d.st === "sized", me = !KIT.ro, par = d.parent ? KIT.dishes.filter(function (x) { return x.id === d.parent; })[0] : null, ask = KIT.ask && KIT.ask.id === d.id;
+    var rec = d.k === "recipe", sized = d.st === "sized",   // Т158б: рецептата — „Рецепта“, таблицата с разпределението, без „Оразмери“
+    me = !KIT.ro, par = d.parent ? KIT.dishes.filter(function (x) { return x.id === d.parent; })[0] : null, ask = KIT.ask && KIT.ask.id === d.id;
     return '<div class="card dish' + (sized ? " sized" : "") + '" data-did="' + esc(d.id) + '">'
-      + '<div class="dh"><b class="dn">' + esc(d.n) + '</b><span class="dst">' + (sized ? "Оразмерено" : "Чернова") + '</span><span class="dbx">'
+      + '<div class="dh"><b class="dn">' + esc(d.n) + '</b><span class="dst">' + (rec ? "Рецепта" : sized ? "Оразмерено" : "Чернова") + '</span><span class="dbx">'
       + kitCBtn("data-dedit", d.id, "dbtn", ic("edit"), "Промени ястието", me) + kitCBtn("data-ddel", d.id, "dbtn", ic("trash"), "Изтрий ястието", me) + "</span></div>"
       + (par ? '<p class="dpar">Промяна на „' + esc(par.n) + "“</p>" : "")
-      + (sized && d.m ? kitDishTbl(d) : '<ul class="dit">' + (d.items || []).map(function (it) { return "<li>" + esc(kitItemTxt(it, sized)) + "</li>"; }).join("") + "</ul>")   // Т158
+      + (rec && d.m ? kitRecTbl(d) : sized && d.m ? kitDishTbl(d) : '<ul class="dit">' + (d.items || []).map(function (it) { return "<li>" + esc(kitItemTxt(it, sized)) + "</li>"; }).join("") + "</ul>")   // Т158
       + (d.note ? '<p class="dnote">' + esc(d.note) + "</p>" : "")
       + (ask ? '<div class="mask"><span>Да изтрия ли?</span><button type="button" class="myes" data-dyes="' + esc(d.id) + '"' + (KIT.dbusy ? " disabled" : "") + '>Да</button><button type="button" class="mno" data-dno="1"' + (KIT.dbusy ? " disabled" : "") + ">Не</button></div>" : "")
       + (KIT.derr === d.id ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
-      + (COACH ? '<div class="dcoach"><button type="button" class="dcb" data-dsize="' + esc(d.id) + '">Оразмери</button>'
+      + (COACH ? '<div class="dcoach">' + (rec ? "" : '<button type="button" class="dcb" data-dsize="' + esc(d.id) + '">Оразмери</button>')
         + '<button type="button" class="dcb' + (d.sh ? " on" : "") + '" data-dshare="' + esc(d.id) + '" aria-pressed="' + !!d.sh + '"' + (KIT.dbusy ? " disabled" : "") + ">" + (d.sh ? "Споделено" : "Сподели") + "</button>"
         + '<button type="button" class="dcb dcdel" data-dcdel="' + esc(d.id) + '" aria-label="Изтрий ястието">' + ic("trash") + "</button></div>" : "")
       + "</div>";
@@ -5630,17 +5650,70 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (g > 0) rows.push({ n: "на 100 г", g: 100, kc: d.m.kc * 100 / g, p: d.m.p * 100 / g, c: d.m.c * 100 / g, f: d.m.f * 100 / g, cls: "per" });
     return kitTbl(rows);
   }
+  function kitNum(v) { var s = String(v == null ? "" : v).trim().replace(",", "."); return s !== "" && isFinite(+s) ? +s : null; }   // Т158б: празно → null
+  function kitRecRows(items, m, w, pn, rz) {   // Т158б: съставките (г · числата по състоянието) → „Цялата рецепта“ = сборът → на 100 г · порция · резен
+    var rows = [], raw = 0, W = Number(w) > 0 ? Number(w) : 0;
+    items.forEach(function (it) {
+      var n = kitStN(it.id, it.st), x = kitGOk(it.g) ? kitGNum(it.g) : 0; raw += x;
+      rows.push({ n: kitFN(it.id), st: it.st || kitState(KIT.byId[it.id]), g: x || null, kc: n && x ? (Number(n.kc) || 0) * x / 100 : null,
+        p: n && x ? (Number(n.p) || 0) * x / 100 : null, c: n && x ? (Number(n.c) || 0) * x / 100 : null, f: n && x ? (Number(n.f) || 0) * x / 100 : null });
+    });
+    var base = W || raw;   // без тегло на готовото — сурово (Victus: per_100g_raw)
+    rows.push({ n: "Цялата рецепта", st: W && raw ? "от " + kitG(Math.round(raw)) + " г сурово" : "", g: base || null, kc: m.kc, p: m.p, c: m.c, f: m.f, cls: "sum" });
+    if (base > 0) {
+      [[W ? "на 100 г" : "на 100 г сурово", 100], ["порция", Number(pn) > 0 ? base / Number(pn) : 0], ["резен", Number(rz) || 0]].forEach(function (r) {
+        if (!(r[1] > 0)) return;
+        rows.push({ n: r[0], g: r[1], kc: m.kc * r[1] / base, p: m.p * r[1] / base, c: m.c * r[1] / base, f: m.f * r[1] / base, cls: "per" });
+      });
+    }
+    return rows;
+  }
+  function kitRecTbl(d) { return kitTbl(kitRecRows(d.items || [], d.m, d.w, d.pn, d.rz)); }
+  function kitRecBase(d) { var raw = 0; (d.items || []).forEach(function (it) { raw += Number(it.g) || 0; }); return Number(d.w) > 0 ? Number(d.w) : raw; }
+  function kitRecEdRow(it, i) {
+    return '<div class="drow"><span class="dn2">' + esc(kitFN(it.id)) + '</span><span class="dctl">' + kitStSel(it, i)
+      + '<span class="dgw"><input type="text" class="dg" data-dg="' + i + '" inputmode="decimal" autocomplete="off" aria-label="Грамове" value="' + esc(it.g == null ? "" : String(it.g)) + '"> г</span>'
+      + '</span><button type="button" class="dx" data-drm="' + i + '" aria-label="Махни">×</button></div>';
+  }
+  function kitOptOk(v, max) { var s = String(v == null ? "" : v).trim(); if (!s) return true; var n = kitNum(s); return n != null && n > 0 && n <= max; }
+  function kitRecOk() {
+    var e = KIT.ed, pn = String(e.pn == null ? "" : e.pn).trim();
+    return !!e && !e.busy && !!e.name.trim() && e.items.length > 0 && e.items.every(function (it) { return kitGOk(it.g); })
+      && kitOptOk(e.w, 20000) && (!pn || (/^\d+$/.test(pn) && +pn >= 1 && +pn <= 100)) && kitOptOk(e.rz, 5000);
+  }
+  function kitRecMac() { var e = KIT.ed; return kitMac(e.items.filter(function (it) { return kitGOk(it.g); }).map(function (it) { return { id: it.id, g: kitGNum(it.g), st: it.st }; })); }
+  function kitRecPrev() { var e = KIT.ed; return '<div class="drec" id="dRec">' + kitTbl(kitRecRows(e.items, kitRecMac(), kitNum(e.w), kitNum(e.pn), kitNum(e.rz))) + "</div>"; }
+  function kitRecEdHtml() {   // Т158б: продукти × количества (+ състояние) + готово · порции · резен → живата таблица
+    var e = KIT.ed;
+    return '<div class="card ded drecipe"><label class="dlab" for="dName">Име на рецептата</label><textarea class="ag ag1" rows="1" id="dName" maxlength="80" autocomplete="off">' + esc(e.name) + "</textarea>"
+      + '<div class="dits" id="dIts">' + e.items.map(kitRecEdRow).join("") + "</div>"
+      + kitPickHtml()
+      + '<div class="drf"><label>Готово, г<input type="text" id="dW" inputmode="decimal" autocomplete="off" value="' + esc(e.w) + '"></label>'
+      + '<label>Порции<input type="text" id="dPn" inputmode="numeric" autocomplete="off" value="' + esc(e.pn) + '"></label>'
+      + '<label>Резен, г<input type="text" id="dRz" inputmode="decimal" autocomplete="off" value="' + esc(e.rz) + '"></label></div>'
+      + kitRecPrev()
+      + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
+      + (e.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
+      + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitRecOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
+  }
+  function kitRecSync() {   // при писане — таблицата и „Запиши“ на място (фокусът остава)
+    var e = KIT.ed, p = P.kuhnya; if (!e || e.mode !== "recipe" || !p) return;
+    var r = document.getElementById("dRec"); if (r) r.outerHTML = kitRecPrev();
+    var sv = p.querySelector("[data-dsave]"); if (sv) sv.disabled = !kitRecOk();
+  }
   function kitSharedCard(s) {
-    return '<div class="card dish dshared" data-sid="' + esc(s.id) + '"><div class="dh"><b class="dn">' + esc(s.n) + "</b></div>"
+    return '<div class="card dish dshared" data-sid="' + esc(s.id) + '"><div class="dh"><b class="dn">' + esc(s.n) + "</b>" + (s.k === "recipe" ? '<span class="dst">Рецепта</span>' : "") + "</div>"   // Т158б
       + '<p class="dshi">' + esc((s.items || []).map(function (it) { return kitFN(it.id); }).join(" · ")) + "</p>"
       + kitCBtn("data-dtake", s.id, "btn dtake", "Вземи", "Вземи", !KIT.ro)
       + (KIT.derr === s.id ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "") + "</div>";
   }
   function kitDishesHtml() {
-    if (KIT.ed) return KIT.ed.mode === "size" ? kitSizeHtml() : kitEdHtml();
-    return '<div class="dtop">' + kitCBtn("data-dnew", "client", "btn", "＋ Комбинирай", "＋ Комбинирай", !KIT.ro)
-      + (COACH ? '<button type="button" class="btn dnew" data-dnew="coach">＋ Ново ястие</button>' : "") + "</div>"
-      + '<div class="sec"><h2>Моите ястия</h2>' + (KIT.dishes.length ? KIT.dishes.map(kitDishCard).join("") : '<p class="kempty">Още няма ястия. Натисни „Комбинирай“ и сглоби първото.</p>') + "</div>"
+    if (KIT.ed) return KIT.ed.mode === "size" ? kitSizeHtml() : KIT.ed.mode === "recipe" ? kitRecEdHtml() : kitEdHtml();   // Т158б: рецептата
+    var ds = KIT.dishes.filter(function (d) { return d.k !== "recipe"; }), rs = KIT.dishes.filter(function (d) { return d.k === "recipe"; });
+    return '<div class="dtop">' + kitCBtn("data-dnew", "client", "btn", "＋ Комбинирай", "＋ Комбинирай", !KIT.ro) + kitCBtn("data-dnew", "recipe", "btn", "＋ Рецепта", "＋ Рецепта", !KIT.ro)
+      + (COACH ? '<button type="button" class="btn dnew" data-dnew="coach">＋ Ново ястие</button><button type="button" class="btn dnew" data-dnew="rcoach">＋ Нова рецепта</button>' : "") + "</div>"
+      + '<div class="sec"><h2>Моите ястия</h2>' + (ds.length ? ds.map(kitDishCard).join("") : '<p class="kempty">Още няма ястия. Натисни „Комбинирай“ и сглоби първото.</p>') + "</div>"
+      + (rs.length ? '<div class="sec"><h2>Моите рецепти</h2>' + rs.map(kitDishCard).join("") + "</div>" : "")   // Т158б
       + (KIT.shared.length ? '<div class="sec"><h2>Общи ястия</h2>' + KIT.shared.map(kitSharedCard).join("") + "</div>" : "");
   }
   // ── сглобяването
@@ -5865,7 +5938,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitEdRefresh() {   // Т102б: след добавяне — всичко на място, без да прерисува търсачката (фокусът и клавиатурата остават)
     var e = KIT.ed, p = P.kuhnya; if (!e || !p) return;
     var sol = kitSolverOn(), its = document.getElementById("dIts");
-    if (its) its.innerHTML = e.items.map(sol ? kitSolRow : kitEdRow).join("");
+    if (its) its.innerHTML = e.items.map(e.mode === "recipe" ? kitRecEdRow : sol ? kitSolRow : kitEdRow).join("");   // Т158б
+    if (e.mode === "recipe") kitRecSync();
     kitAddResRefresh();   // Т103
     var qi = document.getElementById("dQ"); if (qi) qi.disabled = e.items.length >= 20;
     if (sol) {
@@ -5873,7 +5947,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (tg) tg.outerHTML = kitTgtHtml(t, now);
       var ck = document.getElementById("dChk"); if (ck) ck.innerHTML = kitChecksHtml();
     }
-    var sv = p.querySelector("[data-dsave]"); if (sv) sv.disabled = !kitEdOk();
+    var sv = p.querySelector("[data-dsave]"); if (sv) sv.disabled = e.mode === "recipe" ? !kitRecOk() : !kitEdOk();   // Т158б: рецептата — и грамовете
   }
   function kitGCommit(soft) {   // полето за грамове: въведено число → заключено; празно / невалидно / без писане → както беше
     var e = KIT.ed; if (!e || e.gi == null) return;
@@ -5891,15 +5965,26 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + kitEatCtl(d.n)
       + '<div class="bki"' + (x ? "" : " hidden") + ">" + kitDishTbl(d) + "</div></div>";   // Т158: таблицата — съставките и сборът
   }
+  function kitBankRecRow(d) {   // Т158б: рецептата — на порция (без порции — на 100 г); разгънатото — таблицата; „Изядох“ — порция · резен · грамове
+    var x = !!KIT.bkx[d.id], b = kitRecBase(d), pn = Number(d.pn) || 0, g = pn > 0 ? b / pn : 100, k = b > 0 ? g / b : 0, m = d.m;
+    var lbl = pn > 0 ? "порция" : Number(d.w) > 0 ? "100 г" : "100 г сурово";
+    return '<div class="bk' + (eatenToday(d.n).length ? " ate" : "") + '" data-meal="' + esc(d.n) + '" data-dish="' + esc(d.id) + '" data-rec="1">'
+      + '<button type="button" class="bkh" data-bkx="' + esc(d.id) + '" aria-expanded="' + x + '"><span class="bkn">' + esc(d.n) + " <i>· " + lbl + "</i></span>"
+      + '<span class="kv">' + kitN1(kitR1(m.p * k)) + '</span><span class="kv">' + kitN1(kitR1(m.c * k)) + '</span><span class="kv">' + kitN1(kitR1(m.f * k)) + '</span><span class="kv kk">' + kitKc(m.kc * k) + "</span></button>"
+      + kitEatCtl(d.n)
+      + '<div class="bki"' + (x ? "" : " hidden") + ">" + kitRecTbl(d) + "</div></div>";
+  }
   function kitBankHtml() {
     if (!KIT || !KIT.loaded) return "";
-    var ds = KIT.dishes.filter(function (d) { return d.st === "sized" && d.m; }); if (!ds.length) return "";
+    var ds = KIT.dishes.filter(function (d) { return d.st === "sized" && d.m && d.k !== "recipe"; }), rs = KIT.dishes.filter(function (d) { return d.k === "recipe" && d.m; }).sort(kitAlpha);   // Т158б
+    if (!ds.length && !rs.length) return "";
     var known = {}; KIT_CATS.forEach(function (c) { known[c[0]] = 1; });
     var inner = '<div class="bkhd"><span></span><span>П</span><span>В</span><span>М</span><span>ккал</span></div>';
     KIT_CATS.concat([["", "Без категория"]]).forEach(function (c) {
       var g = ds.filter(function (d) { return (known[d.cat] ? d.cat : "") === c[0]; }).sort(kitAlpha);
       if (g.length) inner += '<div class="bkc">' + c[1] + "</div>" + g.map(kitBankRow).join("");
     });
+    if (rs.length) inner += '<div class="bkc">Рецепти</div>' + rs.map(kitBankRecRow).join("");   // Т158б: след ястията
     return panelHtml("dishbank", "nutrition", "Моите ястия", "", '<div class="bank">' + inner + "</div>", KIT.bankOpen !== false);
   }
   function kitBankSync() {   // картата — на мястото си (пред „Лог“), без обвивка; няма оразмерени / кухнята е изключена → няма карта
@@ -5911,9 +5996,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (old) { if (html) old.outerHTML = html; else old.parentNode.removeChild(old); }
     else if (html && lg) lg.insertAdjacentHTML("beforebegin", html);   // без „Лог“ „Храна“ още не е нарисувана → renderHrana я слага
   }
-  function kitEatText(did, name, hm) {   // „✅ <име> — ядено ЧЧ:ММ\n<Калмари 155 г суров + Бял ориз 30 г сух + …>.\n<ккал> ккал · П x · В y · М z“
+  function kitEatAmtHtml(d) {   // Т158б: порция (ако има порции) · резен (ако има резен) · грамове; първото — избрано
+    var o = [], pn = Number(d.pn) > 0, rz = Number(d.rz) > 0, def = pn ? "portion" : rz ? "slice" : "grams";
+    if (pn) o.push(["portion", "Порция"]); if (rz) o.push(["slice", "Резен"]); o.push(["grams", "Грамове"]);
+    return '<div class="epam" role="group" aria-label="Колко">' + o.map(function (x) { var on = x[0] === def; return '<button type="button" data-epam="' + x[0] + '" aria-pressed="' + on + '"' + (on ? ' class="on"' : "") + ">" + x[1] + "</button>"; }).join("")
+      + '<input type="text" class="epg" inputmode="decimal" autocomplete="off" aria-label="Грамове" value="' + (def === "grams" ? "100" : "") + '"' + (def === "grams" ? "" : " hidden") + "></div>";
+  }
+  function kitEatAmt(pop, did) {   // → { g, lbl } или false (грамовете липсват)
+    var d = KIT.dishes.filter(function (x) { return String(x.id) === String(did); })[0]; if (!d) return null;
+    var on = pop.querySelector("[data-epam].on"), v = on ? on.getAttribute("data-epam") : "grams", b = kitRecBase(d);
+    if (v === "portion" && Number(d.pn) > 0) return { g: b / Number(d.pn), lbl: "1 порция" };
+    if (v === "slice" && Number(d.rz) > 0) return { g: Number(d.rz), lbl: "1 резен" };
+    var gi = pop.querySelector(".epg"), g = gi ? kitNum(gi.value) : null;
+    return g != null && g > 0 && g <= 5000 ? { g: g, lbl: "" } : false;
+  }
+  function kitEatText(did, name, hm, amt) {   // „✅ <име> — ядено ЧЧ:ММ\n<Калмари 155 г суров + Бял ориз 30 г сух + …>.\n<ккал> ккал · П x · В y · М z“
     var d = KIT.dishes.filter(function (x) { return String(x.id) === String(did); })[0], head = "✅ " + name + " — ядено " + hm;
     if (!d || !d.m) return head;
+    if (amt) {   // Т158б: рецептата — колкото е изядено; числата — сборът × дял
+      var b = kitRecBase(d), k = b > 0 ? amt.g / b : 0;
+      return head + "\n" + (amt.lbl ? amt.lbl + " (" + kitG(Math.round(amt.g)) + " г)" : kitG(Math.round(amt.g)) + " г") + " от рецептата.\n"
+        + numLine({ k: Math.round(d.m.kc * k), p: d.m.p * k, c: d.m.c * k, f: d.m.f * k });
+    }
     return head + "\n" + (d.items || []).map(function (it) { var f = KIT.byId[it.id], w = it.st || kitState(f); return kitFN(it.id) + " " + kitG(it.g) + " г" + (w ? " " + w : ""); }).join(" + ") + ".\n"   // Т100г: + състоянието; Т158: избраното
       + numLine({ k: d.m.kc, p: d.m.p, c: d.m.c, f: d.m.f });
   }
@@ -5921,6 +6025,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var e = KIT.ed; if (!e || e.busy) return;
     var name = e.name.trim(), note = e.note.trim() || null, coach = e.who === "coach";
     if (!name || !e.items.length) return;
+    if (e.mode === "recipe") { kitRecSave(e, name, note, coach); return; }   // Т158б
     if (e.mode === "size" && !kitSizeTot().ok) return;
     var items = kitSolverOn() ? e.items.filter(function (it) { return Number(it.g) > 0; }).map(function (it) { var o = { id: it.id, g: Number(it.g) }; if (it.st) o.st = it.st; return o; })   // Т100: 0 г — не влиза; Т158: + състоянието
       : e.items.map(function (it) { var o = { id: it.id }; if (it.s) o.s = it.s; if (coach && kitGOk(it.g)) o.g = kitGNum(it.g); if (it.st) o.st = it.st; return o; });
@@ -5929,6 +6034,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     e.busy = true; e.err = false; kitBody();
     var q;
     try { q = coach ? sb.rpc("coach_save_dish", { p_client_id: COACH_CID, p_id: e.id, p_name: name, p_items: items, p_note: note, p_cat: cat }) : wr("save_dish", { p_token: token, p_id: e.id, p_name: name, p_items: items, p_note: note, p_cat: cat }); } catch (x) { q = Promise.reject(x); }
+    Promise.resolve(q).then(function (res) {
+      if (!res || res.error || !res.data) throw new Error("fail");
+      KIT.ed = null;
+      return kitFetch().then(kitBody, kitBody);
+    }).catch(function () { if (KIT.ed === e) { e.busy = false; e.err = true; kitBody(); } });
+  }
+  function kitRecSave(e, name, note, coach) {   // Т158б: рецептата — всички с грамове; + p_kind, p_weight, p_portions, p_slice
+    if (!kitRecOk()) return;
+    var items = e.items.map(function (it) { var o = { id: it.id, g: kitGNum(it.g) }; if (it.st) o.st = it.st; return o; });
+    var a = { p_id: e.id, p_name: name, p_items: items, p_note: note, p_cat: null, p_kind: "recipe", p_weight: kitNum(e.w), p_portions: kitNum(e.pn), p_slice: kitNum(e.rz) };
+    e.busy = true; e.err = false; kitBody();
+    var q;
+    try { q = coach ? sb.rpc("coach_save_dish", Object.assign({ p_client_id: COACH_CID }, a)) : wr("save_dish", Object.assign({ p_token: token }, a)); } catch (x) { q = Promise.reject(x); }
     Promise.resolve(q).then(function (res) {
       if (!res || res.error || !res.data) throw new Error("fail");
       KIT.ed = null;
@@ -5948,13 +6066,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitDishClick(b) {   // true — бутонът е на ястията
     var v, e = KIT.ed;
     if ((v = b.getAttribute("data-dnew"))) {
-      if (v === "coach" && !COACH) return true;
-      if (v === "client" && KIT.ro) return true;
-      KIT.ed = { mode: "build", id: null, sized: false, who: v, name: "", items: [], note: "", q: "", busy: false, err: false, cat: null, gi: null, gv: null, ff: { roles: [], orgs: [], kinds: [], grps: [], fav: true }, rl: [], rs: 0 }; KIT.ask = null; KIT.derr = ""; kitBody(); return true;
+      if ((v === "coach" || v === "rcoach") && !COACH) return true;
+      if ((v === "client" || v === "recipe") && KIT.ro) return true;
+      var rcp = v === "recipe" || v === "rcoach";   // Т158б: рецептата
+      KIT.ed = { mode: rcp ? "recipe" : "build", w: "", pn: "", rz: "", id: null, sized: false, who: v === "coach" || v === "rcoach" ? "coach" : "client", name: "", items: [], note: "", q: "", busy: false, err: false, cat: null, gi: null, gv: null, ff: { roles: [], orgs: [], kinds: [], grps: [], fav: true }, rl: [], rs: 0 }; KIT.ask = null; KIT.derr = ""; kitBody(); return true;
     }
     if ((v = b.getAttribute("data-dedit"))) {
       if (KIT.ro) return true;
       var d = KIT.dishes.filter(function (x) { return x.id === v; })[0]; if (!d) return true;
+      if (d.k === "recipe") {   // Т158б: ✎ на рецепта — редакторът на рецептата
+        KIT.ed = { mode: "recipe", id: d.id, sized: true, who: "client", name: d.n, items: (d.items || []).map(function (it) { return { id: it.id, s: null, g: it.g != null ? kitG(it.g) : "", lk: false, st: it.st || "" }; }),
+          note: d.note || "", q: "", busy: false, err: false, cat: null, gi: null, gv: null, w: d.w != null ? kitG(d.w) : "", pn: d.pn != null ? String(d.pn) : "", rz: d.rz != null ? kitG(d.rz) : "",
+          ff: { roles: [], orgs: [], kinds: [], grps: [], fav: true }, rl: [], rs: 0 };
+        KIT.ask = null; kitBody(); return true;
+      }
       KIT.ed = { mode: "build", id: d.id, sized: d.st === "sized", who: "client", name: d.n, items: (d.items || []).map(function (it) { return { id: it.id, s: it.s || null, g: it.g != null ? Number(it.g) : "", lk: false, st: it.st || "" }; }), note: d.note || "", q: "", busy: false, err: false, cat: d.cat || null, gi: null, gv: null, ff: { roles: [], orgs: [], kinds: [], grps: [], fav: true }, rl: [], rs: 0 };
       if (kitSolverOn()) kitEdPrep();   // Т100
       KIT.ask = null; kitBody(); return true;
@@ -6008,15 +6133,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function kitDishInput(t) {   // true — полето е на ястията
     var e = KIT.ed; if (!e) return false;
-    if (t.id === "dName") { e.name = t.value; var b = P.kuhnya.querySelector("[data-dsave]"); if (b && e.mode === "build") b.disabled = !kitEdOk(); return true; }
+    if (t.id === "dName") { e.name = t.value; var b = P.kuhnya.querySelector("[data-dsave]"); if (b && e.mode === "build") b.disabled = !kitEdOk(); else if (b && e.mode === "recipe") b.disabled = !kitRecOk(); return true; }
+    if (t.id === "dW" || t.id === "dPn" || t.id === "dRz") { e[{ dW: "w", dPn: "pn", dRz: "rz" }[t.id]] = t.value; kitRecSync(); return true; }   // Т158б
     if (t.id === "dNote") { e.note = t.value; return true; }
     if (t.id === "dQ") { e.q = t.value; kitAddResRefresh(); return true; }   // Т103: любимите ↔ каталогът, през филтрите
-    if (t.hasAttribute("data-dg")) { var it = e.items[+t.getAttribute("data-dg")]; if (it) it.g = t.value; return true; }
+    if (t.hasAttribute("data-dg")) { var it = e.items[+t.getAttribute("data-dg")]; if (it) it.g = t.value; if (e.mode === "recipe") kitRecSync(); return true; }   // Т158б: живата таблица
     if (t.hasAttribute("data-dsg")) { var it2 = e.items[+t.getAttribute("data-dsg")]; if (it2) { it2.g = t.value; kitSizeSync(); } return true; }
     if (t.id === "dGi") { e.gv = t.value; return true; }   // Т100
     if (t.hasAttribute("data-dst")) {   // Т158: състоянието на съставката → числата (солверът — наново, в него)
       var it3 = e.items[+t.getAttribute("data-dst")]; if (!it3) return true;
       it3.st = t.value || "";
+      if (e.mode === "recipe") kitRecSync();   // Т158б
       if (kitSolverOn()) { kitSolve(); kitSolSync(); }
       return true;
     }
