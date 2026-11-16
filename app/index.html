@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.41.0">
+<meta name="version" content="v1.41.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -754,6 +754,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #popSpacer { position: absolute; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
   .ipop { display: flex; flex-direction: column; max-height: 60vh; }   /* Т60: дълъг текст → скрол вътре, заглавието и × остават */
   .ipop .ipbody { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .ipop .ipbody { scrollbar-width: none; } .ipop .ipbody::-webkit-scrollbar { display: none; }   /* Т160 (Chris 16.11 23:49): балоните — без лента за скрол; скролът остава (пръст / ролка) */
   .ipop p { margin: 0 0 8px; overflow-wrap: anywhere; }
   .ipop .ipbody > :last-child { margin-bottom: 0; }
   .ipop .ipq { margin: 10px 0 2px; font-size: 14.5px; font-weight: 700; line-height: 1.35; color: var(--accent-dark); }
