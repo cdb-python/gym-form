@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.36.1">
+<meta name="version" content="v1.37.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -217,8 +217,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   table.mct th:first-child, table.mct td:first-child { padding-left: 10px; } table.mct th:last-child, table.mct td:last-child { padding-right: 10px; }
   table.mct th { padding-top: 5px; }
   /* Т153: „Сравнение“ — иконата пред името, в слот 16 px (Т155: всички редове с икона) */
-  table.mct .mcl { display: flex; align-items: flex-start; gap: 5px; }
-  table.mct .mci { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }   /* 16 + 5 px: „Мазнини %“ остава на един ред на 375 */
+  table.mct .mcl { display: flex; align-items: center; gap: 4px; }
+  table.mct .mci { flex: none; width: 16px; height: 16px; margin-top: 0; color: inherit; }   /* Т156: в цвета на вида (името) */
   table.mct .mci svg.ic { display: block; width: 16px; height: 16px; }
   table.mct .mvu { white-space: nowrap; }   /* мерната единица не се къса („уд/мин“) */
   .card .body td:first-child, .card .body th:first-child { width: 40%; }
@@ -1117,15 +1117,42 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .md.dup.gup, .d-diff.dup.gup { color: var(--down); }   /* Т127б: тук ↑ е добро — зелено */
   .md.ddown.gup, .d-diff.ddown.gup { color: var(--up); }   /* ↓ — червено */
   .mblks .mcx { padding-left: 0; margin-top: 2px; }
-  /* Т127: сравнението — над историята (числата — Т30: цяла част дясно, запетая под запетая) */
-  .mcmp { padding: 12px 14px 10px; }
-  .mcmp .mth { margin-bottom: 4px; }
-  .mct { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
-  .mct th { padding: 2px 0 4px 6px; color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; white-space: nowrap; }
-  .mct td { padding: 3px 0 3px 6px; text-align: right; vertical-align: baseline; white-space: nowrap; }
-  .mct td:first-child, .mct th:first-child { width: 36%; padding-left: 0; text-align: left; white-space: normal; }
-  .mct .mvu { color: var(--muted); font-size: 12.5px; }
-  .mct .mcs { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.25; }
+  /* Т156 (Chris 16.11 14:40–15:12): „Сравнение“ като при везната — мерките са редове (икона · име · мерна единица, в цвета на
+     вида), датите — колони отляво надясно: начало · последните до 3 мерения · промяна; под таблицата — по една малка графика на
+     мярка, две на ред, в цвета на реда. Колоните — фиксирани, без хоризонтално превъртане; заглавията — „начало“ / „сега“ дребно
+     над датата, „промяна“ — дребно. Числата — Т30 (цяла част дясно, запетая под запетая). Промяната — на бял фон: зеленото и
+     червеното са ≥ 5 на бяло (на цветния фон на реда падат под 4,5) */
+  .mcmp { padding: 12px 12px 10px; }
+  .mcmp .mth { margin-bottom: 6px; }
+  .mct { width: 100%; table-layout: fixed; font-size: 12.5px; }
+  .mct col.mcc0 { width: 30%; } .mct col.mccg { width: 16%; }
+  table.mct th { padding: 4px 2px 3px; color: var(--muted); font-size: 11px; font-weight: 600; line-height: 1.15; text-align: right; vertical-align: bottom; white-space: nowrap; }
+  table.mct th.mnow { color: var(--ink); font-weight: 800; }
+  .mct th .mck { display: block; color: var(--accent-dark); font-size: 10px; font-weight: 800; }
+  table.mct td { padding: 5px 2px; text-align: right; vertical-align: middle; white-space: nowrap; }
+  table.mct td.mnow { font-weight: 800; }
+  table.mct td.mna { color: var(--muted); }   /* „·“ — в деня няма мерене на полето */
+  table.mct td.ml { padding-left: 8px; text-align: left; white-space: normal; font-size: 12.5px; font-weight: 700; line-height: 1.2; }
+  table.mct td.ml .mvu { color: var(--muted); font-size: 10.5px; font-weight: 600; }
+  table.mct .mchg { padding-right: 8px; border-left: 1px solid color-mix(in srgb, var(--tc) 22%, #fff); }
+  table.mct td.mchg { background: #fff; }
+  table.mct .md { margin: 0; font-weight: 700; }
+  /* по вид — четири семейства (предложение на CDB-GYM 15:12): тегло · обиколки · телесен състав (мазнини · мускул · вода и BMR) ·
+     сън и пулс; текстът на мекия фон — 5,4–6,7 */
+  :root { --cmw: #7f5c00; --cmw-s: #fbf0d0; --cmt: #9b3f1c; --cmt-s: #f9e2d7; --cmf: #2a6638; --cmf-s: #dfefe2;
+    --cmm: #225a84; --cmm-s: #dde8f3; --cmq: #11666a; --cmq-s: #d8eeee; --cms: #5e3d8c; --cms-s: #ebe3f5; }
+  .mct tr.cfw td, .mct tr.cft td, .mct tr.cff td, .mct tr.cfm td, .mct tr.cfq td, .mct tr.cfs td { background: var(--cs); }
+  .mct tr.cfw td.mchg, .mct tr.cft td.mchg, .mct tr.cff td.mchg, .mct tr.cfm td.mchg, .mct tr.cfq td.mchg, .mct tr.cfs td.mchg { background: #fff; }
+  .mct td.ml, .mch .mchh > span:first-child { color: var(--cc); }
+  .cfw { --cc: var(--cmw); --cs: var(--cmw-s); } .cft { --cc: var(--cmt); --cs: var(--cmt-s); } .cff { --cc: var(--cmf); --cs: var(--cmf-s); }
+  .cfm { --cc: var(--cmm); --cs: var(--cmm-s); } .cfq { --cc: var(--cmq); --cs: var(--cmq-s); } .cfs { --cc: var(--cms); --cs: var(--cms-s); }
+  /* графиките: две на ред; височината — от таблицата (cmpDraw), най-малко 56 px, за да не се режат надписите */
+  .mchs { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; margin-top: 8px; }
+  .mch { min-width: 0; height: 56px; display: flex; flex-direction: column; padding: 2px 6px 0; border: 1.5px solid var(--cc); border-radius: 9px; background: #fff; overflow: hidden; }
+  .mchh { display: flex; justify-content: space-between; gap: 6px; font-size: 11px; font-weight: 700; line-height: 14px; white-space: nowrap; }
+  .mchh .md { margin: 0; } .mchh .mvu { color: var(--muted); font-weight: 600; }
+  .mchg { flex: 1 1 auto; min-height: 0; }
+  .mchg svg { display: block; overflow: hidden; }
   input:disabled { background: #f3f5f7; }
   .msep { color: var(--muted); }
   .mok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
@@ -1565,7 +1592,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     log: '<path d="M16.5 8.6V5.2a2.2 2.2 0 0 0-2.2-2.2H6.2A2.2 2.2 0 0 0 4 5.2v13.6A2.2 2.2 0 0 0 6.2 21h8.1a2.2 2.2 0 0 0 2.2-2.2v-3.4"></path><path d="M7 8h6.5M7 11.5h6.5M7 15h3"></path><path d="M18.6 7.6a1.5 1.5 0 0 1 2.1 2.1l-7.3 7.3-2.9.8.8-2.9Z"></path>',
     logout: '<path d="M9.5 20.5H6.2A2.2 2.2 0 0 1 4 18.3V5.7a2.2 2.2 0 0 1 2.2-2.2h3.3"></path><path d="M15.2 7.5 19.7 12l-4.5 4.5"></path><path d="M19.7 12H9.5"></path>',
     message: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"></rect><path d="M3.8 7.2l7 5.2a2 2 0 0 0 2.4 0l7-5.2"></path>',
-    muscle: '<path d="M4 14.6C5.6 11.6 9.2 10.2 11.8 11.3c1.1.5 2 1.3 2.6 2.2L12.6 8.8c-1-.2-1.7-1.2-1.5-2.2l.4-1.6c.2-.8.9-1.3 1.7-1.2l2 .3c1 .2 1.6 1.1 1.4 2.1l-.3 1.4 3.8 8.3c.7 1.7-.5 4.1-2.5 4.1H4.8c-.5 0-.8-.4-.8-.9Z"></path><path d="M11.4 6.5l2.4.4"></path>',
+    muscle: '<path d="M3.5 9.6C7 9 8.6 6.6 12 6.6S17 9 20.5 9.6"></path><path d="M3.5 11.2C7.5 10.8 9 10.2 12 10.2S16.5 10.8 20.5 11.2"></path><path d="M3.5 12.8C7.5 13.2 9 13.8 12 13.8S16.5 13.2 20.5 12.8"></path><path d="M3.5 14.4C7 15 8.6 17.4 12 17.4S17 15 20.5 14.4"></path>',
     nutrition: '<path d="M12 7.6c-1.5-1-3.6-1.4-5.3-.4-2.6 1.5-3 5.2-1.6 8.4 1.2 2.8 3.4 5 5 4.4.8-.3 1.1-.5 1.9-.5s1.1.2 1.9.5c1.6.6 3.8-1.6 5-4.4 1.4-3.2 1-6.9-1.6-8.4-1.7-1-3.8-.6-5.3.4Z"></path><path d="M12 7.6c0-1.6.5-2.9 1.6-3.9"></path><path d="M13 5.8c1.9.2 3.3-.6 3.9-2.2-1.9-.2-3.3.6-3.9 2.2Z"></path>',
     open: '<path d="M7 17 17 7"></path><path d="M9 7h8v8"></path>',
     pdf: '<path d="M14 3H7a2.2 2.2 0 0 0-2.2 2.2v13.6A2.2 2.2 0 0 0 7 21h10a2.2 2.2 0 0 0 2.2-2.2V8.2Z"></path><path d="M14 3v3.4a1.8 1.8 0 0 0 1.8 1.8h3.4"></path><path d="M8.5 12.6h7M8.5 16.2h5"></path>',
@@ -1577,6 +1604,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     send: '<path d="M20.8 3.2 3.6 10.2a.7.7 0 0 0 0 1.3l6.9 2.5 2.5 6.9a.7.7 0 0 0 1.3 0Z"></path><path d="M10.5 14 20.8 3.2"></path>',
     share: '<path d="M12 14.5V3.5"></path><path d="M8.3 7.2 12 3.5l3.7 3.7"></path><path d="M8.5 10H6.7a2.2 2.2 0 0 0-2.2 2.2v6.1a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-6.1a2.2 2.2 0 0 0-2.2-2.2h-1.8"></path>',
     sleep: '<path d="M12.5 3.8a6 6 0 0 0 7.7 7.7A8.4 8.4 0 1 1 12.5 3.8Z"></path><path d="M16.4 3.2h2.8l-2.8 3.2h2.8"></path>',
+    strength: '<path d="M3.6 13.4C5.1 11.6 8.5 11.3 10.6 13.3C11.8 12.2 14 12.1 15.3 13.2C16.2 14 16.8 15 17 16.1"></path><path d="M15.1 13.1V8.7H13.1C12.1 8.7 11.5 7.9 11.7 7L12 5.7C12.2 4.8 13 4.3 13.9 4.4L15.2 4.6C16.4 4.8 17.3 5.6 17.9 6.6C19.4 9 20.6 12.2 20.8 15.2C21 17.6 19.6 19.5 17.3 19.6L9.3 19.8C8.3 19.8 7.4 19.6 6.4 19.8"></path><path d="M11.8 6.5h1.9"></path><path d="M11.2 17.1C12.5 17.7 14 17.9 15.4 17.7"></path>',
     training: '<path d="M8 12h8"></path><rect x="5" y="7" width="3" height="10" rx="1.2"></rect><rect x="16" y="7" width="3" height="10" rx="1.2"></rect><rect x="2.8" y="9.2" width="2.2" height="5.6" rx=".9"></rect><rect x="19" y="9.2" width="2.2" height="5.6" rx=".9"></rect>',
     trash: '<path d="M4.5 6.5h15"></path><path d="M9.5 6.5V4.8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.7"></path><path d="M6.3 6.5l.9 12.6a1.6 1.6 0 0 0 1.6 1.4h6.4a1.6 1.6 0 0 0 1.6-1.4l.9-12.6"></path><path d="M10.2 10.3v6.6M13.8 10.3v6.6"></path>',
     upload: '<path d="M12 15V4.2"></path><path d="M7.8 8.4 12 4.2l4.2 4.2"></path><path d="M4.5 14.5v3.8a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-3.8"></path>',
@@ -3648,40 +3676,118 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var sl = [].concat.apply([], WATCH_SLEEP.map(function (f) { return wf(f[0]); }));
     return blk("Метър", met) + mcxHtml(m) + blk("Часовник · телесен състав (гладно)", bc) + blk("Часовник · сън и възстановяване", sl);
   }
-  // Т127: сравнението — над историята: база (първият запис на полето) · преди 7 дни · сега. Телесният състав — мерене срещу мерене
-  //   (последното до днес−7 / последното изобщо); сънят и пулсът в покой — средно за 7 дни (сега: днес−6…днес; преди 7 дни: днес−13…днес−7;
-  //   по едно на ден — последното). Ред без данни не се показва; таблицата — само от 2 записа нагоре. Числата подравнява Т30 (alignCols).
-  // Т153 (CDB-GYM 11:44, Chris 12:27): иконата пред името — от комплекта IC (слотът е 16 px — имената стоят подравнени).
-  // Т155 (Chris 14:37–14:42): и мазнините (fat), и мускулът (muscle) — всички редове вече с икона
-  var CMP_IC = { weight: "weight", waist: "waist", fat_pct: "fat", smm: "muscle", sleep_h: "sleep", rhr: "pulse" };
-  var CMP_ROWS = [["weight", "Тегло", "кг"], ["waist", "Талия", "см"], ["fat_pct", "Мазнини", "%"], ["smm", "Скелетен мускул", "кг"], ["sleep_h", "Сън", "ч", 1], ["rhr", "Пулс в покой", "уд/мин", 1]];
+  // Т156 (Chris 16.11 14:40–15:12: „питам защото не се разбира трябва да се гадае за нас е сложно“ → черновата „като везната“ →
+  //   15:12 „иначе е добре да отива в апа“). Заменя сравнението на Т127 (база · преди 7 дни · сега, средните за 7 дни).
+  //   Решено от Chris: мерките — редове (икона · име · мерна единица, в цвета на реда); колоните — датите отляво надясно: начало
+  //   (първото мерене) · последните до 3 мерения · промяна (сега − начало, ↓/↑ в зелено/червено, както в историята — по добрата
+  //   посока, Т127б); сега — удебелено; мярка без стойност в деня — „·“. Под таблицата — по една малка графика на мярка, две на ред,
+  //   в цвета на реда: името и промяната отгоре, по оста — мин/макс и първата/последната дата; общата височина ≈ височината на
+  //   редовете, но най-малко CMP_MINH на графика (надписите не се режат).
+  //   Предложение на CDB-GYM (15:12, Chris може да го смени): ред — само за мярка, мерена ≥ 2 пъти; всички мерки на човека в реда
+  //   на формата, без кръвното (две числа) и без пулса от метъра; сънят и пулсът в покой — стойността от деня, без средните за 7 дни;
+  //   цветовете — по вид, четири семейства; под 2 мерения на нито една мярка — картата я няма.
+  //   Мое (асистентката): иконата на обиколките — лентата (waist) за всичките шест; в един ден — последното мерене на полето;
+  //   по оста X графиките са по мерене (както колоните), не по календар.
+  var CMP_F = [   // [ключ, име, мерна единица, знаци (1 — един след запетаята, 0 — цяло), вид (cf + w · t · f · m · q · s), икона]
+    ["weight", "Тегло", "кг", 1, "w", "weight"], ["waist", "Талия", "см", 1, "t", "waist"], ["hip", "Ханш", "см", 1, "t", "waist"],
+    ["neck", "Врат", "см", 1, "t", "waist"], ["chest", "Гърди", "см", 1, "t", "waist"], ["arm", "Ръка", "см", 1, "t", "waist"],
+    ["thigh", "Бедро", "см", 1, "t", "waist"], ["calf", "Прасец", "см", 1, "t", "waist"], ["fat_pct", "Мазнини", "%", 1, "f", "fat"],
+    ["smm", "Мускул", "кг", 1, "m", "muscle"], ["water", "Вода", "кг", 1, "q", "water"], ["bmr", "BMR", "ккал", 0, "q", "bmr"],
+    ["sleep_h", "Сън", "ч", 1, "s", "sleep"], ["rhr", "Пулс в покой", "уд/мин", 0, "s", "pulse"]];
+  var CMP = null, CMP_MINH = 56, CMP_GAP = 6, CMP_RO = null;   // CMP — последното сравнение (за графиките)
+  function cmpDay(d) { return d.slice(8, 10) + "." + d.slice(5, 7); }
+  function cmpV(f, v) { return f[3] ? num1(v) : String(Math.round(v)); }   // целите — без интервал (Т30 ги подравнява)
   function measCmp() {
-    var rows = measRows(), t = todayStr();
-    if (rows.length < 2) return [];
-    return CMP_ROWS.map(function (r) {
-      var k = r[0], s = rows.filter(function (m) { return hasVal(m.e[k]); });   // най-новото първо
-      if (!s.length) return null;
-      function avg(a, b) {
-        var seen = {}, sum = 0, n = 0;
-        s.forEach(function (m) { var dd = dayDiff(m.day, t); if (dd < a || dd > b || seen[m.day]) return; seen[m.day] = 1; sum += Number(m.e[k]); n++; });
-        return n ? Math.round(sum / n * 10) / 10 : null;
-      }
-      var p7 = s.filter(function (m) { return dayDiff(m.day, t) >= 7; })[0];
-      return { k: k, lbl: r[1], unit: r[2], avg: !!r[3], base: Number(s[s.length - 1].e[k]),
-        prev: r[3] ? avg(7, 13) : (p7 ? Number(p7.e[k]) : null), now: r[3] ? avg(0, 6) : Number(s[0].e[k]) };
-    }).filter(function (x) { return x && (x.base != null || x.prev != null || x.now != null); });
+    var by = {}, days = [];
+    measRows().forEach(function (m) {   // най-новото първо → в един ден остава последното мерене на полето
+      var o = by[m.day] || (by[m.day] = {});
+      CMP_F.forEach(function (f) { if (hasVal(m.e[f[0]]) && o[f[0]] == null) o[f[0]] = Number(m.e[f[0]]); });
+    });
+    var all = Object.keys(by).sort();
+    var F = CMP_F.filter(function (f) { return all.filter(function (d) { return by[d][f[0]] != null; }).length >= 2; });
+    if (!F.length) return null;
+    days = all.filter(function (d) { return F.some(function (f) { return by[d][f[0]] != null; }); });
+    var n = days.length;
+    return { days: days, cols: n <= 4 ? days.map(function (d, i) { return i; }) : [0, n - 3, n - 2, n - 1],
+      rows: F.map(function (f) {
+        var s = days.map(function (d) { return by[d][f[0]] == null ? null : by[d][f[0]]; }), v = s.filter(function (x) { return x != null; });
+        var d = v[v.length - 1] - v[0];
+        return { f: f, s: s, first: v[0], last: v[v.length - 1], chg: f[3] ? Math.round(d * 10) / 10 : Math.round(d) };
+      }) };
+  }
+  function cmpChg(r) {
+    var d = r.chg, f = r.f;
+    return '<span class="md' + (d < 0 ? " ddown" : d > 0 ? " dup" : "") + (GOOD_UP[f[0]] ? " gup" : "") + '">' + (d === 0 ? "= " + cmpV(f, 0) : (d < 0 ? "↓" : "↑") + cmpV(f, Math.abs(d))) + "</span>";
   }
   function measCmpHtml() {
-    var R = measCmp();
-    if (!R.length) return "";
-    function cell(v, int) { return '<td class="mcn">' + (v == null ? "—" : int && v === Math.round(v) ? fmtInt(v) : num1(v)) + "</td>"; }
-    return '<div class="mcard mcmp" data-key="meas_cmp"><div class="mth">Сравнение</div><table class="mct"><tr><th></th><th>база</th><th>преди 7 дни</th><th>сега</th></tr>'
-      + R.map(function (x) {
-        var int = x.k === "rhr";
-        return '<tr><td><span class="mcl"><span class="mci">' + (CMP_IC[x.k] ? ic(CMP_IC[x.k]) : "") + "</span><span>" + esc(x.lbl) + ' <span class="mvu">' + esc(x.unit) + "</span>" + (x.avg ? ' <span class="mcs">средно 7 дни</span>' : "") + "</span></span></td>"
-          + cell(x.base, int) + cell(x.prev, int) + cell(x.now, int) + "</tr>";
-      }).join("") + "</table></div>";
+    var C = CMP = measCmp();
+    if (!C) return "";
+    var L = C.cols.length - 1;
+    function th(ci, i) { return "<th" + (i === L ? ' class="mnow"' : "") + ">" + (i === 0 ? '<span class="mck">начало</span>' : i === L ? '<span class="mck">сега</span>' : "") + cmpDay(C.days[ci]) + "</th>"; }
+    function td(r, ci, i) { var v = r.s[ci], c = (v == null ? "mna" : "") + (i === L ? (v == null ? " " : "") + "mnow" : ""); return "<td" + (c ? ' class="' + c + '"' : "") + ">" + (v == null ? "·" : cmpV(r.f, v)) + "</td>"; }
+    // таблицата е без Т30 (data-al): в колоната са различни мерки — всяко число дясно в своята клетка; дробните са с един знак
+    //   (запетаята е под запетаята сама), целите (BMR, пулсът) — цифра под цифра вдясно (CDB-GYM 15:31)
+    return '<div class="mcard mcmp" data-key="meas_cmp"><div class="mth">Сравнение</div><table class="mct" data-al="1"><colgroup><col class="mcc0">'
+      + C.cols.map(function () { return "<col>"; }).join("") + '<col class="mccg"></colgroup><thead><tr><th></th>' + C.cols.map(th).join("")
+      + '<th class="mchg"><span class="mck">промяна</span></th></tr></thead><tbody>'
+      + C.rows.map(function (r) {
+        var f = r.f;
+        return '<tr class="cf' + f[4] + '" data-k="' + f[0] + '"><td class="ml"><span class="mcl"><span class="mci">' + ic(f[5]) + "</span><span>" + esc(f[1])
+          + ' <span class="mvu">' + esc(f[2]) + "</span></span></span></td>" + C.cols.map(function (ci, i) { return td(r, ci, i); }).join("")
+          + '<td class="mchg">' + cmpChg(r) + "</td></tr>";
+      }).join("") + '</tbody></table><div class="mchs">'
+      + C.rows.map(function (r) {
+        return '<div class="mch cf' + r.f[4] + '" data-k="' + r.f[0] + '"><div class="mchh"><span>' + esc(r.f[1]) + "</span><span>" + cmpChg(r)
+          + ' <span class="mvu">' + esc(r.f[2]) + '</span></span></div><div class="mchg"></div></div>';
+      }).join("") + "</div></div>";
   }
+  // графиките: размерът е от таблицата — рисуват се, когато картата се вижда (ResizeObserver: показан раздел, друга ширина)
+  function cmpDraw(cm) {
+    var box = cm && cm.querySelector(".mchs"), tb = cm && cm.querySelector(".mct tbody");
+    if (!box || !tb || !CMP || !box.clientWidth) return;
+    var nr = Math.ceil(CMP.rows.length / 2), rh = tb.getBoundingClientRect().height;
+    var h = Math.max(CMP_MINH, Math.floor((rh - CMP_GAP * (nr - 1)) / nr)), key = box.clientWidth + "x" + h;
+    if (box.getAttribute("data-wh") === key) return;
+    box.setAttribute("data-wh", key);
+    var n = CMP.days.length, d0 = cmpDay(CMP.days[0]), d1 = cmpDay(CMP.days[n - 1]);
+    Array.prototype.forEach.call(box.querySelectorAll(".mch"), function (el, i) {
+      el.style.height = h + "px";
+      var r = CMP.rows[i], f = r.f, g = el.querySelector(".mchg"), W = Math.floor(g.clientWidth), H = Math.floor(g.clientHeight);
+      if (W < 40 || H < 20) { g.innerHTML = ""; return; }
+      var P = [];
+      r.s.forEach(function (v, j) { if (v != null) P.push([j, v]); });
+      var lo = Math.min.apply(null, P.map(function (p) { return p[1]; })), hi = Math.max.apply(null, P.map(function (p) { return p[1]; }));
+      var pad = Math.max((hi - lo) * 0.12, f[3] ? 0.2 : 1), a = lo - pad, z = hi + pad;
+      var lb = lo === hi ? [cmpV(f, hi)] : [cmpV(f, hi), cmpV(f, lo)];
+      var L0 = 6 + 5 * Math.max.apply(null, lb.map(function (t) { return t.length; })), R0 = 4, T0 = 7, B0 = 11;
+      function x(j) { return L0 + (n > 1 ? j * (W - L0 - R0) / (n - 1) : 0); }
+      function y(v) { return T0 + (z - v) * (H - T0 - B0) / (z - a); }
+      var q = "";
+      [hi, lo].slice(0, lb.length).forEach(function (v, k) {
+        var yy = y(v).toFixed(1);
+        q += '<line x1="' + L0 + '" x2="' + (W - R0) + '" y1="' + yy + '" y2="' + yy + '" stroke="#e9e4dc" stroke-width="1"></line>'
+          + '<text x="' + (L0 - 3) + '" y="' + (y(v) + 3).toFixed(1) + '" text-anchor="end" font-size="8.5" fill="#5f6b78">' + lb[k] + "</text>";
+      });
+      q += '<text x="' + L0 + '" y="' + (H - 1.5) + '" font-size="8" fill="#5f6b78">' + d0 + "</text>"
+        + '<text x="' + (W - R0) + '" y="' + (H - 1.5) + '" text-anchor="end" font-size="8" fill="#5f6b78">' + d1 + "</text>";
+      q += '<polyline points="' + P.map(function (p) { return x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1); }).join(" ")
+        + '" fill="none" stroke="var(--cc)" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>';
+      var lp = P[P.length - 1];
+      q += '<circle cx="' + x(lp[0]).toFixed(1) + '" cy="' + y(lp[1]).toFixed(1) + '" r="2.4" fill="var(--cc)"></circle>';
+      g.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(f[1] + ": от " + cmpV(f, r.first) + " до " + cmpV(f, r.last) + " " + f[2]) + '">' + q + "</svg>";
+    });
+  }
+  function cmpWire() {
+    var cm = document.getElementById("mCmp");
+    if (!cm) return;
+    cmpDraw(cm);
+    var t = cm.querySelector(".mct");
+    if (window.ResizeObserver && t) {   // наблюдава таблицата: графиките не я местят → без „ResizeObserver loop“
+      if (!CMP_RO) CMP_RO = new ResizeObserver(function () { cmpDraw(document.getElementById("mCmp")); });
+      CMP_RO.disconnect(); CMP_RO.observe(t);
+    }
+  }
+  window.addEventListener("resize", function () { cmpDraw(document.getElementById("mCmp")); });
   function measPast() { var t = todayStr(); return measRows().filter(function (m) { return m.day !== t; }); }
   function measDays(list) { var d = {}; list.forEach(function (m) { d[m.day] = 1; }); return Object.keys(d).length; }
   function measNavSub() { var n = measDays(measPast()); return n ? n + (n === 1 ? " мерене" : " мерения") : "още няма"; }
@@ -3812,6 +3918,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div id="mCmp">' + measCmpHtml() + "</div>"   // Т127
       + measHistHtml();
     wireMeas();
+    cmpWire();   // Т156: графиките на „Сравнение“
   }
   function refreshMerki() {
     var t = document.getElementById("mToday");
@@ -3822,7 +3929,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       else if (fk) { var fi = t.querySelector('input.mfi[data-k="' + fk[0] + '"]'); if (fi) { fi.focus(); try { fi.setSelectionRange(fk[1], fk[2]); } catch (x) {} } }
     }
     var nr = document.querySelector('#p-merki [data-key="h_meas"] > .ch .sub'); if (nr) nr.textContent = measNavSub();
-    var cm = document.getElementById("mCmp"); if (cm) { cm.innerHTML = measCmpHtml(); alignAll(cm); }   // Т127: „сега“ — и днешното
+    var cm = document.getElementById("mCmp"); if (cm) { cm.innerHTML = measCmpHtml(); alignAll(cm); cmpWire(); }   // Т127: „сега“ — и днешното; Т156 — графиките
   }
 
   // ════════ ДАННИ ════════
