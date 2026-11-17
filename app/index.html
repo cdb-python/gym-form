@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.45.0">
+<meta name="version" content="v1.45.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -3803,15 +3803,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       CMP_F.forEach(function (f) { var v = cmpVal(m, f[0]); if (v != null && o[f[0]] == null) o[f[0]] = v; });
     });
     var all = Object.keys(by).sort();
-    var F = CMP_F.filter(function (f) { return cmpOn(f[0]) && all.some(function (d) { return by[d][f[0]] != null; }); });
-    if (!F.length) return null;
+    function had(k) { return all.some(function (d) { return by[d][k] != null; }); }
+    // Т168б (Chris 17.11 20:14 „нали ти казах да пуснеш и врат скалата да се вижда“): отметната мярка (не от постоянните) стои и без
+    //   мерене — празен ред и графика „още не е мерено“; постоянните (тегло, талия, ханш) — само с мерене. Без нито едно мерене — няма карта.
+    var F = CMP_F.filter(function (f) { return cmpOn(f[0]) && (had(f[0]) || !!CMP_SEL[f[0]]); });
+    if (!F.some(function (f) { return had(f[0]); })) return null;
     days = all.filter(function (d) { return F.some(function (f) { return by[d][f[0]] != null; }); });
     var n = days.length;
     return { days: days, cols: n <= 4 ? days.map(function (d, i) { return i; }) : [0, n - 3, n - 2, n - 1],
       rows: F.map(function (f) {
         var s = days.map(function (d) { return by[d][f[0]] == null ? null : by[d][f[0]]; }), v = s.filter(function (x) { return x != null; });
         var d = v[v.length - 1] - v[0], one = v.length < 2;
-        return { f: f, s: s, first: v[0], last: v[v.length - 1], one: one, chg: one ? null : f[3] ? Math.round(d * 10) / 10 : Math.round(d) };
+        return { f: f, s: s, first: v[0], last: v[v.length - 1], one: one, none: !v.length, chg: one ? null : f[3] ? Math.round(d * 10) / 10 : Math.round(d) };
       }) };
   }
   function cmpChg(r) {
@@ -3838,7 +3841,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }).join("") + '</tbody></table><div class="mchs">'
       + C.rows.map(function (r) {
         return '<div class="mch ck-' + r.f[0] + '" data-k="' + r.f[0] + '"><div class="mchh"><span>' + esc(r.f[1]) + "</span><span>"
-          + (r.one ? '<span class="mvu">1 мерене</span>' : cmpChg(r) + cmpU(r.f, 1)) + '</span></div><div class="mchg"></div></div>';
+          + (r.none ? '<span class="mvu">още не е мерено</span>' : r.one ? '<span class="mvu">1 мерене</span>' : cmpChg(r) + cmpU(r.f, 1)) + '</span></div><div class="mchg"></div></div>';
       }).join("") + "</div></div>";
   }
   // графиките: размерът е от таблицата — рисуват се, когато картата се вижда (ResizeObserver: показан раздел, друга ширина).
@@ -3858,6 +3861,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (W < 40 || H < 20) { g.innerHTML = ""; return; }
       var P = [];
       r.s.forEach(function (v, j) { if (v != null) P.push([j, v]); });
+      if (!P.length) { g.innerHTML = ""; return; }   // Т168б: още не е мерено — само заглавието
       var lo = Math.min.apply(null, P.map(function (p) { return p[1]; })), hi = Math.max.apply(null, P.map(function (p) { return p[1]; }));
       var pad = Math.max((hi - lo) * 0.12, f[3] ? 0.2 : 1), a = lo - pad, z = hi + pad;
       var lb = lo === hi ? [cmpV(f, hi)] : [cmpV(f, hi), cmpV(f, lo)];
