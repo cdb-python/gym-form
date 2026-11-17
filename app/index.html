@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.47.1">
+<meta name="version" content="v1.47.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1182,11 +1182,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   table.mct th { padding: 4px 2px 3px; color: var(--muted); font-size: 11px; font-weight: 600; line-height: 1.15; text-align: right; vertical-align: bottom; white-space: nowrap; }
   table.mct th.mnow { color: var(--ink); font-weight: 800; }
   .mct th .mck { display: block; color: var(--accent-dark); font-size: 10px; font-weight: 800; }
+  /* Т173 (Chris 18.11 01:00–01:01, DEC-0040, DEC-0041): на телефон „последно“ влизаше в „промяна“. Заглавката стои вдясно над числата;
+     по-дълга от колоната — излиза наляво, в празната заглавка до нея (не надясно, към „±“). „промяна“ → „±“ (aria-label и title
+     „промяна“): на 360 px двете думи не се събират с видимо разстояние. „±“ — 12 px, иначе е точица. */
+  .mct th .mck { display: flex; justify-content: flex-end; }
+  .mct th .mck.mpm { font-size: 12px; }
   table.mct td { padding: 5px 2px; text-align: right; vertical-align: middle; white-space: nowrap; }
   table.mct td.mnow { font-weight: 800; }
   table.mct td.mna { color: var(--muted); }
   table.mct td .mcd { display: block; margin-top: 1px; color: var(--muted); font-size: 9.5px; font-weight: 400; line-height: 1.1; }   /* Т169: датата на мерението */
-  table.mct .mcn { display: block; margin: 1px 0 0 20px; color: var(--muted); font-size: 10px; font-weight: 400; line-height: 1.1; white-space: nowrap; }   /* Т169: броят мерения */   /* „·“ — в деня няма мерене на полето */
+  table.mct .mcn { display: block; margin: 1px 0 0 20px; color: var(--muted); font-size: 10px; font-weight: 400; line-height: 1.1; white-space: nowrap; }
+  table.mct .mcn.mcn0 { white-space: normal; }   /* Т173: „още не е мерено“ — на два реда, ако не се събира (не излиза върху числата) */   /* Т169: броят мерения */   /* „·“ — в деня няма мерене на полето */
   table.mct td.ml { padding-left: 8px; text-align: left; white-space: normal; font-size: 12.5px; font-weight: 700; line-height: 1.2; }
   table.mct td.ml .mvu { color: var(--muted); font-size: 10.5px; font-weight: 600; }
   table.mct .mchg { padding-right: 8px; }   /* Т159: цветът на реда стига и през „промяна“ — без белия фон и без вертикалната черта */
@@ -3857,11 +3863,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     //   (запетаята е под запетаята сама), целите (BMR, пулсът) — цифра под цифра вдясно (CDB-GYM 15:31)
     return '<div class="mcard mcmp" data-key="meas_cmp"><div class="mth">Сравнение' + infoBtn("cmp") + '</div><table class="mct" data-al="1"><colgroup><col class="mcc0">'
       + IX.map(function () { return "<col>"; }).join("") + '<col class="mccg"></colgroup><thead><tr><th></th>' + IX.map(th).join("")
-      + '<th class="mchg"><span class="mck">промяна</span></th></tr></thead><tbody>'
+      + '<th class="mchg" title="промяна" aria-label="промяна"><span class="mck mpm" aria-hidden="true">±</span></th></tr></thead><tbody>'   // Т173 (DEC-0041)
       + C.rows.map(function (r) {
         var f = r.f;
         return '<tr class="ck-' + f[0] + '" data-k="' + f[0] + '"><td class="ml"><span class="mcl"><span class="mci">' + ic(f[5]) + "</span><span>" + esc(f[1])
-          + cmpU(f) + '</span></span><span class="mcn">' + cmpCnt(r) + "</span></td>" + IX.map(function (ci, i) { return td(r, ci, i); }).join("")
+          + cmpU(f) + '</span></span><span class="mcn' + (r.none ? " mcn0" : "") + '">' + cmpCnt(r) + "</span></td>" + IX.map(function (ci, i) { return td(r, ci, i); }).join("")
           + '<td class="mchg' + (r.one ? " mna" : "") + '">' + (r.one ? "·" : cmpChg(r)) + "</td></tr>";
       }).join("") + '</tbody></table><div class="mchs">'
       + C.rows.map(function (r) {
