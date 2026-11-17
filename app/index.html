@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.44.1">
+<meta name="version" content="v1.45.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1147,6 +1147,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mblk .mv > .ml { grid-column: 1; }
   .mblk .mv > b { grid-column: 2; text-align: right; white-space: nowrap; }
   .mblk .mv > .mvu { grid-column: 3; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .mblk .mv.mskip > b, .mblk .mv.mskip > .mvu { opacity: 0.45; }   /* Т168: не влиза в „Сравнение“ (client_log.cmp_skip) */
+  .mblk .mskn { margin-top: 3px; color: var(--muted); font-size: 12px; line-height: 1.35; }
   .mblk .mv > .md { grid-column: 4; margin: 0; text-align: right; white-space: nowrap; }
   .mblk b.v0::after, .mblk .md.v0::after { content: ",0"; visibility: hidden; }   /* целите — запетая под запетая */
   .mblk .mcalc > .ml { font-style: italic; }   /* сметнато от теглото */
@@ -3704,8 +3706,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return rows.map(function (e, i) {
       var diff = {};
       MEAS_ALL.concat(WATCH_ALL).forEach(function (f) {
-        var k = f[0]; if (e[k] == null || e[k] === "") return;
-        for (var j = i + 1; j < rows.length; j++) if (rows[j][k] != null && rows[j][k] !== "") { diff[k] = Math.round((Number(e[k]) - Number(rows[j][k])) * 10) / 10; break; }
+        var k = f[0]; if (e[k] == null || e[k] === "" || cmpSkip(e, k)) return;   // Т168: пропуснатата — без ↑↓ и не е база
+        for (var j = i + 1; j < rows.length; j++) if (rows[j][k] != null && rows[j][k] !== "" && !cmpSkip(rows[j], k)) { diff[k] = Math.round((Number(e[k]) - Number(rows[j][k])) * 10) / 10; break; }
       });
       if (calc[i]) ["fat_kg", "lean"].forEach(function (k) { for (var j = i + 1; j < rows.length; j++) if (calc[j]) { diff[k] = Math.round((calc[i][k] - calc[j][k]) * 10) / 10; break; } });
       return { e: e, day: e.entry_date || sofiaDay(e.created_at), diff: diff, food: !!e._food, calc: calc[i] };
@@ -3744,7 +3746,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function blk(t, rows) { return rows.length ? '<div class="mblk"><div class="mbh">' + esc(t) + "</div>" + rows.join("") + "</div>" : ""; }
     function ck(h, k) { return h.replace('<span class="ml">', '<span class="ml">' + cmpBox(CMP_BY[k] ? k : "")); }   // Т166: извън „Сравнение“ (кръвното, пулсът) — празно място   // Т159: отметката пред мярката
     function wf(k) { var f = WATCH_ALL.filter(function (x) { return x[0] === k; })[0]; return hasVal(e[k]) ? [mvHtml(mShort(f), wVal(f, e[k]), f[2], null, f[4], "", k)] : []; }   // Т166: без ↑↓, без отметка
-    var met = MEAS_ALL.filter(function (f) { return hasVal(e[f[0]]); }).map(function (f) { return ck(mvHtml(mShort(f), num1(e[f[0]]), f[2], m.diff[f[0]], 1), f[0]); });
+    var met = MEAS_ALL.filter(function (f) { return hasVal(e[f[0]]); }).map(function (f) { return ck(mvHtml(mShort(f), num1(e[f[0]]), f[2], m.diff[f[0]], 1, cmpSkip(e, f[0]) ? "mskip" : ""), f[0]); });
+    if (MEAS_ALL.some(function (f) { return hasVal(e[f[0]]) && cmpSkip(e, f[0]); })) met.push('<div class="mskn">Бледите числа не влизат в „Сравнение“.</div>');   // Т168
     if (hasBp(e)) met.push(ck(mvHtml("Кръвно", e.bp_sys + "/" + e.bp_dia, "", null, 0, "mbpv"), ""));
     if (hasPulse(e)) met.push(ck(mvHtml("пулс", String(e.pulse), "", null, 0, "mbpv"), "pulse"));
     var bc = wf("fat_pct").concat(c ? [mvHtml("Мазнини", num1(c.fat_kg), "кг", null, 1, "mcalc")] : [], wf("smm"),
@@ -3785,7 +3788,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function cmpV(f, v) { return f[3] ? num1(v) : String(Math.round(v)); }   // целите — без интервал (Т30 ги подравнява)
   function cmpOn(k) { return !!CMP_LOCK[k] || !!CMP_SEL[k]; }
   function cmpCanWrite() { return CAN_WRITE && !!token && CMP_ON === true; }
+  // Т168 (Chris 17.11 19:43–19:50, DEC-0026): мерене, което остава в историята, но не влиза в „Сравнение“ — client_log.cmp_skip
+  //   (ключовете на мерките от реда; слага ги CDB-GYM по думата на Chris). Не влиза в „Сравнение“, не е база за ↑↓; в историята — бледо.
+  function cmpSkip(e, k) { return !!(e && Array.isArray(e.cmp_skip) && e.cmp_skip.indexOf(k) >= 0); }
   function cmpVal(m, k) {   // мазнините в кг и чистата маса — сметнатите от теглото (Т127); другите — от реда
+    if (cmpSkip(m.e, k)) return null;   // Т168
     if (k === "fat_kg" || k === "lean") return m.calc ? m.calc[k] : null;
     return hasVal(m.e[k]) ? Number(m.e[k]) : null;
   }
