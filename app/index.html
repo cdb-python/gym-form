@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.46.1">
+<meta name="version" content="v1.47.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1107,6 +1107,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mhow { margin: 0 0 12px; color: var(--muted); font-size: 13.5px; }
   .mbig { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; }
   .mbig .mn { flex: 0 0 64px; font-size: 16px; font-weight: 700; }
+  /* Т170 (Chris 17.11 21:12): името на мярката — чип с формата на полето; натискането го включва в „Сравнение“ (реда и графиката) */
+  .mn.mchip { box-sizing: border-box; margin: 0; padding: 9px 10px; border: 1px solid var(--border); border-radius: 10px; background: #fff;
+    color: var(--ink); font-family: inherit; text-align: left; line-height: 1.2; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .mbig .mn.mchip { flex: 0 0 auto; min-width: 76px; }
+  .msm .mn.mchip { padding: 7px 9px; border-radius: 9px; }
+  .mn.mchip.on { background: var(--cs); color: var(--cc); border-color: color-mix(in srgb, var(--cc) 45%, #fff); }
+  .mn.mchip:disabled { cursor: not-allowed; opacity: 0.6; }   /* огледалото: треньорът вижда избора, не го сменя */
+  .mfw .cmperr { margin: 4px 0 0; }
   .mbig input { flex: 1; min-width: 0; padding: 11px 12px; font-size: 22px; font-weight: 700; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; text-align: right; }
   .mbig .mu, .msm .mu { flex: 0 0 24px; color: var(--muted); font-size: 14.5px; }
   .mmore { margin: 2px 0 0; border-top: 1px solid var(--border); padding-top: 4px; }
@@ -1186,7 +1194,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т159 (Chris 16.11 21:39–21:54): всяка мярка — свой цвят (името, редът, графиката); фоновете — 2 × 25 % по-бледи (черновата v8).
      Тегло, талия, мазнини, мускул, вода и BMR — от черновата; другите 15 — предложение на асистентката (различими, същата бледост).
      Текстът на фона — ≥ 5,2; сивото и стрелките (по-тъмните, на цветния фон) — ≥ 4,8 */
-  :root { --ck-weight: #7f5c00; --cs-weight: #fdf7e5; --ck-waist: #9b3f1c; --cs-waist: #fcefe8; --ck-hip: #86499b; --cs-hip: #f5efff; --ck-neck: #506c01; --cs-neck: #ecf4e6; --ck-chest: #007156; --cs-chest: #e0f9f4; --ck-arm: #016c80; --cs-arm: #def6fe; --ck-thigh: #224fa5; --cs-thigh: #eef1f8; --ck-calf: #9e2349; --cs-calf: #ffedf1; --ck-pulse: #87534f; --cs-pulse: #fbf0ef; --ck-fat_pct: #2a6638; --cs-fat_pct: #edf6ef; --ck-fat_kg: #5f6654; --cs-fat_kg: #f2f4ee; --ck-smm: #225a84; --cs-smm: #ecf2f8; --ck-lean: #365db8; --cs-lean: #edf3ff; --ck-water: #11666a; --cs-water: #e9f5f5; --ck-bmr: #8e2f5e; --cs-bmr: #faeef3; --ck-sleep_h: #3c3695; --cs-sleep_h: #f0f2ff; --ck-sleep_score: #714aab; --cs-sleep_score: #f4f0fd; --ck-rhr: #860f23; --cs-rhr: #ffeeee; --ck-hrv: #49406a; --cs-hrv: #f3f1fb; --ck-stress: #6d5b78; --cs-stress: #f5f1f8; --ck-steps: #5c6c14; --cs-steps: #f1f5e8; --up2: #a8302f; --down2: #236647; }   /* Т166: ханш…прасец — наново, в рамката на одобрените тегло и талия (фон L* 95–97,5 C* 3,7–9,4; силен L* 35–42); ΔE2000 по двойки за 8-те: фонове ≥ 6,1, силни ≥ 20 */
+  :root { --ck-weight: #7f5c00; --cs-weight: #fdf7e5; --ck-waist: #9b3f1c; --cs-waist: #fcefe8; --ck-hip: #86499b; --cs-hip: #f5efff; --ck-neck: #506c01; --cs-neck: #ecf4e6; --ck-chest: #007156; --cs-chest: #e0f9f4; --ck-arm: #016c80; --cs-arm: #def6fe; --ck-thigh: #224fa5; --cs-thigh: #eef1f8; --ck-calf: #9e2349; --cs-calf: #ffedf1; --ck-biceps: #922a6e; --cs-biceps: #fef5fb; --ck-pulse: #87534f; --cs-pulse: #fbf0ef; --ck-fat_pct: #2a6638; --cs-fat_pct: #edf6ef; --ck-fat_kg: #5f6654; --cs-fat_kg: #f2f4ee; --ck-smm: #225a84; --cs-smm: #ecf2f8; --ck-lean: #365db8; --cs-lean: #edf3ff; --ck-water: #11666a; --cs-water: #e9f5f5; --ck-bmr: #8e2f5e; --cs-bmr: #faeef3; --ck-sleep_h: #3c3695; --cs-sleep_h: #f0f2ff; --ck-sleep_score: #714aab; --cs-sleep_score: #f4f0fd; --ck-rhr: #860f23; --cs-rhr: #ffeeee; --ck-hrv: #49406a; --cs-hrv: #f3f1fb; --ck-stress: #6d5b78; --cs-stress: #f5f1f8; --ck-steps: #5c6c14; --cs-steps: #f1f5e8; --up2: #a8302f; --down2: #236647; }   /* Т166: ханш…прасец — наново, в рамката на одобрените тегло и талия (фон L* 95–97,5 C* 3,7–9,4; силен L* 35–42); ΔE2000 по двойки за 8-те: фонове ≥ 6,1, силни ≥ 20 */
   .ck-weight { --cc: var(--ck-weight); --cs: var(--cs-weight); }
   .ck-waist { --cc: var(--ck-waist); --cs: var(--cs-waist); }
   .ck-hip { --cc: var(--ck-hip); --cs: var(--cs-hip); }
@@ -1195,6 +1203,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ck-arm { --cc: var(--ck-arm); --cs: var(--cs-arm); }
   .ck-thigh { --cc: var(--ck-thigh); --cs: var(--cs-thigh); }
   .ck-calf { --cc: var(--ck-calf); --cs: var(--cs-calf); }
+  .ck-biceps { --cc: var(--ck-biceps); --cs: var(--cs-biceps); }
   .ck-pulse { --cc: var(--ck-pulse); --cs: var(--cs-pulse); }
   .ck-fat_pct { --cc: var(--ck-fat_pct); --cs: var(--cs-fat_pct); }
   .ck-fat_kg { --cc: var(--ck-fat_kg); --cs: var(--cs-fat_kg); }
@@ -1712,8 +1721,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       "Тук са всички дни със записи в лога, подредени по месеци. Отваряш деня и виждаш какво е имало в него и в колко часа.",
       "Когато в деня има отметнати хранения с „Изядох“, най-горе на деня се появява сборът: колко калории и колко белтъчини (П), въглехидрати (В) и мазнини (М) са влезли с тях.",
       "Това, което пишеш свободно със свои думи, не влиза в този сбор, защото за него няма готови числа. Затова до сбора пише например „+ 2 без сметка“ — в деня има още два записа, които четем ние."] },
-    cmp: { t: "Сравнение", b: [   // Т166 (Chris 15:00) — черновата на CDB-GYM (чака одобрение); един абзац
-      "Теглото, талията и ханшът са тук винаги. Другите обиколки влизат, когато са отметнати в историята на мерките. Промяната е разликата между първото и последното мерене."] },
+    cmp: { t: "Сравнение", b: [   // Т170 (Chris 17.11 21:22 „да одобрявам“) — дословно
+      "В сравнението влизат мерките, чиито имена в „Ново мерене“ са оцветени. С натискане на името мярката влиза или излиза. Промяната е разликата между първото и последното мерене."] },
     merki: { t: "Мерки", b: [   // Т117 (Chris 13.11 11:12) — дословно + Т125 абзацът „защо“ (Chris 13.11 21:15)
       "Тук записваш теглото и обиколките си. С тях следим как се променя тялото — не по един ден, а по посоката през седмиците.",
       "Кантарът показва само общото тегло. Обиколките показват къде става промяната — талията може да намалява, докато теглото стои, когато мазнините намаляват, а мускулът расте. Кръвното и пулсът показват как сърцето отговаря на храненето и движението.",
@@ -1724,7 +1733,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       "Под всяко поле пише къде точно се мери. Важното е мястото да е винаги едно и също — тогава сравнението е честно.",
       "Ръстът се взема от формата с данни. При възрастните не се мени и не се мери отново.",
       "Кръвното и пулса мери след няколко минути спокойно седене.",
-      "До всяко число излиза разликата спрямо предишното мерене, за да виждаш веднага накъде върви."] },
+      "До всяко число излиза разликата спрямо предишното мерене, за да виждаш веднага накъде върви.",
+      "Оцветените имена на мерките са тези, които се виждат в „Сравнение“. С натискане на името мярката влиза или излиза оттам."] },   // Т170 (Chris 17.11 21:22 „да одобрявам“)
     intake: { t: "Форма за данни", b: [
       "Това са основните данни за теб — цел, здраве, хранене, тренировки и сън. По тях се прави и настройва планът ти.",
       "Храненето не започва от калориите. Здравето, лекарствата, сънят и денят ти определят какво е безопасно и какво е изпълнимо за теб — затова питаме и за тях.",
@@ -1931,7 +1941,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function logSummary(e) {
     var bits = [];
     function add(v, label, unit) { if (v != null && v !== "") bits.push(label + " " + v + unit); }
-    add(e.weight, "тегло", " кг"); add(e.neck, "врат", " см"); add(e.chest, "гръд", " см"); add(e.arm, "ръка", " см");
+    add(e.weight, "тегло", " кг"); add(e.neck, "врат", " см"); add(e.chest, "гръд", " см"); add(e.arm, "ръка", " см"); add(e.biceps, "бицепс", " см");
     add(e.waist, "талия", " см"); add(e.hip, "ханш", " см"); add(e.thigh, "бедро", " см"); add(e.calf, "прасец", " см");
     if (e.bp_sys != null && e.bp_dia != null) bits.push("кръвно " + e.bp_sys + "/" + e.bp_dia);
     if (e.pulse != null) bits.push("пулс " + e.pulse);
@@ -3643,10 +3653,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ МЕРКИ (самостоятелен бутон) ════════
   // Пише и чете през add_log_entry / get_client_diary (както досега). Миналите мерения са в „История на мерките" (под-страница).
   var MEAS_MAIN = [["weight", "Тегло", "кг"], ["waist", "Талия", "см"], ["hip", "Ханш", "см"]];
-  var MEAS_MORE = [["neck", "Врат", "см"], ["chest", "Гърди", "см"], ["arm", "Ръка (отпусната)", "см", "Ръка"], ["thigh", "Бедро", "см"], ["calf", "Прасец", "см"]];   // Т117: [3] — късият етикет (историята, „Днес“, поправката)
+  var MEAS_MORE = [["neck", "Врат", "см"], ["chest", "Гърди", "см"], ["arm", "Ръка", "см"], ["biceps", "Бицепс", "см"], ["thigh", "Бедро", "см"], ["calf", "Прасец", "см"]];   // Т117: [3] — късият етикет (историята, „Днес“, поправката)
   // Т117 (Chris 13.11 11:12): под всяко поле — къде точно се мери (дословно)
   var MEAS_HINT = { weight: "сутрин, след тоалетна, преди храна и вода", waist: "на нивото на пъпа, в края на нормално издишване", hip: "най-широкото място на седалището",
-    neck: "точно под адамовата ябълка", chest: "мъже — на нивото на зърната; жени — под гърдите; в края на нормално издишване", arm: "дясната, по средата между рамото и лакътя",
+    neck: "точно под адамовата ябълка", chest: "мъже — на нивото на зърната; жени — под гърдите; в края на нормално издишване", arm: "дясната, отпусната — виси свободно; по средата между рамото и лакътя",
+    biceps: "дясната, вдигната напред до рамото, лакътят свит, бицепсът стегнат докрай — на най-широкото място",
     thigh: "дясното, точно под седалищната гънка", calf: "десният, на най-широкото място", bp: "след няколко минути спокойно седене" };
   function mShort(f) { return f[3] || f[1]; }
   var MEAS_ALL = MEAS_MAIN.concat(MEAS_MORE);
@@ -3746,7 +3757,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function measBlocks(m) {
     var e = m.e, c = m.calc;
     function blk(t, rows) { return rows.length ? '<div class="mblk"><div class="mbh">' + esc(t) + "</div>" + rows.join("") + "</div>" : ""; }
-    function ck(h, k) { return h.replace('<span class="ml">', '<span class="ml">' + cmpBox(CMP_BY[k] ? k : "")); }   // Т166: извън „Сравнение“ (кръвното, пулсът) — празно място   // Т159: отметката пред мярката
+    function ck(h, k) { return h; }   // Т170: отметките излязоха от хронологията — изборът е с чиповете в „Ново мерене“
+    // (старото, Т159/Т166):   // Т166: извън „Сравнение“ (кръвното, пулсът) — празно място   // Т159: отметката пред мярката
     function wf(k) { var f = WATCH_ALL.filter(function (x) { return x[0] === k; })[0]; return hasVal(e[k]) ? [mvHtml(mShort(f), wVal(f, e[k]), f[2], null, f[4], "", k)] : []; }   // Т166: без ↑↓, без отметка
     var met = MEAS_ALL.filter(function (f) { return hasVal(e[f[0]]); }).map(function (f) { return ck(mvHtml(mShort(f), num1(e[f[0]]), f[2], m.diff[f[0]], 1, cmpSkip(e, f[0]) ? "mskip" : ""), f[0]); });
     if (MEAS_ALL.some(function (f) { return hasVal(e[f[0]]) && cmpSkip(e, f[0]); })) met.push('<div class="mskn">Бледите числа не влизат в „Сравнение“.</div>');   // Т168
@@ -3778,12 +3790,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var CMP_F = [   // [ключ, име, мерна единица, знаци (1 — един след запетаята, 0 — цяло), (не се ползва — Т159: цветът е по ключа), икона]
     ["weight", "Тегло", "кг", 1, "", "weight"], ["waist", "Талия", "см", 1, "", "waist"], ["hip", "Ханш", "см", 1, "", "waist"],
     ["neck", "Врат", "см", 1, "", "waist"], ["chest", "Гърди", "см", 1, "", "waist"], ["arm", "Ръка", "см", 1, "", "waist"],
-    ["thigh", "Бедро", "см", 1, "", "waist"], ["calf", "Прасец", "см", 1, "", "waist"]];   // Т166: само линейните — числата от часовника не влизат
+    ["biceps", "Бицепс", "см", 1, "", "waist"], ["thigh", "Бедро", "см", 1, "", "waist"], ["calf", "Прасец", "см", 1, "", "waist"]];   // Т166: само линейните — числата от часовника не влизат
   // Т166 (Chris 17.11 14:56–15:00): „в сравнение само линейните, а от часовника само за теб без горе-долу стойности“ — тегло и обиколките;
   //   числата от часовника (мазнини, мускул, вода, BMR, сън …) — само записът в историята, без ↑↓ и без отметки (за анализа на CDB-GYM).
   //   Старите ключове в clients.cmp_fields (Т159) — пренебрегнати (cmpLoad взима само познатите).
   var CMP_BY = {}; CMP_F.forEach(function (f) { CMP_BY[f[0]] = f; });
-  var CMP_LOCK = { weight: 1, waist: 1, hip: 1 };   // винаги отметнати (Т159; Т166 — тегло, талия, ханш)
+  var CMP_LOCK = {};   // Т170 (Chris 17.11 21:18): няма заключени — „не винаги са включени, освен ако не поиска изрично някой“
+  var CMP_DEF = ["weight", "waist"];   // Т170 (Chris 21:15): по подразбиране — тегло и талия, „за да подсказват“
   var CMP_SEL = {}, CMP_SAVED = {}, CMP_ON = null, CMP_BUSY = false, CMP_AGAIN = false, CMP_AT = null;   // изборът (без заключените); ON — базата знае ли го
   var CMP = null, CMP_MINH = 56, CMP_GAP = 6, CMP_RO = null;   // CMP — последното сравнение (за графиките)
   function cmpDay(d) { return d.slice(8, 10) + "." + d.slice(5, 7); }
@@ -3811,7 +3824,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function had(k) { return all.some(function (d) { return by[d][k] != null; }); }
     // Т168б (Chris 17.11 20:14 „нали ти казах да пуснеш и врат скалата да се вижда“): отметната мярка (не от постоянните) стои и без
     //   мерене — празен ред и графика „още не е мерено“; постоянните (тегло, талия, ханш) — само с мерене. Без нито едно мерене — няма карта.
-    var F = CMP_F.filter(function (f) { return cmpOn(f[0]) && (had(f[0]) || !!CMP_SEL[f[0]]); });
+    var F = CMP_F.filter(function (f) { return cmpOn(f[0]); });   // Т170: включената стои и без мерене („още не е мерено“)
     if (!F.some(function (f) { return had(f[0]); })) return null;
     var rows = F.map(function (f) {
       var p = all.filter(function (d) { return by[d][f[0]] != null; }).map(function (d) { return { d: d, v: by[d][f[0]] }; });
@@ -3926,7 +3939,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function cmpLoad(res) {
     CMP_ON = !!(res && !res.error);
     CMP_SEL = {};
-    if (CMP_ON && Array.isArray(res.data)) res.data.forEach(function (k) { if (CMP_BY[k] && !CMP_LOCK[k]) CMP_SEL[k] = 1; });
+    var src = CMP_ON && Array.isArray(res.data) ? res.data : CMP_DEF;   // Т170: null (още няма избор) или грешка — подразбирането
+    src.forEach(function (k) { if (CMP_BY[k]) CMP_SEL[k] = 1; });
     CMP_SAVED = Object.assign({}, CMP_SEL);
   }
   function cmpBox(k) {   // k = "" → празно място със същата ширина (кръвното)
@@ -3936,14 +3950,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + (cmpOn(k) ? " checked" : "") + (CMP_LOCK[k] || !w ? " disabled" : "") + ">";
   }
   function cmpSync() {
-    Array.prototype.forEach.call(document.querySelectorAll("input.cmpk"), function (x) { x.checked = cmpOn(x.getAttribute("data-cmp")); });
+    Array.prototype.forEach.call(document.querySelectorAll(".mchip[data-cmp]"), function (x) {   // Т170
+      var on = cmpOn(x.getAttribute("data-cmp")); x.classList.toggle("on", on); x.setAttribute("aria-pressed", on ? "true" : "false");
+    });
     var cm = document.getElementById("mCmp"); if (cm) { cm.innerHTML = measCmpHtml(); alignAll(cm); cmpWire(); }
   }
-  function cmpToggle(el) {
+  function cmpToggle(el) {   // Т170: чипът в „Ново мерене“ — натискане обръща
     var k = el.getAttribute("data-cmp");
     Array.prototype.forEach.call(document.querySelectorAll(".cmperr"), function (x) { x.parentNode.removeChild(x); });
-    if (!cmpCanWrite() || CMP_LOCK[k] || !CMP_BY[k]) { el.checked = cmpOn(k); return; }
-    if (el.checked) CMP_SEL[k] = 1; else delete CMP_SEL[k];
+    if (!cmpCanWrite() || CMP_LOCK[k] || !CMP_BY[k]) { cmpSync(); return; }
+    if (!cmpOn(k)) CMP_SEL[k] = 1; else delete CMP_SEL[k];
     CMP_AT = el;
     cmpSync(); cmpSave();
   }
@@ -3959,11 +3975,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         return;
       }
       CMP_AGAIN = false; CMP_SEL = Object.assign({}, CMP_SAVED); cmpSync();
-      var d = CMP_AT && document.body.contains(CMP_AT) && CMP_AT.closest(".mblks");
-      if (d) d.insertAdjacentHTML("beforeend", '<p class="cmperr" role="alert">Отметката не се записа. Опитай пак.</p>');
+      var d = CMP_AT && document.body.contains(CMP_AT) && CMP_AT.closest(".mfw");
+      if (d) d.insertAdjacentHTML("beforeend", '<p class="cmperr" role="alert">Изборът не се записа. Опитай пак.</p>');
     });
   }
-  document.addEventListener("change", function (e) { var t = e.target; if (t && t.classList && t.classList.contains("cmpk")) cmpToggle(t); });
+  document.addEventListener("click", function (e) { var t = e.target && e.target.closest && e.target.closest(".mchip[data-cmp]"); if (t) { e.preventDefault(); cmpToggle(t); } });   // Т170
   function measPast() { var t = todayStr(); return measRows().filter(function (m) { return m.day !== t; }); }
   function measDays(list) { var d = {}; list.forEach(function (m) { d[m.day] = 1; }); return Object.keys(d).length; }
   function measNavSub() { var n = measDays(measPast()); return n ? n + (n === 1 ? " мерене" : " мерения") : "още няма"; }
@@ -4063,8 +4079,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function renderMerki() {
     function hint(k) { return '<span class="mhint" id="mh_' + k + '">' + esc(MEAS_HINT[k]) + "</span>"; }   // Т117: къде се мери
-    function big(f) { return '<div class="mfw"><label class="mbig" for="lg_' + f[0] + '"><span class="mn">' + esc(f[1]) + '</span><input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off" aria-describedby="mh_' + f[0] + '"><span class="mu">' + f[2] + "</span></label>" + hint(f[0]) + "</div>"; }
-    function small(f) { return '<div class="mfw"><label class="msm" for="lg_' + f[0] + '"><span class="mn">' + esc(f[1]) + '</span><input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off" aria-describedby="mh_' + f[0] + '"><span class="mu">' + f[2] + "</span></label>" + hint(f[0]) + "</div>"; }
+    function chip(f) {   // Т170: името на мярката — чип (в „Сравнение“ ли е); другите (пулсът) — както досега
+      if (!CMP_BY[f[0]]) return '<span class="mn">' + esc(f[1]) + "</span>";
+      var on = cmpOn(f[0]);
+      return '<button type="button" class="mn mchip ck-' + f[0] + (on ? " on" : "") + '" data-cmp="' + f[0] + '" aria-pressed="' + (on ? "true" : "false") + '"'
+        + ' title="В „Сравнение“"' + (cmpCanWrite() ? "" : " disabled") + ">" + esc(f[1]) + "</button>";
+    }
+    function big(f) { return '<div class="mfw"><label class="mbig" for="lg_' + f[0] + '">' + chip(f) + '<input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off" aria-describedby="mh_' + f[0] + '"><span class="mu">' + f[2] + "</span></label>" + hint(f[0]) + "</div>"; }
+    function small(f) { return '<div class="mfw"><label class="msm" for="lg_' + f[0] + '">' + chip(f) + '<input type="text" inputmode="decimal" id="lg_' + f[0] + '" autocomplete="off" aria-describedby="mh_' + f[0] + '"><span class="mu">' + f[2] + "</span></label>" + hint(f[0]) + "</div>"; }
     var dt = todayStr();
     // кръвното е включено, ако базата вече го връща (редовете имат bp_sys); при празен дневник — пробва и се изключва при отказ
     if (BP_ON === null) BP_ON = !D.log.length || D.log.some(function (e) { return "bp_sys" in e; });
@@ -6912,6 +6934,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       WATCH_ALL.forEach(function (f) { nv[f[0]] = f[0] in wv ? wv[f[0]] : null; });
       if (measDup(nv)) { say("Вече е записано ✓"); clearLg(); return; }   // Т91
       var args = { p_token: token, p_weight: rec.weight, p_waist: rec.waist, p_hip: rec.hip, p_neck: rec.neck, p_chest: rec.chest, p_arm: rec.arm, p_thigh: rec.thigh, p_calf: rec.calf };
+      if (rec.biceps != null) args.p_biceps = rec.biceps;   // Т170: бицепсът (t170_biceps_chips.sql)
       var withBp = !!bp || pulse != null, noteW = "";
       if (bp) { args.p_bp_sys = bp[0]; args.p_bp_dia = bp[1]; }
       if (pulse != null) args.p_pulse = pulse;
