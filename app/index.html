@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.41.1">
+<meta name="version" content="v1.41.2">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1606,7 +1606,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   // Т140б (Chris 15.11 14:45): „нямаме начало, имаме дашборд, така ще го водим в бъдеще навсякъде, бутона си е къщичка“ — само видимото име; ключът остава nachalo
   // Т150 (Chris 16.11 11:27): „да стане от дашборд на табло, аппа няма вече дахборд, а има табло. дашборд е чуждица в езика ни“ → „Табло“
-  var TABS = { nachalo: "Табло", hrana: "Храна", kuhnya: "Храни", merki: "Мерки", danni: "Данни", razgovor: "Разговор" };   // Т94: „Кухня“ — само при включена кухня (изгледите на треньора — винаги)
+  var TABS = { nachalo: "Табло", hrana: "Храна", kuhnya: "Кухня", merki: "Мерки", danni: "Данни", razgovor: "Разговор" };   // Т94: „Кухня“ — само при включена кухня (изгледите на треньора — винаги)
   // Начало: всички раздели без nutrition (той е в Храна). Редът = SECTIONS на tools/me/ (SSOT), без nutrition.
   var HOME_SECTIONS = [
     { key: "info", label: "Информация" },
@@ -5326,7 +5326,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitNav(on) {
     var nav = document.getElementById("tabs"), b = nav && nav.querySelector('button[data-tab="kuhnya"]');
     if (!nav) return;
-    if (on && !b) { var h = nav.querySelector('button[data-tab="hrana"]'); if (h) h.insertAdjacentHTML("afterend", '<button type="button" data-tab="kuhnya" aria-label="Храни" title="Храни"><span class="nav-ic">' + KIT_NAV_SVG + "</span></button>"); }
+    if (on && !b) { var h = nav.querySelector('button[data-tab="hrana"]'); if (h) h.insertAdjacentHTML("afterend", '<button type="button" data-tab="kuhnya" aria-label="Кухня" title="Кухня"><span class="nav-ic">' + KIT_NAV_SVG + "</span></button>"); }
     else if (!on && b) b.parentNode.removeChild(b);
     KIT.nav = !!on; nav.classList.toggle("k6", !!on);
     if (current) { navSlidePlaced = false; navSlide(current); }
