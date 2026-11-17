@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.44.0">
+<meta name="version" content="v1.44.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2724,6 +2724,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     n.__shPressed = true; if (k) SH.pressed[k] = 1;
     if (n.classList) n.classList.remove("shim");   // Т81: спира веднага, не при следващото пре-рисуване
     if (n.__shk && SH.items[n.__shk]) SH.shown[n.__shk] = 1;
+    // Т167 (Chris 17.11 16:56 „винаги светят и не угасват … аз съм ги видял“): раздел на формата за данни — натиснат → новите отговори
+    //   в него са показани (и под екрана, и скритите редове): видени при напускане на „Данни“; дотогава вълната им остава (Т79/Т80).
+    //   Иначе разделът светеше при всяко влизане, докато всеки отговор не мине по екрана на същия телефон (скритият — никога).
+    if (n.tagName === "DETAILS" && n.closest && n.closest("#intakeForm")) Object.keys(SH.items).forEach(function (x) { if (SH.items[x].tab === "danni" && n.querySelector(SH.items[x].sel)) SH.shown[x] = 1; });
     shSched();
   }
 
