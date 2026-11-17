@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.42.0">
+<meta name="version" content="v1.43.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -841,6 +841,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .vpage .tpg .tp-chain i { color: #fff; }
   /* Т143: страницата „Victus“ — цял екран над всичко (и над лентата долу); горе [←] „Victus“ като шапката; текстът в колоната на картите */
   html.vp-on, html.vp-on body { overflow: hidden; }
+  /* Т164: картинка от линк в чата — слой на целия екран; тъмен фон, картинката цяла; жестовете — наши (touch-action: none) */
+  .imv { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.92); touch-action: none; overscroll-behavior: contain; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; animation: imvIn 0.16s ease-out; }
+  .imv img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: 50% 50%; -webkit-user-drag: none; user-select: none; }
+  .imv .imx { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 6px); right: calc(env(safe-area-inset-right, 0px) + 6px); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.5); color: #fff; cursor: pointer; }
+  .imv .imx svg.ic { width: 22px; height: 22px; }
+  .imv .imx:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  @keyframes imvIn { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .imv { animation: none; } }
   .vpage { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); }
   .vpage .vph { flex: none; display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; column-gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background: var(--accent); color: #fff; }
   .vpage .vph h1 { margin: 0; font-size: 19px; line-height: 1.3; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -6456,15 +6464,123 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var t = e.target;
     if (!TP && t && t.classList && t.classList.contains("tpin") && (e.key === " " || (e.key === "Enter" && t.id === "f_time"))) { e.preventDefault(); tpOpen(t); }
   }, true);
+  // ════════ Т164 (Chris 17.11 13:20–13:21): КАРТИНКА ОТ ЛИНК В ЧАТА — В АППА, ОТГОРЕ ════════
+  // „направи да се маха от екрана с жеста и с влачене надолу както в айфон и навсякъде по мобилните“. Линк в съобщение към картинка
+  //   (.png .jpg .jpeg .webp .gif — краят на пътя, без ?…) не излиза от аппа (на Android „назад“ после затваряше аппа): слой на целия
+  //   екран, тъмен фон, картинката — цяла (вписана), чатът стои отдолу на същото място. Затваряне: „Назад“ (жестът / бутонът —
+  //   отварянето слага ЕДИН запис в историята, както балоните и страниците: Т59, Т144б; затвориш ли иначе — нашето histBack, точно
+  //   веднъж), влачене надолу (картинката следва пръста, фонът избледнява; над IMV_CLOSE px или бърз замах — затваря, под — обратно),
+  //   ×, Esc, докосване на тъмното. Другите линкове — както досега. Огледалото (?c=, VIEW_AS) — същото, само преглед.
+  //   Мое (асистентката): приближаването — наше, с два пръста върху картинката (родното приближава целия апп и той остава приближен
+  //   след затварянето); приближена — един пръст я мести (влаченето надолу — само неприближена); пускане под ×1 — обратно на ×1.
+  var IMV = null, IMV_CLOSE = 120, IMV_FLICK = 0.6, IMV_MAX = 4, IMV_BG = 0.92;   // IMV: { el, img, hist, want, from, s, tx, ty, P, g }
+  function imvUrl(href) { try { var u = new URL(href, location.href); return /^https?:$/.test(u.protocol) && /\.(png|jpe?g|webp|gif)$/i.test(u.pathname); } catch (x) { return false; } }
+  function imvOpen(url, from) {
+    if (IMV) return;
+    if (IPOP) infoClose(false);   // балонът — затворен (записът му — назад; нашият се слага, щом стигне)
+    if (CMENU) cmClose();
+    var el = document.createElement("div");
+    el.className = "imv"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("aria-label", "Картинка");
+    el.innerHTML = '<img alt="" draggable="false"><button type="button" class="imx" aria-label="Затвори">' + ic("close") + "</button>";
+    var V = IMV = { el: el, img: el.querySelector("img"), hist: false, want: false, from: from || null, s: 1, tx: 0, ty: 0, P: {}, g: null };
+    V.img.src = url;
+    document.body.appendChild(el);
+    if (!IP_BACK) { try { history.pushState({ imv: 1 }, "", location.href); V.hist = true; } catch (x) {} } else V.want = true;   // записът — след нашето „назад“
+    imvWire(V);
+    try { el.querySelector(".imx").focus({ preventScroll: true }); } catch (x) {}
+  }
+  function imvClose(viaPop, drop) {
+    var V = IMV; if (!V) return;
+    IMV = null; V.want = false;
+    if (!viaPop && V.hist) { V.hist = false; histBack(); }   // × / влачене / Esc / тъмното → махни записа (точно веднъж)
+    function rm() { if (V.el.parentNode) V.el.parentNode.removeChild(V.el); }
+    if (drop && !REDUCE) {   // влачене надолу — картинката излиза надолу, фонът изчезва
+      V.el.style.transition = "background-color 0.18s ease-out"; V.el.style.backgroundColor = "rgba(0, 0, 0, 0)";
+      V.img.style.transition = "transform 0.18s ease-out"; V.img.style.transform = "translate(0px," + Math.round(window.innerHeight) + "px) scale(" + V.s + ")";
+      V.el.style.pointerEvents = "none"; setTimeout(rm, 190);
+    } else rm();
+    if (V.from && V.from.isConnected) try { V.from.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function imvApply(V, anim) {
+    V.img.style.transition = anim && !REDUCE ? "transform 0.18s ease-out" : "none";
+    V.img.style.transform = "translate(" + V.tx + "px," + V.ty + "px) scale(" + V.s + ")";
+  }
+  function imvBg(V, a) { V.el.style.backgroundColor = "rgba(0, 0, 0, " + Math.round(a * 1000) / 1000 + ")"; }
+  function imvPts(V) { return Object.keys(V.P).map(function (k) { return V.P[k]; }); }
+  function imvC() { return { x: window.innerWidth / 2, y: window.innerHeight / 2 }; }   // средата на слоя = средата на картинката (без отместването)
+  function imvClamp(V) {   // приближената — без празно отвъд краищата
+    var mx = Math.max(0, (V.img.offsetWidth * V.s - window.innerWidth) / 2), my = Math.max(0, (V.img.offsetHeight * V.s - window.innerHeight) / 2);
+    V.tx = Math.max(-mx, Math.min(mx, V.tx)); V.ty = Math.max(-my, Math.min(my, V.ty));
+  }
+  function imvStart(V, x, y, t, onImg, after) {   // нов (или останал) пръст → жестът започва наново; останал след щипка — само мести (не затваря)
+    var p = imvPts(V), c = imvC();
+    if (p.length >= 2) {
+      var mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
+      V.g = { k: "pinch", d0: Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y) || 1, s0: V.s, px: (mx - c.x - V.tx) / V.s, py: (my - c.y - V.ty) / V.s };
+    } else V.g = { k: V.s > 1.01 || after ? "pan" : "drag", x0: x, y0: y, tx0: V.tx, ty0: V.ty, moved: false, onImg: !!onImg, ly: y, lt: t, v: 0 };
+  }
+  function imvMove(V, e) {
+    var g = V.g, p = imvPts(V); if (!g) return;
+    if (g.k === "pinch") {
+      if (p.length < 2) return;
+      var mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2, c = imvC();
+      V.s = Math.max(0.8, Math.min(IMV_MAX, g.s0 * Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y) / g.d0));
+      V.tx = mx - c.x - V.s * g.px; V.ty = my - c.y - V.s * g.py; imvApply(V, false); return;
+    }
+    var dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+    if (!g.moved && Math.abs(dx) + Math.abs(dy) > 6) g.moved = true;
+    if (g.k === "pan") { V.tx = g.tx0 + dx; V.ty = g.ty0 + dy; imvApply(V, false); return; }
+    var dt = e.timeStamp - g.lt;
+    if (dt > 0) { g.v = (e.clientY - g.ly) / dt; g.ly = e.clientY; g.lt = e.timeStamp; }
+    V.tx = 0; V.ty = dy; imvApply(V, false);
+    imvBg(V, IMV_BG * (1 - 0.75 * Math.min(1, Math.abs(dy) / 360)));
+  }
+  function imvEnd(V, e, cancel) {
+    var g = V.g, left = imvPts(V);
+    if (left.length) { imvStart(V, left[0].x, left[0].y, e.timeStamp, false, true); return; }   // от два пръста — на един: продължава с него
+    V.g = null; if (!g) return;
+    if (g.k !== "drag") {
+      if (V.s < 1.01) { V.s = 1; V.tx = 0; V.ty = 0; } else imvClamp(V);
+      imvApply(V, true); return;
+    }
+    if (!cancel && (V.ty > IMV_CLOSE || (V.ty > 30 && g.v > IMV_FLICK))) { imvClose(false, true); return; }   // надолу — затваря
+    if (!cancel && !g.moved && !g.onImg) { imvClose(false); return; }   // докосване на тъмното
+    V.tx = 0; V.ty = 0; imvApply(V, true); imvBg(V, IMV_BG);   // под прага — обратно
+  }
+  function imvWire(V) {
+    var el = V.el;
+    el.querySelector(".imx").addEventListener("click", function () { if (IMV === V) imvClose(false); });
+    el.addEventListener("wheel", function (e) { e.preventDefault(); }, { passive: false });   // чатът отдолу не се превърта
+    el.addEventListener("pointerdown", function (e) {
+      if (IMV !== V || (e.target.closest && e.target.closest(".imx")) || (e.pointerType === "mouse" && e.button !== 0)) return;
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (x) {}
+      V.P[e.pointerId] = { x: e.clientX, y: e.clientY };
+      imvStart(V, e.clientX, e.clientY, e.timeStamp, e.target === V.img);
+    });
+    el.addEventListener("pointermove", function (e) { if (IMV !== V || !V.P[e.pointerId]) return; V.P[e.pointerId] = { x: e.clientX, y: e.clientY }; imvMove(V, e); });
+    function up(e) { if (IMV !== V || !V.P[e.pointerId]) return; delete V.P[e.pointerId]; imvEnd(V, e, e.type === "pointercancel"); }
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+  }
+  document.addEventListener("click", function (e) {   // линк към картинка в съобщение → слоят; другите — както досега (нов прозорец)
+    var a = e.target.closest && e.target.closest(".cmsg .cb a[href]");
+    if (!a || e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || !imvUrl(a.getAttribute("href"))) return;
+    e.preventDefault();
+    imvOpen(a.href, a);
+  });
+  document.addEventListener("keydown", function (e) { if (IMV && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); imvClose(false); } }, true);
   window.addEventListener("popstate", function () {
     if (IP_BACK) {   // нашето „назад“ стигна: адресът — текущият раздел; ако междувременно е отворен балон — неговият запис сега
       IP_BACK = false;
       if (BACKQ > 0) { BACKQ--; histBack(); return; }   // Т144б: следващото наше „назад“ от опашката
       var vt = vpTop(); if (vt && vt.want) { vt.want = false; try { history.pushState({ vpage: vt.key }, "", location.href); vt.hist = true; } catch (x) {} }   // Т144б
       try { history.replaceState(null, "", location.pathname + location.search + "#" + current); } catch (x) {}
+      if (IMV && IMV.want) { IMV.want = false; try { history.pushState({ imv: 1 }, "", location.href); IMV.hist = true; } catch (x) {} }   // Т164: след replaceState — записът си пази {imv}
       if (IPOP) ipPush();
       return;
     }
+    if (IMV && IMV.hist) { IMV.hist = false; imvClose(true); return; }   // Т164: „Назад“ — първо картинката (най-горе)
     if (IPOP && IP_HIST) { infoClose(true, true); return; }   // „Назад“ на телефона/браузъра — първо балонът (и върху страница)
     var vt2 = vpTop(); if (vt2 && vt2.hist) { vt2.hist = false; vpClose(true); return; }   // Т143/Т144б: горната страница
   });
