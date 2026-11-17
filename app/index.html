@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.46.0">
+<meta name="version" content="v1.46.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -3876,8 +3876,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       el.style.height = h + "px";
       var r = CMP.rows[i], f = r.f, g = el.querySelector(".mchg"), W = Math.floor(g.clientWidth), H = Math.floor(g.clientHeight);
       if (W < 40 || H < 20) { g.innerHTML = ""; return; }
-      var P = r.p.map(function (q, j) { return [j, q.v]; }), n = r.n;   // Т169: по своите мерения — от край до край
-      var d0 = n ? cmpDay(r.p[0].d) : "", d1 = n ? cmpDay(r.p[n - 1].d) : "";
+      // Т169в (Chris 17.11 20:49, DEC-0029: „вариант б с точките от а и за 21 дена мерки … за да види и се увери човека за собственото си
+      //   тегло визуално … после винаги показва последните 21“): линията — през началото + последните 21 мерения, малка точка на всяко;
+      //   точките от таблицата (начало · до две преди последното · последно) — едри. Датите отдолу — първата и последната.
+      var PT = r.p.length > 22 ? [r.p[0]].concat(r.p.slice(-21)) : r.p, n = PT.length;
+      var P = PT.map(function (q, j) { return [j, q.v, q.d]; });
+      var d0 = n ? cmpDay(PT[0].d) : "", d1 = n ? cmpDay(PT[n - 1].d) : "", BIG = {};
+      cmpSlots(r, CMP.ncol).forEach(function (q) { if (q) BIG[q.d] = 1; });
       if (!P.length) { g.innerHTML = ""; return; }   // Т168б: още не е мерено — само заглавието
       var lo = Math.min.apply(null, P.map(function (p) { return p[1]; })), hi = Math.max.apply(null, P.map(function (p) { return p[1]; }));
       var pad = Math.max((hi - lo) * 0.12, f[3] ? 0.2 : 1), a = lo - pad, z = hi + pad;
@@ -3896,8 +3901,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         : '<text x="' + x(0).toFixed(1) + '" y="' + (H - 1.5) + '" text-anchor="middle" font-size="8" fill="currentColor">' + d0 + "</text>";
       if (P.length > 1) q += '<polyline points="' + P.map(function (p) { return x(p[0]).toFixed(1) + "," + y(p[1]).toFixed(1); }).join(" ")
         + '" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"></polyline>';
-      var lp = P[P.length - 1];
-      q += '<circle cx="' + x(lp[0]).toFixed(1) + '" cy="' + y(lp[1]).toFixed(1) + '" r="2.6" fill="currentColor"></circle>';
+      P.forEach(function (pt) {   // Т169в: точка на всяко мерене; тези от таблицата — едри
+        q += '<circle cx="' + x(pt[0]).toFixed(1) + '" cy="' + y(pt[1]).toFixed(1) + '" r="' + (BIG[pt[2]] ? 2.8 : 1.5) + '" fill="currentColor"></circle>';
+      });
       g.innerHTML = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(f[1] + ": " + (r.one ? cmpV(f, r.first) : "от " + cmpV(f, r.first) + " до " + cmpV(f, r.last)) + (f[2] ? " " + f[2] : "")) + '">' + q + "</svg>";
     });
   }
