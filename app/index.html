@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.48.0">
+<meta name="version" content="v1.48.1">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -971,6 +971,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ded .drf label { display: grid; gap: 3px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
   .ded .drf input { box-sizing: border-box; width: 100%; height: 36px; padding: 0 8px; font: inherit; font-size: 15px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); }
   .ded .drec { margin: 10px 0 0; }
+  .ded .dlive { margin: 8px 0 0; }   /* Т178: живата таблица на треньора без цел (г · ккал · П · В · М + „Общо“) */
   .bank .bkn i { font-style: normal; color: var(--muted); font-size: 12.5px; font-weight: 500; }
   .eatpop .epam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
   .eatpop .epam button { height: 34px; margin: 0; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
@@ -5937,11 +5938,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="kfrow"><div class="kchips kfsel" id="dSel">' + kitSelHtml(e.ff, "ed") + '</div><span class="kcnt" id="dCnt">' + kitCount(e.rl.length) + "</span></div>"
       + '<div id="dRes">' + res + "</div></div>";
   }
+  // Т178, кръг 2 (CDB-GYM 18.11 15:56 — „върни каквото даваше „Оразмери““): треньорът пише (who "coach") и няма цел → под съставките
+  //   живата таблица, същата като в редактора на рецептата (kitTbl): на всяка съставка г · ккал · П · В · М по грамовете и състоянието
+  //   (kitStN), без грамове — „—“; „Общо“ — kitMac (формулата на сървъра) върху съставките с грамове. При цел — солвърът (Цел / Сега); клиентът — нищо.
+  function kitLiveOn() { var e = KIT.ed; return !!e && e.mode === "build" && e.who === "coach" && !kitSolverOn(); }
+  function kitLiveHtml() {
+    var e = KIT.ed, ok = e.items.filter(function (it) { return kitGOk(it.g); }), tg = 0;
+    var rows = e.items.map(function (it) {
+      var g = kitGOk(it.g) ? kitGNum(it.g) : 0, n = g ? kitStN(it.id, it.st) : null; tg += g;
+      return { n: kitFN(it.id), st: it.st || kitState(KIT.byId[it.id]), g: g || null, kc: n ? (Number(n.kc) || 0) * g / 100 : null,
+        p: n ? (Number(n.p) || 0) * g / 100 : null, c: n ? (Number(n.c) || 0) * g / 100 : null, f: n ? (Number(n.f) || 0) * g / 100 : null };
+    });
+    var m = ok.length ? kitMac(ok.map(function (it) { return { id: it.id, g: kitGNum(it.g), st: it.st }; })) : null;
+    rows.push({ n: "Общо", g: tg || null, kc: m ? m.kc : null, p: m ? m.p : null, c: m ? m.c : null, f: m ? m.f : null, cls: "sum" });
+    return '<div class="dlive" id="dLive">' + kitTbl(rows) + "</div>";
+  }
+  function kitLiveSync() { var r = document.getElementById("dLive"); if (r && kitLiveOn()) r.outerHTML = kitLiveHtml(); }   // при писане — само таблицата (фокусът остава в полето)
   function kitEdHtml() {
     var e = KIT.ed;
     if (kitSolverOn()) return kitSolHtml();   // Т100
     return '<div class="card ded"><label class="dlab" for="dName">Име на ястието</label><textarea class="ag ag1" rows="1" id="dName" maxlength="80" autocomplete="off">' + esc(e.name) + "</textarea>"
       + '<div class="dits" id="dIts">' + e.items.map(kitEdRow).join("") + "</div>"
+      + (kitLiveOn() && e.items.length ? kitLiveHtml() : "")   // Т178: треньорът без цел — живите числа и „Общо“
       + kitPickHtml()   // Т102б: винаги отворена; Т103: + редът с филтрите
       + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
       + (e.sized ? '<p class="dwarn">Промяната ще върне ястието в чернова — грамовете ще трябва да се оразмерят наново.</p>' : "")   // Т100: t99 — на място
@@ -6085,6 +6103,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var sol = kitSolverOn(), its = document.getElementById("dIts");
     if (its) its.innerHTML = e.items.map(e.mode === "recipe" ? kitRecEdRow : sol ? kitSolRow : kitEdRow).join("");   // Т158б
     if (e.mode === "recipe") kitRecSync();
+    if (kitLiveOn()) { var lv = document.getElementById("dLive"), lh = e.items.length ? kitLiveHtml() : ""; if (lv) lv.outerHTML = lh; else if (lh && its) its.insertAdjacentHTML("afterend", lh); }   // Т178: новата съставка — и в таблицата
     kitAddResRefresh();   // Т103
     var qi = document.getElementById("dQ"); if (qi) qi.disabled = e.items.length >= 20;
     if (sol) {
@@ -6273,12 +6292,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (t.id === "dW" || t.id === "dPn" || t.id === "dRz") { e[{ dW: "w", dPn: "pn", dRz: "rz" }[t.id]] = t.value; kitRecSync(); return true; }   // Т158б
     if (t.id === "dNote") { e.note = t.value; return true; }
     if (t.id === "dQ") { e.q = t.value; kitAddResRefresh(); return true; }   // Т103: любимите ↔ каталогът, през филтрите
-    if (t.hasAttribute("data-dg")) { var it = e.items[+t.getAttribute("data-dg")]; if (it) it.g = t.value; if (e.mode === "recipe") kitRecSync(); return true; }   // Т158б: живата таблица
+    if (t.hasAttribute("data-dg")) { var it = e.items[+t.getAttribute("data-dg")]; if (it) it.g = t.value; if (e.mode === "recipe") kitRecSync(); else kitLiveSync(); return true; }   // Т158б / Т178: живата таблица
     if (t.id === "dGi") { e.gv = t.value; return true; }   // Т100
     if (t.hasAttribute("data-dst")) {   // Т158: състоянието на съставката → числата (солверът — наново, в него)
       var it3 = e.items[+t.getAttribute("data-dst")]; if (!it3) return true;
       it3.st = t.value || "";
       if (e.mode === "recipe") kitRecSync();   // Т158б
+      else kitLiveSync();   // Т178
       if (kitSolverOn()) { kitSolve(); kitSolSync(); }
       return true;
     }
