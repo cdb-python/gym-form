@@ -75,6 +75,7 @@
   .wrap { padding: 0 14px 30px; }
   .state { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px 18px; margin: 22px 0; text-align: center; color: var(--muted); font-size: 15px; }
   .hidden { display: none !important; }
+  .appver { margin: 24px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.4; font-variant-numeric: tabular-nums; }   /* Т182: като в аппа (Т44) */
 
   /* вход */
   .login { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin: 22px 0; }
@@ -169,6 +170,7 @@
   <div class="hidden" id="list">
     <div class="tools"><button type="button" class="chipbtn cnt" id="cnt" aria-pressed="true"></button><button type="button" class="chipbtn" id="actBtn" aria-pressed="false">Актив</button><button type="button" class="chipbtn hidden" id="psBtn" aria-pressed="false" aria-controls="rows">Тест</button></div>
     <div id="rows"></div>
+    <p class="appver hidden" id="appVer"></p>
   </div>
 </div>
 
@@ -667,6 +669,22 @@
       rtcStart();   // Т121: съобщенията на клиентите са стигнали до треньора („доставено“ при тях); без RPC-то — нищо
     }, function () { state("Няма връзка. Опитай пак."); });
   }
+
+  // Т182 (Chris 19.11 14:48–14:52, DEC-0061): „cdb-Victus · vX.Y.Z“ — версията на КЛИЕНТСКИЯ апп, най-долу в списъка (като .appver в аппа, Т44).
+  //   Номерът не се пише тук: чете се от живия app/sw.js (var VERSION = "…" — deploy_app.py го вдига заедно с <meta name="version">),
+  //   веднъж при зареждане, без кеша. Без връзка, без файл или без номер — без ред и без грешка. Т86 презарежда след ≥ 10 мин във фона — пак свежо.
+  function appVerLoad() {
+    var el = $("appVer"), u;
+    try { u = new URL("sw.js", new URL(APP_URL, location.href)).href; } catch (x) { return; }
+    try {
+      fetch(u, { cache: "no-store" }).then(function (r) { return r.ok ? r.text() : ""; }).then(function (t) {
+        var m = /var\s+VERSION\s*=\s*"(v\d+(?:\.\d+)*)"/.exec(String(t || ""));
+        if (!m || !el) return;
+        el.textContent = "cdb-Victus · " + m[1]; el.classList.remove("hidden");
+      }).catch(function () {});
+    } catch (x) {}
+  }
+  appVerLoad();
 
   // ── старт: има ли запомнена сесия ──
   sb.auth.getSession().then(function (r) {
