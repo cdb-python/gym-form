@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.49.0">
+<meta name="version" content="v1.50.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1020,9 +1020,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .dmac b { font-size: 15px; font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
   .dish .dnote { margin: 6px 0 0; color: var(--ink); font-size: 14px; font-style: italic; overflow-wrap: anywhere; }
   .dish .mask, .ded .mask { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px 8px; margin-top: 8px; font-weight: 700; }
-  .dish .mask button { width: auto; margin: 0; padding: 6px 16px; font-family: inherit; font-size: 14.5px; font-weight: 700; border-radius: 9px; cursor: pointer; }
-  .dish .mask .myes { color: #fff; background: var(--btn); border: 1px solid var(--btn); }
-  .dish .mask .mno { color: var(--accent-dark); background: #fff; border: 1px solid var(--accent); }
+  .dish .mask button, .ded .mask button { width: auto; margin: 0; padding: 6px 16px; font-family: inherit; font-size: 14.5px; font-weight: 700; border-radius: 9px; cursor: pointer; }
+  .dish .mask .myes, .ded .mask .myes { color: #fff; background: var(--btn); border: 1px solid var(--btn); }
+  .dish .mask .mno, .ded .mask .mno { color: var(--accent-dark); background: #fff; border: 1px solid var(--accent); }
   .dish .dfxe, .ded .dfxe { display: block; margin: 8px 0 0; padding: 8px 10px; border: 1px solid #f3c2c2; border-radius: 9px; background: #fdecec; color: #9a3b3b; font-size: 14px; text-align: center; }
   .dish .dbtn.dsh.on { border-radius: 9px; background: #5f6b78; color: #fff; }   /* Т178: „Споделено“ — в тона на треньора (като бившето „Споделено“ под картата) */
   .dish .dshi { margin: 4px 0 0; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
@@ -2141,6 +2141,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!CMENU) return;
     var x = CMENU; CMENU = null;
     if (x.el.parentNode) x.el.parentNode.removeChild(x.el);
+    layerDone(x.L);   // Т181
     if (x.msg) x.msg.classList.remove("cmon");
   }
   document.addEventListener("pointerdown", function (e) { if (CMENU && !CMENU.el.contains(e.target)) cmClose(); }, true);
@@ -3637,7 +3638,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (on) {
       if (PRINT_SAVE || !panel) return false;
       PRINT_SAVE = { y: window.scrollY, tab: current, opened: [] };
-      if (current !== "hrana") switchTab("hrana", true);
+      if (current !== "hrana") { NAVQ = true; switchTab("hrana", true); NAVQ = false; }   // Т181: печатът — без запис
       [panel].concat(Array.prototype.slice.call(panel.querySelectorAll(".an .card"))).forEach(function (c) {
         if (!isOpen(c)) { accSet(c, true, { instant: true, noScroll: true }); PRINT_SAVE.opened.push(c); }
       });
@@ -3647,7 +3648,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!PRINT_SAVE) return false;
     document.body.classList.remove("print-an");
     PRINT_SAVE.opened.slice().reverse().forEach(function (c) { accSet(c, false, { instant: true, noScroll: true }); });
-    if (PRINT_SAVE.tab !== current) switchTab(PRINT_SAVE.tab, true);
+    if (PRINT_SAVE.tab !== current) { NAVQ = true; switchTab(PRINT_SAVE.tab, true); NAVQ = false; }
     window.scrollTo(0, PRINT_SAVE.y);
     PRINT_SAVE = null;
     return true;
@@ -4825,6 +4826,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         el.style.top = Math.round(top) + "px"; el.style.left = Math.round(Math.max(4, Math.min(left, wr.width - w - 4))) + "px";
       }
       CMENU = { el: el, msg: msg, id: id, st: box.scrollTop, w: window.innerWidth, place: place };
+      var CQ = CMENU; CMENU.L = layerOpen({ k: "cm", st: { cm: 1 }, el: el, close: function () { if (CMENU === CQ) cmClose(); } });   // Т181
       msg.classList.add("cmon");
       place();
       el.addEventListener("click", function (ev) {
@@ -5039,10 +5041,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function eatClose(back) {
     if (!EAT) return;
     if (TP && EAT.pop.contains(TP.field)) tpClose();   // Т92: часовникът на банера — с него
-    var b = EAT.btn;
+    var b = EAT.btn, EL = EAT.L;
     if (EAT.pop.parentNode) EAT.pop.parentNode.removeChild(EAT.pop);
     popUnfit();
     b.setAttribute("aria-expanded", "false"); EAT = null;
+    layerDone(EL);   // Т181
     window.removeEventListener("resize", eatPlace);
     if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
   }
@@ -5066,6 +5069,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="epmsg" role="status"></div>';
     document.body.appendChild(pop);
     EAT = { el: el, btn: btn, pop: pop, name: name, busy: false };
+    var EA = EAT; EAT.L = layerOpen({ k: "eat", st: { eat: 1 }, el: pop, close: function () { if (EAT === EA) eatClose(true); } });   // Т181
     btn.setAttribute("aria-expanded", "true");
     eatPlace(); window.addEventListener("resize", eatPlace);
     popFit(pop);   // целият банер над лентата долу
@@ -5099,14 +5103,164 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (EAT === cur) msg.textContent = "Неуспешно. Опитай пак.";
     });
   }
+  // ════════ Т181 (Chris 19.11 11:13–11:27, DEC-0059): „НАЗАД“ И ЗАТВАРЯНЕТО С ДРЪПВАНЕ — ЕДИН МЕХАНИЗЪМ ЗА ВСИЧКИ СЛОЕВЕ ════════
+  // Chris 11:27: „всичко да се включва с един и същи патент“. Слой е всичко отгоре: ⓘ балоните (IPOP — ⓘ, храната, „Филтри“, „График“),
+  //   страниците (vpage), картинката (imv), „Изядох“ (EAT), часовникът (TP), менюто на съобщение (CMENU), менюто с линка (треньорът) и
+  //   редакторът в кухнята (KIT.ed). Включва се с ЕДИН ред: L = layerOpen({ k, st, el, close, tab?, ask?, askShow?, drag? }); затваря ли се
+  //   по свой път (×, Отказ, Esc, извън) — layerDone(L) в своето затваряне. NAV — огледалото на нашите записи в историята, в нейния ред:
+  //   разделите (пътят на човека; еднаквите поредни — без запис) и слоевете (по един). „Назад“ (Android, браузърът) маха горния запис:
+  //   слой → затваря се (редакторът с въведено → остава и пита „Да затворя ли без запис?“); раздел → предишният по пътя; на основата
+  //   (Табло) — браузърът: клиентът излиза, треньорът — към списъка. Слой, затворен не най-горе (редакторът под друг раздел) — записът му
+  //   е мъртъв и „назад“ го прескача. Нашите „назад“ (затворено с ×) — по едно наведнъж; записите през това време — след тях (NPEND).
+  var NAV = [], NB = 0, NPEND = [], NPOP = false, NAVQ = false, LSPARE = null, LY = [];
+  function navTop(k) { return NAV[NAV.length - 1 - (k || 0)] || null; }
+  function navUrl(r) { return r.tab ? location.pathname + location.search + "#" + r.tab : location.href; }
+  function navPush(r) { if (NB) { NPEND.push(r); return; } try { history.pushState(r.st, "", navUrl(r)); NAV.push(r); } catch (x) {} }
+  function histBack() { NB++; if (NB === 1) try { history.back(); } catch (x) { NB = 0; } }   // едно наше „назад“ наведнъж, другите — на опашка
+  function navDrop(r) {   // записът на затворения слой: горният (след нашите „назад“ на път) → назад; по-долу → мъртъв; чакащ → вън
+    if (!r) return;
+    var i = NPEND.indexOf(r); if (i > -1) { NPEND.splice(i, 1); return; }
+    if (navTop(NB) === r) histBack(); else r.dead = true;
+  }
+  function navTab(prev, tab) {   // смяна на раздела → запис (пътят); при „Назад“ (NPOP) и тихата смяна (печатът) — без
+    if (NAVQ || NPOP) return;
+    if (!NAV.length) {   // първият показ — основата; не е Табло (известие, линк) → Табло под него, за да излиза „назад“ от Табло
+      try { history.scrollRestoration = "manual"; } catch (x) {}   // скролът — наш (разделите го помнят), не на браузъра
+      try { history.replaceState({ tab: "nachalo" }, "", location.pathname + location.search + "#nachalo"); } catch (x) {}
+      NAV.push({ tab: "nachalo", st: { tab: "nachalo" } });
+      if (tab !== "nachalo") navPush({ tab: tab, st: { tab: tab } });
+      return;
+    }
+    if (prev !== tab) navPush({ tab: tab, st: { tab: tab } });
+  }
+  function layerOpen(L) {   // слоят — в стека; ЕДИН запис в историята (или записът на балона, който току-що се затвори — балон → балон / страница)
+    LY.push(L);
+    if (LSPARE) {
+      var r = LSPARE; LSPARE = null; r.L = L; r.st = L.st; L.r = r;
+      if (!NB && navTop() === r) try { history.replaceState(L.st, "", location.href); } catch (x) {}
+    } else { L.r = { L: L, st: L.st }; navPush(L.r); }
+    if (L.drag !== false && L.el) layerDrag(L);
+    return L;
+  }
+  function layerDone(L, viaPop, keep) {   // слоят е затворен: вън от стека; записът — назад (точно веднъж) · за следващия (keep) · вече махнат (viaPop)
+    if (!L || L.done) return;
+    L.done = true;
+    if (L.unwire) L.unwire();
+    var i = LY.indexOf(L); if (i > -1) LY.splice(i, 1);
+    if (viaPop) return;
+    if (keep) { var r = L.r; LSPARE = r; setTimeout(function () { if (LSPARE === r) { LSPARE = null; navDrop(r); } }, 0); return; }
+    navDrop(L.r);
+  }
+  function navLand() {   // разделът на записа, на който сме: раздел — неговият; слой (редакторът) — неговият раздел
+    var t = navTop(), tab = t ? t.tab || (t.L && t.L.tab) : null;
+    if (tab && tab !== current) doSwitch(tab, false);
+  }
+  function navSkip() { var t = navTop(); if (t && !NB && NAV.length > 1 && (t.dead || (t.L && t.L.done))) histBack(); }   // мъртъв запис отгоре → прескача се
+  var NSTALE = false;
+  window.addEventListener("popstate", function (e) {
+    if (NSTALE) { NSTALE = false; navStale(e.state); return; }
+    if (NB) {   // нашето „назад“ стигна
+      NAV.pop(); NB--;
+      if (NB) { try { history.back(); } catch (x) { NB = 0; } return; }
+      var q = NPEND; NPEND = []; q.forEach(navPush);
+      navSkip();
+      return;
+    }
+    if (NAV.length <= 1) { navStale(e.state); return; }   // записи отпреди презареждане
+    var r = NAV.pop(), L = r.L;
+    NPOP = true;
+    try {
+      if (L && !L.done && !r.dead) {
+        if (L.ask && L.ask()) { navPush(r); if (L.askShow) L.askShow(); return; }   // с въведено — остава и пита
+        layerDone(L, true); L.close();
+      }
+      navLand();
+    } finally { NPOP = false; }
+    navSkip();
+  });
+  function navStale(st) {   // запис отпреди презареждане: раздел → той става основата; слой (вече го няма) → прескача се
+    var tab = st && st.tab ? st.tab : !st ? (location.hash || "").slice(1).split(":")[0] || "nachalo" : null;
+    if (!tab) { NSTALE = true; try { history.back(); } catch (x) { NSTALE = false; } return; }
+    NAV = [{ tab: tab, st: { tab: tab } }];
+    NPOP = true; try { if (tab !== current) doSwitch(tab, false); } finally { NPOP = false; }
+  }
+  // ── Т181: затварянето с дръпване (iPhone и Android — само пръстът): надолу (съдържанието на слоя е най-горе) и настрани; нагоре — скрол.
+  //   Слоят следва пръста; пуснат след ⅓ от екрана (надолу — височината, настрани — ширината) или с бърз замах — затваря се, иначе — обратно.
+  //   Не започва върху поле, плъзгач, бутон, връзка или нещо, което се скролва настрани (таблиците в кухнята, „Сравнение“, графиките,
+  //   редовете с избори). Само горният слой. prefers-reduced-motion — без движение: пуснат след прага — само се затваря.
+  //   drag: false — без (картинката: своето влачене, с приближаването); { down: false } — само настрани (редакторът); { sel } — мести се
+  //   елементът под пръста (редакторът: картата .ded в кухнята — тя се рисува наново).
+  var LD_NO = "input, textarea, select, button, a, label, [contenteditable], .tpdial, .mcmp, .mchs, .ktb, .kchips, [data-nodrag]", LD_FRAC = 1 / 3, LD_FLICK = 0.6;
+  function ldScrollsX(t, root) {
+    for (var n = t; n && n !== root; n = n.parentNode) if (n.nodeType === 1 && n.scrollWidth > n.clientWidth + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true;
+    return false;
+  }
+  function ldAtTop(t, root) { for (var n = t; n && n !== root.parentNode; n = n.parentNode) if (n.nodeType === 1 && n.scrollTop > 0) return false; return true; }
+  function ldSet(el, dx, dy) {   // translate — събира се с transform на слоя (менюто с линка е центрирано с него)
+    el.style.transition = "none"; el.style.translate = dx + "px " + dy + "px";
+    el.style.opacity = String(Math.max(0.35, 1 - Math.max(Math.abs(dx) / window.innerWidth, dy / window.innerHeight)));
+  }
+  function ldBack(el) {
+    if (REDUCE) { el.style.translate = ""; el.style.opacity = ""; return; }
+    el.style.transition = "translate 0.18s ease-out, opacity 0.18s ease-out"; el.style.translate = ""; el.style.opacity = "";
+    setTimeout(function () { el.style.transition = ""; }, 200);
+  }
+  function ldOut(L, el, g) {
+    if (REDUCE) { L.close(); return; }
+    var x = g.m === "x" ? (g.dx < 0 ? -1 : 1) * window.innerWidth : 0, y = g.m === "y" ? window.innerHeight : 0;
+    el.style.transition = "translate 0.18s ease-out, opacity 0.18s ease-out"; el.style.translate = x + "px " + y + "px"; el.style.opacity = "0"; el.style.pointerEvents = "none";
+    setTimeout(function () { if (!L.done) L.close(); else { el.style.transition = ""; el.style.translate = ""; el.style.opacity = ""; el.style.pointerEvents = ""; } }, 180);
+  }
+  function layerDrag(L) {
+    var host = L.el, D = L.drag || {}, g = null;
+    function ts(e) {
+      g = null;
+      if (L.done || e.touches.length !== 1 || LY[LY.length - 1] !== L) return;   // само горният слой, един пръст
+      var t = e.target, el = D.sel ? t.closest && t.closest(D.sel) : host;
+      if (!el || (t.closest && t.closest(LD_NO))) return;
+      var p = e.touches[0];
+      g = { el: el, x0: p.clientX, y0: p.clientY, lx: p.clientX, ly: p.clientY, lt: e.timeStamp, v: 0, m: null, dx: 0, dy: 0, top: D.down !== false && ldAtTop(t, el), sx: D.side !== false && !ldScrollsX(t, el) };
+    }
+    function tm(e) {
+      if (!g || L.done || e.touches.length !== 1) { g = null; return; }
+      var p = e.touches[0], dx = p.clientX - g.x0, dy = p.clientY - g.y0;
+      if (!g.m) {   // посоката — от първото движение (после браузърът вече скролва)
+        if (!dx && !dy) return;
+        g.m = Math.abs(dx) > Math.abs(dy) * 1.5 ? (g.sx ? "x" : "") : dy > 0 && g.top ? "y" : "";
+        if (!g.m) { g = null; return; }
+      }
+      e.preventDefault();
+      var dt = e.timeStamp - g.lt; if (dt > 0) g.v = (g.m === "x" ? p.clientX - g.lx : p.clientY - g.ly) / dt;
+      g.lx = p.clientX; g.ly = p.clientY; g.lt = e.timeStamp;
+      g.dx = g.m === "x" ? dx : 0; g.dy = g.m === "y" ? Math.max(0, dy) : 0;
+      if (!REDUCE) ldSet(g.el, g.dx, g.dy);
+    }
+    host.addEventListener("touchstart", ts, { passive: true });
+    host.addEventListener("touchmove", tm, { passive: false });
+    function end(cancel) {
+      var x = g; g = null;
+      if (!x || !x.m) return;
+      var d = x.m === "x" ? x.dx : x.dy, size = x.m === "x" ? window.innerWidth : window.innerHeight;
+      var shut = !cancel && (Math.abs(d) > size * LD_FRAC || (Math.abs(d) > 30 && Math.abs(x.v) > LD_FLICK && x.v * d > 0));
+      if (!shut || L.done) { ldBack(x.el); return; }
+      if (L.ask && L.ask()) { ldBack(x.el); if (L.askShow) L.askShow(); return; }   // с въведено — пита
+      ldOut(L, x.el, x);
+    }
+    function te() { end(false); } function tc() { end(true); }
+    host.addEventListener("touchend", te);
+    host.addEventListener("touchcancel", tc);
+    L.unwire = function () { host.removeEventListener("touchstart", ts); host.removeEventListener("touchmove", tm); host.removeEventListener("touchend", te); host.removeEventListener("touchcancel", tc); };   // слушателите — махнати при затваряне (редакторът е в кухнята, тя остава)
+  }
   // Т59: ⓘ балонът — под реда със заглавието, с ширината на картата/раздела; върху съдържанието (не го бута); по един.
   //   Затваря се: ×, докосване извън, Esc, „Назад“ (отварянето слага запис в историята), смяна на раздела.
   //   ⓘ в заглавие на акордеон (<summary> или .ch) не отваря/затваря акордеона (preventDefault + stopPropagation).
-  //   Историята: ЕДИН запис „балонът е отворен“ (IP_HIST). При смяна от балон на балон записът остава; при затваряне — history.back().
-  //   history.back() е асинхронно → докато наше „назад“ не е стигнало (IP_BACK), нов запис не се слага — слага се в popstate.
-  var IPOP = null, IP_HIST = false, IP_BACK = false, BACKQ = 0;
-  function histBack() { if (IP_BACK) { BACKQ++; return; } IP_BACK = true; try { history.back(); } catch (x) { IP_BACK = false; } }   // Т144б: едно наше „назад“ наведнъж, другите — на опашка
-  function ipPush() { if (IP_HIST || IP_BACK) return; try { history.pushState({ ipop: 1 }, "", location.href); IP_HIST = true; } catch (x) {} }
+  //   Историята: ЕДИН запис „балонът е отворен“ — Т181: слой (layerOpen); балон → балон — същият запис (layerDone с keep).
+  var IPOP = null;
+  function ipPush() {   // „Назад“ и дръпването затварят балона
+    if (!IPOP || IPOP.L) return;
+    var I = IPOP, L = { k: "ipop", st: { ipop: 1 }, el: I.pop, close: function () { if (IPOP === I) infoClose(true); } };
+    I.L = layerOpen(L);
+  }
   function infoBox(btn) { return btn.closest(".card, details, .mcard, .sec, .kfrow, .now") || btn.parentElement; }   // Т143б: и „Ново за теб“ (ⓘ, камбанката) — с ширината на картите   // Т102ж: „Филтри“ — с ширината на реда
   function infoRow(btn) { return btn.closest(".ch, summary, h2, .mhead, .krow") || btn.parentElement; }   // Т94: балонът на храната — под реда
   function infoPlace() {
@@ -5131,14 +5285,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function infoClose(back, viaPop, keep) {
     if (!IPOP) return;
-    var b = IPOP.btn;
+    var b = IPOP.btn, IL = IPOP.L;
     if (IPOP.pop.parentNode) IPOP.pop.parentNode.removeChild(IPOP.pop);
     popUnfit();
     b.setAttribute("aria-expanded", "false"); IPOP = null;
     window.removeEventListener("resize", infoPlace);
     if (b.classList.contains("krow") && KIT.fav) kitFavDrop(b);   // Т102: „★ Любими“ — махнатата ★ излиза от списъка след балона
-    if (viaPop) IP_HIST = false;   // „Назад“ вече махна записа
-    else if (IP_HIST && !keep) { IP_HIST = false; histBack(); }   // махни записа
+    layerDone(IL, viaPop, keep);   // Т181: записът — назад (точно веднъж) · за следващия балон (keep) · вече махнат (viaPop)
     if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
   }
   function infoOpen(btn) {
@@ -5178,7 +5331,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!IPOP) return;
     if (IPOP.pop.contains(e.target)) {
       var g = e.target.closest("[data-go]");   // линк в балона → затваря и отива
-      if (g && /^vpage:/.test(g.getAttribute("data-go"))) { e.preventDefault(); e.stopPropagation(); var had = IP_HIST; infoClose(false, false, true); IP_HIST = false; vpOpen(g.getAttribute("data-go").slice(6), had); return; }   // Т143
+      if (g && /^vpage:/.test(g.getAttribute("data-go"))) { e.preventDefault(); e.stopPropagation(); infoClose(false, false, true); vpOpen(g.getAttribute("data-go").slice(6)); return; }   // Т181: страницата взима записа на балона   // Т143
       if (g) { e.preventDefault(); e.stopPropagation(); var spec = g.getAttribute("data-go"); infoClose(); go(spec); }
       return;
     }
@@ -5251,9 +5404,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     el.style.zIndex = String(80 + VPS.length);
     document.body.appendChild(el);
     document.documentElement.classList.add("vp-on");
-    var L = { key: key, el: el, from: document.activeElement, hist: false, want: false };
+    var L = { key: key, el: el, from: document.activeElement };
     VPS.push(L); vpIds(L, true);
-    if (hasEntry) L.hist = true; else if (!IP_BACK) { try { history.pushState({ vpage: key }, "", location.href); L.hist = true; } catch (x) {} } else L.want = true;   // записът — след нашето „назад“
+    L.lay = layerOpen({ k: "vpage", st: { vpage: key }, el: el, close: function () { if (vpTop() === L) vpClose(false); } });   // Т181: един запис (от балона — неговият); „Назад“ и дръпването
     el.querySelector(".vph .back").addEventListener("click", function () { if (vpTop() === L) vpClose(false); });
     el.addEventListener("click", function (e) { vpClick(e, L); });
     el.querySelector(".vpb").addEventListener("scroll", function () { if (IPOP && L.el.contains(IPOP.btn)) infoPlace(); }, { passive: true });
@@ -5264,7 +5417,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (L.el.parentNode) L.el.parentNode.removeChild(L.el);
     var nx = vpTop();
     if (nx) vpIds(nx, true); else document.documentElement.classList.remove("vp-on");
-    if (!viaPop && L.hist) histBack();
+    layerDone(L.lay, viaPop);   // Т181
     var bb = document.getElementById("brandBtn");
     try { (L.from && L.from.isConnected ? L.from : nx ? nx.el.querySelector(".vph .back") : bb).focus({ preventScroll: true }); } catch (x) {}
   }
@@ -5533,12 +5686,35 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitBody() {
     var b = document.getElementById("kBody"); if (!b) return;
     kitBoxMode();   // Т98
-    if (KIT.seg === "dishes") { b.innerHTML = kitDishesHtml(); return; }   // Т95
+    if (KIT.seg === "dishes") { b.innerHTML = kitDishesHtml(); kitEdSync(); return; }   // Т95 · Т181
     kitFacets(KIT);   // Т102д: изборите без храни — махнати
     var h = '<div class="ksrch">' + ic("search") + '<input type="search" id="kQ" placeholder="Търси храна" aria-label="Търси храна" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" value="' + esc(KIT.q) + '"></div>'
         + '<div class="kfrow"><div class="kchips kfsel" id="kSel">' + kitSelHtml(KIT, "foods") + '</div><span class="kcnt" id="kCnt"></span></div>';   // Т102ж: един ред
     b.innerHTML = h + '<div class="card klist">' + kitHead() + '<div id="kRows"></div><div id="kMore"></div></div><p class="kempty" id="kEmpty" hidden>Още няма отбелязани храни.</p>';
     kitList();
+    kitEdSync();   // Т181
+  }
+  // Т181: редакторът („Комбинирай“, „Рецепта“, ✎) — слой: запис в историята, „назад“ и дръпване настрани (надолу — не: той е в страницата).
+  //   С въведено (нещо сменено от отварянето) — първо „Да затворя ли без запис?“ (Да / Не); празен / несменен — затваря веднага. „Отказ“ — както досега.
+  function kitEdSig(e) { return JSON.stringify([e.name, e.note, e.cat, e.w, e.pn, e.rz, (e.items || []).map(function (it) { return [it.id, it.s || null, String(it.g == null ? "" : it.g), it.st || "", !!it.lk]; })]); }
+  function kitEdDirty() { var e = KIT.ed; return !!e && kitEdSig(e) !== e.snap; }
+  function kitAskHtml() {
+    var e = KIT.ed; if (!e || !e.ask) return "";
+    return '<div class="mask dask" id="dAsk" role="alertdialog" aria-label="Да затворя ли без запис?"><span>Да затворя ли без запис?</span><button type="button" class="myes" data-dqy="1">Да</button><button type="button" class="mno" data-dqn="1">Не</button></div>';
+  }
+  function kitEdSync() {   // отворен ↔ KIT.ed (всяка промяна на редактора минава през kitBody)
+    if (KIT.ed && !KIT.edL) {
+      KIT.ed.snap = kitEdSig(KIT.ed);
+      KIT.edL = layerOpen({ k: "ked", st: { ked: 1 }, tab: "kuhnya", el: P.kuhnya, drag: { down: false, sel: ".ded" },
+        close: function () { if (KIT.ed) { KIT.ed = null; kitBody(); } },
+        ask: function () { return kitEdDirty(); },
+        askShow: function () {
+          if (!KIT.ed) return;
+          KIT.ed.ask = true; if (KIT.seg !== "dishes") KIT.seg = "dishes";
+          if (current !== "kuhnya") { NPOP = true; try { doSwitch("kuhnya", true); } finally { NPOP = false; } }
+          kitBody(); var m = document.getElementById("dAsk"); if (m) try { m.scrollIntoView({ block: "center" }); } catch (x) {}
+        } });
+    } else if (!KIT.ed && KIT.edL) { var L = KIT.edL; KIT.edL = null; layerDone(L); }
   }
   function kitTog(a, v) { var i = a.indexOf(v); if (i > -1) a.splice(i, 1); else a.push(v); }
   function kitTypeTog(F, v) {   // Т157: „Вид“ — ИЛИ в реда; празно = само храните (и когато се махне последният)
@@ -5907,7 +6083,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + kitRecPrev()
       + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
       + (e.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
-      + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitRecOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
+      + kitAskHtml() + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitRecOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
   }
   function kitRecSync() {   // при писане — таблицата и „Запиши“ на място (фокусът остава)
     var e = KIT.ed, p = P.kuhnya; if (!e || e.mode !== "recipe" || !p) return;
@@ -6003,7 +6179,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
       + (e.sized ? '<p class="dwarn">Промяната ще върне ястието в чернова — грамовете ще трябва да се оразмерят наново.</p>' : "")   // Т100: t99 — на място
       + (e.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
-      + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitEdOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
+      + kitAskHtml() + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitEdOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
   }
   // ── Т100: солвърът — fit_portions от tools/macro_calc.py, пренесен 1:1: координатно спускане (Гаус–Зайдел) с клипване в границите,
   //   тегла П 3 · В 1 · М 1,5, 120 минавания, старт от средата на границите; заключените не се пипат; закръгляне по 5 г, мазнина и
@@ -6122,7 +6298,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<ul class="dchk" id="dChk">' + kitChecksHtml() + "</ul>"
       + '<label class="dlab" for="dNote">Бележка (по желание)</label><textarea class="ag" id="dNote" rows="2" maxlength="300">' + esc(e.note) + "</textarea>"
       + (e.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "")
-      + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitEdOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
+      + kitAskHtml() + '<div class="dbtns"><button type="button" class="btn" data-dsave="1"' + (kitEdOk() ? "" : " disabled") + '>Запиши</button><button type="button" class="btn ghost" data-dcancel="1"' + (e.busy ? " disabled" : "") + ">Отказ</button></div></div>";
   }
   function kitSolSync() {   // след полето за грамове (при излизане от него): числата на място, без да прерисува — натиснатото не изчезва
     var e = KIT.ed, p = P.kuhnya; if (!e || !p || !kitSolverOn()) return;
@@ -6301,6 +6477,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     if ((v = b.getAttribute("data-dtake"))) { if (!KIT.ro) kitDishAct("copy_shared_dish", { p_token: token, p_shared_id: v }, v); return true; }
     if (!e) return false;
+    if (b.hasAttribute("data-dqy")) { KIT.ed = null; kitBody(); return true; }   // Т181: „Да затворя ли без запис?“ — Да
+    if (b.hasAttribute("data-dqn")) { e.ask = false; kitBody(); return true; }   // — Не: остава
     if (b.hasAttribute("data-dcancel")) { if (!e.busy) { KIT.ed = null; kitBody(); } return true; }
     if ((v = b.getAttribute("data-kx")) && e.ff) { kitTog(e.ff[{ r: "roles", o: "orgs", k: "kinds", g: "grps" }[v]] || [], b.getAttribute("data-kv")); kitFiltApply("ed"); return true; }   // Т103: × на реда в „Комбинирай“
     if (b.hasAttribute("data-dsave")) { kitEdSave(); return true; }
@@ -6439,10 +6617,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function tpResize() { tpPlace(); if (TP && !TP.kb) tpRender(); }
   function tpClose(back) {
     if (!TP) return;
-    var f = TP.field;
+    var f = TP.field, TL = TP.L;
     if (TP.pop.parentNode) TP.pop.parentNode.removeChild(TP.pop);
     window.removeEventListener("resize", tpResize);
     f.setAttribute("aria-expanded", "false"); TP = null;
+    layerDone(TL);   // Т181
     if (!EAT && !IPOP) popUnfit();
     if (back && f.isConnected) try { f.focus({ preventScroll: true }); } catch (x) {}
   }
@@ -6457,6 +6636,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="tpf"><button type="button" class="tpk"></button><button type="button" class="tpb tpno">Отказ</button><button type="button" class="tpb tpnow">Сега</button><button type="button" class="tpb tpok">Готово</button></div>';
     document.body.appendChild(pop);
     TP = { field: f, pop: pop, h: +mm[1], m: +mm[2], mode: "h", kb: false, drag: false, bad: false };
+    var TQ = TP; TP.L = layerOpen({ k: "tp", st: { tp: 1 }, el: pop, close: function () { if (TP === TQ) tpClose(true); } });   // Т181 (циферблатът — без дръпване)
     f.setAttribute("aria-expanded", "true");
     tpPlace(); tpRender(); window.addEventListener("resize", tpResize);
     popFit(pop);   // целият балон над лентата долу
@@ -6546,18 +6726,19 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var V = IMV = { el: el, img: el.querySelector("img"), hist: false, want: false, from: from || null, s: 1, tx: 0, ty: 0, P: {}, g: null };
     V.img.src = url;
     document.body.appendChild(el);
-    if (!IP_BACK) { try { history.pushState({ imv: 1 }, "", location.href); V.hist = true; } catch (x) {} } else V.want = true;   // записът — след нашето „назад“
+    V.L = layerOpen({ k: "imv", st: { imv: 1 }, el: el, drag: false, close: function () { if (IMV === V) imvClose(false); } });   // Т181: един запис; влаченето — своето (с приближаването)
     imvWire(V);
     try { el.querySelector(".imx").focus({ preventScroll: true }); } catch (x) {}
   }
   function imvClose(viaPop, drop) {
     var V = IMV; if (!V) return;
-    IMV = null; V.want = false;
-    if (!viaPop && V.hist) { V.hist = false; histBack(); }   // × / влачене / Esc / тъмното → махни записа (точно веднъж)
+    IMV = null;
+    layerDone(V.L, viaPop);   // Т181: × / влачене / Esc / тъмното → махни записа (точно веднъж)
     function rm() { if (V.el.parentNode) V.el.parentNode.removeChild(V.el); }
     if (drop && !REDUCE) {   // влачене надолу — картинката излиза надолу, фонът изчезва
       V.el.style.transition = "background-color 0.18s ease-out"; V.el.style.backgroundColor = "rgba(0, 0, 0, 0)";
-      V.img.style.transition = "transform 0.18s ease-out"; V.img.style.transform = "translate(0px," + Math.round(window.innerHeight) + "px) scale(" + V.s + ")";
+      var ox = drop === "l" ? -window.innerWidth : drop === "r" ? window.innerWidth : 0, oy = ox ? 0 : window.innerHeight;   // Т181: и настрани
+      V.img.style.transition = "transform 0.18s ease-out"; V.img.style.transform = "translate(" + Math.round(ox) + "px," + Math.round(oy) + "px) scale(" + V.s + ")";
       V.el.style.pointerEvents = "none"; setTimeout(rm, 190);
     } else rm();
     if (V.from && V.from.isConnected) try { V.from.focus({ preventScroll: true }); } catch (x) {}
@@ -6578,7 +6759,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (p.length >= 2) {
       var mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
       V.g = { k: "pinch", d0: Math.hypot(p[1].x - p[0].x, p[1].y - p[0].y) || 1, s0: V.s, px: (mx - c.x - V.tx) / V.s, py: (my - c.y - V.ty) / V.s };
-    } else V.g = { k: V.s > 1.01 || after ? "pan" : "drag", x0: x, y0: y, tx0: V.tx, ty0: V.ty, moved: false, onImg: !!onImg, ly: y, lt: t, v: 0 };
+    } else V.g = { k: V.s > 1.01 || after ? "pan" : "drag", x0: x, y0: y, tx0: V.tx, ty0: V.ty, moved: false, onImg: !!onImg, lx: x, ly: y, lt: t, v: 0, ax: "" };
   }
   function imvMove(V, e) {
     var g = V.g, p = imvPts(V); if (!g) return;
@@ -6591,10 +6772,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var dx = e.clientX - g.x0, dy = e.clientY - g.y0;
     if (!g.moved && Math.abs(dx) + Math.abs(dy) > 6) g.moved = true;
     if (g.k === "pan") { V.tx = g.tx0 + dx; V.ty = g.ty0 + dy; imvApply(V, false); return; }
+    if (!g.ax && Math.abs(dx) + Math.abs(dy) > 16) g.ax = Math.abs(dx) > Math.abs(dy) * 1.5 ? "x" : "y";   // Т181: и настрани — оста е от първите 16 px (дотогава — надолу, както досега)
     var dt = e.timeStamp - g.lt;
-    if (dt > 0) { g.v = (e.clientY - g.ly) / dt; g.ly = e.clientY; g.lt = e.timeStamp; }
-    V.tx = 0; V.ty = dy; imvApply(V, false);
-    imvBg(V, IMV_BG * (1 - 0.75 * Math.min(1, Math.abs(dy) / 360)));
+    if (dt > 0) { g.v = (g.ax === "x" ? e.clientX - g.lx : e.clientY - g.ly) / dt; g.lx = e.clientX; g.ly = e.clientY; g.lt = e.timeStamp; }
+    if (g.ax === "x") { V.tx = dx; V.ty = 0; } else { V.tx = 0; V.ty = dy; }
+    imvApply(V, false);
+    imvBg(V, IMV_BG * (1 - 0.75 * Math.min(1, Math.abs(g.ax === "x" ? dx : dy) / 360)));
   }
   function imvEnd(V, e, cancel) {
     var g = V.g, left = imvPts(V);
@@ -6604,7 +6787,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (V.s < 1.01) { V.s = 1; V.tx = 0; V.ty = 0; } else imvClamp(V);
       imvApply(V, true); return;
     }
-    if (!cancel && (V.ty > IMV_CLOSE || (V.ty > 30 && g.v > IMV_FLICK))) { imvClose(false, true); return; }   // надолу — затваря
+    if (!cancel && g.ax === "x" && (Math.abs(V.tx) > window.innerWidth / 3 || (Math.abs(V.tx) > 30 && Math.abs(g.v) > IMV_FLICK && g.v * V.tx > 0))) { imvClose(false, V.tx < 0 ? "l" : "r"); return; }   // Т181: настрани — затваря
+    if (!cancel && g.ax !== "x" && (V.ty > IMV_CLOSE || (V.ty > 30 && g.v > IMV_FLICK))) { imvClose(false, true); return; }   // надолу — затваря
     if (!cancel && !g.moved && !g.onImg) { imvClose(false); return; }   // докосване на тъмното
     V.tx = 0; V.ty = 0; imvApply(V, true); imvBg(V, IMV_BG);   // под прага — обратно
   }
@@ -6631,20 +6815,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     imvOpen(a.href, a);
   });
   document.addEventListener("keydown", function (e) { if (IMV && e.key === "Escape") { e.preventDefault(); e.stopPropagation(); imvClose(false); } }, true);
-  window.addEventListener("popstate", function () {
-    if (IP_BACK) {   // нашето „назад“ стигна: адресът — текущият раздел; ако междувременно е отворен балон — неговият запис сега
-      IP_BACK = false;
-      if (BACKQ > 0) { BACKQ--; histBack(); return; }   // Т144б: следващото наше „назад“ от опашката
-      var vt = vpTop(); if (vt && vt.want) { vt.want = false; try { history.pushState({ vpage: vt.key }, "", location.href); vt.hist = true; } catch (x) {} }   // Т144б
-      try { history.replaceState(null, "", location.pathname + location.search + "#" + current); } catch (x) {}
-      if (IMV && IMV.want) { IMV.want = false; try { history.pushState({ imv: 1 }, "", location.href); IMV.hist = true; } catch (x) {} }   // Т164: след replaceState — записът си пази {imv}
-      if (IPOP) ipPush();
-      return;
-    }
-    if (IMV && IMV.hist) { IMV.hist = false; imvClose(true); return; }   // Т164: „Назад“ — първо картинката (най-горе)
-    if (IPOP && IP_HIST) { infoClose(true, true); return; }   // „Назад“ на телефона/браузъра — първо балонът (и върху страница)
-    var vt2 = vpTop(); if (vt2 && vt2.hist) { vt2.hist = false; vpClose(true); return; }   // Т143/Т144б: горната страница
-  });
   function wireEat() {
     P.hrana.addEventListener("click", function (e) {
       var btn = e.target.closest(".eatbtn");
@@ -7669,6 +7839,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function doSwitch(tab, noScroll) {
     tpClose(); eatClose(); infoClose(); accStop(); cmClose();   // Т66 · Т92 · Т114
     if (!TABS[tab] || (tab === "kuhnya" && !KIT.nav)) tab = "nachalo";   // Т94: кухнята — само когато бутонът я има
+    var prev = current;   // Т181
     if (current) scrollMem[current] = window.scrollY;
     if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
     if (current === "danni" && tab !== "danni") qshClear();   // Т119: вълната на сменените отговори спира при излизане
@@ -7688,7 +7859,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     document.body.classList.toggle("chat-on", tab === "razgovor");
     if (tab !== "kuhnya") document.body.classList.remove("kbox");   // Т98
     if (tab === "nachalo") refreshNow();   // Т82 Г (Chris 04:47): видяното по другия път (Разговор, анализът, въпросник, формата) — веднага, без презареждане
-    try { history.replaceState(null, "", location.pathname + location.search + "#" + tab); } catch (e) {}
+    navTab(prev, tab);   // Т181: пътят на човека в историята (еднаквите поредни — без запис; „Назад“ — без)
     if (tab === "razgovor") { window.scrollTo(0, 0); setTop(); chatBottom(); markChatRead(); }
     else if (!noScroll) window.scrollTo(0, scrollMem[tab] || 0);
     if (tab === "hrana") refreshEatTimes();
@@ -7767,7 +7938,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т29: менюто с линковете към страницата на клиента. coach_client_link се вика САМО при натискане (веднъж; после от паметта).
   // Т67 (Chris 09.11 16:21): 2 реда, без разделител — „Отвори приложението на клиента“ (app/?t=…&from=…) и „Копирай линка към
   //   приложението“ (app/?t=…). Редовете за стария дневник (me/) са махнати: след v1.0.0 той само пренасочва тук. RPC-то е същото.
-  var LINK = null;
+  var LINK = null, LINKL = null;
   function linkMenu() {
     var btn = document.getElementById("whoBtn"), old = document.getElementById("linkMenu");
     if (old) { closeLinkMenu(); return; }
@@ -7775,6 +7946,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     m.innerHTML = '<div class="lm-note">Зарежда…</div>';
     document.getElementById("hdr").appendChild(m);
     btn.setAttribute("aria-expanded", "true");
+    LINKL = layerOpen({ k: "lm", st: { lm: 1 }, el: m, close: function () { closeLinkMenu(); } });   // Т181
     (LINK ? Promise.resolve({ data: LINK }) : safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID }))).then(function (res) {
       if (!document.getElementById("linkMenu")) return;
       if (!res || res.error || !res.data || !res.data.token) { m.innerHTML = '<div class="lm-note">Не успях да взема линка. Опитай пак.</div>'; return; }
@@ -7787,8 +7959,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       m.innerHTML = h;
     });
   }
-  function closeLinkMenu() {
+  function closeLinkMenu(nav) {   // nav — „Отвори приложението на клиента“: страницата си отива, записът остава (без наше „назад“ — то би спряло отиването)
     var m = document.getElementById("linkMenu"); if (m) m.parentNode.removeChild(m);
+    var L = LINKL; LINKL = null; layerDone(L, nav === true);   // Т181
     var b = document.getElementById("whoBtn"); if (b) b.setAttribute("aria-expanded", "false");
   }
   function copyText(t) {
@@ -7807,7 +7980,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         function () { cb.textContent = "Не успях — задръж и копирай от „Отвори“"; });
       return;
     }
-    if (e.target.closest("#lmApp")) { setTimeout(closeLinkMenu, 0); return; }
+    if (e.target.closest("#lmApp")) { setTimeout(function () { closeLinkMenu(true); }, 0); return; }
     if (!m.contains(e.target)) closeLinkMenu();
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeLinkMenu(); });
@@ -7816,7 +7989,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var coachNav = function (u) { location.href = u; };
   // Т45: дошли сме от изгледа на треньора („Отвори приложението на клиента“, &from=<client_id>) и на устройството има вход на треньор →
   // шапката като на треньора: ← вляво, заглавието в средата. ← = назад, ако предишната страница е нашият изглед (?c=), иначе към него.
-  var vaBackFn = function () { history.back(); };
+  var vaBackFn = function () { history.go(-Math.max(1, NAV.length)); };   // Т181: през записите на разделите — до изгледа на треньора
   function viewBack(from) {
     var h = document.getElementById("hdr");
     h.classList.add("h3", "vab");
