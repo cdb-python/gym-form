@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.48.1">
+<meta name="version" content="v1.49.0">
 <title>Твоят дневник</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -569,6 +569,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т111: „Архив“ — най-долу в Начало, затворен; вътре по-старите версии на картите (затворени, със своята дата, само за четене).
      Празен — само в изгледите на треньора: блед и изключен, „Празно“ (огледалото); ⓘ се отваря. */
   .card.panel.archbox { margin-top: 18px; }
+  /* Т180: „Ново начало“ — разделителят в историите (храненето, мерките) на границата log_from; черта — текст — черта */
+  .lfmark { display: flex; align-items: center; gap: 8px; margin: 8px 0; color: var(--accent-dark); font-size: 13px; font-weight: 700; line-height: 1.3; }
+  .lfmark::before, .lfmark::after { content: ""; flex: 1 1 0; min-width: 12px; border-top: 1px dashed currentColor; }
+  .lfmark > span { flex: none; white-space: nowrap; }
   .card.panel.archbox > .body > .acc > .card { border-left-width: 3px; margin: 0 0 10px; }
   .card.panel.archbox.ro { opacity: 0.55; }
   .card.panel.archbox.ro > .ch { cursor: not-allowed; }
@@ -1775,6 +1779,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // Т140 (Chris 15.11 14:08) → Т140в (15:17): балонът зад „cdb-Victus“ в шапката — текстът на Chris дословно; „Как започва“ и „Целта“ — подзаглавия
     victus: { t: "Какво е Victus", b: ["Victus е латинска дума. Идва от „vivere“ — живея — и означава прехрана и начин на живот: това, с което и как човек живее всеки ден.", "Още в древен Рим думата е по-широка от „диета“: храната, издръжката, навиците и начинът, по който човек подрежда живота си.", "Оттук идва и смисълът тук: важно е не само да живееш, а как живееш. Храненето, движението, почивката и навиците са част от това.", ["Как започва", "Първо се вижда как живееш: 21 дни записваш какво ядеш и колко тежиш. След това препоръките се съобразяват с реалния ти живот. Всяко число има своето обяснение — знаеш не само какво да правиш, но и защо."], ["Целта", "Здраве, сила и енергия, които остават. И да се научиш да се справяш сам."], "|q|„Не се опитвам да променя тялото си, за да живея.\nАз променям начина си на живот, за да може тялото ми да изразява най-доброто, на което е способно.“", "Начин на живот, не диета.\ncdb — човекът зад метода. Victus — методът.", "{vpage:victus|Прочети повече →}"] }   // Т140в (Chris 15:28): methodology/victus_meaning.md, „Краткият текст“ — дословно; „|q|“ — цитатът (оранжев)
   };
+  // Т180 (Chris 19.11 10:07, дословно): само при човек, стартиран с нов 21-дневен лог (log_from) — boot го слага в ⓘ „История на храненето“,
+  //   след абзаца за подредбата по месеци; без log_from балонът е както досега. Огледалото — същото.
+  var INFO_LF = "Когато започнеш отначало 21-те дни лог, в историята се появява черта „Ново начало“ с датата. Дните над нея са новият лог и само те се броят към 21-те. Тези под нея остават тук, за да можеш да сравняваш.";
   // Т72: първото изречение на „Форма за данни“, докато тренировките са скрити (boot го слага на мястото на INFO.intake.b[0])
   var INFO_INTAKE_NOTR = "Това са основните данни за теб — цел, здраве, хранене и сън. По тях се прави и настройва планът ти.";
   function infoBtn(key) {
@@ -3294,9 +3301,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var TIME_TAIL = /^([\s\S]*?) — (?:ядено|в) (\d{2}:\d{2})$/;
   function logDayOf(e) { return e.entry_date || sofiaDay(e.created_at); }
   // Броячът: различни дни с поне един запис с текст (и „Изядох" е такъв). Само тегло без текст (стар form3L) не прави ден.
-  function logDays() {
-    var s = {};
-    foodClient().forEach(function (e) { if (String(e.text || "").trim()) s[logDayOf(e)] = 1; });
+  function logDays() {   // Т180: при новото начало (log_from) — само дните от него
+    var s = {}, from = lfOn() ? F.from : "";
+    foodClient().forEach(function (e) { if (String(e.text || "").trim()) { var d = logDayOf(e); if (d >= from) s[d] = 1; } });
     return Object.keys(s).length;
   }
   function logCounter(n) { return n >= LOG_TARGET ? "∞" : n + " / " + LOG_TARGET; }
@@ -3510,6 +3517,36 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var t = typeof o.t === "string" ? o.t.trim() : "";
     return rows.length || t ? { t: t, rows: rows } : null;
   }
+  // ════════ Т180 (Chris 19.11 09:26–09:29, DEC-0057): „НОВО НАЧАЛО“ на цикъла — clients.log_from (_food_json → F.from) ════════
+  //   Броячът (logDays) брои само дните от него; етапът (pathStage) брои анализа само с карта от него нататък (created_at — софийският ден).
+  //   В двете истории (храненето, мерките) на границата — разделител „Ново начало · ДД.ММ“ (Chris 19.11 10:07 — одобрен); нищо не се крие, старото се пипа както досега.
+  //   Анализът: има ли карти от log_from нататък — те са текущите, а по-старите отиват в „Архив“ в „Храна“ (сгъваем, като архива на Таблото,
+  //   всяка със своята дата); няма ли — старият остава на мястото си (още е актуалният). Без log_from — всичко както досега. Огледалото — същото.
+  var AN_OLD = [], AN_NEW = false;
+  function lfOn() { return !!(F && F.from); }
+  function anDay(r) { return r && r.created_at ? sofiaDay(r.created_at) : ""; }
+  function anSplitLf(rows) {
+    rows = rows || []; AN_OLD = []; AN_NEW = false;
+    if (!lfOn()) return anSplit(rows);
+    var nw = rows.filter(function (r) { var d = anDay(r); return !!d && d >= F.from; });
+    if (!nw.length) return anSplit(rows);   // няма нов анализ → старият е актуалният
+    AN_NEW = true;
+    AN_OLD = anSplit(rows.filter(function (r) { return nw.indexOf(r) < 0; })).cards;
+    return anSplit(nw);
+  }
+  function lfLabel() { var d = String(F.from); return "Ново начало · " + d.slice(8, 10) + "." + d.slice(5, 7); }   // текстът — одобрен (Chris 19.11 10:07)
+  function lfFrom() { return lfOn() ? String(F.from) : ""; }   // Т180, кръг 2: за местата със свое F (measCmp)
+  function lfMark() { return '<div class="lfmark" role="separator" aria-label="' + esc(lfLabel()) + '"><span>' + esc(lfLabel()) + "</span></div>"; }
+  function hArchCard(r) {   // заменена карта на анализа — затворена, със своята дата (като картите в архива на Таблото)
+    var d = anDay(r);
+    return '<div class="card' + (d ? " hasr" : "") + '" data-key="anx_' + esc(r.sort) + '">' + (d ? '<div class="seenrow"><span class="cdate">' + esc(fmtDate(d)) + "</span></div>" : "")
+      + '<div class="ch"><span>' + esc(r.title || "Виж") + "</span></div>" + '<div class="body">' + plainBody(r.body) + "</div></div>";
+  }
+  function hArchHtml() {   // „Архив“ в „Храна“ — засега само замененият анализ; празен → няма го (и в огледалото)
+    var n = AN_OLD.length; if (!n) return "";
+    return panelHtml("h_arch", "history", "Архив", n + (n === 1 ? " карта" : " карти"), '<div class="acc">' + AN_OLD.map(hArchCard).join("") + "</div>", false)
+      .replace('<div class="card panel', '<div class="card panel archbox');
+  }
   function anSplit(rows) {
     var data = null, cards = (rows || []).filter(function (r) { if (anIsData(r)) { if (!data) data = r; return false; } return !anIsMap(r); });
     return { cards: cards, ogl: anOgl(data) };
@@ -3633,7 +3670,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     html += '<div class="sec" data-key="logsec"><h2>Лог' + infoBtn("log") + "</h2>" + logCardHtml(true) + "</div>"   // Т64: винаги отворена
       + foodHistHtml();
     if (A.cards.length) html += panelHtml("analysis", "analysis", "Анализ", "", analysisHtml(), false);
+    html += hArchHtml();   // Т180
     P.hrana.innerHTML = html;
+    archRo(P.hrana);   // Т180: бутоните в заменения анализ — изключени (като в архива на Таблото)
     decorateMeals(P.hrana);
     refreshLogView();
     wireFreeLog(); wireEat();
@@ -3809,7 +3848,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var o = by[m.day] || (by[m.day] = {});
       CMP_F.forEach(function (f) { var v = cmpVal(m, f[0]); if (v != null && o[f[0]] == null) o[f[0]] = v; });
     });
-    var all = Object.keys(by).sort();
+    var from = lfFrom(), all = Object.keys(by).sort().filter(function (d) { return d >= from; });   // Т180 (Chris 19.11 10:07): при новото начало — от него нататък
     function had(k) { return all.some(function (d) { return by[d][k] != null; }); }
     // Т168б (Chris 17.11 20:14 „нали ти казах да пуснеш и врат скалата да се вижда“): отметната мярка (не от постоянните) стои и без
     //   мерене — празен ред и графика „още не е мерено“; постоянните (тегло, талия, ханш) — само с мерене. Без нито едно мерене — няма карта.
@@ -4946,7 +4985,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return sb.rpc("get_food_log", { p_token: token }).then(function (res) {
       if (res.error || !res.data) return;
       var sig0 = foodPastSig();
-      F.entries = res.data.entries || []; if (res.data.log_mode) F.mode = res.data.log_mode; computeLastClient();
+      F.entries = res.data.entries || []; if (res.data.log_mode) F.mode = res.data.log_mode; if ("log_from" in res.data) F.from = res.data.log_from || null; computeLastClient();   // Т180
       if (foodPastSig() !== sig0) calcRefresh(); else refreshLogView();   // Т128: запис към вчера (или поправка/триене там) → и историята
       if (START) renderNachalo();   // „Първи стъпки" (броячът на лога)
       refreshMealMarks();
@@ -5161,7 +5200,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   бледи; „Самостоятелност“ засега не е текуща. Строи се при отваряне (данните — тогавашните). Огледалото: същото в ?c= и изгледа като клиента.
   function pathStage() {
     if (D.content.some(function (r) { return r.section === "nutrition" && String(r.body || "").indexOf("data-meal=") > -1; })) return { i: 4, chip: "Ти си тук" };
-    if ((A.cards || []).length > 0) return { i: 3, chip: "Ти си тук · Анализът е готов" };
+    if (lfOn() ? AN_NEW : (A.cards || []).length > 0) return { i: 3, chip: "Ти си тук · Анализът е готов" };   // Т180: при новото начало — само анализ от него нататък
     var m = F.mode || "sprint";
     return { i: 2, chip: "Ти си тук · " + (m === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(logDays(), LOG_TARGET) : "Свободен лог") };
   }
@@ -7114,11 +7153,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Само тези две карти; всички други акордеони — по един на ниво (Т11).
   function multiAcc(h) { return h.replace(/<div class="acc">/g, '<div class="acc multi">'); }
   // месеците: най-новият горе и отворен; вътре — дните/датите като затворени акордеони
-  function histMonths(prefix, items, dayOf, subOf, itemHtml, keysOf, extraOf) {
+  function histMonths(prefix, items, dayOf, subOf, itemHtml, keysOf, extraOf, cut) {
+    var k = -1;   // Т180: cut = log_from → пред първия запис отпреди него — разделителят (между месеците или вътре в месеца); без по-стари — няма го
+    if (cut) items.some(function (x, i) { if (dayOf(x) < cut) { k = i; return true; } return false; });
     return monthsOf(items.map(dayOf)).map(function (m, i) {
       var list = items.filter(function (x) { return dayOf(x).slice(0, 7) === m.ym; });
       var keys = keysOf ? list.map(keysOf).reduce(function (a, k) { return a.concat(k); }, []) : null;
-      return monthCard(prefix + m.ym, m.ym, subOf(list), list.map(itemHtml).join(""), i === 0, keys, extraOf ? extraOf(list) : "");
+      var parts = list.map(itemHtml), j = k > -1 ? list.indexOf(items[k]) : -1;
+      if (j > 0) parts.splice(j, 0, lfMark());
+      return (j === 0 ? lfMark() : "") + monthCard(prefix + m.ym, m.ym, subOf(list), parts.join(""), i === 0, keys, extraOf ? extraOf(list) : "");
     }).join("");
   }
   function foodHistHtml() {
@@ -7129,7 +7172,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
         var dt = DT.on ? DT.days[g.day] : null, dts = dt ? '<span class="d-dt">' + esc(dt) + "</span>" : "";   // Т107: типът до датата
         return qday(g.day, (s.n ? "qd-food" : "qd-cnt") + (dt ? " hdt" : ""), s.n ? dts + sumCells(s) : dt ? dts + '<span class="d-cnt">' + esc(entriesWord(g.rows.length)) + "</span>" : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + g.rows.map(logLine).join("") + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');
-      }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; });   // Т106: средното под месеца — само при сметката
+      }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; }, lfOn() ? F.from : null);   // Т106: средното под месеца — само при сметката; Т180: разделителят
     return multiAcc(histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food"));   // Т112
   }
   // Т106 (Chris 12.11 09:58): средното на ден за месеца — само от завършените дни (историята е без днес) с числа и без несметнати записи
@@ -7307,7 +7350,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         dtx =wf && !wf[4] ? diffTxtN(dif, 0).trim() : diff1(dif);
         var cells = '<span class="d-lab">' + lab + '</span><span class="d-val">' + val + '</span><span class="d-diff' + dk + '">' + dtx + '</span><span class="d-src">' + (m.food ? FROM_LOG : hasWatch(m.e) ? WATCH_MARK : "") + "</span>";
         return qday(m.day, "qd-meas", cells, '<div class="mrow mday"><span class="tm">' + esc(measHM(m.e)) + '</span><div class="mblks">' + measBlocks(m) + (m.food ? FROM_LOG : "") + "</div></div>", 'data-day="' + m.day + '" data-key="hd_meas_' + esc(m.e.id || (m.day + "_" + i)) + '"' + (m.food ? ' data-src="log"' : ""));
-      });
+      }, null, null, lfOn() ? F.from : null);   // Т180: разделителят
     return multiAcc(histCard("h_meas", "history", "История на мерките", measNavSub(), inner));   // Т112
   }
   function ichgHistHtml() {
@@ -7866,8 +7909,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     D = { name: diary.name || "", content: (diary.content || []).filter(function (r) { return r.section !== "arch"; }), log: diary.log || [] };
     ARCH = (diary.content || []).filter(function (r) { return r.section === "arch"; });   // Т111
     if (!COACH) { SEEN_ON = !!diary.seen_items && typeof diary.seen_items === "object"; SEEN_DB = diary.seen_items || {}; }   // Т84 (при треньора — coachBoot)
-    if (food) F = { entries: food.entries || [], mode: food.log_mode || "sprint" };   // Т144: log_mode (липсва ли — 'sprint', като rich() при треньора)
-    if (analysis) A = anSplit(analysis.cards);   // Т145: без „Карта на хранителната пирамида“ и без реда „Огледът · данни“ (той е A.ogl)
+    if (food) F = { entries: food.entries || [], mode: food.log_mode || "sprint", from: food.log_from || null };   // Т144: log_mode (липсва ли — 'sprint', като rich() при треньора); Т180: log_from
+    if (analysis) A = anSplitLf(analysis.cards);
+    if (lfOn() && INFO.hist_food.b.indexOf(INFO_LF) < 0) { var hb = INFO.hist_food.b.slice(); hb.splice(2, 0, INFO_LF); INFO.hist_food = { t: INFO.hist_food.t, b: hb }; }   // Т180: ⓘ — изречението за чертата   // Т145: без „Карта на хранителната пирамида“ и без реда „Огледът · данни“ (той е A.ogl)
     nm = nm || D.name;
     DB_SEEN = D.log.some(function (e) { return "read_at" in e; });
     var isDev = /^DEV/.test(String(nm || ""));
