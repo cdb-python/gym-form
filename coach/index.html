@@ -212,6 +212,103 @@
     "Когато включиш известията, телефонът ти показва известие, когато клиент ти пише, отговори на въпросите или качи изследвания. С натискане се отваря направо при този клиент.",
     "Храната, теглото и мерките не звънят — те светят в списъка, както досега.",
     "Известията са за този телефон."] };
+  // ════════ Т181б (Chris 19.11 12:07, DEC-0059): „НАЗАД“ И ДРЪПВАНЕТО — СЪЩИЯТ МЕХАНИЗЪМ КАТО В АППА (tools/app, Т181) ════════
+  //   Копие на ядрото (друга страница — друг файл): слоят се включва с ЕДИН ред — L = layerOpen({ k, st, el, close, drag? }); затваря ли се
+  //   по свой път (×, извън, Esc) — layerDone(L). По един запис в историята на слой; нашите „назад“ — по едно наведнъж, записите през това
+  //   време — след тях. Разделите на аппа тук ги няма: системното „Назад“ първо затваря горния слой, после браузърът оставя страницата.
+  //   Дръпването (само пръстът, само горният слой): надолу (съдържанието е най-горе) и настрани; нагоре — скрол; ⅓ от екрана или бърз
+  //   замах затваря, иначе — обратно; не започва върху поле, бутон, връзка; prefers-reduced-motion — без движение, само затваряне.
+  //   Слоевете в списъка: балонът на 🔔 (известията). Изгледите („Всички“ / „Актив“, „Тест · N“) — не са слоеве, без запис (Chris — само слоевете).
+  var NAV = [{ st: null }], NAVB = 0, NPEND = [], LY = [], LD_RM = !!(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  function navTop(k) { return NAV[NAV.length - 1 - (k || 0)] || null; }
+  function navPush(r) { if (NAVB) { NPEND.push(r); return; } try { history.pushState(r.st, "", location.href); NAV.push(r); } catch (x) {} }
+  function histBack() { NAVB++; if (NAVB === 1) try { history.back(); } catch (x) { NAVB = 0; } }
+  function navDrop(r) {
+    if (!r) return;
+    var i = NPEND.indexOf(r); if (i > -1) { NPEND.splice(i, 1); return; }
+    if (navTop(NAVB) === r) histBack(); else r.dead = true;
+  }
+  function layerOpen(L) { LY.push(L); L.r = { L: L, st: L.st }; navPush(L.r); if (L.drag !== false && L.el) layerDrag(L); return L; }
+  function layerDone(L, viaPop) {
+    if (!L || L.done) return;
+    L.done = true;
+    if (L.unwire) L.unwire();
+    var i = LY.indexOf(L); if (i > -1) LY.splice(i, 1);
+    if (!viaPop) navDrop(L.r);
+  }
+  window.addEventListener("popstate", function () {
+    if (NAVB) {   // нашето „назад“ стигна
+      NAV.pop(); NAVB--;
+      if (NAVB) { try { history.back(); } catch (x) { NAVB = 0; } return; }
+      var q = NPEND; NPEND = []; q.forEach(navPush);
+      var t = navTop(); if (t && NAV.length > 1 && (t.dead || (t.L && t.L.done))) histBack();
+      return;
+    }
+    if (NAV.length <= 1) return;   // запис отпреди презареждане — нищо за затваряне
+    var r = NAV.pop(), L = r.L;
+    if (L && !L.done && !r.dead) { layerDone(L, true); L.close(); }
+    var t2 = navTop(); if (t2 && NAV.length > 1 && (t2.dead || (t2.L && t2.L.done))) histBack();
+  });
+  var LD_NO = "input, textarea, select, button, a, label, [contenteditable], [data-nodrag]", LD_FRAC = 1 / 3, LD_FLICK = 0.6;
+  function ldScrollsX(t, root) {
+    for (var n = t; n && n !== root; n = n.parentNode) if (n.nodeType === 1 && n.scrollWidth > n.clientWidth + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true;
+    return false;
+  }
+  function ldAtTop(t, root) { for (var n = t; n && n !== root.parentNode; n = n.parentNode) if (n.nodeType === 1 && n.scrollTop > 0) return false; return true; }
+  function ldSet(el, dx, dy) {
+    el.style.transition = "none"; el.style.translate = dx + "px " + dy + "px";
+    el.style.opacity = String(Math.max(0.35, 1 - Math.max(Math.abs(dx) / window.innerWidth, dy / window.innerHeight)));
+  }
+  function ldBack(el) {
+    if (LD_RM) { el.style.translate = ""; el.style.opacity = ""; return; }
+    el.style.transition = "translate 0.18s ease-out, opacity 0.18s ease-out"; el.style.translate = ""; el.style.opacity = "";
+    setTimeout(function () { el.style.transition = ""; }, 200);
+  }
+  function ldOut(L, el, g) {
+    if (LD_RM) { L.close(); return; }
+    var x = g.m === "x" ? (g.dx < 0 ? -1 : 1) * window.innerWidth : 0, y = g.m === "y" ? window.innerHeight : 0;
+    el.style.transition = "translate 0.18s ease-out, opacity 0.18s ease-out"; el.style.translate = x + "px " + y + "px"; el.style.opacity = "0"; el.style.pointerEvents = "none";
+    setTimeout(function () { if (!L.done) L.close(); }, 180);
+  }
+  function layerDrag(L) {
+    var host = L.el, D = L.drag || {}, g = null;
+    function ts(e) {
+      g = null;
+      if (L.done || e.touches.length !== 1 || LY[LY.length - 1] !== L) return;
+      var t = e.target, el = D.sel ? t.closest && t.closest(D.sel) : host;
+      if (!el || (t.closest && t.closest(LD_NO))) return;
+      var p = e.touches[0];
+      g = { el: el, x0: p.clientX, y0: p.clientY, lx: p.clientX, ly: p.clientY, lt: e.timeStamp, v: 0, m: null, dx: 0, dy: 0, top: D.down !== false && ldAtTop(t, el), sx: D.side !== false && !ldScrollsX(t, el) };
+    }
+    function tm(e) {
+      if (!g || L.done || e.touches.length !== 1) { g = null; return; }
+      var p = e.touches[0], dx = p.clientX - g.x0, dy = p.clientY - g.y0;
+      if (!g.m) {
+        if (!dx && !dy) return;
+        g.m = Math.abs(dx) > Math.abs(dy) * 1.5 ? (g.sx ? "x" : "") : dy > 0 && g.top ? "y" : "";
+        if (!g.m) { g = null; return; }
+      }
+      e.preventDefault();
+      var dt = e.timeStamp - g.lt; if (dt > 0) g.v = (g.m === "x" ? p.clientX - g.lx : p.clientY - g.ly) / dt;
+      g.lx = p.clientX; g.ly = p.clientY; g.lt = e.timeStamp;
+      g.dx = g.m === "x" ? dx : 0; g.dy = g.m === "y" ? Math.max(0, dy) : 0;
+      if (!LD_RM) ldSet(g.el, g.dx, g.dy);
+    }
+    function end(cancel) {
+      var x = g; g = null;
+      if (!x || !x.m) return;
+      var d = x.m === "x" ? x.dx : x.dy, size = x.m === "x" ? window.innerWidth : window.innerHeight;
+      var shut = !cancel && (Math.abs(d) > size * LD_FRAC || (Math.abs(d) > 30 && Math.abs(x.v) > LD_FLICK && x.v * d > 0));
+      if (!shut || L.done) { ldBack(x.el); return; }
+      ldOut(L, x.el, x);
+    }
+    function te() { end(false); } function tc() { end(true); }
+    host.addEventListener("touchstart", ts, { passive: true });
+    host.addEventListener("touchmove", tm, { passive: false });
+    host.addEventListener("touchend", te);
+    host.addEventListener("touchcancel", tc);
+    L.unwire = function () { host.removeEventListener("touchstart", ts); host.removeEventListener("touchmove", tm); host.removeEventListener("touchend", te); host.removeEventListener("touchcancel", tc); };
+  }
   var CP = { on: false, busy: false, err: false, pop: null, inited: false }, bellBtn = $("bellBtn");
   var BELL_P = '<path d="M7 10.1a5 5 0 0 1 10 0v4.2c0 1.1.6 2 1.6 2.8H5.4c1-.8 1.6-1.7 1.6-2.8Z"></path><path d="M10.2 19.5a2 2 0 0 0 3.6 0"></path><path d="M12 5.1V3.5"></path>';   // Т123: същите пътища като в приложението (комплектът)
   function cpIcon(on) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-ic="' + (on ? "bell" : "belloff") + '">' + BELL_P + (on ? "" : '<path d="M4.2 4.2l15.6 15.6"></path>') + "</svg>"; }
@@ -244,14 +341,16 @@
     var p = CP.pop = document.createElement("div");
     p.className = "npop"; p.id = "cpPop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", NTXT.t); p.tabIndex = -1;
     cpBody(); document.body.appendChild(p); cpPlace();
+    CP.L = layerOpen({ k: "cp", st: { cp: 1 }, el: p, close: function () { if (CP.pop === p) cpClose(); } });   // Т181б: „Назад“ и дръпването
     bellBtn.setAttribute("aria-expanded", "true");
     window.addEventListener("resize", cpPlace);
     try { p.focus({ preventScroll: true }); } catch (x) {}
   }
-  function cpClose() {
+  function cpClose(nav) {
     if (!CP.pop) return;
     if (CP.pop.parentNode) CP.pop.parentNode.removeChild(CP.pop);
     CP.pop = null; bellBtn.setAttribute("aria-expanded", "false"); window.removeEventListener("resize", cpPlace);
+    var L = CP.L; CP.L = null; layerDone(L, nav === true);   // Т181б
   }
   function cpSync() {
     bellBtn.innerHTML = cpIcon(CP.on); bellBtn.classList.toggle("on", CP.on);
@@ -312,7 +411,7 @@
     if (!CP.pop) return;
     if (e.target.closest("#cpX")) { cpClose(); return; }
     if (e.target.closest("#cpBtn")) { if (CP.on) cpOff(); else cpOn(); return; }
-    if (!CP.pop.contains(e.target)) cpClose();
+    if (!CP.pop.contains(e.target)) cpClose(!!(e.target.closest && e.target.closest("a[href]")));   // Т181б: натиснат клиент (линк) — без наше „назад“ (то би спряло отиването)
   });
   document.addEventListener("keydown", function (e) { if (CP.pop && e.key === "Escape") cpClose(); });
   if ("serviceWorker" in navigator && navigator.serviceWorker) {
