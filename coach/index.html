@@ -539,8 +539,9 @@
   //   равни, на вид еднакви, няма last_open) → часът на писането, точно както преди Т110. Един ред.
   function whenHtml(r) {
     var a = tms(r.last_activity), o = tms(r.last_open), wa = when(r.last_activity), wo = when(r.last_open);
-    // Т130 (Chris 14.11 13:53 „дали само е гледал, или е логвал / пълнил мерки“): думата пред часа — „чете …“ (отворил след писането) / „писа …“
-    return '<span class="when">' + esc(o > a && wo !== wa ? "чете " + wo : wa ? "писа " + wa : "") + "</span>";
+    // Т130 (Chris 14.11 13:53 „дали само е гледал, или е логвал / пълнил мерки“): думата пред часа — „видяно …“ (отворил след писането) / „писа …“
+    //   Т186 (Chris 20.11 15:09, DEC-0065): „чете“ → „видяно“ — същите думи като в аппа (три положения)
+    return '<span class="when">' + esc(o > a && wo !== wa ? "видяно " + wo : wa ? "писа " + wa : "") + "</span>";
   }
   function rowHtml(r) {
     var days = r.log_days || 0, cnt = days >= LOG_TARGET ? "∞" : days + " / " + LOG_TARGET;
