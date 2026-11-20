@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.50.1">
-<title>Твоят дневник</title>
+<meta name="version" content="v1.51.0">
+<title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
@@ -44,13 +44,27 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // Токенът се пази локално → инсталираното приложение (start_url без токен) само се връща на личната страница.
   // Режим треньор (?c=<client_id> + сесия): токенът не се пипа и не се подменя със запазения.
+  // Т183 (Chris 20.11 08:14–08:19, DEC-0063): ДВЕ бележки. На Android инсталираният апп и Chrome делят паметта — с една бележка всеки
+  //   линк на клиент, отворен в браузъра на телефона (Viber, „Копирай линка“), ставаше собственик и на инсталирания апп.
+  //   • cdbgym_app_token — на браузъра: пише я ?t= в браузъра; без ?t= браузърът чете нея;
+  //   • cdbgym_app_token_pwa — на инсталирания апп („заковaният“): пише я само ?t= в самия апп (iOS — иконата пази ?t=); без ?t= аппът
+  //     чете първо нея; няма ли я — общата (преходът за вече инсталираните) и веднага я заковава;
+  //   • устройство с вход на треньор (сесия на Supabase в паметта): ?t= не пише веднага — чака данните (boot): пише се само своят
+  //     акаунт (coach_self); на клиент — нито една бележка; там преходът не заковава (общата може да е на клиент — от стария бъг);
+  //   • &from (Т45) и ?c= — без промяна: не пишат.
+  var TK = "cdbgym_app_token", TKP = "cdbgym_app_token_pwa";
+  var SA = window.CDB_STANDALONE === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;   // CDB_STANDALONE — само тестовата обвивка
+  var TOK = window.__cdbTok = { sa: SA, key: SA ? TKP : TK, hold: null, redir: null, last: null,
+    save: function (v) { try { localStorage.setItem(SA ? TKP : TK, v); } catch (e) {} } };
+  function coachDev() { try { for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i) || "")) return true; } catch (e) {} return false; }
   try {
-    var t = new URLSearchParams(location.search).get("t");
-    if (new URLSearchParams(location.search).get("c")) { /* треньор */ }
-    else if (t) { if (!new URLSearchParams(location.search).get("from")) localStorage.setItem("cdbgym_app_token", t); }   // Т45: &from = треньорът гледа → не става „последният клиент“ на телефона му
+    var qs = new URLSearchParams(location.search), t = qs.get("t");
+    if (qs.get("c")) { /* треньор */ }
+    else if (t) { if (!qs.get("from")) { if (coachDev()) TOK.hold = t; else TOK.save(t); } }   // Т45: &from = треньорът гледа → не става „последният клиент“ на телефона му
     else {
-      var saved = localStorage.getItem("cdbgym_app_token");
-      if (saved) { location.replace(location.pathname + "?t=" + saved + location.hash); return; }
+      var pin = SA ? localStorage.getItem(TKP) : null, saved = pin || localStorage.getItem(TK);
+      if (saved && SA && !pin && !coachDev()) localStorage.setItem(TKP, saved);   // Т183: преходът — заковава веднага
+      if (saved) { TOK.redir = saved; location.replace(location.pathname + "?t=" + saved + location.hash); return; }
     }
   } catch (e) {}
   if (PWA_FILES_READY && "serviceWorker" in navigator) {
@@ -1864,7 +1878,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   if (DRAFT_MARK && !COACH_CID) document.getElementById("brand").insertAdjacentHTML("afterend", '<p class="dmark" id="draftMark"><span>ЧЕРНОВА</span></p>');
   var COACH = false;                                // става true, когато има сесия
   var COACH_URL = window.CDB_COACH_URL || "../coach/";
-  if (!token && !COACH_CID) { showMissingToken("cdbgym_app_token"); return; }
+  if (!token && !COACH_CID) { showMissingToken(window.__cdbTok ? window.__cdbTok.key : "cdbgym_app_token"); return; }   // Т183: бележката на този режим
   var KEY_ID = token || ("coach_" + COACH_CID);     // за локалните ключове (чернова на чата, прочетено и т.н.)
 
   // ── ЗАЩИТА ЗА ЗАПИС: Т57 (09.11.2026) — записва всеки клиент; само за четене са треньорът (coach=1) и изгледът като клиент (VIEW_AS). ──
@@ -8092,6 +8106,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     CAN_WRITE = !COACH || SELF_W;   // Т57: всички живи — записва всеки клиент (преди: само DEV); Т75: и треньорът на своя акаунт
     COACH_SELF = !COACH && diary.coach_self === true;   // Т73: липсва ли ключът → false (както досега)
     VIEW_AS = !COACH && VIEWER && !isDev && !COACH_SELF;   // треньорът на това устройство → само за преглед; DEV и своят акаунт (Т73) остават за запис
+    var TOKH = window.__cdbTok;   // Т183: устройство с вход на треньор — бележката за токена чака данните: пише се само своят акаунт
+    if (!COACH && TOKH && TOKH.hold) { var ht = TOKH.hold; TOKH.hold = null; TOKH.last = { t: ht, saved: ht === token && (!VIEWER || COACH_SELF) }; if (TOKH.last.saved) TOKH.save(ht); }
     if (VIEW_AS) {   // Т29: треньорът гледа страницата на клиента — само за преглед (пазачът е същият като CAN_WRITE)
       CAN_WRITE = false;
       document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
