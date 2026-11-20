@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.51.1">
+<meta name="version" content="v1.52.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -190,7 +190,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cdate { font-size: 11.5px; font-weight: 400; line-height: 1.25; color: var(--muted); white-space: nowrap; }
   /* Т147: „писа …“ под „видяно …“, вдясно (два кратки реда); панелите, „Ново за теб“, разделите на формата, отговорените въпросници,
      картината на анализа, балоните, страниците и „Кухня“ — същият малък надпис горе вдясно (само при треньора) */
-  .sw { display: inline-flex; flex-direction: column; align-items: flex-end; row-gap: 1px; }
   .wrotest { font-size: 11.5px; font-weight: 400; line-height: 1.25; color: var(--muted); white-space: nowrap; }
   .card.panel.hasr > .ch { flex-wrap: wrap; row-gap: 2px; }
   .card.panel > .ch > .seenrow { flex: 0 0 calc(100% + 8px); display: flex; justify-content: flex-end; margin: -8px -8px 0 0; }
@@ -1895,6 +1894,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!CAN_WRITE) return Promise.reject(new Error("readonly"));
     var own = !/^(mark_seen|mark_delivered|client_mark_items_seen|report_app_state|set_intake_missing|push_)/.test(name);   // Т121: служебното не е „свой запис“
     if (own) rtOwn();   // Т121: сигналът от собствения запис — пропуснат (данните идват по стария път)
+    if (own && current) SV_WT[current] = Date.now();   // Т186: писал е в този раздел в това посещение
     return sb.rpc(name, args).then(function (res) { if (res && !res.error) { selfWrote(); if (own) rtOwn(); } return res; });
   }
   // ── Т121 (Chris 13.11 13:46 „чатът се бави, иска рефреш“): реално време. Базата праща по тайната тема сигнал БЕЗ съдържание ({t: chat});
@@ -2349,17 +2349,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ── Т84 (Chris 05:26–05:28): видяното от клиента се пише и в базата (client_mark_items_seen) — ключът и отпечатъкът са тези тук
   //   (cardKey / an_<sort> / lab_<ден>, h32). Пише само клиентът (там, където markSeen пише: не треньорът, не изгледът като клиента;
   //   DEV и своят акаунт като клиент), събрано в едно извикване; не мине ли — при следващото отваряне (seenSync(true), approx).
-  //   При зареждане: базата → паметта (друг телефон: свети само новото); видяното само в паметта → базата веднъж, approx („видяно преди …“).
+  //   При зареждане: базата → паметта (друг телефон: свети само новото); видяното само в паметта → базата веднъж, approx (Т186: и то — „видяно …“).
   //   Изгледът като клиента: видяното — САМО от базата (не от паметта на телефона на Chris); в посещението — SH.vseen, нищо не се пише.
   var SEEN_DB = {}, SEEN_ON = false, SEEN_Q = {}, SEEN_T = 0;
   function seenDbOk() { return SEEN_ON && !seenOff() && !!token; }
   function seenSend(items, approx) {
     if (!items.length) return;
     var at = new Date().toISOString();
+    if (!approx) items.forEach(function (x) { SV_SENT[x.k] = Date.now(); });   // Т186: пратено сега — не наново до SV_GAP
     try {
       sb.rpc("client_mark_items_seen", { p_token: token, p_items: items, p_approx: !!approx }).then(function (res) {
         if (!res || res.error) return;   // без грешка към клиента — при следващото отваряне
-        items.forEach(function (x) { if (!SEEN_DB[x.k] || SEEN_DB[x.k].h !== x.h) SEEN_DB[x.k] = { h: x.h, at: at, approx: !!approx }; });
+        items.forEach(function (x) { if (!approx || !SEEN_DB[x.k] || SEEN_DB[x.k].h !== x.h) SEEN_DB[x.k] = { h: x.h, at: at, approx: !!approx }; });   // Т186: и при същия — новият час
       }, function () {});
     } catch (e) {}
   }
@@ -2383,36 +2384,70 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (up && lsGet("app_seen_analysis_" + KEY_ID)) anaUp(true);   // Т93б
     if (up && seenDbOk()) seenSendAll(Object.keys(NEWC).filter(function (k) { return SEENC[k] === NEWC[k] && !(SEEN_DB[k] && SEEN_DB[k].h === NEWC[k]); }).map(function (k) { return { k: k, h: NEWC[k] }; }), true);
   }
+  // ── Т186 (Chris 20.11 14:59–15:09, DEC-0065): „видяно“ = ПОСЛЕДНОТО посещение, не първото на версията. Всяка проследявана карта /
+  //   панел / ⓘ / страница, която в това посещение е била на екрана ОТВОРЕНА (правилото на вълната — shVisible; затворен бутон или
+  //   акордеон — само натиснат) или е отворена с натискане, се записва наново — и когато не е нова. Събрано: при напускане на раздела и
+  //   при скриване на аппа (заедно със seenFlush), не на всяко превъртане. Базата пише часа и при същия отпечатък, ако не е approx и
+  //   последното е по-старо от 5 мин (t186_seen_last.sql); тук — същото (SV_GAP), за да не се праща наново. Писал ли е клиентът в раздела в
+  //   това посещение (wr) — местата за писане там (панелите с „писа“, картите с въпросник) не се записват като видени: последното там е
+  //   „писа“ (иначе „видяно“ от излизането минута по-късно би скрило писането). Вълната, „Ново за теб“ и SEENC/NEWC — без промяна.
+  var SV = {}, SV_WT = {}, SV_SENT = {}, SV_GAP = 5 * 60e3, SV_WK = /^seen_p_(intake|h_ichg|qa|log|h_food|h_meas|labs|h_labup)$/, SV_SC = 0;
+  function svFp(key) { return FPALL[key] || SEEN_FIXH[key] || ""; }
+  function svNote(key) {   // видяно в това посещение
+    if (!key || SV[key] || !seenDbOk()) return;
+    var fp = svFp(key); if (fp) SV[key] = { h: fp, t: Date.now(), tab: current };
+    if (key === "seen_p_analysis") svNote("analysis");   // Т93б: анализът — и неговият ключ
+  }
+  function svKey(el) { var k = el && el.getAttribute && el.getAttribute("data-key"); return k ? (el.classList.contains("panel") ? "seen_p_" + k : k) : ""; }
+  function svScan() {   // отвореното на екрана сега
+    if (!seenDbOk() || !current || !P[current]) return;
+    Array.prototype.forEach.call(P[current].querySelectorAll(".card[data-key], details[data-key]"), function (el) {
+      var key = svKey(el); if (!key || SV[key] || !svFp(key) || !isOpen(el) || !shVisible(el)) return;
+      svNote(key);
+    });
+  }
+  function svWritable(key) { if (SV_WK.test(key)) return true; for (var t in qaKeyByTitle) if (qaKeyByTitle[t] === key) return true; return false; }
+  function svCollect() {   // посещението свършва → във веригата на seenFlush (SEEN_Q)
+    svScan();
+    var now = Date.now(), n = 0;
+    Object.keys(SV).forEach(function (k) {
+      var v = SV[k];
+      if (SV_WT[v.tab] && SV_WT[v.tab] >= v.t && svWritable(k)) return;   // писал е тук → „писа“ е последното
+      if (SV_SENT[k] && now - SV_SENT[k] < SV_GAP) return;
+      SEEN_Q[k] = v.h; n++;
+    });
+    SV = {}; SV_WT = {};
+    return n;
+  }
+  function svLeave() { if (svCollect()) { clearTimeout(SEEN_T); SEEN_T = setTimeout(seenFlush, 400); } }   // смяна на раздела
+  window.addEventListener("scroll", function () { if (SV_SC) return; SV_SC = setTimeout(function () { SV_SC = 0; svScan(); }, 150); }, { passive: true });
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") setTimeout(svScan, 80); });   // ново посещение
   // треньорът: под заглавието на проследяваната карта — видял ли я е клиентът (датата първа: ДД.ММ · ЧЧ:ММ)
   function seenDM(at) { return fmtDate(sofiaDay(at)).slice(0, 5); }
   function seenHM(at) { try { return new Date(at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/Sofia" }); } catch (e) { return ""; } }
   // ── Т147 (Chris 15.11 22:44 „… надпис с дата и час … на всяка карта видяно 11.11 · 10:31, включително и на виктус банерите и на твоя път
   //   дървото и на анализите … ако има писано в дадената карта да пише писа днес или вчера с часа и датата … навсякъде надписи както досегашните
-  //   малки в десния горен ъгъл“): само треньорът (?c=). Текстът: „видяно днес · 10:31“ / „видяно вчера · 21:05“ / „видяно 11.11 · 10:31“;
-  //   approx — „видяно преди …“; без запис — „не е видяно“ (за ключовете с история) или „няма запис отпреди 15.11“ (новите ключове, които
-  //   се броят от Т147 / Т144д — seen_*, arch_*, new_*); сменена след видяното — „не е видяно · промяна след …“. „писа …“ — последното писане
-  //   на клиента в това място (под видяното, вдясно). Новите ключове са без раздел (NEWTAB "") — не палят вълна, точка или ред при клиента.
-  var SEEN_SINCE = "15.11", SEEN_FIXH = { analysis: "1" };   // Т93б: „видял анализа“ — h "1"
-  function seenNewKey(key) { return /^(seen_|arch_|new_)/.test(key); }
+  //   малки в десния горен ъгъл“): само треньорът (?c=). Новите ключове са без раздел (NEWTAB "") — не палят вълна, точка или ред при клиента.
+  //   Т186 (Chris 20.11 15:07–15:09, DEC-0065): ТРИ положения, един ред — по-новото: „не е видяно“ · „видяно днес · 14:26“ (последният път,
+  //   когато го е видял: записът в базата е за СЕГАШНИЯ отпечатък) · „писа днес · 14:52“ (последното писане или качване там). Отпаднаха
+  //   „видяно преди …“ (approx → обикновено), „няма запис отпреди 15.11“ и „не е видяно · промяна след …“ (→ „не е видяно“), „качи …“
+  //   (→ „писа …“) и вторият ред.
+  var SEEN_FIXH = { analysis: "1" };   // Т93б: „видял анализа“ — h "1"
   function seenWhen(at) { var dd = dayDiff(sofiaDay(at), todayStr()); return (dd === 0 ? "днес" : dd === 1 ? "вчера" : seenDM(at)) + " · " + seenHM(at); }
   function seenTxt(key) {   // null — мястото не се проследява
     var fp = FPALL[key] || SEEN_FIXH[key]; if (!fp) return null;
     var s = SEEN_DB[key];
-    if (!s) return { t: seenNewKey(key) ? "няма запис отпреди " + SEEN_SINCE : "не е видяно", ok: false };
-    if (s.h !== fp) return { t: "не е видяно · промяна след " + seenDM(s.at) + " · " + seenHM(s.at), ok: false };
-    var dd = dayDiff(sofiaDay(s.at), todayStr());
-    return { t: s.approx ? "видяно преди " + (dd === 0 ? "днес" : dd === 1 ? "вчера" : seenDM(s.at)) : "видяно " + seenWhen(s.at), ok: true };
+    return s && s.h === fp && s.at ? { t: "видяно " + seenWhen(s.at), ok: true, at: s.at } : { t: "не е видяно", ok: false };   // Т186
   }
-  function wAt(at, w) { return at ? { at: at, w: w || "писа" } : null; }
+  function wAt(at) { return at ? { at: at } : null; }
   function maxAt(list) { var m = 0; list.forEach(function (t) { var n = tsNum(t); if (n > m) m = n; }); return m ? new Date(m).toISOString() : null; }
-  function seenLine(key, wrote) {
+  function seenLine(key, wrote) {   // Т186: един надпис — по-новото от „видяно“ и „писа“; равни → „писа“
     if (!COACH) return "";
-    var s = SEEN_ON && key ? seenTxt(key) : null;
-    var a = s ? '<span class="seenst' + (s.ok ? " ok" : "") + '" data-seen="' + esc(key) + '">' + esc(s.t) + "</span>" : "";
-    var w = wrote && wrote.at ? '<span class="wrotest">' + esc(wrote.w + " " + seenWhen(wrote.at)) + "</span>" : "";
-    return a && w ? '<span class="sw">' + a + w + "</span>" : a + w;
+    var s = SEEN_ON && key ? seenTxt(key) : null, w = wrote && wrote.at ? wrote.at : null;
+    if (w && !(s && s.at && tsNum(s.at) > tsNum(w))) return '<span class="wrotest">' + esc("писа " + seenWhen(w)) + "</span>";
+    return s ? '<span class="seenst' + (s.ok ? " ok" : "") + '" data-seen="' + esc(key) + '">' + esc(s.t) + "</span>" : "";
   }
-  // „писа“ — последното писане на клиента: въпросник (по заглавието му), формата (полетата / разделът), логът за храна, мерките; „качи“ — файловете
+  // „писа“ — последното писане на клиента: въпросник (по заглавието му), формата (полетата / разделът), логът за храна, мерките, файловете (Т186: и те — „писа“)
   function qaWroteAt(title) { return maxAt(D.log.filter(function (e) { return e.kind !== "coach" && !e.deleted_at && isQaNote(e.note) && (title == null || qaTitleOf(e.note) === title); }).map(function (e) { return e.created_at; })); }
   function inWroteAt(keys) {
     var l = [];
@@ -2430,14 +2465,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (key === "qa") return wAt(qaWroteAt(null));
     if (key === "log" || key === "h_food") return wAt(foodWroteAt());
     if (key === "h_meas") return wAt(measWroteAt());
-    if (key === "labs" || key === "h_labup") return wAt(upWroteAt(), "качи");
+    if (key === "labs" || key === "h_labup") return wAt(upWroteAt());
     return null;
   }
   // новите ключове: панелите, балоните ⓘ, страниците, разделът „Кухня“ (h32("1"), без раздел — без вълна); архивните карти — по съдържанието
   var SEEN_P = ["analysis", "archbox", "dishbank", "intake", "labs", "log", "qa", "h_food", "h_ichg", "h_labs", "h_labup", "h_meas"];
   function seenTabMark(tab) {   // клиентът: показаният раздел — отворените панели в него са видени (и „Кухня“ — самият раздел); нищо не свети
     if (seenOff() || !P[tab]) return;
-    if (tab === "kuhnya") markSeen("seen_tab_kuhnya");
+    if (tab === "kuhnya") { markSeen("seen_tab_kuhnya"); svNote("seen_tab_kuhnya"); }   // Т186: и в това посещение
     Array.prototype.forEach.call(P[tab].querySelectorAll(".card.panel.open[data-key]"), function (c) {
       for (var a = c.parentElement; a && a !== P[tab]; a = a.parentElement) if ((a.tagName === "DETAILS" || (a.classList && a.classList.contains("card"))) && !isOpen(a)) return;
       markSeen("seen_p_" + c.getAttribute("data-key"));
@@ -2448,7 +2483,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   клиент (пише и вижда) — за него „видяно“ работи както при клиента. Неговите coach_seen_* (coachMarkTab) не са тук.
   function seenOff() { return COACH || VIEW_AS; }
   var ANA_SEEN = false;   // Т82: отворен в това посещение (и в изгледа като клиента / при треньора, където не се пише)
-  function seenAnalysis() { ANA_SEEN = true; if (!seenOff()) { lsSet("app_seen_analysis_" + KEY_ID, "1"); anaUp(false); } }
+  function seenAnalysis() { ANA_SEEN = true; if (!seenOff()) { lsSet("app_seen_analysis_" + KEY_ID, "1"); anaUp(false); svNote("analysis"); } }   // Т186
   // Т93б: „видял анализа“ на клиента — и в базата (ключ analysis), за да го вижда треньорът; паметта на телефона отпреди → веднъж, approx
   function anaUp(approx) { if (seenDbOk() && !SEEN_DB.analysis) seenSendAll([{ k: "analysis", h: "1" }], approx); }
   function anaRowOn() {
@@ -2478,7 +2513,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     Array.prototype.forEach.call(document.querySelectorAll(".now .npath"), function (x) { x.classList.toggle("nflash", nflOn("path")); });
   }
   function nflSeen(k) {   // натиснато: вече не мига (и при ново отваряне — у клиента); огледалото — само за това посещение
-    NFL_DONE[k] = 1; markSeen(NFL[k]);
+    NFL_DONE[k] = 1; markSeen(NFL[k]); svNote(NFL[k]);   // Т186
     Array.prototype.forEach.call(document.querySelectorAll('[data-nfl="' + k + '"].nflash'), function (x) { x.classList.remove("nflash"); });
   }
   document.addEventListener("animationend", function (e) {   // трите минавания свършиха → нищо не остава
@@ -2592,8 +2627,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(shSched);
     window.addEventListener("scroll", function () { if (SH.ws) return; SH.ws = setTimeout(function () { SH.ws = 0; shWatchAll(); }, 120); }, { passive: true });   // и без наблюдателя / ако той закъснее
     // Т79: излиза от страницата (← към списъка, затваря, приложението отива на заден план) → показаното в раздела става видяно
-    window.addEventListener("pagehide", function () { shCommit(current); seenFlush(); });   // Т84: видяното — веднага към базата
-    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") { shCommit(current); seenFlush(); } });
+    window.addEventListener("pagehide", function () { shCommit(current); svCollect(); seenFlush(); });   // Т84: видяното — веднага към базата; Т186: и посещението
+    document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") { shCommit(current); svCollect(); seenFlush(); } });
   }
   // Т81: клиентът — новото е същото като при точките (NEWC/SEENC: картите, анализът, въпросниците, датите на изследванията),
   //   в раздела им (NEWTAB); разговорът — непрочетеното от Chris. VIEW_AS: видяното само за това посещение (SH.vseen), не се пише.
@@ -2724,7 +2759,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     delete SH.items[k];
     if (!COACH) {   // Т81: клиентът — в неговата памет (app_seen_items_*); изгледът като клиент (Т71) — само за това посещение
       if (it.tab === "razgovor") delete SH.chat[k.slice(1)];
-      else if (seenOff()) SH.vseen[k.slice(1)] = 1; else markSeen(k.slice(1));
+      else if (seenOff()) SH.vseen[k.slice(1)] = 1; else { markSeen(k.slice(1)); svNote(k.slice(1)); }   // Т186: показаното — и в посещението
       return true;
     }
     if (it.tab === "razgovor") delete SH.chat[k.slice(1)];
@@ -5336,7 +5371,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (btn.id === "brandBtn") nflSeen("victus");   // Т144д
     infoClose(false, false, !same && !!f);   // към друг балон — записът в историята остава
     if (same || !f) return;
-    markSeen("seen_i_" + key);   // Т147: клиентът — отворил балона (без светене); треньорът / изгледът — нищо не се пише
+    markSeen("seen_i_" + key); svNote("seen_i_" + key);   // Т147: клиентът — отворил балона (без светене); треньорът / изгледът — нищо не се пише; Т186: и в посещението
     var pop = document.createElement("div");
     pop.className = "ipop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>' + esc(f.t) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>"
@@ -5428,7 +5463,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function vpOpen(key, hasEntry) {
     var pg = VPAGE[key], top = vpTop(); if (!pg || (top && top.key === key)) return;
-    markSeen("seen_vpage_" + key);   // Т147: клиентът — отворил страницата (Victus / „Твоят път“)
+    markSeen("seen_vpage_" + key); svNote("seen_vpage_" + key);   // Т147: клиентът — отворил страницата (Victus / „Твоят път“); Т186: и в посещението
     var vk = key === "path" && !SEEN_DB.seen_vpage_path && SEEN_DB.new_path ? "new_path" : "seen_vpage_" + key, vsl = seenLine(vk);   // при треньора — горе на страницата
     var el = document.createElement("div");
     el.className = "vpage"; el.setAttribute("role", "dialog"); el.setAttribute("aria-modal", "true"); el.setAttribute("data-vp", key);
@@ -7798,6 +7833,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     qaReadSoon();   // Т146: карта с въпросник отворена (и пътят до нея) → отговорите — видени при треньора
     if (!seenOff() && n && n.getAttribute) { var k7 = n.getAttribute("data-key") || ""; if (n.classList.contains("panel")) markSeen("seen_p_" + k7); else if (/^arch_\d+$/.test(k7)) markSeen(k7); }   // Т147: клиентът — панел / архивна карта
     shOpened(n);   // Т77/Т79/Т81: натиснато — бутонът спира; видяното (и при клиента) се записва при напускане на раздела
+    svNote(svKey(n));   // Т186: натиснато (отворено) — видяно в това посещение
   }
   // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
   // всичко и скролът до целта в ЕДИН цикъл (Т20)
@@ -7875,7 +7911,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!TABS[tab] || (tab === "kuhnya" && !KIT.nav)) tab = "nachalo";   // Т94: кухнята — само когато бутонът я има
     var prev = current;   // Т181
     if (current) scrollMem[current] = window.scrollY;
-    if (current && current !== tab) shCommit(current);   // Т79: напуска раздела → показаното в него става видяно
+    if (current && current !== tab) { shCommit(current); svLeave(); }   // Т79: напуска раздела → показаното в него става видяно; Т186: и посещението
     if (current === "danni" && tab !== "danni") qshClear();   // Т119: вълната на сменените отговори спира при излизане
     if (tab === "danni" && current !== tab) fxCloseAll();   // Т112б: влизане в „Данни“ → разделите на формата затворени
     current = tab;
@@ -7899,6 +7935,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (tab === "hrana") refreshEatTimes();
     if (tab === "merki") refreshMeasTime();   // Т162
     seenTabMark(tab);   // Т147: клиентът — отворените панели на показания раздел (и „Кухня“)
+    setTimeout(svScan, 80);   // Т186: отвореното на екрана в новия раздел
     qaReadSoon();   // Т146: показаният раздел — и авто-отворените карти с въпросник
     coachMarkTab(tab); updateDots();   // Т81: отворените карти — видени при напускане на раздела (вълната), не веднага
   }
@@ -7964,7 +8001,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
   });
   window.addEventListener("resize", function () { if (current === "razgovor") setTop(); });
-  window.__app = { rt: function () { return { topic: RT.topic, ok: RT.ok, ms: RT.ms, polling: !!RT.poll, own: RT.own, sig: RT.sig }; }, renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
+  window.__app = { wrote: function (k) { var w = pWrote(k); return w ? w.at : null; }, rt: function () { return { topic: RT.topic, ok: RT.ok, ms: RT.ms, polling: !!RT.poll, own: RT.own, sig: RT.sig }; }, renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; } };
   window.__app.kitFit = kitFit;   // Т100: сверката със солвъра на Python (тестовете)
 
   // ════════ ЗАРЕЖДАНЕ ════════
