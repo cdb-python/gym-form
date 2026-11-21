@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.52.1">
+<meta name="version" content="v1.53.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1504,7 +1504,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hbtn { box-sizing: border-box; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(255,255,255,0.6); border-radius: 10px; background: transparent; color: #fff; font: inherit; font-size: 14px; font-weight: 700; line-height: 1; text-decoration: none; cursor: pointer; }
   .hbtn:hover, .hbtn:active { background: rgba(255,255,255,0.14); }
   .hbtn.back { justify-self: start; width: 36px; padding: 0; font-size: 19px; }
-  .hbtn.out { justify-self: end; width: 36px; padding: 0; }   /* Т124 (Chris 18:45): само иконата в квадрат като ← — на всички ширини; „Изход“ остава в aria-label и title */
+  .hbtn.out { justify-self: end; width: 36px; padding: 0; }
+  /* Т187 (DEC-0067): менюто за акаунта — кръгла икона горе вдясно; при треньора (?c=) — вляво от „Изход“ (header.hac2); огледалото — бледо */
+  .hbtn.acct { justify-self: end; width: 36px; padding: 0; border: none; border-radius: 50%; background: rgba(255,255,255,0.16); }
+  .hbtn.acct:hover, .hbtn.acct:active { background: rgba(255,255,255,0.26); }
+  .hbtn.acct svg.ic { width: 24px; height: 24px; }
+  .hbtn.acct.ro { opacity: 0.5; }
+  header.h3.hac2 { grid-template-columns: 80px minmax(0, 1fr) 80px; }
+  header.h3 > .hacts { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
+  .acctpop { position: absolute; z-index: 70; box-sizing: border-box; padding: 8px 6px 8px; background: #fff; color: var(--ink); border-radius: 16px; box-shadow: 0 10px 30px rgba(28,39,51,0.22); text-align: left; outline: none; }
+  .acctpop .aname { padding: 8px 12px 6px; font-size: 15px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .acctpop .arow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; box-sizing: border-box; margin: 0; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; line-height: 1.3; text-align: left; cursor: pointer; }
+  .acctpop .arow svg.ic { flex: none; width: 20px; height: 20px; color: var(--accent); }
+  .acctpop .arow.off svg.ic, .acctpop .arow.done svg.ic { color: #8a96a3; }
+  .acctpop .arow.done { color: #8a96a3; }
+  .acctpop .arow:disabled { cursor: default; }
+  .acctpop .arow:not(:disabled):active { background: var(--soft); }
+  .acctpop .arow:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .acctpop.ro .arow { opacity: 0.55; }
+  .acctpop .aver { padding: 8px 12px 4px; font-size: 11px; line-height: 1.3; color: var(--muted); font-variant-numeric: tabular-nums; }   /* Т124 (Chris 18:45): само иконата в квадрат като ← — на всички ширини; „Изход“ остава в aria-label и title */
   header.h3 > .wrap { padding: 0 !important; }
   .cflash .cb { outline: 2px solid var(--accent); outline-offset: 1px; }
   .cform { margin-top: 10px; flex: none; }
@@ -1666,6 +1684,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т43: линейните икони — tools/app/icons/ui/*.svg, вътрешността 1:1 (одобрени 09.11). viewBox 24, stroke currentColor, stroke 1;
   // на екрана линията е колкото в лентата (40 px при stroke 1 ≈ 1,67 px) при всеки размер — вж. svg.ic в CSS. До видим текст — aria-hidden.
   var IC = {
+    account: '<circle cx="12" cy="12" r="8.6"></circle><circle cx="12" cy="10" r="2.8"></circle><path d="M7.2 18.2c1-2.2 2.9-3.4 4.8-3.4s3.8 1.2 4.8 3.4"></path>',
     analysis: '<path d="M3.5 20.5h17"></path><path d="M5.5 20.5v-7a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v7"></path><path d="M10.4 20.5v-13a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v13"></path><path d="M15.3 20.5v-10a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v10"></path>',
     ate: '<circle cx="12" cy="12" r="8.6"></circle><path d="M8.1 12.4l2.6 2.6 5.2-5.4"></path>',
     back: '<path d="M19.5 12h-15"></path><path d="M10 6.5 4.5 12l5.5 5.5"></path>',
@@ -1686,6 +1705,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     height: '<path d="M7.5 3.5h9M7.5 20.5h9"></path><path d="M12 6.2v11.6"></path><path d="M9.8 8.4 12 6.2l2.2 2.2M9.8 15.6 12 17.8l2.2-2.2"></path>',
     history: '<path d="M3.8 12a8.2 8.2 0 1 0 8.2-8.2 8.9 8.9 0 0 0-6.1 2.5L3.8 8.4"></path><path d="M3.8 4.2v4.2H8"></path><path d="M12 7.6V12l3.2 1.9"></path>',
     info: '<circle cx="12" cy="12" r="8.6"></circle><path d="M12 11v5.3"></path><path d="M12 7.7v.1"></path>',
+    install: '<rect x="6.8" y="3" width="10.4" height="18" rx="2.2"></rect><path d="M12 7.2v6.6"></path><path d="M9.5 11.4 12 13.9l2.5-2.5"></path><path d="M10.6 18.2h2.8"></path>',
+    installed: '<rect x="6.8" y="3" width="10.4" height="18" rx="2.2"></rect><path d="M9.4 11.2l1.9 1.9 3.4-3.6"></path><path d="M10.6 18.2h2.8"></path>',
     intake: '<path d="M8.5 4.8H7a2.2 2.2 0 0 0-2.2 2.2v12A2.2 2.2 0 0 0 7 21.2h10a2.2 2.2 0 0 0 2.2-2.2V7A2.2 2.2 0 0 0 17 4.8h-1.5"></path><rect x="8.5" y="3" width="7" height="3.6" rx="1.2"></rect><path d="M8.4 11h7.2M8.4 14.4h7.2M8.4 17.8h4.2"></path>',
     keyboard: '<rect x="3" y="6.5" width="18" height="11" rx="2"></rect><path d="M6.4 9.6h1.2M9.6 9.6h1.2M12.8 9.6h1.2M16 9.6h1.2M6.4 12.2h1.2M9.6 12.2h1.2M12.8 12.2h1.2M16 12.2h1.2M8.4 14.8h7.2"></path>',
     labs: '<path d="M9 3h6"></path><path d="M10.2 3v5.8l-5 8.9A2.2 2.2 0 0 0 7.1 21h9.8a2.2 2.2 0 0 0 1.9-3.3l-5-8.9V3"></path><path d="M7.6 14.5h8.8"></path>',
@@ -1693,6 +1714,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     log: '<path d="M16.5 8.6V5.2a2.2 2.2 0 0 0-2.2-2.2H6.2A2.2 2.2 0 0 0 4 5.2v13.6A2.2 2.2 0 0 0 6.2 21h8.1a2.2 2.2 0 0 0 2.2-2.2v-3.4"></path><path d="M7 8h6.5M7 11.5h6.5M7 15h3"></path><path d="M18.6 7.6a1.5 1.5 0 0 1 2.1 2.1l-7.3 7.3-2.9.8.8-2.9Z"></path>',
     logout: '<path d="M9.5 20.5H6.2A2.2 2.2 0 0 1 4 18.3V5.7a2.2 2.2 0 0 1 2.2-2.2h3.3"></path><path d="M15.2 7.5 19.7 12l-4.5 4.5"></path><path d="M19.7 12H9.5"></path>',
     message: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"></rect><path d="M3.8 7.2l7 5.2a2 2 0 0 0 2.4 0l7-5.2"></path>',
+    moon: '<path d="M19.6 14.7A8 8 0 0 1 9.3 4.4a8 8 0 1 0 10.3 10.3Z"></path>',
     muscle: '<path d="M3.5 9.6C7 9 8.6 6.6 12 6.6S17 9 20.5 9.6"></path><path d="M3.5 11.2C7.5 10.8 9 10.2 12 10.2S16.5 10.8 20.5 11.2"></path><path d="M3.5 12.8C7.5 13.2 9 13.8 12 13.8S16.5 13.2 20.5 12.8"></path><path d="M3.5 14.4C7 15 8.6 17.4 12 17.4S17 15 20.5 14.4"></path>',
     nutrition: '<path d="M12 7.6c-1.5-1-3.6-1.4-5.3-.4-2.6 1.5-3 5.2-1.6 8.4 1.2 2.8 3.4 5 5 4.4.8-.3 1.1-.5 1.9-.5s1.1.2 1.9.5c1.6.6 3.8-1.6 5-4.4 1.4-3.2 1-6.9-1.6-8.4-1.7-1-3.8-.6-5.3.4Z"></path><path d="M12 7.6c0-1.6.5-2.9 1.6-3.9"></path><path d="M13 5.8c1.9.2 3.3-.6 3.9-2.2-1.9-.2-3.3.6-3.9 2.2Z"></path>',
     open: '<path d="M7 17 17 7"></path><path d="M9 7h8v8"></path>',
@@ -1706,6 +1728,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     share: '<path d="M12 14.5V3.5"></path><path d="M8.3 7.2 12 3.5l3.7 3.7"></path><path d="M8.5 10H6.7a2.2 2.2 0 0 0-2.2 2.2v6.1a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-6.1a2.2 2.2 0 0 0-2.2-2.2h-1.8"></path>',
     sleep: '<path d="M12.5 3.8a6 6 0 0 0 7.7 7.7A8.4 8.4 0 1 1 12.5 3.8Z"></path><path d="M16.4 3.2h2.8l-2.8 3.2h2.8"></path>',
     strength: '<path d="M3.6 13.4C5.1 11.6 8.5 11.3 10.6 13.3C11.8 12.2 14 12.1 15.3 13.2C16.2 14 16.8 15 17 16.1"></path><path d="M15.1 13.1V8.7H13.1C12.1 8.7 11.5 7.9 11.7 7L12 5.7C12.2 4.8 13 4.3 13.9 4.4L15.2 4.6C16.4 4.8 17.3 5.6 17.9 6.6C19.4 9 20.6 12.2 20.8 15.2C21 17.6 19.6 19.5 17.3 19.6L9.3 19.8C8.3 19.8 7.4 19.6 6.4 19.8"></path><path d="M11.8 6.5h1.9"></path><path d="M11.2 17.1C12.5 17.7 14 17.9 15.4 17.7"></path>',
+    sun: '<circle cx="12" cy="12" r="3.9"></circle><path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M6 18l1.4-1.4M16.6 7.4 18 6"></path>',
     training: '<path d="M8 12h8"></path><rect x="5" y="7" width="3" height="10" rx="1.2"></rect><rect x="16" y="7" width="3" height="10" rx="1.2"></rect><rect x="2.8" y="9.2" width="2.2" height="5.6" rx=".9"></rect><rect x="19" y="9.2" width="2.2" height="5.6" rx=".9"></rect>',
     trash: '<path d="M4.5 6.5h15"></path><path d="M9.5 6.5V4.8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v1.7"></path><path d="M6.3 6.5l.9 12.6a1.6 1.6 0 0 0 1.6 1.4h6.4a1.6 1.6 0 0 0 1.6-1.4l.9-12.6"></path><path d="M10.2 10.3v6.6M13.8 10.3v6.6"></path>',
     upload: '<path d="M12 15V4.2"></path><path d="M7.8 8.4 12 4.2l4.2 4.2"></path><path d="M4.5 14.5v3.8a2.2 2.2 0 0 0 2.2 2.2h10.6a2.2 2.2 0 0 0 2.2-2.2v-3.8"></path>',
@@ -3042,7 +3065,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     try {
       Promise.resolve(sb.rpc("coach_app_state", a)).then(function (res) {
         var d = res && !res.error ? res.data : null;
-        APP_RO = d && typeof d === "object" && d.known === true && d.installed === false && !d.hidden_at && (d.platform === "ios" || d.platform === "android") ? d : null;   // Т96б: other / null — на компютър картата я няма
+        APP_RO = d && typeof d === "object" && d.known === true && d.installed === false && !d.hidden_at && (d.platform === "ios" || d.platform === "android") ? d : null;
+        APP_ST = d && typeof d === "object" && d.known === true ? d : null; acctRender();   // Т187: огледалото на менюто — инсталиран ли е   // Т96б: other / null — на компютър картата я няма
         renderInstall();
       }, function () {});
     } catch (x) {}
@@ -3073,7 +3097,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function instClick(e) {
     if (COACH || VIEW_AS) return false;   // Т93б: прегледът — без действие
     if (e.target.closest("#instX")) { lsSet(INST_KEY, String(Date.now())); appReport(true); renderInstall(); return true; }   // Т96: и в базата
-    if (e.target.closest("#instBtn") && instPrompt) {
+    if (e.target.closest("#instBtn") && instPrompt) return instDo();
+    return false;
+  }
+  function instDo() {   // „Инсталирай“: подканата (Android / Chrome); без нея — указанията на Табло (и скритата карта). Т187: и от менюто
+    if (instPrompt) {
       var p = instPrompt; instPrompt = null;
       try {
         p.prompt();
@@ -3081,8 +3109,90 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       } catch (x) { renderInstall(); }
       return true;
     }
+    INST_FORCE = true; switchTab("nachalo", true); renderInstall();   // като от балона „Известия“ (Т85)
+    var c = document.getElementById("instCard"); if (c) { window.scrollTo(0, Math.max(0, c.getBoundingClientRect().top + window.scrollY - 90)); flash(c); }
     return false;
   }
+
+  // ════════ Т187 (Chris 21.11 14:05–14:20, DEC-0067): МЕНЮТО ЗА АКАУНТА — горе вдясно. Чернова: само при clients.show_acct (засега Chris) ════════
+  //   Кръгла икона (account) в шапката → панел под нея, бял, без линии между редовете, „икона + надпис“: името · Известия (bell / belloff —
+  //   натискането прави същото като камбанката в „Ново за теб“: същият балон, едно положение) · Инсталирай аппа (install: подканата, иначе
+  //   указанията на Табло) ↔ „Аппът е инсталиран“ (installed, сиво, не се натиска; в инсталирания апп) · Тема (sun / moon — засега само
+  //   иконата и изборът на телефона, cdbgym_theme; цветовете — когато ги даде Chris) · дребно версията. Затваряне: извън, Esc, „Назад“,
+  //   дръпване — слоевете (Т181). Огледалото (?c=, изгледът като клиент): същото място и вид, бледо; редовете не правят нищо.
+  var ACCT = { on: false, name: "", btn: null, pop: null, L: null }, ACCT_C = false, APP_ST = null, THEME_KEY = "cdbgym_theme";
+  function acctRo() { return COACH || VIEW_AS; }
+  function acctInit(on, name) {
+    ACCT.on = on === true; ACCT.name = name || "";
+    if (!ACCT.on) return;
+    document.body.classList.add("skin2");   // Т188 (DEC-0068): show_acct — ключът на целия „скин 2“ (менюто, заглавията, после темата)
+    if (document.getElementById("acctBtn")) return;
+    var h = document.getElementById("hdr"), ro = acctRo(), out = document.getElementById("coachOut"), side = h.querySelector(":scope > .hside");
+    var b = '<button type="button" class="hbtn acct' + (ro ? " ro" : "") + '" id="acctBtn" aria-label="Акаунт" aria-haspopup="dialog" aria-expanded="false" aria-controls="acctPop">' + ic("account") + "</button>";
+    if (out) { h.classList.add("hac2"); out.insertAdjacentHTML("beforebegin", '<span class="hacts">' + b + "</span>"); out.previousElementSibling.appendChild(out); }   // [акаунт][Изход]
+    else if (side) side.outerHTML = b;   // изгледът като клиент с ← (Т45): мястото вдясно
+    else { h.classList.add("h3"); h.insertAdjacentHTML("afterbegin", '<span class="hside" aria-hidden="true"></span>'); h.insertAdjacentHTML("beforeend", b); }   // клиентът: [·] заглавие [акаунт]
+    ACCT.btn = document.getElementById("acctBtn");
+    ACCT.btn.addEventListener("click", function () { if (ACCT.pop) acctClose(true); else acctOpen(); });
+  }
+  function acctState() {
+    var ro = acctRo(), env = INST_ENV || pwaEnv(), sa = !!env.standalone || !!(window.__cdbTok && window.__cdbTok.sa);
+    var inst = ro ? !!(APP_ST && APP_ST.installed === true) : sa;
+    return { ro: ro, pon: ro ? !!(PUSH_RO && PUSH_RO.on) : PUSH.on, inst: inst, dark: !ro && lsGet(THEME_KEY) === "dark", can: !ro && !inst && (!!instPrompt || !!env.ios || !!env.android) };
+  }
+  function acctHtml() {
+    var s = acctState(), off = ' disabled aria-disabled="true"', dis = s.ro ? off : "", m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
+    return '<div class="aname">' + esc(ACCT.name) + "</div>"
+      + '<button type="button" class="arow' + (s.pon ? "" : " off") + '" id="acctPush" aria-label="Известия: ' + (s.pon ? "включени" : "изключени") + '"' + dis + ">" + ic(s.pon ? "bell" : "belloff") + "<span>Известия</span></button>"
+      + (s.inst ? '<button type="button" class="arow done" id="acctInst"' + off + ">" + ic("installed") + "<span>Аппът е инсталиран</span></button>"
+        : '<button type="button" class="arow" id="acctInst"' + (s.can ? "" : off) + ">" + ic("install") + "<span>Инсталирай аппа</span></button>")
+      + '<button type="button" class="arow" id="acctTheme" aria-label="Тема: ' + (s.dark ? "тъмна" : "светла") + '"' + dis + ">" + ic(s.dark ? "moon" : "sun") + "<span>Тема</span></button>"
+      + (v ? '<div class="aver">cdb-Victus · ' + esc(v) + "</div>" : "");
+  }
+  function acctRender(focusId) {
+    if (!ACCT || !ACCT.pop) return;
+    ACCT.pop.innerHTML = acctHtml();
+    var f = focusId && document.getElementById(focusId); if (f) try { f.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function acctPlace() {
+    var p = ACCT.pop, b = ACCT.btn; if (!p || !b) return;
+    var r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth, w = Math.min(250, vw - 16);
+    p.style.width = w + "px"; p.style.top = Math.round(r.bottom + window.scrollY + 6) + "px";
+    p.style.left = Math.round(Math.max(8, Math.min(vw - 8 - w, r.right - w)) + window.scrollX) + "px";
+  }
+  function acctOpen() {
+    if (ACCT.pop || !ACCT.btn) return;
+    var p = document.createElement("div");
+    p.className = "acctpop" + (acctRo() ? " ro" : ""); p.id = "acctPop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Акаунт"); p.tabIndex = -1;
+    document.body.appendChild(p); ACCT.pop = p; acctRender(); acctPlace();
+    ACCT.btn.setAttribute("aria-expanded", "true");
+    window.addEventListener("resize", acctPlace);
+    ACCT.L = layerOpen({ k: "acct", st: { acct: 1 }, el: p, close: function () { if (ACCT.pop === p) acctClose(false); } });   // Т181: „Назад“ и дръпването
+    var f = p.querySelector(".arow:not(:disabled)") || p; try { f.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function acctClose(back, keep) {
+    var p = ACCT.pop; if (!p) return;
+    if (p.parentNode) p.parentNode.removeChild(p);
+    ACCT.pop = null; window.removeEventListener("resize", acctPlace);
+    if (ACCT.btn) ACCT.btn.setAttribute("aria-expanded", "false");
+    var L = ACCT.L; ACCT.L = null; layerDone(L, false, keep);   // Т181: записът — назад · за балона „Известия“ (keep) · вече махнат („Назад“)
+    if (back && ACCT.btn) try { ACCT.btn.focus({ preventScroll: true }); } catch (x) {}
+  }
+  document.addEventListener("click", function (e) {   // извън панела → затваря (бутонът си има своето)
+    if (!ACCT.pop || ACCT.pop.contains(e.target) || (ACCT.btn && ACCT.btn.contains(e.target))) return;
+    acctClose(false);
+  }, true);
+  document.addEventListener("keydown", function (e) { if (ACCT.pop && e.key === "Escape") { e.preventDefault(); acctClose(true); } });
+  document.addEventListener("click", function (e) {
+    var r = e.target.closest && e.target.closest("#acctPop .arow"); if (!r || r.disabled || acctRo()) return;
+    if (r.id === "acctPush") {   // същото като камбанката в „Ново за теб“ — балонът „Известия“ (под шапката); записът в историята — неговият
+      acctClose(false, true);
+      ACCT.btn.setAttribute("data-info", "push"); infoOpen(ACCT.btn); ACCT.btn.removeAttribute("data-info");
+      return;
+    }
+    if (r.id === "acctInst") { acctClose(false); instDo(); return; }
+    if (r.id === "acctTheme") { lsSet(THEME_KEY, lsGet(THEME_KEY) === "dark" ? "light" : "dark"); acctRender("acctTheme"); }   // засега — само иконата и изборът
+  });
 
   // ════════ ИЗВЕСТИЯ (Т85, Chris 07:11–07:44) ════════
   // Web Push: камбанка до ⓘ в „Ново за теб“ — плътна = включени на това устройство; зачеркната = изключени, спрени или неподдържани.
@@ -3120,7 +3230,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     Promise.resolve(q).then(function (r) {
       var d = r && !r.error ? r.data : null;
       PUSH_RO = d && typeof d === "object" && "on" in d ? { on: d.on === true } : null;
-      refreshNow();
+      refreshNow(); acctRender();   // Т187
     }, function () {});
   }
   function pushBody(pop) {
@@ -3141,6 +3251,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var sv = b.querySelector("svg"); if (sv && sv.getAttribute("data-ic") !== (PUSH.on ? "bell" : "belloff")) sv.outerHTML = ic(PUSH.on ? "bell" : "belloff");
     });
     if (IPOP && IPOP.pop.getAttribute("data-info") === "push") { pushBody(IPOP.pop); popFit(IPOP.pop); }
+    acctRender();   // Т187: „Известия“ в менюто — същото положение
   }
   function pushB64(s) { var p = "====".slice((s.length % 4) || 4), b = atob((s + p).replace(/-/g, "+").replace(/_/g, "/")), a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; }
   function pushPerm() {   // и старият вариант с callback (Safari)
@@ -5388,7 +5499,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       st.left = (cr0.left + pl0) + "px"; st.width = (cr0.width - pl0 - pr0) + "px"; st.top = (rb0.bottom + 4) + "px"; st.maxHeight = Math.max(120, Math.floor(vb0 - 8 - (rb0.bottom + 4))) + "px";
       return;
     }
-    if (IPOP.btn.id === "brandBtn") {   // Т140: балонът „Какво е Victus“ — под цялата шапка, с ширината на картите
+    if (IPOP.btn.id === "brandBtn" || IPOP.btn.id === "acctBtn") {   // Т140: балонът „Какво е Victus“ — под цялата шапка, с ширината на картите; Т187: и „Известия“ от менюто
       var mn = document.getElementById("main"), mc = getComputedStyle(mn), mr = mn.getBoundingClientRect(), pl = parseFloat(mc.paddingLeft) || 0, pr = parseFloat(mc.paddingRight) || 0;
       br = { left: mr.left + pl, width: mr.width - pl - pr }; rr = document.getElementById("hdr").getBoundingClientRect();
     }
@@ -8140,6 +8251,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var cl = b.client || {};
     COACH = true;
     coachBar(cl.name || (b.diary && b.diary.name) || "");
+    ACCT_C = cl.show_acct === true;   // Т187: менюто — огледалото (само ако е включено за този човек)
     // интейкът за треньора: client_intake (get_intake формата), иначе последното подаване от submissions — само за четене
     var it = b.intake_live || (b.intake && b.intake.payload ? { data: b.intake.payload, changes: [] } : null);
     SEEN_ON = !!b.seen_items && typeof b.seen_items === "object"; SEEN_DB = b.seen_items || {};   // Т84: видяното от клиента (базата)
@@ -8216,6 +8328,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       document.getElementById("hdr").classList.add("vas");   // Т45: името — на един ред с „…“
     }
     if (!COACH && VIEWER && QS.get("from")) viewBack(QS.get("from"));   // Т45
+    acctInit(COACH ? ACCT_C : diary.show_acct === true, nm);   // Т187: менюто за акаунта (чернова)
     // интейкът: get_intake → {data, updated_at, changes}. Грешка (RPC-то още го няма) → изключен, без гърмене.
     IN.on = !!(intake && !intake.error);
     IN.data = (IN.on && intake.data) || {};
