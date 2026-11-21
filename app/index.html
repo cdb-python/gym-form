@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.13">
+<meta name="version" content="v1.54.14">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1961,6 +1961,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .crow textarea,
   :where(body.skin2.dark) .eatpop .eptm { background: #3b3b3b; }   /* + часът в „Изядох“ — правилото му е по клас, без input */
   :where(body.skin2.dark) ::placeholder { color: #a0aab6; opacity: 1; }
+  /* ════════ Т192н (Chris 21.11 21:49, DEC-0087): менюто за акаунта — тясно, колкото най-дългият ред („скин 2“, двете теми) ════════
+     Ширината — max-content (acctPlace): най-дългият ред (иконата 20 + 12 + текстът) + полетата му (12 + 12) + полето на менюто (6 + 6) —
+     текстът е на 18 px от двата ръба; не по-широко от екрана − 16 px; закачено горе вдясно под бутона, както досега. Редовете — ≥ 44 px.
+     Името горе не разширява менюто — при дълго име — многоточие. */
+  body.skin2 .acctpop .aname { contain: inline-size; }
 </style>
 </head>
 <body>
@@ -3496,7 +3501,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function acctPlace() {
     var p = ACCT.pop, b = ACCT.btn; if (!p || !b) return;
-    var r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth, w = Math.min(250, vw - 16);
+    var r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth;
+    p.style.width = "max-content";   // Т192н (Chris 21:49): „максимално тясно, с нормални отстояния, но да няма излишно“ — колкото най-дългият ред (беше 250)
+    var w = Math.min(Math.ceil(p.getBoundingClientRect().width), vw - 16);
     p.style.width = w + "px"; p.style.top = Math.round(r.bottom + window.scrollY + 6) + "px";
     p.style.left = Math.round(Math.max(8, Math.min(vw - 8 - w, r.right - w)) + window.scrollX) + "px";
   }
