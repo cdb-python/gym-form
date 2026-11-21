@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.5">
+<meta name="version" content="v1.54.6">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1786,7 +1786,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .cq b { color: #e8ada3; }   /* името в цитата — светлият тон (Т192: от оранжевото) върху сивия фон на цитата */
   body.skin2.dark { --quote: #e8ada3; }   /* цитатът (Т143/Т147) — светлият тон (Т192: от оранжевото) */
   body.skin2.dark .kpop .krole, body.skin2.dark .kpop .kuse { background: rgba(255,255,255,0.06); }
-  body.skin2.dark .vpage .vph { background: #000000; color: #eef1f4; box-shadow: inset 0 -1px 0 #2f363e; }   /* шапката на страниците — като главната (Т192г: черна с линия отдолу) */
+  body.skin2.dark .vpage .vph { background: var(--card); color: #eef1f4; }   /* шапката на страниците — като главната (Т192д: пак сивата; Т192г — черната беше „не е добре“) */
   body.skin2.dark .vpage .tpg { --tp-border: #2f363e; --tp-soft: #22272d; --tp-you: #9cc46a; --tp-you-soft: #22291b; --tp-app: #86b6e2; --tp-app-soft: #1c2631;
     --tp-root: #e8ada3; --tp-root-soft: #3c241f; --tp-s0: #48221c; --tp-s1: #572922; --tp-s2: #663229; --tp-s3: #753c30; --tp-s4: #854639; }   /* „Твоят път“ — стъпалата от оранжевото (Т192; Т190б — от лилавото), зеленото и синьото — същите */
   body.skin2.dark .vpage .tpg .tp-heroc { background: linear-gradient(180deg, #1e252c 0%, #22262a 55%, #26231f 100%); }
@@ -1794,7 +1794,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .vpage .tpg .tp-chain i { background: rgba(255,255,255,calc(var(--tp-a) * 0.55)); }   /* хапчетата във веригата — по-малко бяло върху тъмния кафяв (белият текст ≥ 4,5:1) */
   body.skin2.dark .hbtn.acct { background: rgba(255,255,255,0.07); }
   html:has(body.skin2.dark) { background: #000000; }
-  body.skin2.dark header { background: #000000; color: #eef1f4; box-shadow: inset 0 -1px 0 #2f363e; }   /* Т192г (Chris 19:45, DEC-0077): черна, с линия 1 px отдолу */
+  body.skin2.dark header { background: var(--card); color: #eef1f4; }   /* Т192д (Chris 19:54, DEC-0078): „черния хедър не е добре, връщаме сивия“ (Т192г — черна с линия) */
   body.skin2.dark #brandBtn b, body.skin2.dark .hbtn.acct { color: var(--accent); }   /* Т192: оранжевото на Victus (иконката на акаунта — по-долу, Т192) */
   body.skin2.dark nav.tabs .nav-pill { background: var(--card); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
   body.skin2.dark nav.tabs button { color: var(--accent); }
@@ -1826,16 +1826,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     html:has(body.skin2.coach-on) { background: #f4f6f8; }   /* огледалото — --bg на треньора */
   }
   body.skin2::before { background: var(--accent); }   /* като шапката (header — var(--accent)) */
-  body.skin2.dark::before { background: #000000; }   /* като шапката в тъмната (Т192г — черна) */
+  body.skin2.dark::before { background: var(--card); }   /* като шапката в тъмната (Т192д — пак сивата) */
   /* ════════ Т191б (Chris 21.11 17:51–17:55, DEC-0073): лентата долу в тъмната и иконката на акаунта („скин 2“) ════════
      1. Лентата долу в тъмната — Т192в (Chris 19:03, DEC-0076): „ботомбара да стане черен но със сива маркировка но с оранжеви икони“ —
-        хапчетата (и отделното копче вдясно) — #000000, иконите — акцентът #c14633 (4,2:1), маркерът — сивото #1f242a с иконата в акцента
-        (3,1:1); сянката — както в светлата; червените точки — с белия ръб, както в светлата. (Т191б — лилавото с бели икони; Т192 — оранжевото.)
+        хапчетата (и отделното копче вдясно) — #000000 (Т192г — с контур 1 px), иконите — бели (Т192д; бяха в акцента), маркерът — сивото
+        #1f242a с бялата икона; сянката — както в светлата; червените точки — с белия ръб, както в светлата. (Т191б — лилавото с бели икони; Т192 — оранжевото.)
      2. Иконката на акаунта — Т192 я замени с копчето с фон и плътното човече (по-долу); от Т191б остава зоната за натискане — 44 px
         (невидимото поле ::after). */
   body.skin2.dark nav.tabs .nav-pill { background: #000000; box-shadow: 0 0 0 1px #2f363e, 0 8px 30px rgba(0,0,0,.16); }   /* Т192г: контур 1 px като картите */
-  body.skin2.dark nav.tabs button { color: var(--accent); }
-  body.skin2.dark nav.tabs button.on { color: var(--accent); }
+  body.skin2.dark nav.tabs button { color: #ffffff; }   /* Т192д (Chris 19:54): „сменяме цвета на иконите в ботом бара бели, но само тях, маркера остава сив“ */
+  body.skin2.dark nav.tabs button.on { color: #ffffff; }
   body.skin2.dark nav.tabs .nav-slide { background: #1f242a; }
   body.skin2.dark nav.tabs .tdot, body.skin2.dark nav.tabs .badge { box-shadow: 0 0 0 1px #fff; }
   body.skin2 .hbtn.acct { position: relative; }
@@ -3357,7 +3357,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function themeApply() {   // Т189: тъмната — само в „скин 2“ и само при човека (огледалото — своите цветове); лентата на телефона — с нея
     var dark = !!ACCT.on && !acctRo() && lsGet(THEME_KEY) === "dark";
     document.body.classList.toggle("dark", dark);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", dark ? "#000000" : "#c77d2e");   // Т192г: тъмната — черно (като шапката)
+    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", dark ? "#1f242a" : "#c77d2e");   // тъмната — сивото на шапката (Т192д; Т192г беше черно)
   }
   function acctInit(on, name) {
     ACCT.on = on === true; ACCT.name = name || "";
