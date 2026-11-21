@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.7">
+<meta name="version" content="v1.54.8">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1869,6 +1869,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     body.skin2.dark nav.tabs .nav-pill { background: transparent; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.35); }
     body.skin2.dark nav.tabs .nav-mlayer { background: rgba(16,18,22,.66); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
     body.skin2.dark nav.tabs .nav-slide { background: rgba(255,255,255,.12); }
+  }
+  /* ════════ Т192ж (Chris 21.11 20:21, DEC-0080): еднакво разстояние между картите — по-широкото, 18 px („скин 2“, двете теми) ════════
+     „разстоянията между картите са различни, искам да ги оеднаквим в целия апп към по-широкото“. Измерено на 375 px: Табло — 18 (.sec 18 отгоре);
+     Храна — 12 · 18 · 12 · 12 („Режимът“ → „Моите ястия“ — 12, „Моите ястия“ → „Лог“ — 18); Мерки — 16 · 12; Данни — 12 · 12. Сега — 18 навсякъде:
+     всяка карта от горното ниво, която идва веднага след друга такава, е с 18 px отгоре; долните полета (≤ 18) се сливат с него. Първата карта
+     в раздела — --ptop (16), както досега; празното #instHost не мести „Ново за теб“; с картата „Инсталирай“ — и тя 18. Редовете в секцията,
+     Кухнята (лентата с разделите, търсенето — не са карти) и Разговорът — без промяна. #mCmp — обвивката на „Сравнение“ в Мерки. */
+  body.skin2 .pane > :is(.sec, .card, .now, .start, .mcard, details.qacard, #mCmp) + :is(.sec, .card, .now, .start, .mcard, details.qacard, #mCmp), body.skin2 #instHost:has(> .inst) + .now { margin-top: 18px; }
+  /* ════════ Т192з (Chris 21.11 20:24–20:26, DEC-0081): тъмната — балоните, менюто и страницата на Victus — същото матово стъкло като лентата ════════
+     „всички балони в аппа и втората страница на Victus да станат същия стъклен цвят със същите параметри както ботом бара, включително и акаунт
+     менюто“: размиването и наситеността — като лентата (Т192е), ръбът — 1 px rgba(255,255,255,.08), сянката. Балоните (.ipop — и „Храна“ в кухнята,
+     филтрите, графикът), „Изядох“, часовникът, менюто за акаунта, страницата „Victus“ / „Твоят път“ (.vpage; шапката ѝ — плътна, както досега).
+     Плътността — 92 %: най-лошият случай е бяло зад стъклото; при 80 % бледият текст е 4,07:1, оранжевият — 2,03:1; при 92 % — бледият 6,13,
+     червеното 5,68, оранжевото 3,06 (прагът му — 3, Т192б), основният 12,83. Без backdrop-filter — плътното, както досега. Светлата — без промяна. */
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop, body.skin2.dark .vpage {
+      background: rgba(16,18,22,.92); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+    body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.5); }
   }
 </style>
 </head>
