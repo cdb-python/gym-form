@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.52.0">
+<meta name="version" content="v1.52.1">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -60,6 +60,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     save: function (v) { try { localStorage.setItem(SA ? TKP : TK, v); } catch (e) {} },
     pin: function (v) { try { localStorage.setItem(TKP, v); } catch (e) {} }, pinned: null };   // Т184
   function coachDev() { try { for (var i = 0; i < localStorage.length; i++) if (/^sb-.+-auth-token$/.test(localStorage.key(i) || "")) return true; } catch (e) {} return false; }
+  TOK.coachDev = coachDev;   // Т185: и за полето „Постави линка“
   try {
     var qs = new URLSearchParams(location.search), t = qs.get("t");
     if (qs.get("c")) { /* треньор */ }
@@ -378,6 +379,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lf .row2 > div { flex: 1 1 0; min-width: 0; }
   .lf button, .btn { width: 100%; margin-top: 12px; padding: 13px; font-size: 16px; font-weight: 700; color: #fff; background: var(--btn); border: none; border-radius: 10px; cursor: pointer; font-family: inherit; }
   .lf button:active, .btn:active { background: var(--accent-dark); }
+  /* Т185: „Постави линка“ на екрана „Липсва код“ */
+  .mtok { margin: 16px 0 0; text-align: left; }
+  .mtok label { display: block; margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--ink); }
+  .mtok input { display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 11px 12px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .mtok input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .mtok input[aria-invalid="true"] { border-color: #b3261e; }
+  .mtok .mterr { margin: 8px 0 0; font-size: 14px; line-height: 1.4; color: #b3261e; }
   .lf button.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   button:disabled { opacity: 0.55; cursor: not-allowed; }
   .lf .ok { display: none; margin-top: 10px; padding: 10px 12px; background: var(--soft2); border: 1px solid var(--okline); border-radius: 9px; color: var(--accent-dark); font-size: 14px; text-align: center; }
@@ -1856,17 +1864,54 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     P.nachalo.classList.add("on");
     document.getElementById("tabs").style.display = "none";
   }
+  // ── Т185 (Chris 21.11 10:21, DEC-0066): „Постави линка“ на екрана „Липсва код“. Поводът — Edge на Android (Т184): инсталираният апп
+  //   е с отделна памет и Edge не казва за инсталирането → кодът не стига до аппа по никой път. Полето приема целия линк (…/app/?t=<48>,
+  //   старото …/me/?t=…, и с други параметри / опашка) или само кода (48 шестнайсетични знака); интервалите и пренасянията — махат се.
+  //   Валиден → кодът се записва по пътя на ?t= в самия апп (window.__cdbTok.save: инсталираният — закованата бележка, браузърът — общата)
+  //   и страницата се презарежда без кода в адреса; оттам началният скрипт го отваря както винаги. Треньорско устройство (Т183) — нищо
+  //   не се записва: отваря се като линк (?t=), а boot пише само своя акаунт. Кодът не се показва и не се пише никъде другаде.
+  //   Сървърът не познава кода → обичайното „Линкът е невалиден …“, а бележката от полето се маха (pasteDrop), за да не заседне.
+  var PASTE_KEY = "cdbgym_paste_tok", PASTE_BAD = "Това не прилича на линка. Копирай го целия от съобщението.";
+  function pasteTok(v) {
+    v = String(v || "").replace(/\s+/g, "");
+    if (/^[0-9a-f]{48}$/i.test(v)) return v;
+    var m = /[?&#]t=([0-9a-f]{48})(?![0-9a-z])/i.exec(v);
+    return m ? m[1] : "";
+  }
+  function pasteOpen(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    var inp = document.getElementById("mtokIn"), er = document.getElementById("mtokErr"), t = pasteTok(inp && inp.value), TO = window.__cdbTok;
+    if (!t) { if (er) { er.textContent = PASTE_BAD; er.hidden = false; } if (inp) { inp.setAttribute("aria-invalid", "true"); inp.focus(); } return; }
+    if (er) er.hidden = true;
+    if (inp) { inp.removeAttribute("aria-invalid"); inp.value = ""; }
+    var go = window.__cdbPasteGo || function (u) { location.replace(u); };   // __cdbPasteGo — само пробата (къде отива)
+    if (TO && TO.coachDev && TO.coachDev()) { go(location.pathname + "?t=" + encodeURIComponent(t) + location.hash); return; }   // Т183: като отворен линк — boot пише само своя акаунт
+    try { sessionStorage.setItem(PASTE_KEY, "1"); } catch (x) {}
+    if (TO && TO.save) TO.save(t); else lsSet("cdbgym_app_token", t);
+    go(location.pathname + location.hash);
+  }
+  function pasteDrop() {   // сървърът не познава кода от полето → бележката — вън; адресът — без кода (при „Обнови“ — пак полето)
+    var mine = false; try { mine = sessionStorage.getItem(PASTE_KEY) === "1"; sessionStorage.removeItem(PASTE_KEY); } catch (x) {}
+    var TO = window.__cdbTok; if (!mine || !TO || !token) return;
+    if (lsGet(TO.key) === token) lsSet(TO.key, null);
+    try { history.replaceState(history.state, "", location.pathname + location.hash); } catch (x) {}
+  }
   function showMissingToken(storageKey) {
     var saved = lsGet(storageKey) ? "да" : "не";
-    var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+    var standalone = window.__cdbTok ? window.__cdbTok.sa : (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;   // Т185: режимът на началния скрипт
     var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
     showState("");
     P.nachalo.innerHTML = '<div class="state">Липсва код в линка. Отвори линка, който получи.'
+      + '<form class="mtok" id="mtokForm" novalidate><label for="mtokIn">Постави линка, който получи</label>'   // Т185
+      + '<input id="mtokIn" name="mtok" type="text" inputmode="url" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" aria-describedby="mtokErr">'
+      + '<div class="mterr" id="mtokErr" role="alert" hidden></div>'
+      + '<button type="submit" class="btn" id="mtokBtn">Отвори</button></form>'
       + '<div style="margin-top:14px;padding:10px;border:1px dashed #d8dee5;border-radius:8px;font-size:11.5px;color:#6b7886;text-align:left;word-break:break-all;line-height:1.55;">'
       + '<b>Диагностика (за Chris):</b><br>URL: ' + esc(location.href)
       + '<br>Запазен код: ' + saved
       + '<br>Режим: ' + (standalone ? "приложение (standalone)" : "браузър")
       + '<br>iOS: ' + (ios ? "да" : "не") + '</div></div>';
+    var f = document.getElementById("mtokForm"); if (f) f.addEventListener("submit", pasteOpen);   // Т185
   }
 
   var QS = new URLSearchParams(location.search);
@@ -8145,7 +8190,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (lb && !lb.error && lb.data) { LABS.on = true; LABS.uploads = lb.data.uploads || []; LABS.results = lb.data.results || []; }
       var dr = rs[0];
       if (dr.error && !dr.data) { showState("Възникна грешка при зареждането. Опитай по-късно."); return; }
-      if (!dr.data) { showState("Линкът е невалиден или вече не е активен."); return; }
+      if (!dr.data) { pasteDrop(); showState("Линкът е невалиден или вече не е активен."); return; }   // Т185: кодът от полето — не заседва
+      try { sessionStorage.removeItem(PASTE_KEY); } catch (x) {}   // Т185: отвори се
       boot(dr.data, rs[1].data, rs[2].data, typeof rs[3].data === "string" ? rs[3].data : dr.data.name, rs[4].error || !rs[4].data ? { error: true } : rs[4].data);
     });
   }
