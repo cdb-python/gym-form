@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.6">
+<meta name="version" content="v1.54.7">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1859,6 +1859,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark { --edge: var(--border); }
   body.skin2.dark .card, body.skin2.dark .card.panel, body.skin2.dark .card.panel > .body > .card, body.skin2.dark .card.panel.archbox > .body > .acc > .card, body.skin2.dark .acc > .card.hm,
   body.skin2.dark .now, body.skin2.dark .start, body.skin2.dark details.qacard, body.skin2.dark .mcard, body.skin2.dark .sec { border-left-width: 1px; }
+  /* ════════ Т192е (Chris 21.11 20:10, DEC-0079): тъмната — лентата долу като матово стъкло („скин 2“) ════════
+     „да направим ботом бара стъклен с мат за да не е рязък а преливащ спрямо фона“ (образецът — лентата на Revolut): тъмното полупрозрачно
+     с размиване зад него, тънкият светъл ръб, сивият прозрачен маркер, белите икони. Стъклото е на слоя на маркера (.nav-mlayer — изрязан
+     по двете хапчета от navClip), не на самите хапчета: backdrop-filter прави хапчето отделен слой и то би легнало върху маркера.
+     Фонът — 66 % (не 62): белите икони ≥ 4,5:1 и в най-лошия случай — бяло зад лентата, под маркера (4,66:1).
+     Без backdrop-filter (стар браузър) — плътното черно с контура #2f363e и сивия маркер, както досега (Т192в–д). Светлата — без промяна. */
+  @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    body.skin2.dark nav.tabs .nav-pill { background: transparent; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.35); }
+    body.skin2.dark nav.tabs .nav-mlayer { background: rgba(16,18,22,.66); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+    body.skin2.dark nav.tabs .nav-slide { background: rgba(255,255,255,.12); }
+  }
 </style>
 </head>
 <body>
