@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.9">
+<meta name="version" content="v1.54.10">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1889,6 +1889,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       background: rgba(16,18,22,.92); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
     body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.5); }
   }
+  /* ════════ Т192й (Chris 21.11 20:45, DEC-0083): текстът под долната лента избледнява („скин 2“, двете теми) ════════
+     „да скриваме или фейдваме текстовете под ботом бара и между долната линия на андроид да не се вижда текст отзад под между“: неподвижна
+     ивица на дъното — под лентата (z 60) и под балоните (55), над съдържанието; не хваща натискания. От прозрачно 24 px над горния ръб на лентата
+     до фона на страницата (--bg: кремаво / черно / сивото на огледалото) на нивото на лентата и плътно надолу до ръба (+ safe-area).
+     Долното поле на страницата (Т36: лентата + 24 px) е колкото ивицата → последното съдържание се превърта точно над нея.
+     Разговорът и кухнята с кутия (височината им свършва 6 px над лентата — полето за писане е там) — само плътното под лентата, без преливане. */
+  body.skin2::after { content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
+    height: calc(24px + var(--navh) + var(--navgap) + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(to bottom, transparent 0, var(--bg) 24px, var(--bg) 100%); }
+  body.skin2:has(#p-razgovor.on)::after, body.skin2:has(#p-kuhnya.on.kbox)::after { height: calc(var(--navh) + var(--navgap) + env(safe-area-inset-bottom, 0px)); background: var(--bg); }
+  @media print { body.skin2::after { display: none !important; } }
 </style>
 </head>
 <body>
