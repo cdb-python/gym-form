@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.53.0">
+<meta name="version" content="v1.53.1">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -170,6 +170,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .pane:not(#p-razgovor) > :first-child { margin-top: var(--ptop); }   /* Т48: Данни беше залепен (0), Храна 18 — сега всички като Начало/Мерки */
   .sec { margin: 18px 0 6px; }
   .sec h2 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-dark); margin: 0 0 8px; padding-left: 2px; }
+  /* Т188 (Chris 21.11 14:24–14:28, DEC-0068): „скин 2“ (body.skin2 = clients.show_acct — чернова, засега Chris): всяка секция е ЕДНА карта —
+     фонът, рамката и ивицата на .card; заглавието горе вътре (ⓘ в същия ред); картите вътре — редове: без свой фон, рамка, ивица и отстъп
+     отвън; между два реда — тънка линия (отстъпена колкото полето на картата), над първия — няма. Акордеонът, „видяно / писа“ (Т186),
+     вълната и бледото при треньора — на реда, както досега. Без ключа — нищо от това (видът е същият).
+     + (Chris 14:49) страничната ивица — като във фе-тракера: 2 px (беше 4, панелите 5, вложените 3), ъглите 16 px (беше 12) — секциите,
+     „Ново за теб“, панелите и всяка карта с ивица; рамката 1 px и сянката — същите; цветът — --edge. */
+  body.skin2 .card, body.skin2 .card.panel, body.skin2 .card.panel > .body > .card, body.skin2 .card.panel.archbox > .body > .acc > .card, body.skin2 .acc > .card.hm,
+  body.skin2 .now, body.skin2 .start, body.skin2 details.qacard, body.skin2 .mcard { border-left-width: 2px; border-radius: 16px; }
+  body.skin2 .sec { background: var(--card); border: 1px solid var(--border); border-left: 2px solid var(--edge); border-radius: 16px; padding: 12px 16px 2px; margin: 18px 0 12px; }
+  body.skin2 .sec > h2 { margin: 0 0 2px; padding-left: 0; }
+  body.skin2 .sec > .card { background-color: transparent; border: none; border-radius: 0; box-shadow: none; margin: 0; padding: 12px 0; }
+  body.skin2 .sec > .card.panel { padding: 0; }
+  body.skin2 .sec > .card + .card { border-top: 1px solid var(--border); }
+  body.skin2 .sec > .labres { background: transparent; border: none; border-radius: 0; padding: 6px 0 10px; }
+  body.skin2 .sec > #labUps { padding: 0 0 8px; }
   .lead { color: var(--muted); font-size: 14px; margin: 14px 2px 0; }
 
   /* карти (като в me/) */
