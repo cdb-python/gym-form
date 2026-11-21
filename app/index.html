@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.8">
+<meta name="version" content="v1.54.9">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1772,15 +1772,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .cask .cxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) nav.tabs .nav-slide { background: var(--card); }
   :where(body.skin2.dark) nav.tabs .tdot, :where(body.skin2.dark) nav.tabs .badge { box-shadow: 0 0 0 1px var(--card); }
-  body.skin2.dark { --bg: #000000; --card: #1f242a; --ink: #e8ebee; --muted: #9aa5b1; --border: #2f363e; --accent: #c14633; --accent-dark: #c14633; --edge: #c14633; --accent-solid: #c14633; --btn: #c14633; --accent-a40: rgba(193,70,51,0.4);
-    --soft: #21262c; --soft2: #21272d; --okline: #4a5560; --line: #3a424b; --ate: #22272d; --me: #442423; --btn-off: #3a424b; --up: #f07a7a; --down: #5cc79a; --warn: #e0a84a;
-    --up2: #f08a8a; --down2: #6fd3a4; color-scheme: dark; }   /* --soft / --soft2 ≤ #21272d: акцентът #c14633 и като текст върху тях ≥ 3:1 (Т192б; #22282e — 2,97) */
-  body.skin2.dark { --ck-weight: color-mix(in srgb, #7f5c00 48%, #ffffff); --ck-waist: color-mix(in srgb, #9b3f1c 48%, #ffffff); --ck-hip: color-mix(in srgb, #86499b 48%, #ffffff); --ck-neck: color-mix(in srgb, #506c01 48%, #ffffff); --ck-chest: color-mix(in srgb, #007156 48%, #ffffff); --ck-arm: color-mix(in srgb, #016c80 48%, #ffffff); --ck-thigh: color-mix(in srgb, #224fa5 48%, #ffffff); --ck-calf: color-mix(in srgb, #9e2349 48%, #ffffff); --ck-biceps: color-mix(in srgb, #922a6e 48%, #ffffff); --ck-pulse: color-mix(in srgb, #87534f 48%, #ffffff); --ck-fat_pct: color-mix(in srgb, #2a6638 48%, #ffffff); --ck-fat_kg: color-mix(in srgb, #5f6654 48%, #ffffff); --ck-smm: color-mix(in srgb, #225a84 48%, #ffffff); --ck-lean: color-mix(in srgb, #365db8 48%, #ffffff); --ck-water: color-mix(in srgb, #11666a 48%, #ffffff); --ck-bmr: color-mix(in srgb, #8e2f5e 48%, #ffffff); --ck-sleep_h: color-mix(in srgb, #3c3695 48%, #ffffff); --ck-sleep_score: color-mix(in srgb, #714aab 48%, #ffffff); --ck-rhr: color-mix(in srgb, #860f23 48%, #ffffff); --ck-hrv: color-mix(in srgb, #49406a 48%, #ffffff); --ck-stress: color-mix(in srgb, #6d5b78 48%, #ffffff); --ck-steps: color-mix(in srgb, #5c6c14 48%, #ffffff); --cs-weight: color-mix(in srgb, #7f5c00 22%, #1f242a); --cs-waist: color-mix(in srgb, #9b3f1c 22%, #1f242a); --cs-hip: color-mix(in srgb, #86499b 22%, #1f242a); --cs-neck: color-mix(in srgb, #506c01 22%, #1f242a); --cs-chest: color-mix(in srgb, #007156 22%, #1f242a); --cs-arm: color-mix(in srgb, #016c80 22%, #1f242a); --cs-thigh: color-mix(in srgb, #224fa5 22%, #1f242a); --cs-calf: color-mix(in srgb, #9e2349 22%, #1f242a); --cs-biceps: color-mix(in srgb, #922a6e 22%, #1f242a); --cs-pulse: color-mix(in srgb, #87534f 22%, #1f242a); --cs-fat_pct: color-mix(in srgb, #2a6638 22%, #1f242a); --cs-fat_kg: color-mix(in srgb, #5f6654 22%, #1f242a); --cs-smm: color-mix(in srgb, #225a84 22%, #1f242a); --cs-lean: color-mix(in srgb, #365db8 22%, #1f242a); --cs-water: color-mix(in srgb, #11666a 22%, #1f242a); --cs-bmr: color-mix(in srgb, #8e2f5e 22%, #1f242a); --cs-sleep_h: color-mix(in srgb, #3c3695 22%, #1f242a); --cs-sleep_score: color-mix(in srgb, #714aab 22%, #1f242a); --cs-rhr: color-mix(in srgb, #860f23 22%, #1f242a); --cs-hrv: color-mix(in srgb, #49406a 22%, #1f242a); --cs-stress: color-mix(in srgb, #6d5b78 22%, #1f242a); --cs-steps: color-mix(in srgb, #5c6c14 22%, #1f242a); }   /* Т159: цветовете на мерките — същите тонове, за тъмно: текстът светъл, фонът тъмен */
+  body.skin2.dark { --bg: #000000; --card: #1f2630; --ink: #e8ebee; --muted: #9aa5b1; --border: #2f363e; --accent: #c14633; --accent-dark: #c14633; --edge: #c14633; --accent-solid: #c14633; --btn: #c14633; --accent-a40: rgba(193,70,51,0.4);
+    --soft: #1d242d; --soft2: #1e252e; --okline: #4a5560; --line: #3a424b; --ate: #22272d; --me: #442423; --btn-off: #3a424b; --up: #f07a7a; --down: #5cc79a; --warn: #e0a84a;
+    --up2: #f08a8a; --down2: #6fd3a4; color-scheme: dark; }   /* Т192и (Chris 20:35, DEC-0082): картата — #1f2630 (беше #1f242a); --soft / --soft2 — стъпка по-тъмно от нея (по-светло не става:
+     акцентът #c14633 и като текст върху тях иска ≥ 3:1 — 3,12 / 3,08; картата — 3,04); Т192б: #22282e — 2,97 */
+  body.skin2.dark { --ck-weight: color-mix(in srgb, #7f5c00 48%, #ffffff); --ck-waist: color-mix(in srgb, #9b3f1c 48%, #ffffff); --ck-hip: color-mix(in srgb, #86499b 48%, #ffffff); --ck-neck: color-mix(in srgb, #506c01 48%, #ffffff); --ck-chest: color-mix(in srgb, #007156 48%, #ffffff); --ck-arm: color-mix(in srgb, #016c80 48%, #ffffff); --ck-thigh: color-mix(in srgb, #224fa5 48%, #ffffff); --ck-calf: color-mix(in srgb, #9e2349 48%, #ffffff); --ck-biceps: color-mix(in srgb, #922a6e 48%, #ffffff); --ck-pulse: color-mix(in srgb, #87534f 48%, #ffffff); --ck-fat_pct: color-mix(in srgb, #2a6638 48%, #ffffff); --ck-fat_kg: color-mix(in srgb, #5f6654 48%, #ffffff); --ck-smm: color-mix(in srgb, #225a84 48%, #ffffff); --ck-lean: color-mix(in srgb, #365db8 48%, #ffffff); --ck-water: color-mix(in srgb, #11666a 48%, #ffffff); --ck-bmr: color-mix(in srgb, #8e2f5e 48%, #ffffff); --ck-sleep_h: color-mix(in srgb, #3c3695 48%, #ffffff); --ck-sleep_score: color-mix(in srgb, #714aab 48%, #ffffff); --ck-rhr: color-mix(in srgb, #860f23 48%, #ffffff); --ck-hrv: color-mix(in srgb, #49406a 48%, #ffffff); --ck-stress: color-mix(in srgb, #6d5b78 48%, #ffffff); --ck-steps: color-mix(in srgb, #5c6c14 48%, #ffffff); --cs-weight: color-mix(in srgb, #7f5c00 22%, #1f2630); --cs-waist: color-mix(in srgb, #9b3f1c 22%, #1f2630); --cs-hip: color-mix(in srgb, #86499b 22%, #1f2630); --cs-neck: color-mix(in srgb, #506c01 22%, #1f2630); --cs-chest: color-mix(in srgb, #007156 22%, #1f2630); --cs-arm: color-mix(in srgb, #016c80 22%, #1f2630); --cs-thigh: color-mix(in srgb, #224fa5 22%, #1f2630); --cs-calf: color-mix(in srgb, #9e2349 22%, #1f2630); --cs-biceps: color-mix(in srgb, #922a6e 22%, #1f2630); --cs-pulse: color-mix(in srgb, #87534f 22%, #1f2630); --cs-fat_pct: color-mix(in srgb, #2a6638 22%, #1f2630); --cs-fat_kg: color-mix(in srgb, #5f6654 22%, #1f2630); --cs-smm: color-mix(in srgb, #225a84 22%, #1f2630); --cs-lean: color-mix(in srgb, #365db8 22%, #1f2630); --cs-water: color-mix(in srgb, #11666a 22%, #1f2630); --cs-bmr: color-mix(in srgb, #8e2f5e 22%, #1f2630); --cs-sleep_h: color-mix(in srgb, #3c3695 22%, #1f2630); --cs-sleep_score: color-mix(in srgb, #714aab 22%, #1f2630); --cs-rhr: color-mix(in srgb, #860f23 22%, #1f2630); --cs-hrv: color-mix(in srgb, #49406a 22%, #1f2630); --cs-stress: color-mix(in srgb, #6d5b78 22%, #1f2630); --cs-steps: color-mix(in srgb, #5c6c14 22%, #1f2630); }   /* Т159: цветовете на мерките — същите тонове, за тъмно: текстът светъл, фонът тъмен */
   body.skin2.dark .an { --an-ink: #e8ebee; --an-muted: #9aa5b1; --an-border: #2f363e; --an-osn: #aab3bd; --an-osn-s: #262c33; --an-kon: #d9a77a; --an-kon-s: #2e261f;
     --an-ste: #e8957a; --an-ste-s: #33241e; --an-pro: #86bce6; --an-pro-s: #1e2a35; --an-pok: #ee978c; --an-pok-s: #33211f; }   /* анализът — същите тонове, за тъмно */
   body.skin2.dark .an .anh { background: linear-gradient(180deg, #1e252c 0%, #22262a 55%, #26231f 100%); }
   body.skin2.dark .an .anp.ano { --cs: #22272d; }
-  body.skin2.dark .an .anp .ic { color: #1f242a; }
+  body.skin2.dark .an .anp .ic { color: #1f2630; }
   body.skin2.dark .cq { background: rgba(255,255,255,0.06); }
   body.skin2.dark .cnew { background: var(--accent-solid); color: #ffffff; }   /* значката „ново“ — плътното с бяло (Т192: #c14633, 5,0:1) */
   body.skin2.dark .cq b { color: #e8ada3; }   /* името в цитата — светлият тон (Т192: от оранжевото) върху сивия фон на цитата */
@@ -1830,13 +1831,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* ════════ Т191б (Chris 21.11 17:51–17:55, DEC-0073): лентата долу в тъмната и иконката на акаунта („скин 2“) ════════
      1. Лентата долу в тъмната — Т192в (Chris 19:03, DEC-0076): „ботомбара да стане черен но със сива маркировка но с оранжеви икони“ —
         хапчетата (и отделното копче вдясно) — #000000 (Т192г — с контур 1 px), иконите — бели (Т192д; бяха в акцента), маркерът — сивото
-        #1f242a с бялата икона; сянката — както в светлата; червените точки — с белия ръб, както в светлата. (Т191б — лилавото с бели икони; Т192 — оранжевото.)
+        на картата (#1f2630, Т192и) с бялата икона; сянката — както в светлата; червените точки — с белия ръб, както в светлата. (Т191б — лилавото с бели икони; Т192 — оранжевото.)
      2. Иконката на акаунта — Т192 я замени с копчето с фон и плътното човече (по-долу); от Т191б остава зоната за натискане — 44 px
         (невидимото поле ::after). */
   body.skin2.dark nav.tabs .nav-pill { background: #000000; box-shadow: 0 0 0 1px #2f363e, 0 8px 30px rgba(0,0,0,.16); }   /* Т192г: контур 1 px като картите */
   body.skin2.dark nav.tabs button { color: #ffffff; }   /* Т192д (Chris 19:54): „сменяме цвета на иконите в ботом бара бели, но само тях, маркера остава сив“ */
   body.skin2.dark nav.tabs button.on { color: #ffffff; }
-  body.skin2.dark nav.tabs .nav-slide { background: #1f242a; }
+  body.skin2.dark nav.tabs .nav-slide { background: var(--card); }   /* Т192и: сивото на картата (#1f2630) */
   body.skin2.dark nav.tabs .tdot, body.skin2.dark nav.tabs .badge { box-shadow: 0 0 0 1px #fff; }
   body.skin2 .hbtn.acct { position: relative; }
   body.skin2 .hbtn.acct::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
@@ -3386,7 +3387,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function themeApply() {   // Т189: тъмната — само в „скин 2“ и само при човека (огледалото — своите цветове); лентата на телефона — с нея
     var dark = !!ACCT.on && !acctRo() && lsGet(THEME_KEY) === "dark";
     document.body.classList.toggle("dark", dark);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", dark ? "#1f242a" : "#c77d2e");   // тъмната — сивото на шапката (Т192д; Т192г беше черно)
+    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", dark ? "#1f2630" : "#c77d2e");   // тъмната — сивото на шапката (Т192д; Т192г беше черно; Т192и — #1f2630)
   }
   function acctInit(on, name) {
     ACCT.on = on === true; ACCT.name = name || "";
