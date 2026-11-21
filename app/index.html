@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.14">
+<meta name="version" content="v1.54.15">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1966,6 +1966,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      текстът е на 18 px от двата ръба; не по-широко от екрана − 16 px; закачено горе вдясно под бутона, както досега. Редовете — ≥ 44 px.
      Името горе не разширява менюто — при дълго име — многоточие. */
   body.skin2 .acctpop .aname { contain: inline-size; }
+  /* ════════ Т192о (Chris 21.11 22:10, DEC-0088): тъмната — знаците за ново, както в светлата, в цветове за тъмно („скин 2“) ════════
+     Видимостта — контрастът на знака спрямо фона му (светлата → тъмната):
+       червените точки на лентата  — бял ръб 1 px режеше; сега ръбът е в цвета на стъклото (#101216): точката 4,6:1 на стъклото, 3,4 на маркера
+       вълната (.shim)              — оранжевата (за светлото) → бяла 12 % (неподвижната — 9 → 3 %): 1,46 на картата (светлата — 1,29);
+                                      същото движение (1,8 s, три минавания), същите ивици (--shc / --sha за заглавията)
+       „Твоят път ›“ (проблясване)  — оранжевото 30 % → бяло 14 %: 1,55 (светлата — 1,38)
+       „cdb-Victus“ (проблясване)   — бялото 45 % на сивата шапка беше 4,3 (силно мигане) → 18 %: 1,79, колкото в светлата
+       без промяна: червената точка в картите (3,6), „ново“ в чата (бяло на #c14633 — 5,0), камбанката (3,0; изключената — 5,1),
+       --hl / .flash (1,13; светлата — 1,18 — по-силно би свалило оранжевия текст върху него под 3:1). „Без движение“ — както досега. */
+  body.skin2.dark nav.tabs .tdot, body.skin2.dark nav.tabs .badge { box-shadow: 0 0 0 1px #101216; }
+  body.skin2.dark .shim { --shc: 255,255,255; --sha: 0.12; --shs: 0.09; --she: 0.03; }
+  body.skin2.dark:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0) 65%) !important; }
+  html.rm body.skin2.dark .shim, body.skin2.dark:not(.coach-on) .shim.shend { background-image: linear-gradient(100deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)) !important; }
+  @media (prefers-reduced-motion: reduce) { body.skin2.dark:not(.coach-on) .shim { background-image: linear-gradient(100deg, rgba(255,255,255,0.09), rgba(255,255,255,0.03)) !important; } }
+  :where(body.skin2.dark) .now h3 .npath.nflash { background-image: linear-gradient(100deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.14) 50%, rgba(255,255,255,0) 65%); }
+  :where(body.skin2.dark) #brandBtn.nflash { background-image: linear-gradient(100deg, rgba(255,255,255,0) 35%, rgba(255,255,255,0.18) 50%, rgba(255,255,255,0) 65%); }
+  html.rm :where(body.skin2.dark) .now h3 .npath.nflash, html.rm :where(body.skin2.dark) #brandBtn.nflash { background-image: none; }
+  @media (prefers-reduced-motion: reduce) { :where(body.skin2.dark) .now h3 .npath.nflash, :where(body.skin2.dark) #brandBtn.nflash { background-image: none; } }
 </style>
 </head>
 <body>
