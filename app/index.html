@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.12">
+<meta name="version" content="v1.54.13">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1932,6 +1932,35 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     body.skin2:not(.dark) .ipop, body.skin2:not(.dark) .eatpop, body.skin2:not(.dark) .tp { box-shadow: 0 0 0 1px rgba(28,39,51,.08), 0 8px 26px rgba(28,39,51,.20); }
     body.skin2:not(.dark) .acctpop { box-shadow: 0 0 0 1px rgba(28,39,51,.08), 0 10px 30px rgba(28,39,51,.22); }
   }
+  /* ════════ Т192м (Chris 21.11 21:25–21:31, DEC-0086): тъмната — полетата за писане в сивото на кръгчето „мъж / жена“ #3b3b3b („скин 2“) ════════
+     Всяко поле — текст, число, дата, час, търсачката в кухнята, бележките, мерките, чатът, формите — фонът #3b3b3b (Chris 21:31: „цвета, който е в кръгчето
+     на мъж/жена бутона“; рамката — същата; текстът — --ink, 9,4:1; подсказката — малко по-светлият бледи #a0aab6, 4,76:1; --muted тук е 4,48). Двойниците са с тежестта на правилата на полетата (21, събрани от CSS-а, + часът в „Изядох“) и са след
+     тях → грешното поле (червено) и изключеното (по-тъмно) — както досега; полетата без свой фон — общото правило без тежест.
+     Бутоните и чиповете (полът, „Филтри“, „Любими“) — не са полета, не са пипани. Светлата — без промяна. */
+  :where(body.skin2.dark) :where(input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=hidden], [type=button], [type=submit], [type=reset], [type=color]), textarea, select, [contenteditable]:not([contenteditable=false])) { background-color: #3b3b3b; color: var(--ink); }
+  :where(body.skin2.dark) .lf input,
+  :where(body.skin2.dark) .lf textarea,
+  :where(body.skin2.dark) .mtok input,
+  :where(body.skin2.dark) .eat .er input,
+  :where(body.skin2.dark) .lf .lwr input,
+  :where(body.skin2.dark) .lrow textarea.lfix,
+  :where(body.skin2.dark) .card .body .qa textarea,
+  :where(body.skin2.dark) .iform input[type=text],
+  :where(body.skin2.dark) .iform textarea,
+  :where(body.skin2.dark) .ksrch input,
+  :where(body.skin2.dark) .ded .drf input,
+  :where(body.skin2.dark) .ded input[type="text"],
+  :where(body.skin2.dark) .ded textarea,
+  :where(body.skin2.dark) .ded input.dg,
+  :where(body.skin2.dark) .mbig input,
+  :where(body.skin2.dark) .msm input,
+  :where(body.skin2.dark) .mwr input.tpin,
+  :where(body.skin2.dark) .mbp input,
+  :where(body.skin2.dark) .mrow input.mfi,
+  :where(body.skin2.dark) .up input[type=date],
+  :where(body.skin2.dark) .crow textarea,
+  :where(body.skin2.dark) .eatpop .eptm { background: #3b3b3b; }   /* + часът в „Изядох“ — правилото му е по клас, без input */
+  :where(body.skin2.dark) ::placeholder { color: #a0aab6; opacity: 1; }
 </style>
 </head>
 <body>
