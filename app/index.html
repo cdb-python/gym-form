@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.0">
+<meta name="version" content="v1.54.1">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1647,7 +1647,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      Светлата (body.skin2): иконите — в оранжевото на заглавията (--accent-dark #8a5a1a) вместо --accent; ивиците 2 px / ъглите 16 px — Т188.
      Тъмната (body.skin2.dark — „Тема“ в менюто, cdbgym_theme; само при човека, огледалото — своите цветове): фонът #000000; шапката,
      картите и лентата долу #1f242a; заглавията, иконите, ивицата, „cdb-Victus“ и иконката на акаунта #c77d2e; текстът #e8ebee, бледият
-     #9aa5b1, линиите #2f363e; лентата долу — иконите #c77d2e, маркерът #c77d2e с иконата #1f242a. Токените — тук; буквалните цветове
+     #9aa5b1, линиите #2f363e; лентата долу — иконите #c77d2e, маркерът #c77d2e с иконата #1f242a. Т190б (Chris 16:10, DEC-0071): оранжевото в
+     тъмната → лилаво: текстът, заглавията, иконите, ивицата — #938ad1 (5,1:1); плътното (маркерът, бутоните, чиповете, избраното) — #5245ae с
+     бяло (7,4:1); мерките, анализът, горе/долу и theme-color — същите. Токените — тук; буквалните цветове
      (#fff и другите — фонове, текст, рамки) — двойниците им под body.skin2.dark, събрани от CSS-а горе (gen189: 105 правила, 116 стойности). */
   :where(body.skin2:not(.dark)) .card > .ch::after { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) .card .body details.fx > summary::after { color: var(--accent-dark); }
@@ -1666,7 +1668,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2:not(.dark)) .mrow .mfb { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) .acctpop .arow svg.ic { color: var(--accent-dark); }
   :where(body.skin2.dark) .dmark span { background: var(--card); color: #f07a7a; }
-  :where(body.skin2.dark) header { color: #1f242a; }
+  :where(body.skin2.dark) header { background: var(--accent-solid); }
   :where(body.skin2.dark) .card > .ch .chip.pend { background: #2f2819; }
   :where(body.skin2.dark) .card .body table { border-color: color-mix(in srgb, var(--tc) 28%, var(--card)); background: color-mix(in srgb, var(--ts) 45%, var(--card)); }
   :where(body.skin2.dark) table.labt, :where(body.skin2.dark) table.mct { border-color: color-mix(in srgb, var(--tc) 28%, var(--card)); background: color-mix(in srgb, var(--ts) 45%, var(--card)); }
@@ -1685,9 +1687,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .lrow textarea.lfix { background: var(--card); }
   :where(body.skin2.dark) .lrow .lfxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) .lrow .mask .mno { background: var(--card); }
-  :where(body.skin2.dark) .lmrow .lm.dtb.on { color: #1f242a; }
+  :where(body.skin2.dark) .lmrow .lm.dtb.on { background: var(--accent-solid); }
   :where(body.skin2.dark) .dtchip { background: var(--card); }
-  :where(body.skin2.dark) .dtchip.on { color: #1f242a; }
+  :where(body.skin2.dark) .dtchip.on { background: var(--accent-solid); border-color: var(--accent-solid); }
   :where(body.skin2.dark) details.lday { background: var(--card); }
   :where(body.skin2.dark) .card .body .qa textarea { background: var(--card); }
   :where(body.skin2.dark) .iform .ioff { border: 1px dashed #5a4a33; background: #2f2819; }
@@ -1701,38 +1703,38 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .eatbtn .eatv { background: var(--card); }
   :where(body.skin2.dark) .eatpop { background: var(--card); }
   :where(body.skin2.dark) .eatpop .eptm { background: var(--card); }
-  :where(body.skin2.dark) .eatpop .epok { color: #1f242a; }
+  :where(body.skin2.dark) .eatpop .epok { border-color: var(--accent-solid); background: var(--accent-solid); }
   :where(body.skin2.dark) .eatpop .epno { background: var(--card); }
   :where(body.skin2.dark) .eatpop .epmsg { color: #f08a8a; }
   :where(body.skin2.dark) .ipop { background: var(--card); }
-  :where(body.skin2.dark) .ipop { background: #2b2620; }
-  :where(body.skin2.dark) .vpage .tpg .tp-heroc { background: linear-gradient(180deg,#22272d 0%,#22272d 55%,#2b2620 100%); }
-  :where(body.skin2.dark) .vpage .tpg .tp-step.tp-cur .tp-n { color: #1f242a; }
-  :where(body.skin2.dark) .vpage .tpg .tp-here { color: #1f242a; }
-  :where(body.skin2.dark) .vpage .tpg .tp-now { color: #1f242a; }
+  :where(body.skin2.dark) .ipop { background: #22272d; }
+  :where(body.skin2.dark) .vpage .tpg .tp-heroc { background: linear-gradient(180deg,#22272d 0%,#22272d 55%,#22272d 100%); }
+  :where(body.skin2.dark) .vpage .tpg .tp-step.tp-cur .tp-n { background: var(--accent-solid); }
+  :where(body.skin2.dark) .vpage .tpg .tp-here { background: var(--accent-solid); }
+  :where(body.skin2.dark) .vpage .tpg .tp-now { background: var(--accent-solid); }
   :where(body.skin2.dark) .imv .imx:focus-visible { outline: 2px solid var(--card); }
-  :where(body.skin2.dark) .vpage .vph { color: #1f242a; }
-  :where(body.skin2.dark) .tp { background: #2b2620; }
+  :where(body.skin2.dark) .vpage .vph { background: var(--accent-solid); }
+  :where(body.skin2.dark) .tp { background: #22272d; }
   :where(body.skin2.dark) .tp .tpd { background: var(--card); }
-  :where(body.skin2.dark) .tp .tpd.on { color: #1f242a; }
+  :where(body.skin2.dark) .tp .tpd.on { background: var(--accent-solid); border-color: var(--accent-solid); }
   :where(body.skin2.dark) .tp input.tpd[aria-invalid="true"] { background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) .kseg button.on { background: var(--card); }
   :where(body.skin2.dark) .ksrch input { background: var(--card); }
   :where(body.skin2.dark) .kchip { background: var(--card); }
-  :where(body.skin2.dark) .kchip.on { color: #1f242a; }
+  :where(body.skin2.dark) .kchip.on { background: var(--accent-solid); border-color: var(--accent-solid); }
   :where(body.skin2.dark) .ded .drf input { background: var(--card); }
   :where(body.skin2.dark) .eatpop .epam button { background: var(--card); }
-  :where(body.skin2.dark) .eatpop .epam button.on { color: #1f242a; }
+  :where(body.skin2.dark) .eatpop .epam button.on { border-color: var(--accent-solid); background: var(--accent-solid); }
   :where(body.skin2.dark) .ded .dstsel { background: var(--card); }
   :where(body.skin2.dark) .kpop .kb { background: var(--card); }
-  :where(body.skin2.dark) .kpop .kb.on { color: #1f242a; }
+  :where(body.skin2.dark) .kpop .kb.on { background: var(--accent-solid); }
   :where(body.skin2.dark) .dish .dst { background: #22272d; }
-  :where(body.skin2.dark) .dish.sized .dst { color: #1f242a; }
+  :where(body.skin2.dark) .dish.sized .dst { background: var(--accent-solid); }
   :where(body.skin2.dark) .dish .mask .mno, :where(body.skin2.dark) .ded .mask .mno { background: var(--card); }
   :where(body.skin2.dark) .dish .dfxe, :where(body.skin2.dark) .ded .dfxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) .ded input[type="text"], :where(body.skin2.dark) .ded textarea { background: var(--card); }
   :where(body.skin2.dark) .ded .dszb { background: var(--card); }
-  :where(body.skin2.dark) .ded .dszb.on { color: #1f242a; }
+  :where(body.skin2.dark) .ded .dszb.on { background: var(--accent-solid); border-color: var(--accent-solid); }
   :where(body.skin2.dark) .ded input.dg { background: var(--card); }
   :where(body.skin2.dark) .ded .dwarn { background: #2f2819; }
   :where(body.skin2.dark) .ded .dbtns .btn.ghost { background: var(--card); }
@@ -1757,7 +1759,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .upmsg.err { background: #3a2326; border-color: #6b3a3a; color: #f08a8a; }
   :where(body.skin2.dark) .labres { background: var(--card); }
   :where(body.skin2.dark) .up { background: var(--card); }
-  :where(body.skin2.dark) .an .anh { background: linear-gradient(180deg, #22272d 0%, #22272d 55%, #2b2620 100%); }
+  :where(body.skin2.dark) .an .anh { background: linear-gradient(180deg, #22272d 0%, #22272d 55%, #22272d 100%); }
   :where(body.skin2.dark) .an .anp { background: var(--card); }
   :where(body.skin2.dark) .an .anp.anv .stamp { border: 2px solid #6a5232; }
   :where(body.skin2.dark) .an .anp > .body table { background: color-mix(in srgb, var(--cs) 45%, var(--card)); border-color: color-mix(in srgb, var(--c) 28%, var(--card)); }
@@ -1770,8 +1772,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .cask .cxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) nav.tabs .nav-slide { background: var(--card); }
   :where(body.skin2.dark) nav.tabs .tdot, :where(body.skin2.dark) nav.tabs .badge { box-shadow: 0 0 0 1px var(--card); }
-  body.skin2.dark { --bg: #000000; --card: #1f242a; --ink: #e8ebee; --muted: #9aa5b1; --border: #2f363e; --accent: #c77d2e; --accent-dark: #c77d2e; --edge: #c77d2e;
-    --soft: #22272d; --soft2: #22282e; --okline: #4a5560; --line: #3a424b; --ate: #22272d; --me: #3b2a17; --btn-off: #3a424b; --up: #f07a7a; --down: #5cc79a; --warn: #e0a84a;
+  body.skin2.dark { --bg: #000000; --card: #1f242a; --ink: #e8ebee; --muted: #9aa5b1; --border: #2f363e; --accent: #938ad1; --accent-dark: #938ad1; --edge: #938ad1; --accent-solid: #5245ae; --btn: #5245ae; --accent-a40: rgba(147,138,209,0.4);
+    --soft: #22272d; --soft2: #22282e; --okline: #4a5560; --line: #3a424b; --ate: #22272d; --me: #282740; --btn-off: #3a424b; --up: #f07a7a; --down: #5cc79a; --warn: #e0a84a;
     --up2: #f08a8a; --down2: #6fd3a4; color-scheme: dark; }   /* --soft / --soft2 ≤ #22282e: оранжевото #c77d2e върху тях ≥ 4,5:1 */
   body.skin2.dark { --ck-weight: color-mix(in srgb, #7f5c00 48%, #ffffff); --ck-waist: color-mix(in srgb, #9b3f1c 48%, #ffffff); --ck-hip: color-mix(in srgb, #86499b 48%, #ffffff); --ck-neck: color-mix(in srgb, #506c01 48%, #ffffff); --ck-chest: color-mix(in srgb, #007156 48%, #ffffff); --ck-arm: color-mix(in srgb, #016c80 48%, #ffffff); --ck-thigh: color-mix(in srgb, #224fa5 48%, #ffffff); --ck-calf: color-mix(in srgb, #9e2349 48%, #ffffff); --ck-biceps: color-mix(in srgb, #922a6e 48%, #ffffff); --ck-pulse: color-mix(in srgb, #87534f 48%, #ffffff); --ck-fat_pct: color-mix(in srgb, #2a6638 48%, #ffffff); --ck-fat_kg: color-mix(in srgb, #5f6654 48%, #ffffff); --ck-smm: color-mix(in srgb, #225a84 48%, #ffffff); --ck-lean: color-mix(in srgb, #365db8 48%, #ffffff); --ck-water: color-mix(in srgb, #11666a 48%, #ffffff); --ck-bmr: color-mix(in srgb, #8e2f5e 48%, #ffffff); --ck-sleep_h: color-mix(in srgb, #3c3695 48%, #ffffff); --ck-sleep_score: color-mix(in srgb, #714aab 48%, #ffffff); --ck-rhr: color-mix(in srgb, #860f23 48%, #ffffff); --ck-hrv: color-mix(in srgb, #49406a 48%, #ffffff); --ck-stress: color-mix(in srgb, #6d5b78 48%, #ffffff); --ck-steps: color-mix(in srgb, #5c6c14 48%, #ffffff); --cs-weight: color-mix(in srgb, #7f5c00 22%, #1f242a); --cs-waist: color-mix(in srgb, #9b3f1c 22%, #1f242a); --cs-hip: color-mix(in srgb, #86499b 22%, #1f242a); --cs-neck: color-mix(in srgb, #506c01 22%, #1f242a); --cs-chest: color-mix(in srgb, #007156 22%, #1f242a); --cs-arm: color-mix(in srgb, #016c80 22%, #1f242a); --cs-thigh: color-mix(in srgb, #224fa5 22%, #1f242a); --cs-calf: color-mix(in srgb, #9e2349 22%, #1f242a); --cs-biceps: color-mix(in srgb, #922a6e 22%, #1f242a); --cs-pulse: color-mix(in srgb, #87534f 22%, #1f242a); --cs-fat_pct: color-mix(in srgb, #2a6638 22%, #1f242a); --cs-fat_kg: color-mix(in srgb, #5f6654 22%, #1f242a); --cs-smm: color-mix(in srgb, #225a84 22%, #1f242a); --cs-lean: color-mix(in srgb, #365db8 22%, #1f242a); --cs-water: color-mix(in srgb, #11666a 22%, #1f242a); --cs-bmr: color-mix(in srgb, #8e2f5e 22%, #1f242a); --cs-sleep_h: color-mix(in srgb, #3c3695 22%, #1f242a); --cs-sleep_score: color-mix(in srgb, #714aab 22%, #1f242a); --cs-rhr: color-mix(in srgb, #860f23 22%, #1f242a); --cs-hrv: color-mix(in srgb, #49406a 22%, #1f242a); --cs-stress: color-mix(in srgb, #6d5b78 22%, #1f242a); --cs-steps: color-mix(in srgb, #5c6c14 22%, #1f242a); }   /* Т159: цветовете на мерките — същите тонове, за тъмно: текстът светъл, фонът тъмен */
   body.skin2.dark .an { --an-ink: #e8ebee; --an-muted: #9aa5b1; --an-border: #2f363e; --an-osn: #aab3bd; --an-osn-s: #262c33; --an-kon: #d9a77a; --an-kon-s: #2e261f;
@@ -1780,25 +1782,40 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .an .anp.ano { --cs: #22272d; }
   body.skin2.dark .an .anp .ic { color: #1f242a; }
   body.skin2.dark .cq { background: rgba(255,255,255,0.06); }
-  body.skin2.dark .cnew, body.skin2.dark .dish.sized .dst { color: #1f242a; }   /* тъмен текст върху оранжевото (4,8:1; белият е 3,3) */
-  body.skin2.dark .cq b { color: #e39d58; }   /* името в цитата — по-светлото оранжево върху сивия фон на цитата (5,5:1) */
-  body.skin2.dark { --quote: #e39d58; }   /* цитатът (Т143/Т147) — по-светлото оранжево */
+  body.skin2.dark .cnew { background: var(--accent-solid); color: #ffffff; }   /* Т190б: значката „ново“ — плътното лилаво с бяло */
+  body.skin2.dark .cq b { color: #b3acdf; }   /* името в цитата — по-светлото лилаво върху сивия фон на цитата (5,9:1) */
+  body.skin2.dark { --quote: #b3acdf; }   /* цитатът (Т143/Т147) — по-светлото лилаво */
   body.skin2.dark .kpop .krole, body.skin2.dark .kpop .kuse { background: rgba(255,255,255,0.06); }
   body.skin2.dark .vpage .vph { background: var(--card); color: #eef1f4; }   /* шапката на страниците — като главната */
   body.skin2.dark .vpage .tpg { --tp-border: #2f363e; --tp-soft: #22272d; --tp-you: #9cc46a; --tp-you-soft: #22291b; --tp-app: #86b6e2; --tp-app-soft: #1c2631;
-    --tp-root: #d0a27a; --tp-root-soft: #2a231c; --tp-s0: #3a2813; --tp-s1: #45311d; --tp-s2: #523d28; --tp-s3: #5f4a35; --tp-s4: #6f5a45; }   /* „Твоят път“ — същите тонове, за тъмно */
+    --tp-root: #b3acdf; --tp-root-soft: #262338; --tp-s0: #262242; --tp-s1: #2e2950; --tp-s2: #37315e; --tp-s3: #41396c; --tp-s4: #4c437b; }   /* „Твоят път“ — стъпалата от лилавото (Т190б), зеленото и синьото — същите */
   body.skin2.dark .vpage .tpg .tp-heroc { background: linear-gradient(180deg, #1e252c 0%, #22262a 55%, #26231f 100%); }
-  body.skin2.dark .vpage .tpg .tp-now h3 { color: #1f242a; }
+  body.skin2.dark .vpage .tpg .tp-now h3 { color: #ffffff; }
   body.skin2.dark .vpage .tpg .tp-chain i { background: rgba(255,255,255,calc(var(--tp-a) * 0.55)); }   /* хапчетата във веригата — по-малко бяло върху тъмния кафяв (белият текст ≥ 4,5:1) */
   body.skin2.dark .hbtn.acct { background: rgba(255,255,255,0.07); }
   html:has(body.skin2.dark) { background: #000000; }
   body.skin2.dark header { background: var(--card); color: #eef1f4; }
-  body.skin2.dark #brandBtn b, body.skin2.dark .hbtn.acct { color: #c77d2e; }
+  body.skin2.dark #brandBtn b, body.skin2.dark .hbtn.acct { color: var(--accent); }   /* Т190б: лилавото */
   body.skin2.dark nav.tabs .nav-pill { background: var(--card); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
-  body.skin2.dark nav.tabs button { color: #c77d2e; }
-  body.skin2.dark nav.tabs button.on { color: #1f242a; }
-  body.skin2.dark nav.tabs .nav-slide { background: #c77d2e; }
+  body.skin2.dark nav.tabs button { color: var(--accent); }
+  body.skin2.dark nav.tabs button.on { color: #ffffff; }
+  body.skin2.dark nav.tabs .nav-slide { background: var(--accent-solid); }   /* Т190б: маркерът — плътното лилаво с бяла икона */
   body.skin2.dark .acctpop { box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
+  /* ════════ Т190 (Chris 21.11 16:05–16:07, DEC-0070): без оранжевите рамки и без линията при писане — „скин 2“, двете теми ════════
+     1. Балоните и изскачащите (.ipop — и балонът на храна .kpop, .eatpop, .tp) — без рамката в акцента (прозрачна, мястото остава); сянката — същата.
+     2. Полетата за писане — при докосване без линия (и браузърната) и без смяна на рамката; курсорът остава.
+     3. Фокусните знаци на бутоните (outline и пръстените със сянка) — махнати. Където рамката е единственият знак за състояние
+        (.flash — „ето къде отиде“, .cflash .cb и избраното съобщение .cmsg.cmon > .cb) — вместо нея лек фон в тона на акцента (--hl). */
+  body.skin2 .ipop, body.skin2 .eatpop, body.skin2 .tp { border-color: transparent; }
+  body.skin2 *:focus, body.skin2 *:focus-visible { outline: none !important; }
+  body.skin2 .mtok input:focus { border-color: var(--border); }
+  body.skin2 .tp input.tpd:focus { border-color: var(--border); box-shadow: none; }
+  body.skin2 .lrow .lfx:focus-visible, body.skin2 .lrow .ldel:focus-visible, body.skin2 .mrow .mfb:focus-visible, body.skin2 .ctk:focus-visible,
+  body.skin2 .tp button.tpd:focus-visible, body.skin2 .tp .tpk:focus-visible, body.skin2 .tp .tpb:focus-visible,
+  body.skin2 .eatbtn:focus-visible .eatv, body.skin2 .ibtn:focus-visible svg.ic { box-shadow: none; }
+  body.skin2 { --hl: color-mix(in srgb, var(--accent) 16%, var(--card)); }
+  body.skin2 .flash { outline: none; background-color: var(--hl); transition: background-color 0.4s; }
+  body.skin2 .cflash .cb, body.skin2 .cmsg.cmon > .cb { outline: none; background-color: var(--hl); }
 </style>
 </head>
 <body>
