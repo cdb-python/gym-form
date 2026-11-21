@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.54.1">
+<meta name="version" content="v1.54.2">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1816,6 +1816,31 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2 { --hl: color-mix(in srgb, var(--accent) 16%, var(--card)); }
   body.skin2 .flash { outline: none; background-color: var(--hl); transition: background-color 0.4s; }
   body.skin2 .cflash .cb, body.skin2 .cmsg.cmon > .cb { outline: none; background-color: var(--hl); }
+  /* ════════ Т191 (Chris 21.11 17:10, DEC-0072): Android — под лентата с жестовете се вижда фонът на аппа („скин 2“, проба само за Chris) ════════
+     viewport-fit=cover (в meta) пуска страницата до долния ръб; съдържанието и лентата долу стоят над жестовете с env(safe-area-inset-bottom)
+     (body — долното поле, nav.tabs — bottom, страниците .vpa, чатът и кухнята — височината). Тук: под жестовете да е фонът на страницата, не друг цвят —
+     html е като body (кремавото, тъмната — черното, огледалото на треньора — сивото); горната ивица (body::before — iPhone и Android при рисуване
+     до ръба) е с цвета на шапката. На компютъра (широко) — както досега. Лентата на инсталирания апп се боядисва от manifest-а — тук не се пипа. */
+  @media (max-width: 480px), (pointer: coarse) {
+    html:has(body.skin2) { background: var(--bg); }   /* --bg на :root — кремавото */
+    html:has(body.skin2.coach-on) { background: #f4f6f8; }   /* огледалото — --bg на треньора */
+  }
+  body.skin2::before { background: var(--accent); }   /* като шапката (header — var(--accent)) */
+  body.skin2.dark::before { background: var(--card); }   /* като шапката в тъмната */
+  /* ════════ Т191б (Chris 21.11 17:51–17:55, DEC-0073): лентата долу в тъмната и иконката на акаунта („скин 2“) ════════
+     1. Лентата долу в тъмната — по правилото на светлата: хапчетата (и отделното копче вдясно) — плътното лилаво #5245ae, иконите — бели,
+        маркерът — бял с иконата в лилавото (7,4:1 и двете); сянката — както в светлата; червените точки — с белия ръб, както в светлата.
+     2. Иконката на акаунта (двете теми) — без кръга-фон: самата икона е бутонът, външният ѝ кръг е ръбът му (36 px). Иконата се разпъва
+        (viewBox 24 → 47,9 px: 8,6 × 47,9 / 24 + 1,67 / 2 = 18 px), линията остава 1,67 px на екрана (0,8367 в единиците на иконата).
+        Зоната за натискане — 44 px (невидимото поле ::after). Цветът — както досега; в огледалото — бледа (.ro). */
+  body.skin2.dark nav.tabs .nav-pill { background: var(--accent-solid); box-shadow: 0 8px 30px rgba(0,0,0,.16); }
+  body.skin2.dark nav.tabs button { color: #ffffff; }
+  body.skin2.dark nav.tabs button.on { color: var(--accent-solid); }
+  body.skin2.dark nav.tabs .nav-slide { background: #ffffff; }
+  body.skin2.dark nav.tabs .tdot, body.skin2.dark nav.tabs .badge { box-shadow: 0 0 0 1px #fff; }
+  body.skin2 .hbtn.acct, body.skin2.dark .hbtn.acct, body.skin2 .hbtn.acct:hover, body.skin2 .hbtn.acct:active { position: relative; background: transparent; }
+  body.skin2 .hbtn.acct svg.ic { width: 47.9px; height: 47.9px; stroke-width: 0.8367px; pointer-events: none; }
+  body.skin2 .hbtn.acct::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
 </style>
 </head>
 <body>
