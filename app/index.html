@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.62.0">
+<meta name="version" content="v1.63.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -127,7 +127,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     overflow-x: hidden;
   }
   /* Т17: iPhone, инсталирано (black-translucent): лента с цвета на иконата под часовника, за да не легне текст под него */
-  body::before { content: ""; display: block; height: env(safe-area-inset-top, 0px); background: #1a1c3e; }
+  /* Т201 (Chris 23.11 09:09 „картата с макростите таргета се възкачва над андроид черната лента на часовника … и в другите страници да няма
+     този проблем“): ивицата е ЗАКОВАНА горе (беше блок в страницата — превърташе се и съдържанието минаваше под прозрачния часовник); над
+     съдържанието и балоните (z 75), под слоевете със свой отстъп за часовника (.vpage 80, .ipop.invp 95, .imv 120); мястото ѝ — запазено
+     (body padding-top), подредбата — същата. --sat = безопасната зона горе (тестовете я подменят). Цветът — както досега (Т17 / Т191). */
+  :root { --sat: env(safe-area-inset-top, 0px); }
+  body { padding-top: var(--sat); }
+  body::before { content: ""; display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 75; height: var(--sat); background: #1a1c3e; }
   /* Т17: „Инсталирай на телефона“ (Начало; само ако не е инсталирано; × скрива за 14 дни) */
   .inst { position: relative; display: grid; grid-template-columns: 40px 1fr; gap: 4px 12px; align-items: center; margin: 14px 0 4px; padding: 12px 40px 12px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; }
   .inst img { width: 40px; height: 40px; border-radius: 9px; display: block; }
@@ -887,13 +893,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т164: картинка от линк в чата — слой на целия екран; тъмен фон, картинката цяла; жестовете — наши (touch-action: none) */
   .imv { position: fixed; inset: 0; z-index: 120; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.92); touch-action: none; overscroll-behavior: contain; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; animation: imvIn 0.16s ease-out; }
   .imv img { display: block; max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: 50% 50%; -webkit-user-drag: none; user-select: none; }
-  .imv .imx { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 6px); right: calc(env(safe-area-inset-right, 0px) + 6px); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.5); color: #fff; cursor: pointer; }
+  .imv .imx { position: absolute; top: calc(var(--sat) + 6px); right: calc(env(safe-area-inset-right, 0px) + 6px); width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.5); color: #fff; cursor: pointer; }
   .imv .imx svg.ic { width: 22px; height: 22px; }
   .imv .imx:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
   @keyframes imvIn { from { opacity: 0; } to { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .imv { animation: none; } }
   .vpage { position: fixed; inset: 0; z-index: 80; display: flex; flex-direction: column; background: var(--bg); color: var(--ink); }
-  .vpage .vph { flex: none; display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; column-gap: 8px; padding: calc(8px + env(safe-area-inset-top, 0px)) 12px 8px; background: var(--accent); color: #fff; }
+  .vpage .vph { flex: none; display: grid; grid-template-columns: 36px minmax(0, 1fr) 36px; align-items: center; column-gap: 8px; padding: calc(8px + var(--sat)) 12px 8px; background: var(--accent); color: #fff; }
   .vpage .vph h1 { margin: 0; font-size: 19px; line-height: 1.3; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .vpage .vpb { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
   .vpage .vpa { box-sizing: border-box; max-width: 640px; margin: 0 auto; padding: 18px 16px calc(28px + env(safe-area-inset-bottom, 0px)); font-size: 15.5px; line-height: 1.55; overflow-wrap: anywhere; }
@@ -1440,7 +1446,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* разговорът (от me/) — на цял екран */
   .chatwrap { position: relative; }
   .chat { position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 10px; }
-  #p-razgovor.on { display: flex; flex-direction: column; height: calc(100vh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); padding-top: var(--ptop); padding-bottom: 10px; }
+  #p-razgovor.on { display: flex; flex-direction: column; height: calc(100vh - var(--top) - var(--sat) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - var(--sat) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); padding-top: var(--ptop); padding-bottom: 10px; }
   #p-razgovor .chatwrap { flex: 1; min-height: 0; display: flex; }
   #p-razgovor .chat { flex: 1; min-height: 0; }
   body.chat-on { padding-bottom: 0; }
@@ -1448,7 +1454,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      Само при височина ≥ 500 px (KIT_BOXMQ): хоризонтално на телефона за бокса не остава място → страницата се скролва както досега. */
   @media (min-height: 500px) {
     body.kbox { padding-bottom: 0; overscroll-behavior-y: none; }
-    #p-kuhnya.on.kbox { display: flex; flex-direction: column; height: calc(100vh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - env(safe-area-inset-top, 0px) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); }
+    #p-kuhnya.on.kbox { display: flex; flex-direction: column; height: calc(100vh - var(--top) - var(--sat) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - var(--sat) - var(--navh) - var(--navgap) - 6px - env(safe-area-inset-bottom, 0px)); }
     #p-kuhnya.kbox > .kseg { flex: none; }
     #p-kuhnya.kbox #kBody { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
     #p-kuhnya.kbox #kBody > * { flex: none; }
@@ -2246,6 +2252,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .vpage .vreg > .card > .ch { cursor: default; }
   .vpage .vreg > .card > .ch::after { content: none; }
   .vpage .vreg > .card + .card { margin-top: 12px; }
+  /* ════════ Т201 (DEC-0101; Chris 23.11.2026 07:09 · 07:13): търсачката и клавиатурата ════════
+     „при клик в сърча, излиза клавиатурата, ботом бара се качва над нея, страницата мърда не достатъчно нагоре и не се вижда дроп менюто“.
+     Докато полето на общата търсачка е на фокус и клавиатурата е отворена (body.kbopen — kbSync по visualViewport): долната лента и ивицата
+     под нея (скин 2) — скрити; връщат се, щом клавиатурата се затвори или полето загуби фокус. Книгата: списъкът — бокс до клавиатурата
+     (.klist.kbk, височината — kbSize), превърта се вътре; заглавният ред — горе в бокса (както в бокса на Т98). Другите полета — нищо. */
+  body.kbopen nav.tabs { display: none !important; }
+  body.skin2.kbopen::after { display: none !important; }
+  #p-kuhnya #kBody > .card.klist.kbk { flex: none; min-height: 0; margin-bottom: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  #p-kuhnya #kBody > .card.klist.kbk::-webkit-scrollbar { display: none; }
+  #p-kuhnya #kBody > .card.klist.kbk > .khead { position: sticky; top: 0; z-index: 1; background: #fff; }
+  :where(body.skin2.dark) #p-kuhnya #kBody > .card.klist.kbk > .khead { background: var(--card); }
 </style>
 </head>
 <body>
@@ -5882,13 +5899,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var L = popLim(), room = L.lim - 8, p0;
       pop.style.maxHeight = "none"; p0 = pop.getBoundingClientRect();
       if (p0.height > room) {
-        var space = L.lim - p0.top, s = space >= L.vh * 0.5 ? 0 : Math.max(0, Math.min(room - space, p0.top - 8));
+        var space = L.lim - p0.top, s = space >= L.vh * 0.5 ? 0 : Math.max(0, Math.min(room - space, p0.top - satH() - 8));
         pop.setAttribute("data-tall", "1"); pop.style.maxHeight = Math.max(120, Math.floor(space + s)) + "px";   // долу — точно до лентата след вдигането с s
       } else pop.removeAttribute("data-tall");
     }
     var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
     if (pr.bottom <= lim) return;
-    var need = Math.max(0, Math.min(pr.bottom - lim, pr.top - 8)), want = Math.ceil(window.scrollY + need + window.innerHeight);
+    var need = Math.max(0, Math.min(pr.bottom - lim, pr.top - satH() - 8)), want = Math.ceil(window.scrollY + need + window.innerHeight);
     if (document.documentElement.scrollHeight < want) {
       var sp = document.getElementById("popSpacer");
       if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
@@ -6795,7 +6812,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function srchDdPlace(S) {   // под реда с филтрите, върху съдържанието; височината — до лентата долу (и над клавиатурата)
     var d = S.sdd && document.getElementById(S.si.dd); if (!d) return;
-    d.style.maxHeight = Math.max(160, Math.min(420, Math.floor(popLim().lim - d.getBoundingClientRect().top))) + "px";
+    var kb = KB.on && KB.S === S, room = Math.floor(popLim().lim - d.getBoundingClientRect().top + (kb ? kbDy() : 0));   // Т201: клавиатурата — до нея (лентата е скрита), без 160 / 420
+    d.style.maxHeight = (kb ? Math.max(0, room) : Math.max(160, Math.min(420, room))) + "px";
   }
   function srchDdOpen(S, on, keep) {
     if (!S || S.so.mode !== "dd" || !!S.sdd === !!on) return;
@@ -6871,6 +6889,75 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var t = e.target; if (!t || !t.classList || !t.classList.contains("sdl")) return;
       var S = srchOf(t); if (S && t.scrollTop + t.clientHeight > t.scrollHeight - 600) srchDdMore(S);
     }, true);
+  })();
+  // ════════ Т201 (DEC-0101; Chris 23.11.2026 07:09 · 07:13): ТЪРСАЧКАТА И КЛАВИАТУРАТА ════════
+  //   „при клик в сърча, излиза клавиатурата, ботом бара се качва над нея, страницата мърда не достатъчно нагоре и не се вижда дроп менюто“ →
+  //   докато полето на общата търсачка (srchOf: книгата, „＋ Ястие“ / „＋ Рецепта“, „Храни“ в лога) е на фокус И клавиатурата е отворена:
+  //   (1) долната лента и ивицата под нея — скрити (body.kbopen); (2) полето — най-горе във видимото: горният ръб на visualViewport + topOffset()
+  //   (8 px под ивицата на часовника — и под заглавката, ако е закрепена; не е — както акордеонът); (3) падащият списък (книгата — бокса със списъка)
+  //   — от реда с филтрите до клавиатурата (−8 px, popLim), превърта се вътре; височината следва visualViewport (height, offsetTop).
+  //   Затваряне (полето губи фокус / клавиатурата се прибира) → лентата се връща, списъкът — по старото правило; страницата, ако е била
+  //   удължена за полето (#popSpacer), се връща до края си (popUnfit) — освен ако над нея има балон (той я връща, като се затвори).
+  //   Клавиатурата: visualViewport.height (× scale) < пълната височина − 120 px; пълната — innerHeight без фокус в поле за писане (при тази
+  //   ширина; с фокус — най-голямата видяна): Android смалява и прозореца (лентата се качва над клавиатурата — Chris 07:09), iOS / Chrome —
+  //   само visualViewport. Без visualViewport — нищо. Другите полета (чатът, „Текст“, лентите „Ястия“ / „Режим“) — не се пипат.
+  var KB = { on: false, S: null, h0: 0, w0: -1, t: 0, q: 0 }, KB_DH = 120;
+  function kbEd(el) { return !!el && (el.isContentEditable || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file|hidden|image)$/i.test(el.type || ""))); }   // поле за писане (клавиатура)
+  function kbSrch(el) { var S = el && el.tagName === "INPUT" ? srchOf(el) : null; return S && el.id === S.si.q && !el.disabled && el.getClientRects().length ? S : null; }   // полето на търсачката (видимо, включено)
+  function kbFull() {   // пълната височина на прозореца (без клавиатурата)
+    var w = window.innerWidth, h = window.innerHeight;
+    if (Math.abs(w - KB.w0) > 2 || !kbEd(document.activeElement)) { KB.w0 = w; KB.h0 = h; } else if (h > KB.h0) KB.h0 = h;
+    return KB.h0;
+  }
+  function kbTop() { return topOffset(); }   // под ивицата на часовника (body::before) + 8 px
+  function kbDy() { return ACC_RUN ? ACC_RUN.y1 - window.scrollY : 0; }   // превъртането, което двигателят още прави (списъкът се мери за мястото, където ще е)
+  function kbSize(S) {   // списъкът — до клавиатурата
+    if (!S) return;
+    if (S !== KIT) { srchDdPlace(S); return; }
+    var kl = document.querySelector("#p-kuhnya #kBody > .klist"); if (!kl || kl.hidden || !kl.getClientRects().length) return;
+    kl.classList.add("kbk");
+    kl.style.height = Math.max(0, Math.floor(popLim().lim - kl.getBoundingClientRect().top + kbDy())) + "px";
+    kitFill();
+  }
+  function kbPlace(scroll) {   // scroll — полето горе (клавиатурата се отвори / смени височината); иначе — само списъкът (страницата е преместена)
+    var S = KB.S, vv = window.visualViewport, inp = S && document.getElementById(S.si.q); if (!inp || !vv) return;
+    if (scroll) {
+      var y0 = window.scrollY, y1 = Math.max(0, Math.round(y0 + inp.getBoundingClientRect().top - (vv.offsetTop + kbTop())));
+      if (Math.abs(y1 - y0) >= 1) {
+        var want = Math.ceil(y1 + window.innerHeight);   // страницата — достатъчно дълга (както popFit: невидим маркер, маха се при затваряне)
+        if (document.documentElement.scrollHeight < want) {
+          var sp = document.getElementById("popSpacer");
+          if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
+          sp.style.top = (want - 1) + "px";
+        }
+        accRun([], { y: y1 }, false);
+      }
+      clearTimeout(KB.t); KB.t = setTimeout(function () { if (KB.on) kbSize(KB.S); }, ACC_MS + 60);   // след движението — мерено наново
+    }
+    kbSize(S);
+  }
+  function kbOff() {
+    var S = KB.S; KB.on = false; KB.S = null; clearTimeout(KB.t);
+    document.body.classList.remove("kbopen");
+    var kl = document.querySelector("#p-kuhnya .klist.kbk"); if (kl) { kl.classList.remove("kbk"); kl.style.height = ""; }
+    if (S && S.sdd) srchDdPlace(S);   // старото правило (160–420, над лентата)
+    var on = document.querySelector("nav.tabs button.on"); if (on) { navSlidePlaced = false; navSlide(on.getAttribute("data-tab")); }   // маркерът — скритата лента не е мерена
+    if (IPOP) infoPlace();
+    if (!EAT && !IPOP && !TP && !(FPK && FPK.ov)) popUnfit();   // удължената страница — до края си; балон над нея — той я връща
+  }
+  function kbSync(why) {
+    var vv = window.visualViewport; if (!vv) return;
+    var S = kbSrch(document.activeElement), full = kbFull(), on = !!S && vv.height * (vv.scale || 1) < full - KB_DH;
+    if (!on) { if (KB.on) kbOff(); return; }
+    if (!KB.on || KB.S !== S) { KB.on = true; KB.S = S; document.body.classList.add("kbopen"); kbPlace(true); return; }
+    kbPlace(why === "rs");   // височината на клавиатурата се смени — полето пак горе; страницата е преместена — само списъкът
+  }
+  (function kbWire() {
+    var vv = window.visualViewport; if (!vv) return;
+    function later() { clearTimeout(KB.q); KB.q = setTimeout(function () { kbSync("fo"); }, 0); }   // след фокуса (activeElement — новият)
+    document.addEventListener("focusin", later); document.addEventListener("focusout", later);
+    vv.addEventListener("resize", function () { kbSync("rs"); }); vv.addEventListener("scroll", function () { kbSync("sc"); });
+    window.addEventListener("resize", function () { kbSync("rs"); });
   })();
   // (2) БАЛОНЪТ ЗА ДОБАВЯНЕ — един навсякъде, един вид (ястието и рецептата — Е2; „Храни“, „Ястия“ и „Режим“ в лога — Е3). Четирите
   //   лица на един балон (Chris 22.11 15:19–20:21, 21:47): ХРАНА — името · количество (малко поле, 72 px) · мярка (г + мерките на храната
@@ -7265,7 +7352,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   Картата не се вижда (страницата превъртяна — само при ниския хоризонтален екран, без бокса) → както досега (Т98: под / над реда).
   function listPopPlace(pop, list, grow) {   // → true — поставен по правилото; grow (Т199 Е3 — логът: падащият може да е по-нисък от балона) — височината е на балона, страницата се вдига (popFit); по-висок от екрана → превърта се вътре
     if (!pop || !list || !list.getClientRects().length) return false;
-    var lr = list.getBoundingClientRect(), L = popLim(), hd = document.getElementById("hdr"), top0 = hd && hd.getClientRects().length ? Math.max(0, hd.getBoundingClientRect().bottom) : 0;
+    var lr = list.getBoundingClientRect(), L = popLim(), hd = document.getElementById("hdr"), top0 = hd && hd.getClientRects().length ? Math.max(satH(), hd.getBoundingClientRect().bottom) : satH();   // Т201: и под ивицата на часовника
     var bot = Math.min(lr.bottom, L.lim + 8);
     if (lr.top < top0 - 0.5 || (!grow && bot - lr.top < 120)) return false;
     var st = pop.style;
@@ -9367,10 +9454,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function accHead(n) { return n.tagName === "DETAILS" ? n.querySelector(":scope > summary") : n.querySelector(":scope > .ch"); }
   // хедърът не е залепнал → горният край на екрана; ако някога стане sticky/fixed — под него
-  function topOffset() {
+  function topOffset() {   // Т201 (Chris 09:09): горният край — под закованата ивица на часовника (satH)
     var h = document.getElementById("hdr"), cs = h && getComputedStyle(h);
-    return (cs && (cs.position === "sticky" || cs.position === "fixed") ? h.getBoundingClientRect().bottom : 0) + ACC_GAP;
+    return Math.max(satH(), cs && (cs.position === "sticky" || cs.position === "fixed") ? h.getBoundingClientRect().bottom : 0) + ACC_GAP;
   }
+  function satH() { return parseFloat(getComputedStyle(document.body, "::before").height) || 0; }   // ивицата под часовника (body::before, закована горе)
   var ACC_KEYS = ["height", "paddingTop", "paddingBottom", "marginTop", "marginBottom"], ACC_ZERO = { height: 0, paddingTop: 0, paddingBottom: 0, marginTop: 0, marginBottom: 0 };
   function boxOf(b) {
     var cs = getComputedStyle(b);
@@ -9689,7 +9777,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   window.__app = { wrote: function (k) { var w = pWrote(k); return w ? w.at : null; }, rt: function () { return { topic: RT.topic, ok: RT.ok, ms: RT.ms, polling: !!RT.poll, own: RT.own, sig: RT.sig }; }, renderNachalo: function () { renderNachalo(); }, setBack: function (f) { vaBackFn = f; }, dots: function () { return { nachalo: document.getElementById("tdot_nachalo").classList.contains("show"), hrana: document.getElementById("tdot_hrana").classList.contains("show"), merki: document.getElementById("tdot_merki").classList.contains("show"), danni: document.getElementById("tdot_danni").classList.contains("show") }; }, go: go, acc: accSet, printPrep: printPrep, viewAs: function () { return VIEW_AS; }, accBusy: function () { return !!ACC_RUN; }, accMs: function () { return ACC_MS; }, accEase: accEase, setNav: function (f) { coachNav = f; }, install: function (env, prompt) { INST_ENV = env || null; if (prompt !== undefined) instPrompt = prompt; renderInstall(); return pwaEnv(); }, logBtnTexts: function () { return { idle: [0, 1, 2, 12, 99].map(logIdleText), write: "Запиши" }; }, setReduce: function (v) { REDUCE = !!v; document.documentElement.classList.toggle("rm", REDUCE); }, seen: function () { return { on: SEEN_ON, newc: NEWC, seenc: SEENC, db: SEEN_DB, fp: FPALL }; }, bg: { st: BG, setReload: function (f) { bgReload = f; }, dirty: function () { return bgDirty(); }, notif: function (x) { notifGo(x); } }, shim: function () { return { on: SH.on, items: Object.keys(SH.items), seen: SH.seen, base: SH.base, opened: SH.opened }; }, switchTab: switchTab, info: function () { return INFO; }, canWrite: function () { return CAN_WRITE; }, coach: function () { return COACH; },
     t199: { mount: function (el, key, o) { var S = srchNew(key, o); el.innerHTML = srchHtml(S); srchList(S); return S; }, srch: function (k) { return SRCH[k]; }, fpkOpen: function (host, id, o) { return fpkOpen(host, id && typeof id === "object" ? id : KIT.byId[id], o); },
       fpk: function () { return FPK; }, fst: function () { return KIT.fst; }, hitRank: hitRank, layers: function () { return LY.map(function (L) { return L.k; }); }, del2: function () { return DEL2; },
-      lg: function () { return { tab: LG.tab, dd: LG.dd ? LG.dd.k : null, full: logFull(), trd: TRD, ft: FT, day: ftFor(foodToday()), today: foodToday() }; } } };   // Т199 Е3
+      lg: function () { return { tab: LG.tab, dd: LG.dd ? LG.dd.k : null, full: logFull(), trd: TRD, ft: FT, day: ftFor(foodToday()), today: foodToday() }; } },   // Т199 Е3
+    kb: function () { return { on: KB.on, key: KB.S ? KB.S.sk : null, full: KB.h0, top: kbTop() }; } };   // Т201
   window.__app.kitFit = kitFit;   // Т100: сверката със солвъра на Python (тестовете)
   window.__app.kitCg = kitCg; window.__app.kitTags = kitTags;   // Т198: групата на каталога (каймата) и „Какво носи“ (тестовете)
 
