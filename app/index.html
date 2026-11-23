@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.65.0">
+<meta name="version" content="v1.66.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2062,13 +2062,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk .fpksz { padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
   .fpk .fpksz.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .fpk .fpkc { min-height: 18px; color: var(--muted); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* сметката — на един ред */
-  .fpk .fpkb, .trpop .fpkb { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }   /* часът · Запиши · Отказ; тясно (320) — бутоните под часа */
-  .fpk .fpkbb, .trpop .fpkbb { flex: 1 1 150px; min-width: 150px; display: flex; gap: 8px; }
-  .fpk .fpkb .btn, .trpop .fpkb .btn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
-  .fpk .fpkb .btn.ghost, .trpop .fpkb .btn.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
+  .fpk .fpkb { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }   /* часът · Запиши · Отказ; тясно (320) — бутоните под часа */
+  .fpk .fpkbb { flex: 1 1 150px; min-width: 150px; display: flex; gap: 8px; }
+  .fpk .fpkb .btn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
+  .fpk .fpkb .btn.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   .fpk .fpkt, .trpop .fpkt { flex: 0 0 112px; box-sizing: border-box; width: 112px; height: 42px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
-  .fpk .fpkm, .trpop .fpkm { margin: -2px 0 0; color: #9a3b3b; font-size: 13.5px; font-weight: 600; }
-  .fpk .fpkm:empty, .trpop .fpkm:empty { display: none; }
+  .fpk .fpkm { margin: -2px 0 0; color: #9a3b3b; font-size: 13.5px; font-weight: 600; }
+  .fpk .fpkm:empty { display: none; }
   /* (4) изтриването: „Да изтрия ли?“ → „Изтрива се завинаги — сигурен ли си?“ — същата кутия (.mask / .cask), сменят се думите */
   .delq > span { min-width: 0; }
   /* (5) ГОЛЕМИТЕ БУТОНИ — една височина 42 px навсякъде, надписът 16 (ястия т. 5, Chris 18:22–18:25): .btn (Запиши · Отказ в кухнята,
@@ -2092,8 +2092,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk .fpkr.fpk-frac > .fpkf:first-child { flex: 2 1 0; }
   .fpk .fpksz { padding: 0 6px; }
   @media (max-width: 340px) {   /* 320: часът — на свой ред, „Запиши“ · „Отказ“ — под него, по равно; размерите — три по равно, състоянието — под тях */
-    .fpk .fpkb, .eatpop .epr, .trpop .fpkb { --rows: 2; }   /* Т199 Е2: „Изядох“ — същото правило */
-    .fpk .fpkbb, .eatpop .epb, .trpop .fpkbb { flex: 1 1 100%; }
+    .fpk .fpkb, .eatpop .epr { --rows: 2; }   /* Т199 Е2: „Изядох“ — същото правило */
+    .fpk .fpkbb, .eatpop .epb { flex: 1 1 100%; }
     .fpk .fpkr.fpk-sizes { grid-template-columns: repeat(3, minmax(0, 1fr)); --rows: 2; }
     .fpk .fpkr.fpk-sizes > .fpks { grid-column: 1 / -1; }
     .lf .lwr input { flex-basis: calc((100% - 8px) * 0.3); padding: 0 6px; }   /* Т39: „Няма записи днес“ — цялото на 320 */
@@ -2170,7 +2170,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ded .drf .ibtn { margin: -7px -7px -7px -3px; }
   .ded .drf { grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr) minmax(0, 1.4fr); }   /* мярката („палачинка“) — по-широко поле */
   @media (max-width: 340px) { .ded .drf { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); --rows: 2; } .ded .drf > label:nth-child(3) { grid-column: 1 / -1; } }   /* 320: Готово · Порции, под тях Мярка — по замисъл */
-  body.skin2.dark .fpk .fpkm, body.skin2.dark .trpop .fpkm { color: #f08a8a; }
+  body.skin2.dark .fpk .fpkm { color: #f08a8a; }
   /* ════════ Т199 Е3 (Chris 22.11.2026 13:18–21:51 — „Храна“, логът т. 1–19; ястия т. 23 — „Тренировки“; DEC-0095 · DEC-0096 · DEC-0058 стъпка 2) ════════ */
   /* т. 1: „Денят“ — целта за деня; числата — както бяха в заглавието на „Днес“ (Т132, същата мрежа); натискане → ⓘ „Защо тези числа“; не е акордеон */
   .card.ldday > .ch { cursor: pointer; }
@@ -2203,12 +2203,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk { container: fpkc / inline-size; }   /* тесен балон (над падащия на 360 px — 267 px вътре): часът · Запиши · Отказ не се събират в ред → */
   @container fpkc (max-width: 269.9px) { .fpkb { --rows: 2; } .fpkbb { flex: 1 1 100%; } }   /* … два реда по замисъл (видът — същият като пренасянето досега) */
   .fpk.fpkov { position: absolute; z-index: 26; margin: 0; box-sizing: border-box; overscroll-behavior: contain; box-shadow: 0 14px 40px rgba(0,0,0,.28); }
-  /* ястия т. 23: „Тренировка“ — до „График“ в реда на „Защо 21 дни?“; балонът „Тренировки“ — денят (от вчера до 7 дни напред) · часът · Запиши · Махни */
+  /* ястия т. 23: „Тренировка“ — до „График“ в реда на „Защо 21 дни?“; Т204: балонът „Тренировки“ — като на смените: „Тренировка“ (вкл. / изкл.) · часът */
   .lmrow #logMore { margin-left: auto; }
   .lmrow #trBox { flex: none; display: flex; align-items: center; }
   .lmrow #dtBox:not(:empty) + #trBox:not(:empty) { margin-left: 12px; }
   .lmrow:has(#dtBox:not(:empty)):has(#trBox:not(:empty)) { flex-wrap: wrap; justify-content: flex-start; row-gap: 8px; --rows: 2; }   /* смяна + тренировка: събират ли се — един ред, както досега; не (две избрани на телефона) — „Защо 21 дни?“ на втори ред, вдясно (по замисъл) */
-  .trpop .trd { margin: 6px 0 10px; }
+  .trpop .trd { align-items: center; }   /* Т204: бутонът (32 px) и полето за часа (42 px, като при храните) — по средата на реда; отстоянията — на смените (.dtpop .dtc) */
   /* ════════ Т199 Е4 (ястия т. 12 „за накрая“ — Chris 22.11.2026 19:19: „… съвсем малки букви 8-10 размер шрифт. но ще уеднаквим накрая
      навсякъде“; PLAN Т199 Е4): ЕДИН ред на числата П · В · М · ккал (MAC4 в кода) и ЕДНИ ситни букви (.ml — 9 px, бледо, удебелено):
      над числата на всеки ред без заглавен ред (кухнята, банката в „Храна“ — kitKvHtml) и в заглавния ред на таблиците (съставките — kitTbl,
@@ -8401,15 +8401,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   })();
   // ════════ ястия т. 23 (Chris 21:01): „ТРЕНИРОВКИ“ — като календара на смените (Т107 / Т109): денят + часът, стои за деня, в хронологията ════════
   //   „Тренировка“ — до „График“ в реда на „Защо 21 дни?“ (при човек със смени — двата избора един до друг); надписът — днешната („Тренировка
-  //   18:30“, плътно — като избраната смяна). Натискане → балонът „Тренировки“ (механизмът на ⓘ): денят (клиентът — от вчера до 7 дни
-  //   напред, set_train_day; треньорът — и седмица назад, coach_set_train_day — базата приема всяка дата) · часът (часовникът на аппа) ·
-  //   „Запиши“ · „Махни“ (null маха деня). В хронологията — ред на часа си („18:30 · Тренировка“) в „Днес“ и в историята. Изгледът като
+  //   18:30“, плътно — като избраната смяна). В хронологията — ред на часа си („18:30 · Тренировка“) в „Днес“ и в историята. Изгледът като
   //   клиента — видим, изключен. Засега само при включена кухня (черновата), както пълният лог.
-  var TRD = {}, TR = { busy: false, err: false, sel: null };   // тренировките по дни {"ГГГГ-ММ-ДД": "ЧЧ:ММ"} (get_day_types.train_days — за всеки)
+  // Т204 (DEC-0104; Chris 23.11.2026 12:09–12:19, т. 7 от „поправките след Т199“): балонът „Тренировки“ = балонът на смените („График“ —
+  //   видът, мястото, отварянето и затварянето, слоевете: механизмът на ⓘ). Вътре САМО бутонът-превключвател „Тренировка“ (.dtchip — същият
+  //   като смените) и полето за часа (.fpkt.tpin — натискане → нашият часовник, както при храните). Само ДНЕС: до края на деня се включва,
+  //   изключва и часът се сменя; всяко пипване се пише веднага (като „График“): вкл. → set_train_day(днес, часът в полето) · изкл. →
+  //   set_train_day(днес, null) — денят не е тренировъчен · нов час („Готово“ на часовника) → set_train_day(днес, часът) — и включва, ако е
+  //   бил изключен (като будилника: часът е за тренировката). Треньорът (?c=) — coach_set_train_day(клиентът, днес, часът | null).
+  //   Без дните (Вчера · Днес · Утре …), без „Запиши“ / „Махни“ (Е3 — отпаднаха). Балонът остава отворен след записа (часът е до бутона);
+  //   затваря се с ✕, докосване извън, Esc, „назад“. Грешка → изборът се връща, „Неуспешно. Опитай пак.“ (като „График“). Часът, докато
+  //   днес няма тренировка — на последната тренировка преди днес, иначе сегашният (като „Сега“ на часовника).
+  var TRD = {}, TR = { busy: false, err: false, tm: "", q: null };   // тренировките по дни {"ГГГГ-ММ-ДД": "ЧЧ:ММ"} (get_day_types.train_days — за всеки); TR.tm — часът в полето; TR.q — нов час, докато върви записът
   function trOn() { return !!KIT.on && !!KIT.loaded; }
   function trWho() { return COACH && !SELF_W ? "coach" : CAN_WRITE ? "client" : ""; }
-  function trDayList() { var b = Date.parse(todayStr() + "T12:00:00Z"), out = []; for (var i = trWho() === "coach" ? -7 : -1; i <= 7; i++) out.push(new Date(b + i * 864e5).toISOString().slice(0, 10)); return out; }
-  function trDayLbl(k) { var d = dayDiff(todayStr(), k); return d === 0 ? "Днес" : d === -1 ? "Вчера" : d === 1 ? "Утре" : WD_SHORT[new Date(k + "T12:00:00Z").getUTCDay()] + " " + k.slice(8, 10) + "." + k.slice(5, 7); }
   function trTxt(t) { return t ? "Тренировка " + t : "Тренировка"; }
   function trBtnHtml() {
     if (!trOn()) return "";
@@ -8422,23 +8427,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var b = document.getElementById("trBtn"); if (!b) { box.innerHTML = trBtnHtml(); return; }
     var cur = TRD[todayStr()] || null; b.textContent = trTxt(cur); b.classList.toggle("on", !!cur);
   }
-  function trLast() { var k = Object.keys(TRD).sort(); return k.length ? TRD[k[k.length - 1]] : ""; }   // часът по подразбиране — последната
-  function trPopHtml() {
-    var sel = TR.sel, dis = TR.busy ? " disabled" : "";
-    return '<div class="dtc trd rows-n">' + trDayList().map(function (k) { var on = k === sel, t = TRD[k]; return '<button type="button" class="dtchip' + (on ? " on" : "") + '" data-trd="' + k + '" aria-pressed="' + on + '">' + esc(trDayLbl(k) + (t ? " · " + t : "")) + "</button>"; }).join("") + "</div>"
-      + '<div class="fpkb"><input type="text" class="fpkt tpin trtm" readonly inputmode="none" autocomplete="off" value="' + esc(TRD[sel] || trLast() || nowHM()) + '" aria-label="Часът на тренировката" aria-haspopup="dialog" aria-expanded="false"' + dis + ">"
-      + '<div class="fpkbb"><button type="button" class="btn" data-trok="1"' + dis + '>Запиши</button><button type="button" class="btn ghost" data-trdel="1"' + (TR.busy || !TRD[sel] ? " disabled" : "") + ">Махни</button></div></div>"
-      + '<div class="fpkm" role="status">' + (TR.err ? "Неуспешно. Опитай пак." : "") + "</div>";
+  function trLast() { var t = todayStr(), k = Object.keys(TRD).filter(function (x) { return x < t; }).sort(); return k.length ? TRD[k[k.length - 1]] : ""; }   // Т204: последната тренировка преди днес
+  function trPopHtml() {   // = dtPopHtml на смените: .dtc с бутоните; тук — „Тренировка“ (вкл. / изкл.) + часът
+    var on = !!TRD[todayStr()];
+    return '<div class="dtc trd"><button type="button" class="dtchip' + (on ? " on" : "") + '" data-trt="1" aria-pressed="' + on + '">Тренировка</button>'
+      + '<input type="text" class="fpkt tpin trtm" readonly inputmode="none" autocomplete="off" value="' + esc(TR.tm) + '" aria-label="Часът на тренировката" aria-haspopup="dialog" aria-expanded="false"></div>'
+      + (TR.err ? '<div class="ok show err dte">Неуспешно. Опитай пак.</div>' : "");
   }
-  function trPopSync() { var c = IPOP && IPOP.pop.classList.contains("trpop") && IPOP.pop.querySelector(".trc"); if (c) c.innerHTML = trPopHtml(); }
-  function trOpen(btn) {
+  function trPopSync() {   // на място (като dtPopSync): бутонът, часът, грешката — полето остава същото (фокусът след часовника)
+    var p = IPOP && IPOP.pop.classList.contains("trpop") ? IPOP.pop : null; if (!p) return;
+    var on = !!TRD[todayStr()], b = p.querySelector(".dtchip[data-trt]"), f = p.querySelector(".trtm"), e = p.querySelector(".dte");
+    if (b) { b.classList.toggle("on", on); b.setAttribute("aria-pressed", String(on)); }
+    if (f && f.value !== TR.tm) f.value = TR.tm;
+    if (TR.err && !e) p.insertAdjacentHTML("beforeend", '<div class="ok show err dte">Неуспешно. Опитай пак.</div>');
+    else if (!TR.err && e) e.parentNode.removeChild(e);
+  }
+  function trOpen(btn) {   // = dtOpen на смените
     var same = IPOP && IPOP.btn === btn;
     infoClose(false, false, !same);
     if (same || !trOn() || !trWho()) return;
-    TR.sel = todayStr(); TR.err = false; TR.busy = false;
+    TR.err = false; TR.q = null; TR.tm = TRD[todayStr()] || trLast() || nowHM();
     var pop = document.createElement("div");
     pop.className = "ipop dtpop trpop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Тренировки"); pop.setAttribute("data-info", "trday"); pop.tabIndex = -1;
-    pop.innerHTML = '<div class="iph"><b>Тренировки</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="trc">' + trPopHtml() + "</div>";
+    pop.innerHTML = '<div class="iph"><b>Тренировки</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>" + trPopHtml();
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
     btn.setAttribute("aria-expanded", "true");
@@ -8446,26 +8457,33 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     popFit(pop);
     ipPush();
     pop.querySelector(".ipx").addEventListener("click", function () { infoClose(true); });
-    pop.addEventListener("click", function (e) {
-      var b = e.target.closest && e.target.closest("button"); if (!b || b.disabled || TR.busy) return;
-      var v;
-      if ((v = b.getAttribute("data-trd"))) { TR.sel = v; TR.err = false; trPopSync(); }
-      else if (b.hasAttribute("data-trok")) { var f = pop.querySelector(".trtm"); if (f && /^\d{2}:\d{2}$/.test(f.value)) trSet(TR.sel, f.value); }
-      else if (b.hasAttribute("data-trdel")) trSet(TR.sel, null);
+    pop.addEventListener("click", function (e) {   // вкл. ↔ изкл. (като избора на смяна: натискане на включения → маха)
+      var b = e.target.closest && e.target.closest(".dtchip[data-trt]");
+      if (!b || TR.busy) return;
+      trSet(TRD[todayStr()] ? null : TR.tm);
+    });
+    pop.addEventListener("change", function (e) {   // нов час от часовника („Готово“) → веднага (и включва)
+      var f = e.target;
+      if (!f.classList || !f.classList.contains("trtm") || !/^\d{2}:\d{2}$/.test(f.value)) return;
+      trSet(f.value);
     });
     try { pop.focus({ preventScroll: true }); } catch (x) {}
   }
-  function trSet(day, tm) {   // записано → балонът се затваря сам (като „График“); грешка → остава с „Неуспешно. Опитай пак.“
-    var w = trWho(); if (TR.busy || !day || !w || (tm == null && !TRD[day])) return;
+  function trSet(tm) {   // днес: tm — вкл. / нов час, null — изкл.; изборът се вижда веднага (като „График“), грешка → връща се, балонът остава
+    var w = trWho(), day = todayStr();
+    if (!w) return;
+    if (TR.busy) { TR.q = { tm: tm }; return; }   // нов час, докато върви записът — след него
+    var prev = TRD[day] || null, ptm = TR.tm;
+    if ((tm || null) === prev) { trPopSync(); return; }
+    if (tm) { TRD[day] = tm; TR.tm = tm; } else delete TRD[day];
     TR.busy = true; TR.err = false; trPopSync();
     var q;
-    try { q = w === "coach" ? sb.rpc("coach_set_train_day", { p_client_id: COACH_CID, p_date: day, p_time: tm }) : wr("set_train_day", { p_token: token, p_date: day, p_time: tm }); } catch (x) { q = Promise.reject(x); }
+    try { q = w === "coach" ? sb.rpc("coach_set_train_day", { p_client_id: COACH_CID, p_date: day, p_time: tm || null }) : wr("set_train_day", { p_token: token, p_date: day, p_time: tm || null }); } catch (x) { q = Promise.reject(x); }
     safe(Promise.resolve(q)).then(function (r) {
-      TR.busy = false;
-      if (!r || r.error || r.data !== true) { TR.err = true; trPopSync(); return; }
-      if (tm) TRD[day] = tm; else delete TRD[day];
-      if (IPOP && IPOP.pop.classList.contains("trpop")) infoClose(true);
+      var nx = TR.q; TR.busy = false; TR.q = null;
+      if (!r || r.error || r.data !== true) { if (prev) TRD[day] = prev; else delete TRD[day]; TR.tm = ptm; TR.err = true; trPopSync(); trRender(); return; }
       trRender(); calcRefresh();
+      if (nx) trSet(nx.tm);
     });
   }
   function trLine(day) { var t = trOn() ? TRD[day] : null; return t ? '<div class="lrow ltr" data-trday="' + esc(day) + '"><span class="tm">' + esc(t) + '</span><span class="tx"><span class="wt">' + ic("training", "icl") + "Тренировка</span></span></div>" : ""; }
