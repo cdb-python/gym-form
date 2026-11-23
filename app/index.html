@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.60.0">
+<meta name="version" content="v1.61.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -1023,14 +1023,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #kRows > .kgh:first-child { padding-top: 8px; border-top: 0; }
   #kRows > .kgh + .krow { border-top: 0; }
   .kpop .kst { display: grid; grid-template-columns: minmax(0, 1fr) repeat(4, auto); column-gap: 14px; row-gap: 4px; align-items: baseline; margin: 0 0 10px; }
-  .kpop .kst > .h { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+  .kpop .kst > .h { text-align: right; }   /* Т199 Е4: буквите — ситните (.ml) */
   .kpop .kst > .s { font-size: 14px; overflow-wrap: anywhere; }
   .kpop .kst > b { font-size: 15px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
   .kpop .kst > .base { font-weight: 800; }
   .kpop .kst > .k100 { grid-column: 1 / -1; }
-  /* Т158: таблицата на рецептата и на личното ястие — съставките (г · ккал · П · В · М), сборът, разпределението; числата подравнени */
+  /* Т158: таблицата на рецептата и на личното ястие — съставките (г · П · В · М · ккал — Т199 Е4), сборът, разпределението; числата подравнени */
   .ktb { display: grid; grid-template-columns: minmax(0, 1fr) repeat(5, auto); column-gap: 10px; row-gap: 3px; align-items: baseline; margin: 0 0 10px; font-variant-numeric: tabular-nums; }
-  .ktb > .h { color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+  .ktb > .h { text-align: right; }   /* Т199 Е4: буквите — ситните (.ml) */
   .ktb > .n { font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; min-width: 0; }
   .ktb > .n i { font-style: normal; color: var(--muted); font-size: 13px; }
   .ktb > b { font-size: 14px; font-weight: 500; text-align: right; white-space: nowrap; }
@@ -1120,7 +1120,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ded .dbtns .btn.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
   /* Т100: „Комбинирай“ със солвъра — категория, „Цел“ / „Сега“ (цифра под цифра, ✓ в ±10 %), грамовете (натискане → поле → 🔒), подсказки, бележки */
   .ded .dtg { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, 50px) 48px; align-items: baseline; row-gap: 2px; margin: 10px 0 0; padding: 8px 10px; border-radius: 10px; background: var(--soft2); }
-  .ded .dtg > .dth { padding-right: 13px; color: var(--muted); font-size: 12px; font-weight: 700; text-align: right; }
+  .ded .dtg > .dth { padding-right: 13px; text-align: right; }   /* Т199 Е4: буквите — ситните (.ml) */
   .ded .dtg > .dtl { font-size: 13.5px; font-weight: 700; }
   .ded .dtg > .dtv { position: relative; padding-right: 13px; font-size: 14px; text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .ded .dtg > .dtv.dtn { font-weight: 800; }
@@ -1134,9 +1134,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ded .dchk li { margin: 2px 0 0; color: var(--muted); font-size: 13.5px; }
   .ded .dchk li::before { content: "• "; color: var(--warn); font-weight: 800; }
   /* Т100: „Моите ястия“ в „Храна“ — банката (оразмерените, по категории); числата — цифра под цифра; „Изядох“ на всяко */
-  .bank .bkhd, .bank .bkh { display: grid; grid-template-columns: minmax(0, 1fr) 36px 36px 36px 34px; column-gap: 5px; align-items: center; }
-  .bank .bkhd { padding: 0 4px 4px; border-bottom: 1px solid var(--border); }
-  .bank .bkhd span { color: var(--muted); font-size: 12.5px; font-weight: 700; text-align: right; }
+  .bank .bkh { display: grid; grid-template-columns: minmax(0, 1fr) 36px 36px 36px 34px; column-gap: 5px; align-items: center; }   /* Т199 Е4: без отделния ред с буквите (.bkhd) */
   .bank .bkc { margin: 12px 0 0; color: var(--accent-dark); font-size: 13px; font-weight: 800; }
   .bank .bk { margin: 4px 0 0; padding: 6px 4px 8px; border-bottom: 1px solid var(--border); }
   .bank .bkh { width: 100%; box-sizing: border-box; margin: 0; padding: 0; border: 0; background: none; color: var(--ink); font-family: inherit; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -2125,16 +2123,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .fpk .fpka, body.skin2.dark .fpk select, body.skin2.dark .fpk .fpkt, body.skin2.dark .trpop .fpkt { background: var(--g-field); }   /* полетата на балона — сивото на полетата */
   /* ════════ Т199 Е2 (Chris 22.11.2026 18:14–21:04, DEC-0095 · DEC-0096 — ястия т. 1–23): КУХНЯТА — „Моите ястия“ / „Моите рецепти“, „＋ Ястие“ / „＋ Рецепта“ ════════ */
   /* т. 2–4, 12: панелите — като банката в „Храна“ (.card.panel + .bank); П · В · М · ккал — ситно (9 px) над числата в заглавието на реда
-     (без отделния ред с буквите); без черта под последния ред (в „Храна“ — Е4) */
+     (без отделния ред с буквите); без черта под последния ред (и в „Храна“ — Т199 Е4, правилата долу) */
   /* Т199 Е2 — ГОЛЕМИТЕ БУТОНИ В ТЪМНАТА (Chris 23:55 — „＋ Ястие“ · „＋ Рецепта“; 00:31 — „да всички бутони ще станат еднакви в целия апп в
      сивата гама“): ЕДНО правило за всички от правилото (5) (42 px): фон #343e4b, бял удебелен надпис (10,8:1); натиснат — #56627a; изключен —
      както досега (бледо, 0,55); „Няма записи днес“ в лога (.idle) — както досега. Светлата — не се пипа; ★, иконите, заглавията,
      предупрежденията, стрелките на подредбата и долната лента — не. Утре табове („＋ Ястие“ · „＋ Рецепта“) — смяна само тук. */
   body.skin2.dark .btn, body.skin2.dark .btn.ghost, body.skin2.dark .lf .lwr button:not(.idle), body.skin2.dark .card .body .qa .qabtn, body.skin2.dark .eatpop .epok, body.skin2.dark .eatpop .epno, body.skin2.dark .tp .tpb { background: var(--g-off); border-color: var(--g-off); color: #fff; font-weight: 700; }
   body.skin2.dark .btn:active, body.skin2.dark .btn.ghost:active, body.skin2.dark .lf .lwr button:not(.idle):active, body.skin2.dark .card .body .qa .qabtn:active, body.skin2.dark .eatpop .epok:active, body.skin2.dark .eatpop .epno:active, body.skin2.dark .tp .tpb:active { background: var(--g-on); border-color: var(--g-on); }
-  .bank .bkh .kv small { display: block; color: var(--muted); font-size: 9px; font-weight: 700; line-height: 1.2; letter-spacing: 0.02em; }
-  #p-kuhnya .bank .bk:first-child { margin-top: 0; }
-  #p-kuhnya .bank .bk:last-child { border-bottom: 0; }
   .dtrt { color: var(--accent-dark); font-weight: 800; white-space: nowrap; }   /* т. 9: „· пре трен“ / „· след трен“ — в оранжевото, в заглавието */
   /* т. 6, 18: отвореното — таблицата · „Начин на приготвяне“ (3 реда + „Цялата рецепта ›“) · най-долу % (вляво) и ✎ (Сподели) 🗑 (вдясно) */
   .bank .bki .dfoot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px -4px 0 0; }   /* ✎ 🗑 — до десния ръб на реда, вътре в него */
@@ -2207,6 +2202,26 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lmrow #dtBox:not(:empty) + #trBox:not(:empty) { margin-left: 12px; }
   .lmrow:has(#dtBox:not(:empty)):has(#trBox:not(:empty)) { flex-wrap: wrap; justify-content: flex-start; row-gap: 8px; --rows: 2; }   /* смяна + тренировка: събират ли се — един ред, както досега; не (две избрани на телефона) — „Защо 21 дни?“ на втори ред, вдясно (по замисъл) */
   .trpop .trd { margin: 6px 0 10px; }
+  /* ════════ Т199 Е4 (ястия т. 12 „за накрая“ — Chris 22.11.2026 19:19: „… съвсем малки букви 8-10 размер шрифт. но ще уеднаквим накрая
+     навсякъде“; PLAN Т199 Е4): ЕДИН ред на числата П · В · М · ккал (MAC4 в кода) и ЕДНИ ситни букви (.ml — 9 px, бледо, удебелено):
+     над числата на всеки ред без заглавен ред (кухнята, банката в „Храна“ — kitKvHtml) и в заглавния ред на таблиците (съставките — kitTbl,
+     балонът на храната — по състояние, плочката „Цел / Сега“). Заглавният ред с подредбата (книгата, падащите) — ЗАКЛЮЧЕН (00:11), не се пипа. */
+  .ml { color: var(--muted); font-size: 9px; font-weight: 700; line-height: 1.2; letter-spacing: 0.02em; }
+  .kv > .ml { display: block; }
+  /* ккал — последно и удебелено, както в книгата (каталог т. 16), във всеки ред с числата; по-тежкото на реда (сборът, основното, „Сега“) — остава */
+  .ktb > b.kk:not(.sum), .kpop .kst > b.kk:not(.base), .ded .dtg > .dtv.kk:not(.dtn) { font-weight: 700; }
+  /* ястия т. 12: без черта под последния ред на списъка — и в „Моите ястия“ в „Храна“ (същата банка; едно правило с кухнята) */
+  .bank .bk:first-child { margin-top: 0; }
+  .bank .bk:last-child { border-bottom: 0; }
+  /* поправка на счупено — „Денят“ на 320 px („786 ккал“ / „36,5 ккал“ се режеха, „от ДД.ММ.ГГГГ“ — на два реда): „ядене“ / „г/кг“ — ситните
+     букви (както .ml), сметката след тях — 11 px (като % над тях), междината — 4 px (като средното на месеца на тясно, Т106), датата — 11 px,
+     на един ред. Над 340 px — без промяна. */
+  @media (max-width: 340px) {
+    .card.panel.ldday > .ch.ftgh { column-gap: 4px; }
+    .card.ldday > .ch.ftgh > .fl:not(.d-pc) { font-size: 11px; }
+    .card.ldday > .ch.ftgh .ftl { min-width: 3em; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.02em; }
+    .card.ldday > .ch .ttl .sub { font-size: 11px; white-space: nowrap; }
+  }
 </style>
 </head>
 <body>
@@ -6347,6 +6362,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitCap(s) { s = String(s || ""); return s.charAt(0).toUpperCase() + s.slice(1); }
   function kitN1(v) { return v == null || v === "" ? "—" : num1(v); }
   function kitKc(v) { return v == null || v === "" ? "—" : String(Math.round(Number(v))); }
+  // Т199 Е4 (ястия т. 12 „за накрая“): ЕДИН ред на числата на храна / ястие / хранене — П · В · М · ккал (ккал — последно, удебелено, както
+  //   в книгата); всеки ред и всяка таблица го взимат оттук. Записът в лога (numLine — „ккал · П · В · М“) е текст за базата и скриптовете — не е тук.
+  var MAC4 = [["p", "П"], ["c", "В"], ["f", "М"], ["kc", "ккал"]];
+  function macHead(cls) { return MAC4.map(function (k) { return '<span class="' + cls + ' ml">' + k[1] + "</span>"; }).join(""); }   // заглавният ред на таблица — ситните букви (.ml)
   function kitCount(n) { return n + (n === 1 ? " храна" : " храни"); }
   // ── Т154 (Chris 16.11 13:10–13:13): кухнята по-горе е върната от v1.34.0 дословно; данните — от новата база (get_foodbase /
   //   coach_get_foodbase: храни, състояния, мерки, синоними + marks, dishes, shared, target), през преводача kitSetData:
@@ -6706,7 +6725,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (i) i.style.paddingRight = Math.ceil(w + 22) + "px";
   }
   function srchHead(S) {   // заглавният ред — бутоните на колоните (↓ · ↑ · без)
-    return '<div class="khead"><span></span>' + [["p", "П"], ["c", "В"], ["f", "М"], ["kc", "ккал"]].map(function (s) {
+    return '<div class="khead"><span></span>' + MAC4.map(function (s) {   // Т199 Е4: редът — MAC4 (бутоните и видът — заключени, 00:11)
       var on = S.sort === s[0];
       return '<button type="button" data-ks="' + s[0] + '"' + (on ? ' class="on"' : "") + ' aria-pressed="' + on + '">' + s[1] + (on ? (S.dir < 0 ? "↓" : "↑") : "") + "</button>";
     }).join("") + "<span></span></div>";
@@ -7087,7 +7106,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitRow(f, pick) {   // Т199 Е1: един ред за книгата и падащия списък (pick — натискането избира храната, не отваря балона ѝ)
     var mk = KIT.marks[f.id];
     return '<button type="button" class="krow" ' + (pick ? 'data-spick="' + esc(f.id) + '" data-ldrow="1" role="option"' : 'data-info="kfood" data-fid="' + esc(f.id) + '" aria-haspopup="dialog" aria-expanded="false"') + ">"
-      + '<span class="kn">' + esc(f.n) + '</span><span class="kv">' + kitN1(f.p) + '</span><span class="kv">' + kitN1(f.c) + '</span><span class="kv">' + kitN1(f.f) + '</span><span class="kv kk">' + kitKc(f.kc) + "</span>"
+      + '<span class="kn">' + esc(f.n) + "</span>" + kitKvHtml(f, false)   // Т199 Е4: числата — общите (под заглавния ред с подредбата — без буквите)
       + '<span class="km' + (mk ? " k-" + mk : "") + '" aria-hidden="true">' + (mk ? KIT_SYM[mk] : "") + "</span></button>";
   }
   function kitMore() {
@@ -7164,23 +7183,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitPopBody(f) {
     function ln(lbl, v) { return v ? '<p><span class="kl">' + lbl + "</span> " + esc(v) + "</p>" : ""; }
     var h = '<p class="kmeta">' + esc(kitCap(f.grp || f.k)) + (f.sg ? " › " + esc(f.sg) : "") + "</p>"   // Т154: групата › подгрупата на базата
-      + '<div class="kst"><span></span><span class="h">ккал</span><span class="h">П</span><span class="h">В</span><span class="h">М</span>';   // Т148: по състояние
+      + '<div class="kst"><span></span>' + macHead("h");   // Т148: по състояние; Т199 Е4: П · В · М · ккал, ситните букви (беше ккал · П · В · М)
     kitStates(f).forEach(function (s) {
-      var c = s.base ? ' class="base"' : "";
-      h += '<span class="s' + (s.base ? " base" : "") + '" data-s="' + esc(s.s) + '">' + esc(kitCap(s.s)) + "</span><b" + c + ">" + kitKc(s.kc) + "</b><b" + c + ">" + kitN1(s.p) + "</b><b" + c + ">" + kitN1(s.c) + "</b><b" + c + ">" + kitN1(s.f) + "</b>";
+      h += '<span class="s' + (s.base ? " base" : "") + '" data-s="' + esc(s.s) + '">' + esc(kitCap(s.s)) + "</span>" + MAC4.map(function (k) {
+        var cl = (k[0] === "kc" ? "kk" : "") + (s.base ? (k[0] === "kc" ? " base" : "base") : "");
+        return "<b" + (cl ? ' class="' + cl + '"' : "") + ">" + (k[0] === "kc" ? kitKc(s.kc) : kitN1(s[k[0]])) + "</b>";
+      }).join("");
     });
     h += '<span class="k100">на 100 г</span></div>';
     var us = (KIT.un[f.id] || []).filter(function (u) { return u.gr != null && u.gr !== ""; });   // Т148: мерките с грамове
     if (us.length) h += '<p class="kunh">Мерки</p><div class="kun">' + us.map(function (u) { return "<span>" + esc(u.u) + "</span><b>" + kitG(u.gr) + " г</b>"; }).join("") + "</div>";
     return h + (KIT_ROLE[f.r] ? '<p class="krole">' + esc(KIT_ROLE[f.r]) + "</p>" : "") + kitBtns(f);
   }
-  function kitTbl(rows) {   // Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · ккал · П · В · М; ккал — цели, П · В · М — един знак
+  function kitTbl(rows) {   // Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · П · В · М · ккал (Т199 Е4 — ястия т. 12; беше г · ккал · П · В · М); ккал — цели, П · В · М — един знак
     function v(x, d) { return x == null || x === "" || !isFinite(Number(x)) ? "—" : d ? kitN1(kitR1(Number(x))) : kitKc(x); }
-    var h = '<div class="ktb"><span></span><span class="h">г</span><span class="h">ккал</span><span class="h">П</span><span class="h">В</span><span class="h">М</span>';
+    var h = '<div class="ktb"><span></span><span class="h ml">г</span>' + macHead("h");
     rows.forEach(function (r) {
       var c = r.cls ? " " + r.cls : "", cb = r.cls ? ' class="' + r.cls + '"' : "";
       h += '<span class="n' + c + '">' + esc(r.n) + (r.st ? " <i>" + esc(r.st) + "</i>" : "") + "</span><b" + cb + ">" + (r.g == null || r.g === "" ? "—" : kitG(Math.round(Number(r.g)))) + "</b>"
-        + "<b" + cb + ">" + v(r.kc) + "</b><b" + cb + ">" + v(r.p, 1) + "</b><b" + cb + ">" + v(r.c, 1) + "</b><b" + cb + ">" + v(r.f, 1) + "</b>";
+        + MAC4.map(function (k) { return k[0] === "kc" ? '<b class="kk' + c + '">' + v(r.kc) + "</b>" : "<b" + cb + ">" + v(r[k[0]], 1) + "</b>"; }).join("");
     });
     return h + "</div>";
   }
@@ -7329,16 +7350,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   var KIT_TR = [["pre", "пре трен"], ["post", "след трен"]];
   function kitTrLbl(tr) { return tr === "pre" ? "пре трен" : tr === "post" ? "след трен" : ""; }
   function kitTrTag(tr) { return tr === "pre" || tr === "post" ? ' <span class="dtrt">· ' + kitTrLbl(tr) + "</span>" : ""; }
-  function kitKvHtml(m, small) {   // П · В · М · ккал в заглавието на реда (ккал — удебелено, последно); small — буквите ситно над числата (т. 12)
-    return [["p", "П"], ["c", "В"], ["f", "М"], ["kc", "ккал"]].map(function (k) {
-      var v = !m ? "—" : k[0] === "kc" ? kitKc(m.kc) : kitN1(kitR1(Number(m[k[0]]) || 0));
-      return '<span class="kv' + (k[0] === "kc" ? " kk" : "") + '">' + (small ? "<small>" + k[1] + "</small>" : "") + v + "</span>";
+  function kitKvHtml(m, small) {   // Т199 Е4: ЕДИН ред на числата — П · В · М · ккал (MAC4; ккал — удебелено, последно) за всеки ред с числата на храна /
+    //   ястие: книгата и падащите (kitRow — под заглавния ред с подредбата, small = false); кухнята и банката в „Храна“ (small — ситните букви над числата, т. 12)
+    return MAC4.map(function (k) {
+      var x = m ? m[k[0]] : null, v = x == null || x === "" ? "—" : k[0] === "kc" ? kitKc(x) : kitN1(x);
+      return '<span class="kv' + (k[0] === "kc" ? " kk" : "") + '">' + (small ? '<small class="ml">' + k[1] + "</small>" : "") + v + "</span>";
     }).join("");
   }
+  function kitR1m(m) { return m ? { p: kitR1(Number(m.p) || 0), c: kitR1(Number(m.c) || 0), f: kitR1(Number(m.f) || 0), kc: m.kc } : null; }   // П · В · М — един знак, като сървъра (редовете на кухнята и банката)
   function kitRowMac(d) {   // числата на реда: ястието — цялото; рецептата — на 100 г; без числа (чернова) — null
     if (!d.m) return null;
-    if (d.k !== "recipe") return d.m;
-    var b = kitRecBase(d); return b > 0 ? { p: d.m.p * 100 / b, c: d.m.c * 100 / b, f: d.m.f * 100 / b, kc: d.m.kc * 100 / b } : null;
+    if (d.k !== "recipe") return kitR1m(d.m);
+    var b = kitRecBase(d); return b > 0 ? kitR1m({ p: d.m.p * 100 / b, c: d.m.c * 100 / b, f: d.m.f * 100 / b, kc: d.m.kc * 100 / b }) : null;
   }
   function kitDishInner(d) {   // таблицата: рецептата — с разпределението; оразмереното ястие — съставките и сборът; черновата — списъкът
     var rec = d.k === "recipe", sized = d.st === "sized";
@@ -7620,9 +7643,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitTgtHtml(t, now) {   // Т199 Е2: + горе — хапчетата „пре трен“ · „след трен“ (.io от въпросника, две еднакви полета на един ред) и ⓘ; ⓘ до „Цел“
     var e = KIT.ed;
     return '<div class="dtg" id="dTg"><div class="dtr" role="radiogroup" aria-label="Тренировка">' + KIT_TR.map(function (x) { return '<label class="io"><input type="radio" name="dtr" data-dtr="' + x[0] + '"' + (e && e.tr === x[0] ? " checked" : "") + "><span>" + x[1] + "</span></label>"; }).join("") + infoBtn("kd_tr") + "</div>"
-      + '<span></span><span class="dth">П</span><span class="dth">В</span><span class="dth">М</span><span class="dth">ккал</span>'
-      + '<span class="dtl">Цел' + infoBtn("kd_tgt") + '</span><span class="dtv">' + kitN1(t.p) + '</span><span class="dtv">' + kitN1(t.c) + '</span><span class="dtv">' + kitN1(t.f) + '</span><span class="dtv">' + kitKc(t.kc) + "</span>"
-      + '<span class="dtl">Сега</span>' + ["p", "c", "f", "kc"].map(function (k) { return '<span class="dtv dtn" data-dnow="' + k + '">' + kitNowCell(k, t, now) + "</span>"; }).join("") + "</div>";
+      + "<span></span>" + macHead("dth")   // Т199 Е4: ситните букви (.ml); ккал — удебелено
+      + '<span class="dtl">Цел' + infoBtn("kd_tgt") + "</span>" + MAC4.map(function (k) { return '<span class="dtv' + (k[0] === "kc" ? " kk" : "") + '">' + (k[0] === "kc" ? kitKc(t.kc) : kitN1(t[k[0]])) + "</span>"; }).join("")
+      + '<span class="dtl">Сега</span>' + MAC4.map(function (k) { return '<span class="dtv dtn' + (k[0] === "kc" ? " kk" : "") + '" data-dnow="' + k[0] + '">' + kitNowCell(k[0], t, now) + "</span>"; }).join("") + "</div>";
   }
   function kitGTxt(it) { return (Number(it.g) > 0 || it.g === 0 ? kitG(it.g) : "—") + " г" + (it.lk ? " 🔒" : ""); }
   function kitGCtl(it, i) {
@@ -7707,7 +7730,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitBankRow(d) {
     var x = !!KIT.bkx[d.id];
     return '<div class="bk' + (eatenToday(d.n).length ? " ate" : "") + '" data-meal="' + esc(d.n) + '" data-dish="' + esc(d.id) + '">'
-      + '<button type="button" class="bkh" data-bkx="' + esc(d.id) + '" aria-expanded="' + x + '"><span class="bkn">' + esc(d.n) + "</span>" + kitKvHtml(d.m, false) + "</button>"   // Т199 Е2: числата — общото на редовете (kitKvHtml), видът — както беше
+      + '<button type="button" class="bkh" data-bkx="' + esc(d.id) + '" aria-expanded="' + x + '"><span class="bkn">' + esc(d.n) + "</span>" + kitKvHtml(kitR1m(d.m), true) + "</button>"   // Т199 Е4: числата — общите, ситните букви над тях (като в кухнята; т. 12)
       + kitEatCtl(d.n)
       + '<div class="bki"' + (x ? "" : " hidden") + ">" + kitDishTbl(d) + "</div></div>";   // Т158: таблицата — съставките и сборът
   }
@@ -7716,7 +7739,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var lbl = pn > 0 ? "порция" : Number(d.w) > 0 ? "100 г" : "100 г сурово";
     return '<div class="bk' + (eatenToday(d.n).length ? " ate" : "") + '" data-meal="' + esc(d.n) + '" data-dish="' + esc(d.id) + '" data-rec="1">'
       + '<button type="button" class="bkh" data-bkx="' + esc(d.id) + '" aria-expanded="' + x + '"><span class="bkn">' + esc(d.n) + " <i>· " + lbl + "</i></span>"
-      + kitKvHtml({ p: m.p * k, c: m.c * k, f: m.f * k, kc: m.kc * k }, false) + "</button>"
+      + kitKvHtml(kitR1m({ p: m.p * k, c: m.c * k, f: m.f * k, kc: m.kc * k }), true) + "</button>"   // Т199 Е4: ситните букви над числата
       + kitEatCtl(d.n)
       + '<div class="bki"' + (x ? "" : " hidden") + ">" + kitRecTbl(d) + "</div></div>";
   }
@@ -7724,7 +7747,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!KIT || !KIT.loaded) return "";
     var ds = KIT.dishes.filter(function (d) { return d.st === "sized" && d.m && d.k !== "recipe"; }).sort(kitAlpha), rs = KIT.dishes.filter(function (d) { return d.k === "recipe" && d.m; }).sort(kitAlpha);   // Т158б
     if (!ds.length && !rs.length) return "";
-    var inner = '<div class="bkhd"><span></span><span>П</span><span>В</span><span>М</span><span>ккал</span></div>' + ds.map(kitBankRow).join("");
+    var inner = ds.map(kitBankRow).join("");   // Т199 Е4 (ястия т. 12): без отделния ред с буквите — ситните букви над числата на всеки ред (като в кухнята)
     if (rs.length) inner += '<div class="bkc">Рецепти</div>' + rs.map(kitBankRecRow).join("");   // Т158б: след ястията
     return panelHtml("dishbank", "nutrition", "Моите ястия", "", '<div class="bank">' + inner + "</div>", KIT.bankOpen !== false);
   }
