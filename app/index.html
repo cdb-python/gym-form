@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.61.0">
+<meta name="version" content="v1.62.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2174,9 +2174,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   @media (max-width: 359px) { .card.ldday > .ch.ftgh > .ttl { grid-row: 1 / 3; } }   /* тясно: % — на свой ред (Т132) → „от …“ — до П · В · М */
   /* т. 2, 6, 11, 16: табовете — лентата на кухнята (.kseg) с иконките; четирите лица — в една рамка: на едно място, височината — най-високото
      („Текст“) → картата не мърда при смяна на таба */
-  .kseg.lseg button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 3px; font-size: 14px; white-space: nowrap; }
+  /* Т200 (Chris 06:38 „табовете са дребни и свити“): височината (36 px), шрифтът (15 px) и тежестта (700) — на лентата на кухнята (.kseg), без свои */
+  .kseg.lseg button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 2px; white-space: nowrap; }
   .kseg.lseg button svg { flex: none; width: 18px; height: 18px; }
-  @media (max-width: 400px) { .kseg.lseg button { flex-direction: column; gap: 0; height: 46px; font-size: 12.5px; line-height: 1.15; } }   /* 4 таба с иконка — на телефона (360–400) не се събират в ред → иконката над думата (по замисъл) */
+  @media (max-width: 400px) { .kseg.lseg button { flex-direction: column; gap: 0; line-height: 1.1; } .kseg.lseg button svg { width: 16px; height: 16px; } }   /* премерено: на телефона (до 400 px) думата с иконката до нея не се събира в таба → иконката над думата, в същите 36 px */
   .lface { display: grid; }
   .lface > .lfc { grid-area: 1 / 1; min-width: 0; }
   .lface > .lfc.off { visibility: hidden; }
@@ -2222,6 +2223,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     .card.ldday > .ch.ftgh .ftl { min-width: 3em; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: 0.02em; }
     .card.ldday > .ch .ttl .sub { font-size: 11px; white-space: nowrap; }
   }
+  /* ════════ Т200 (DEC-0100; Chris 23.11.2026 06:38 · 06:57; пробата infografiki/log_hrana.html — dayHtml / sumRow / render): „Храна“ с пълния лог =
+     „Денят“ (отделна карта) → „Лог“ / „Днес“ → „История на храненето“; „Режимът“ и „Моите ястия“ над лога — няма ги (табовете „Режим“ и „Ястия“).
+     Отстъпите отляво и отдясно — като картата със списъка в книгата (рамката + 10 px). Само съществуващите цветове. ════════ */
+  .card.panel.ldday { cursor: pointer; }
+  .card.panel.ldday > .ch { display: flex; align-items: center; gap: 8px; padding: 12px 10px 0; background: none; border-bottom: 0; }
+  .card.panel.ldday > .ch > .ttl { flex: none; }
+  .card.panel.ldday > .ch > .sub { display: block; flex: 0 1 auto; min-width: 0; color: var(--muted); font-size: 13px; font-weight: 400; white-space: nowrap; }
+  .card.panel.ldday > .ch > .ibtn { margin: -6px -6px -6px auto; }
+  .ldsum { display: grid; row-gap: 10px; padding: 10px 10px 12px; }
+  .sumr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 2px; align-items: baseline; font-size: 15px; line-height: 1.45; font-variant-numeric: tabular-nums; }
+  .sumr .l1 { font-weight: 800; color: var(--accent-dark); }
+  .sumr .r1 { font-weight: 800; text-align: right; white-space: nowrap; color: var(--ink); }
+  .sumr .l2 { color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .sumr .r2 { color: var(--accent-dark); font-size: 13.5px; font-weight: 600; text-align: right; white-space: nowrap; }
+  @media (max-width: 340px) { .sumr { column-gap: 4px; } .sumr .l2 { font-size: 11px; } .sumr .r2 { font-size: 11.5px; } }   /* 320 px: % и грамовете — на един ред (премерено) */
+  body.skin2 #p-hrana > .sec[data-key="logsec"][data-full="1"] { padding-left: 10px; padding-right: 10px; }
+  body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .ch { padding-left: 0; padding-right: 0; background: none; border-bottom: 0; }
+  body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .body { padding: 0 0 4px; background: none; }
+  #p-hrana > .sec[data-key="menu"][hidden] { display: none; }
+  /* „Виж целия режим ›“ — режимът като страница-слой (като „Цялата рецепта ›“): картите отворени, само за четене */
+  .vpage .vreg > .card > .ch { cursor: default; }
+  .vpage .vreg > .card > .ch::after { content: none; }
+  .vpage .vreg > .card + .card { margin-top: 12px; }
 </style>
 </head>
 <body>
@@ -4506,7 +4530,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var html = "";
     if (START && !menus.length) html += '<p class="lead" id="hranaLead" style="margin-right:2px;margin-bottom:12px;margin-left:2px">Режимът ти още се подготвя.</p>';
     if (menus.length) {
-      html += '<div class="sec" data-key="menu"><h2>Режимът' + (hasMealPlan(menus) ? infoBtn("izyadoh") : "") + "</h2>"   // Т59: ⓘ само ако има „Изядох“
+      html += '<div class="sec" data-key="menu"' + (logFull() ? " hidden" : "") + '><h2>Режимът' + (hasMealPlan(menus) ? infoBtn("izyadoh") : "") + "</h2>"   // Т59: ⓘ само ако има „Изядох“
         + menus.map(function (r) { return cardHtml(r, false); }).join("")
         + "</div>";
     }
@@ -7744,7 +7768,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       + '<div class="bki"' + (x ? "" : " hidden") + ">" + kitRecTbl(d) + "</div></div>";
   }
   function kitBankHtml() {   // Т199 Е2: без категориите (ястия т. 8 — всяко ястие е за едно хранене) — ястията азбучно, после „Рецепти“
-    if (!KIT || !KIT.loaded) return "";
+    if (!KIT || !KIT.loaded || logFull()) return "";   // Т200 (Chris 06:57): при пълния лог — няма я (ястията — в таба „Ястия“)
     var ds = KIT.dishes.filter(function (d) { return d.st === "sized" && d.m && d.k !== "recipe"; }).sort(kitAlpha), rs = KIT.dishes.filter(function (d) { return d.k === "recipe" && d.m; }).sort(kitAlpha);   // Т158б
     if (!ds.length && !rs.length) return "";
     var inner = ds.map(kitBankRow).join("");   // Т199 Е4 (ястия т. 12): без отделния ред с буквите — ситните букви над числата на всеки ред (като в кухнята)
@@ -7997,24 +8021,40 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }
     INFO.ld_day = { t: "Защо тези числа", b: [LD_WHY].concat(lines) };
   }
-  function dayCardHtml() {   // „Денят“ — ред 1: „Денят“ ⓘ (под него „от ДД.ММ.ГГГГ“) · ккал; после %, „ядене“, „г/кг“ — мрежата на Т132 (без иконка — както във v1.57.0)
+  function dayCardHtml() {   // Т200 (Chris 06:57 „картата с макросите нали е отделна и е нова?!“): „Денят“ — отделна карта, видът от пробата (dayHtml):
+    //   заглавката „Денят“ · „от ДД.ММ.ГГГГ“ · ⓘ; три реда (sumRow) — „Целта“ · ккал / % · П В М (г); „На хранене“ · ккал / N хранения · П В М; „На кг“ · ккал / при X кг · П В М на кг
     var t = ftFor(foodToday()); if (!t) return "";
-    return '<div class="card panel ldday" data-key="ld_day"><div class="ch ftgh"><span class="ttl">Денят' + infoBtn("ld_day")
-      + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + "</span>" + ftHeadHtml(t.day, t.meal) + "</div></div>";
+    var d = t.day, m = t.meal, w = lastWeight(), wk = w && Number(w.w) > 0 ? Number(w.w) : 0, n = t.meals || (m && m.kc > 0 ? Math.round(d.kc / m.kc) : 0);
+    function n0(x) { return String(Math.round(x)); }
+    function n1(x) { return (Math.round(x * 10) / 10).toFixed(1).replace(".", ","); }
+    function pmc(o, f) { return "П " + f(o.p) + " · В " + f(o.c) + " · М " + f(o.f); }
+    function pc(x, k) { return Math.round(x * k * 100 / d.kc); }
+    function row(l1, r1, l2, r2) { return '<div class="sumr"><span class="l1">' + l1 + '</span><span class="r1">' + r1 + '</span><span class="l2">' + l2 + '</span><span class="r2">' + r2 + "</span></div>"; }
+    return '<div class="card panel ldday" data-key="ld_day"><div class="ch"><span class="ttl">Денят</span>' + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + infoBtn("ld_day") + "</div>"
+      + '<div class="ldsum">' + row("Целта", fmtInt(d.kc) + " ккал", "П " + pc(d.p, 4) + " % · В " + pc(d.c, 4) + " % · М " + pc(d.f, 9) + " %", pmc(d, n0))
+      + (m ? row("На хранене", fmtInt(m.kc) + " ккал", n ? n + (n === 1 ? " хранене" : " хранения") : "", pmc(m, n0)) : "")
+      + (wk ? row("На кг", n1(d.kc / wk) + " ккал", "при " + n1(wk) + " кг", pmc({ p: d.p / wk, c: d.c / wk, f: d.f / wk }, n1)) : "") + "</div></div>";
   }
   function lgDaySync() {   // целта / теглото / денят се смениха → „Денят“ на място
     var sec = P.hrana && P.hrana.querySelector(':scope > .sec[data-key="logsec"]'); if (!sec) return;
     ftInfoSync();
-    var old = sec.querySelector(":scope > .card.ldday"), h = logFull() ? dayCardHtml() : "";
+    var old = P.hrana.querySelector(":scope > .card.ldday"), h = logFull() ? dayCardHtml() : "";   // Т200: „Денят“ — отделна карта пред „Лог“
     if (old && old.__h === h) return;
     if (IPOP && old && old.contains(IPOP.btn)) infoClose();
     if (old) { if (h) old.outerHTML = h; else old.parentNode.removeChild(old); }
-    else if (h) { var c = sec.querySelector(':scope > .card.panel[data-key="log"]'); if (c) c.insertAdjacentHTML("beforebegin", h); }
-    var nw = sec.querySelector(":scope > .card.ldday"); if (nw) nw.__h = h;
+    else if (h) sec.insertAdjacentHTML("beforebegin", h);
+    var nw = P.hrana.querySelector(":scope > .card.ldday"); if (nw) nw.__h = h;
   }
-  function logSecHtml(open) {   // „Лог“: [„Денят“] + „Днес“
+  function logSecHtml(open) {   // [„Денят“ — отделна карта, Т200] + „Лог“: „Днес“
     var full = logFull(); if (full) ftInfoSync();
-    return '<div class="sec" data-key="logsec"' + (full ? ' data-full="1"' : "") + "><h2>Лог" + infoBtn("log") + "</h2>" + (full ? dayCardHtml() : "") + logCardHtml(open) + "</div>";
+    return (full ? dayCardHtml() : "") + '<div class="sec" data-key="logsec"' + (full ? ' data-full="1"' : "") + "><h2>Лог" + infoBtn("log") + "</h2>" + logCardHtml(open) + "</div>";
+  }
+  function hranaFullSync(full) {   // Т200 (Chris 06:57): при пълния лог „Режимът“ — скрит (храненията — в таба „Режим“, целият — „Виж целия режим ›“), „Моите ястия“ — няма я (таба „Ястия“)
+    var h = P.hrana; if (!h) return;
+    var m = h.querySelector(':scope > .sec[data-key="menu"]'); if (m) m.hidden = full;
+    var bk = h.querySelector(':scope > .card[data-key="dishbank"]');
+    if (full && bk) { if (EAT && bk.contains(EAT.el)) eatClose(); bk.parentNode.removeChild(bk); }
+    else if (!full && !bk) { var bh = kitBankHtml(), at = h.querySelector(':scope > .sec[data-key="logsec"]'); if (bh && at) at.insertAdjacentHTML("beforebegin", bh); }
   }
   function logSync() {   // целта / кухнята дойдоха по-късно (или се смениха) → „Лог“ наново, само ако видът е друг; написаното в полето остава
     if (!P.hrana) return;
@@ -8026,13 +8066,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var keep = t ? { v: t.value, f: document.activeElement === t, s: [t.selectionStart, t.selectionEnd], tm: tm ? tm.value : "", tu: !!(tm && tm.getAttribute("data-user")) } : null;
     var card = sec.querySelector(':scope > .card.panel[data-key="log"]'), open = !card || card.classList.contains("open");
     var w = document.createElement("div"); w.innerHTML = logSecHtml(open);
-    var nsec = w.firstChild; sec.parentNode.replaceChild(nsec, sec);
+    var nsec = w.querySelector(':scope > .sec[data-key="logsec"]'), od = P.hrana.querySelector(":scope > .card.ldday");   // Т200: „Денят“ — отделна карта пред „Лог“
+    if (od) od.parentNode.removeChild(od);
+    while (w.firstChild) sec.parentNode.insertBefore(w.firstChild, sec);
+    sec.parentNode.removeChild(sec);
+    hranaFullSync(full);
     var t2 = document.getElementById("f_text"), tm2 = document.getElementById("f_time");
     if (keep && t2) { t2.value = keep.v; if (keep.tu && tm2) { tm2.value = keep.tm; tm2.setAttribute("data-user", "1"); } }
     if (COACH && !SELF_W) Array.prototype.forEach.call(nsec.querySelectorAll("input, textarea"), function (el) { el.disabled = true; });   // както при зареждането
     wireFreeLog(); lgMount(); refreshLogView();
     if (keep && t2 && keep.f) { try { t2.focus({ preventScroll: true }); t2.setSelectionRange(keep.s[0], keep.s[1]); } catch (x) {} }
-    var nw = nsec.querySelector(":scope > .card.ldday"); if (nw) nw.__h = nw.outerHTML;
+    var nw = P.hrana.querySelector(":scope > .card.ldday"); if (nw) nw.__h = nw.outerHTML;
   }
   // ── т. 2, 6, 11, 16: табовете и лицата
   function lgTabsHtml() {
@@ -8134,7 +8178,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     switchTab("kuhnya");
     setTimeout(function () { var r = document.querySelector('#p-kuhnya .bk.kd[data-did="' + d.id + '"]'); if (r) try { r.scrollIntoView({ block: "center" }); } catch (x) {} }, 80);
   }
-  function lgRegGo(el) { lgClose(); var c = el && el.closest(".card[data-key]"); if (c) go("hrana:" + c.getAttribute("data-key")); }   // „Виж целия режим ›“ → картата на режима, отворена
+  function lgRegGo(el) { lgClose(); var c = el && el.closest(".card[data-key]"); lgRegPage(c ? c.getAttribute("data-key") : null); }   // Т200: „Виж целия режим ›“ → режимът като страница-слой, на картата на храненето
+  function lgRegPage(key) {   // Т200: режимът — страница-слой (vpOpen: „назад“, дръпване), като „Цялата рецепта ›“; картите отворени, само за четене (записът — табът „Режим“)
+    var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); }); if (!menus.length) return;
+    VPAGE.kreg = { t: "Режимът", h: function () { return '<div class="vreg">' + menus.map(function (r) { return cardHtml(r, true); }).join("") + "</div>"; } };
+    vpOpen("kreg");
+    var L = vpTop(); if (!L || L.key !== "kreg") return;
+    decorateMeals(L.el);   // изяденото днес — „✓ ЧЧ:ММ“, както в картата
+    Array.prototype.forEach.call(L.el.querySelectorAll(".eatbtn"), function (b) { b.parentNode.removeChild(b); });
+    markOpenSeen(L.el);
+    var t = key && L.el.querySelector('.vreg > .card[data-key="' + String(key).replace(/"/g, "") + '"]'), vb = L.el.querySelector(".vpb");
+    if (t && vb) vb.scrollTop = Math.max(0, t.getBoundingClientRect().top - vb.getBoundingClientRect().top - 8);
+  }
   // ── „Запиши“ → записът със снимката (Т56); часът — „— ядено ЧЧ:ММ“, както „Изядох“
   function lgAmtTxt(r) {
     if (!r.unit || r.unit === "г") return kitG(Math.round((r.g || 0) * 10) / 10) + " г";
@@ -9576,6 +9631,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
     if (!el && root && tab === "hrana" && /^an_\d+$/.test(key)) el = root.querySelector('[data-key="analysis"]');   // Т145: картата вече я няма (картата на пирамидата) → анализът
     if (!el) { if (same) accRun([], { y: 0 }, false); else window.scrollTo(0, 0); return; }   // Т66
+    if (tab === "hrana" && el.closest('.sec[data-key="menu"][hidden]')) { var rc = el.closest(".card[data-key]"); lgRegPage(rc ? rc.getAttribute("data-key") : null); return; }   // Т200: пълният лог — режимът е страница
     if (key === "analysis") seenAnalysis();   // Т71
     var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el, head = null;
     if (tab === "danni" && /^ig_\d+$/.test(key)) {   // Т69: „Допълни формата · липсват N“ → и първият липсващ въпрос (без focus() — на iPhone вади клавиатурата)
@@ -9616,6 +9672,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
     if (sm) { e.preventDefault(); accSet(sm.parentElement, !wantOpen(sm.parentElement)); return; }
+    var ldc = e.target.closest(".card.ldday");   // Т200: „Денят“ — и редовете под заглавката → „Защо тези числа“, както досега
+    if (ldc && !e.target.closest(".ch, button")) { var lb0 = ldc.querySelector('button[data-info="ld_day"]'); if (lb0) infoOpen(lb0); return; }
     var ch = e.target.closest(".ch");
     if (!ch) return;
     var card = ch.parentElement;
