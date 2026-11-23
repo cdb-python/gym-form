@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.64.0">
+<meta name="version" content="v1.65.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -5896,6 +5896,25 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var nav = document.querySelector("nav.tabs"), vv = window.visualViewport, vb = vv ? vv.offsetTop + vv.height : window.innerHeight;
     return { lim: Math.min(vb, nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : vb) - 8, vh: vv ? vv.height : window.innerHeight };
   }
+  // ════════ Т203 (DEC-0103; Chris 23.11.2026 12:03 · 12:05; т. 6 — 07:17): ОТВОРЕНОТО НАД ДОЛНАТА ЛЕНТА ════════
+  //   „дроп менюто на режим и ястия пада зад ботом бара а трябва да се повдига над него“; „след промяна в часа … балоните остават зад ботом
+  //   бара“ → ЕДНА функция за всичко, което се отваря в страницата и трябва да се вижда цяло (ⓘ балоните, „Изядох“, часовникът, балонът за
+  //   добавяне, падащите на лентите в лога): долният ръб — над лентата (8 px въздух), с най-малкото превъртане; горният ръб (или top0 —
+  //   напр. лентата, от която пада списъкът) — никога под ивицата под часовника (kbTop); не се събира → горният ръб се вижда. Логиката на
+  //   kbFit (Т202), но долу е лентата, не клавиатурата. Страницата не стига → невидимият маркер (#popSpacer, kbGo); маха се при затваряне
+  //   (popUnfit) — но не, докато балонът над списък или падащият на лента е отворен: затвори ли се нещо над него (часовникът, ⓘ, балонът над
+  //   падащия), страницата слиза обратно до мястото, където е бил поставен (y0), докато долният му ръб е над лентата, а горният — под ивицата.
+  function barLim() { var nav = document.querySelector("nav.tabs"); return (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - ACC_GAP; }   // горният ръб на лентата − 8 px (скрита — дъното на прозореца)
+  function barFit(el, top0, y0) {   // → с колко се вдигна страницата (отрицателно — слезе обратно); y0 — докъде най-много да слезе
+    if (!el || !el.isConnected || !el.getClientRects().length) return 0;
+    var r = el.getBoundingClientRect(), lim = barLim(), kt = kbTop(), y = window.scrollY, a = top0 != null && top0 < r.top && r.bottom - top0 <= lim - kt ? top0 : r.top, d;   // top0 — само ако двете се събират (както полето и бутонът в kbFit)
+    if (y0 == null) { if (r.bottom <= lim) return 0; d = Math.max(0, Math.min(r.bottom - lim, a - kt)); }   // долу — над лентата; горе — никога под ивицата
+    else { d = r.bottom > lim ? r.bottom - lim : Math.max(Math.min(0, y0 - y), r.bottom - lim); if (a - d < kt) d = a - kt; }   // + обратно надолу до y0, докато долният ръб е над лентата; горният — видим
+    if (Math.abs(d) < 1) return 0;
+    kbGo(Math.max(0, Math.round(y + d)));
+    return d;
+  }
+  function barY() { return ACC_RUN ? ACC_RUN.y1 : window.scrollY; }   // къде ще е страницата (и докато двигателят я мести)
   function popFit(pop) {
     if (pop.classList.contains("invp")) return;   // Т144б: върху страница — infoPlace (на екрана)
     if (pop.className === "ipop") {   // Т143б
@@ -5906,17 +5925,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         pop.setAttribute("data-tall", "1"); pop.style.maxHeight = Math.max(120, Math.floor(space + s)) + "px";   // долу — точно до лентата след вдигането с s
       } else pop.removeAttribute("data-tall");
     }
-    var nav = document.querySelector("nav.tabs"), lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8, pr = pop.getBoundingClientRect();
-    if (pr.bottom <= lim) return;
-    var need = Math.max(0, Math.min(pr.bottom - lim, pr.top - satH() - 8)), want = Math.ceil(window.scrollY + need + window.innerHeight);
-    if (document.documentElement.scrollHeight < want) {
-      var sp = document.getElementById("popSpacer");
-      if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
-      sp.style.top = (want - 1) + "px";
-    }
-    accRun([], { y: window.scrollY + need }, false);
+    barFit(pop);   // Т203: целият над лентата — общата функция
   }
   function popUnfit() {
+    if (FPK && FPK.ov) { barFit(FPK.el, null, FPK.y); return; }   // Т203 (т. 6, Chris 07:17): балонът над списък още е отворен (часовникът / ⓘ се затвори) — страницата не слиза под лентата; обратно — до мястото му
+    if (LG && LG.dd) { barFit(LG.dd.el, LG.dd.bar.getBoundingClientRect().top, LG.dd.y); return; }   // … и падащият на лента (балонът над него се затвори)
     var sp = document.getElementById("popSpacer"); if (!sp || !sp.parentNode) return;
     var y = window.scrollY, m = document.getElementById("main"), cs = getComputedStyle(document.body);
     var natH = m.getBoundingClientRect().bottom + y + (parseFloat(cs.paddingBottom) || 0), max = Math.max(0, natH - window.innerHeight);   // без маркера
@@ -7089,7 +7102,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var m = fpkMode(o), P = { f: f, o: o, m: m, host: host, unit: m === "units" ? 0 : -1, amt: o.amt == null ? (m === "units" ? "1" : "100") : String(o.amt), st: o.remember === false || m === "units" || m === "frac" ? "" : fpkSt0(f), s: null, fr: 1, tm: o.log ? o.tm || nowHM() : "", busy: false };
     var w = document.createElement("div"); w.innerHTML = fpkHtml(P); P.el = w.firstChild;
     P.ov = o.over && o.over.isConnected ? o.over : null;   // Т199 Е3: над списъка (логът) — в body, по правилото на балона над списък (fpkPlace)
-    if (P.ov) { P.el.classList.add("fpkov"); document.body.appendChild(P.el); fpkPlace(P); popFit(P.el); P.rs = function () { fpkPlace(P); }; window.addEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.addEventListener("resize", P.rs); }   // целият балон — над лентата долу (страницата се вдига, както при „Изядох“)
+    if (P.ov) { P.el.classList.add("fpkov"); document.body.appendChild(P.el); fpkPlace(P); popFit(P.el); P.y = barY(); P.rs = function () { fpkPlace(P); }; window.addEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.addEventListener("resize", P.rs); }   // целият балон — над лентата долу (страницата се вдига, както при „Изядох“)
     else { host.hidden = true; host.parentNode.insertBefore(P.el, host.nextSibling); }
     FPK = P;
     P.L = layerOpen({ k: "fpk", st: { fpk: 1 }, el: P.el, drag: { down: false }, close: function () { if (FPK === P) fpkClose(true); } });   // Т181
@@ -8257,8 +8270,27 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return srchHead(s) + '<div class="sdr">' + items.map(function (it) { return kitRow(it, true); }).join("") + "</div>"
       + (items.length ? "" : '<p class="kempty">' + (D.k === "d" ? "Още нямаш ястия." : D.k === "r" ? "Още нямаш рецепти." : "Няма хранения в режима.") + "</p>");
   }
-  function lgDdPlace() { var D = LG.dd; if (D) D.el.style.maxHeight = Math.max(160, Math.min(420, Math.floor(popLim().lim - D.el.getBoundingClientRect().top))) + "px"; }   // като srchDdPlace
-  function lgDdClose() {
+  // Т203 (Chris 12:03 „… искам да отваря 4 реда с ястия + реда за протеин и ккал и в двете менюта, да се качват автоматично до над ботом
+  //   бара и да показват 4+ реда“): падащият на лента — заглавният ред (П · В · М · ккал) + поне 4 реда (по-малко — всичките); има ли място
+  //   над лентата — повече, до 420 px (както досега); останалите — превъртат се вътре. При отваряне (fit) страницата се вдига по правилото на
+  //   barFit, докато целият е над лентата: лентата, от която пада, остава видима, ако се събират; горе — никога под ивицата (не се събира →
+  //   горният ръб на списъка, той — по-нисък, превърта се вътре). Смяна на размера на прозореца — само височината, без превъртане (не под 160).
+  function lgDdPlace(fit) {
+    var D = LG.dd; if (!D) return;
+    var el = D.el, st = el.style, sc0 = el.scrollTop; st.maxHeight = "none";   // sc0 — превъртането вътре остава (мери се за миг без височина)
+    var r = el.getBoundingClientRect(), full = r.height, rows = el.querySelectorAll(".sdr > .krow"), n = Math.min(4, rows.length);
+    var h4 = n < rows.length ? rows[n - 1].getBoundingClientRect().bottom - r.top + (parseFloat(getComputedStyle(el).borderBottomWidth) || 0) : full;   // заглавният ред + 4 реда
+    var lim = barLim(), want = Math.min(full, Math.max(h4, Math.min(420, lim - r.top))), d = 0;
+    if (fit === true) {
+      var kt = kbTop(), bt = D.bar.getBoundingClientRect().top, a = r.top + want - bt <= lim - kt ? bt : r.top;   // лентата с него, ако се събират; иначе — само той
+      d = Math.max(0, Math.min(Math.ceil(r.top + want - lim), Math.floor(a - kt)));
+    }
+    var h = Math.max(Math.min(want, 160), Math.min(want, lim - r.top + d));
+    st.maxHeight = h >= full - 0.5 ? "none" : Math.floor(h * 10) / 10 + "px"; el.scrollTop = sc0;
+    if (d > 0) kbGo(Math.round(window.scrollY + d));
+    if (fit === true) D.y = barY();   // мястото му — до тук слиза страницата, щом балонът над него се затвори
+  }
+  function lgDdClose(keep) {   // keep (Т203) — отваря се друга лента: страницата не се връща
     var D = LG.dd; if (!D) return; LG.dd = null;
     if (FPK && FPK.ov === D.el) fpkClose(true);
     var pc = D.el.closest("#p-hrana .card.panel"); if (pc) pc.classList.remove("sddo");
@@ -8266,10 +8298,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     D.bar.setAttribute("aria-expanded", "false");
     window.removeEventListener("resize", lgDdPlace); if (window.visualViewport) window.visualViewport.removeEventListener("resize", lgDdPlace);
     layerDone(D.L);
+    if (!keep && !EAT && !IPOP && !TP && !(FPK && FPK.ov)) popUnfit();   // Т203: удължената страница — до края си
   }
   function lgDdOpen(k) {
-    var same = LG.dd && LG.dd.k === k; lgDdClose(); if (same) return;
-    var bar = P.hrana && P.hrana.querySelector('[data-lbar="' + k + '"]'), root = bar && bar.closest(".lgbars"); if (!root || bar.disabled) return;
+    var same = LG.dd && LG.dd.k === k, bar = P.hrana && P.hrana.querySelector('[data-lbar="' + k + '"]'), root = bar && bar.closest(".lgbars"), go = !same && !!root && !bar.disabled;
+    lgDdClose(go); if (!go) return;
     var el = document.createElement("div"); el.className = "sdl"; el.id = "lgDd"; el.setAttribute("role", "listbox"); el.setAttribute("aria-label", bar.firstChild.textContent);
     root.appendChild(el);
     var pc = root.closest("#p-hrana .card.panel"); if (pc) pc.classList.add("sddo");   // картата не реже падащия
@@ -8277,7 +8310,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     el.innerHTML = lgDdHtml(); bar.setAttribute("aria-expanded", "true");
     D.L = layerOpen({ k: "sdd", st: { sdd: 1 }, el: el, close: function () { if (LG.dd === D) lgDdClose(); } });   // Т181: един механизъм (Esc · „назад“ · дръпване)
     window.addEventListener("resize", lgDdPlace); if (window.visualViewport) window.visualViewport.addEventListener("resize", lgDdPlace);
-    lgDdPlace();
+    lgDdPlace(true);   // Т203: целият над лентата
   }
   function lgRecDesc(d) { var b = kitRecBase(d), pn = Number(d.pn) || 0; return pn > 0 && b > 0 ? "излиза " + pn + (pn === 1 ? " порция" : " порции") + " · 1 " + lgUnit(d) + " = " + kitG(Math.round(b / pn * 10) / 10) + " г" : kitDishFoods(d); }   // грамовете — като в мярката на балона
   function lgPick(v) {   // ред от падащия на лента → балонът за добавяне над него (т. 15, 17, 18, 20)
@@ -8356,7 +8389,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if ((v = b.getAttribute("data-ks"))) {   // ↓ / ↑ / без — като в книгата (заключено: само стрелката до буквата)
         var s = LG.ds; if (s.sort !== v) { s.sort = v; s.dir = -1; } else if (s.dir < 0) s.dir = 1; else { s.sort = ""; s.dir = 0; }
         if (FPK && FPK.ov === LG.dd.el) fpkClose(true);
-        LG.dd.el.innerHTML = lgDdHtml(); LG.dd.el.scrollTop = 0; return;
+        LG.dd.el.innerHTML = lgDdHtml(); LG.dd.el.scrollTop = 0; lgDdPlace(true); return;   // Т203: други 4 реда отгоре — пак целите
       }
       if ((v = b.getAttribute("data-spick"))) lgPick(v);
     });
@@ -9719,7 +9752,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   });
   function switchTab(tab, noScroll, after) { doSwitch(tab, noScroll); if (after) after(); }
   function doSwitch(tab, noScroll) {
-    tpClose(); eatClose(); infoClose(); accStop(); cmClose(); lgClose();   // Т66 · Т92 · Т114 · Т199 Е3
+    tpClose(); eatClose(); infoClose(); lgClose(); accStop(); cmClose();   // Т66 · Т92 · Т114 · Т199 Е3; Т203: логът — преди accStop (връщането на удължената страница свършва тук)
     if (!TABS[tab] || (tab === "kuhnya" && !KIT.nav)) tab = "nachalo";   // Т94: кухнята — само когато бутонът я има
     var prev = current;   // Т181
     if (current) scrollMem[current] = window.scrollY;
