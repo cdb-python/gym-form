@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.63.0">
+<meta name="version" content="v1.64.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2256,9 +2256,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      „при клик в сърча, излиза клавиатурата, ботом бара се качва над нея, страницата мърда не достатъчно нагоре и не се вижда дроп менюто“.
      Докато полето на общата търсачка е на фокус и клавиатурата е отворена (body.kbopen — kbSync по visualViewport): долната лента и ивицата
      под нея (скин 2) — скрити; връщат се, щом клавиатурата се затвори или полето загуби фокус. Книгата: списъкът — бокс до клавиатурата
-     (.klist.kbk, височината — kbSize), превърта се вътре; заглавният ред — горе в бокса (както в бокса на Т98). Другите полета — нищо. */
+     (.klist.kbk, височината — kbSize), превърта се вътре; заглавният ред — горе в бокса (както в бокса на Т98).
+     Т202 (DEC-0102; Chris 23.11 10:24 · 10:25): същото за ВСЯКО поле с клавиатура (kbKey) — лентата скрита, полето и бутонът му над клавиатурата
+     (kbFit); „Разговор“ (височината му свършва при лентата) — докато е скрита, стига до клавиатурата, без мястото на лентата. */
   body.kbopen nav.tabs { display: none !important; }
   body.skin2.kbopen::after { display: none !important; }
+  body.kbopen #p-razgovor.on { height: calc(100vh - var(--top) - var(--sat) - 6px - env(safe-area-inset-bottom, 0px)); height: calc(100dvh - var(--top) - var(--sat) - 6px - env(safe-area-inset-bottom, 0px)); }
   #p-kuhnya #kBody > .card.klist.kbk { flex: none; min-height: 0; margin-bottom: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   #p-kuhnya #kBody > .card.klist.kbk::-webkit-scrollbar { display: none; }
   #p-kuhnya #kBody > .card.klist.kbk > .khead { position: sticky; top: 0; z-index: 1; background: #fff; }
@@ -6900,10 +6903,28 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   удължена за полето (#popSpacer), се връща до края си (popUnfit) — освен ако над нея има балон (той я връща, като се затвори).
   //   Клавиатурата: visualViewport.height (× scale) < пълната височина − 120 px; пълната — innerHeight без фокус в поле за писане (при тази
   //   ширина; с фокус — най-голямата видяна): Android смалява и прозореца (лентата се качва над клавиатурата — Chris 07:09), iOS / Chrome —
-  //   само visualViewport. Без visualViewport — нищо. Другите полета (чатът, „Текст“, лентите „Ястия“ / „Режим“) — не се пипат.
-  var KB = { on: false, S: null, h0: 0, w0: -1, t: 0, q: 0 }, KB_DH = 120;
+  //   само visualViewport. Без visualViewport — нищо.
+  // ════════ Т202 (DEC-0102; Chris 23.11.2026 10:24 „в свободния лог … се възкачват … също и ботом бара“; 10:25 „давай и това“) ════════
+  //   Едно правило за ВСЯКО поле, което отваря клавиатурата (kbKey: текст, число, търсене, textarea, contenteditable — не отметките, изборът,
+  //   часовникът на аппа, датата): докато е на фокус и клавиатурата е отворена — лентата долу скрита (body.kbopen, както търсачката); полето и
+  //   бутонът му (KB_BTN: „Запиши“, „Изпрати“ …; ако двете се събират) — между ивицата под часовника и клавиатурата, с най-малкото превъртане
+  //   (kbFit; превъртането от човека после — не се пипа); клавиатурата / фокусът си отиде → лентата обратно (kbOff). Търсачката — своето (горе).
+  var KB = { on: false, S: null, el: null, h0: 0, w0: -1, t: 0, q: 0 }, KB_DH = 120;
   function kbEd(el) { return !!el && (el.isContentEditable || el.tagName === "TEXTAREA" || el.tagName === "SELECT" || (el.tagName === "INPUT" && !/^(checkbox|radio|button|submit|reset|range|color|file|hidden|image)$/i.test(el.type || ""))); }   // поле за писане (клавиатура)
   function kbSrch(el) { var S = el && el.tagName === "INPUT" ? srchOf(el) : null; return S && el.id === S.si.q && !el.disabled && el.getClientRects().length ? S : null; }   // полето на търсачката (видимо, включено)
+  function kbKey(el) {   // Т202: поле, което отваря клавиатурата (видимо, включено, не само за четене, inputmode не „none“)
+    if (!el || el.disabled || el.readOnly || !el.getClientRects().length || /^none$/i.test(el.getAttribute("inputmode") || "")) return false;
+    if (el.isContentEditable || el.tagName === "TEXTAREA") return true;
+    return el.tagName === "INPUT" && /^(text|search|email|number|tel|url|password)$/i.test(el.type || "text");
+  }
+  var KB_BTN = [["#logWrite", "#f_save"], [".cform", "#cSend"], [".mcard", "#lgBtn"], [".ded", "[data-dsave]"], [".qa", ".qabtn"], [".fpk", "[data-fpkok]"], [".eatpop", ".epok"], ["#mtokForm", "button"], [".tp", ""]];   // Т202: мястото → бутонът му ("" — целият балон)
+  function kbBtn(el) {
+    for (var i = 0; i < KB_BTN.length; i++) {
+      var c = el.closest(KB_BTN[i][0]); if (!c) continue;
+      var b = KB_BTN[i][1] ? c.querySelector(KB_BTN[i][1]) : c; return b && b.getClientRects().length ? b : null;
+    }
+    return null;
+  }
   function kbFull() {   // пълната височина на прозореца (без клавиатурата)
     var w = window.innerWidth, h = window.innerHeight;
     if (Math.abs(w - KB.w0) > 2 || !kbEd(document.activeElement)) { KB.w0 = w; KB.h0 = h; } else if (h > KB.h0) KB.h0 = h;
@@ -6922,22 +6943,37 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kbPlace(scroll) {   // scroll — полето горе (клавиатурата се отвори / смени височината); иначе — само списъкът (страницата е преместена)
     var S = KB.S, vv = window.visualViewport, inp = S && document.getElementById(S.si.q); if (!inp || !vv) return;
     if (scroll) {
-      var y0 = window.scrollY, y1 = Math.max(0, Math.round(y0 + inp.getBoundingClientRect().top - (vv.offsetTop + kbTop())));
-      if (Math.abs(y1 - y0) >= 1) {
-        var want = Math.ceil(y1 + window.innerHeight);   // страницата — достатъчно дълга (както popFit: невидим маркер, маха се при затваряне)
-        if (document.documentElement.scrollHeight < want) {
-          var sp = document.getElementById("popSpacer");
-          if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
-          sp.style.top = (want - 1) + "px";
-        }
-        accRun([], { y: y1 }, false);
-      }
+      kbGo(Math.max(0, Math.round(window.scrollY + inp.getBoundingClientRect().top - (vv.offsetTop + kbTop()))));
       clearTimeout(KB.t); KB.t = setTimeout(function () { if (KB.on) kbSize(KB.S); }, ACC_MS + 60);   // след движението — мерено наново
     }
     kbSize(S);
   }
+  function kbGo(y1) {   // превъртането до y1 — страницата достатъчно дълга (както popFit: невидим маркер, маха се при затваряне)
+    var y0 = window.scrollY; if (Math.abs(y1 - y0) < 1) return;
+    var want = Math.ceil(y1 + window.innerHeight);
+    if (document.documentElement.scrollHeight < want) {
+      var sp = document.getElementById("popSpacer");
+      if (!sp) { sp = document.createElement("div"); sp.id = "popSpacer"; sp.setAttribute("aria-hidden", "true"); document.body.appendChild(sp); }
+      sp.style.top = (want - 1) + "px";
+    }
+    accRun([], { y: y1 }, false);
+  }
+  function kbFit(el) {   // Т202: полето (и бутонът му, ако се събират) — между ивицата под часовника и клавиатурата; най-малкото превъртане
+    var vv = window.visualViewport; if (!vv || !el || !el.isConnected) return;
+    var top = vv.offsetTop + kbTop(), bot = vv.offsetTop + vv.height - ACC_GAP, fr = el.getBoundingClientRect(), a = fr.top, z = fr.bottom, b = kbBtn(el);
+    if (z - a > bot - top) return;   // полето е по-високо от мястото — браузърът си държи курсора
+    if (b) { var br = b.getBoundingClientRect(), a2 = Math.min(a, br.top), z2 = Math.max(z, br.bottom); if (z2 - a2 <= bot - top) { a = a2; z = z2; } }
+    var d = z > bot ? z - bot : 0; if (a - d < top) d = a - top;   // долу — до клавиатурата; горе — никога под ивицата
+    if (Math.abs(d) < 1) return;
+    for (var p = el.parentElement; p && p !== document.body; p = p.parentElement) {   // своят скрол (бокс) — първо той
+      var cs = getComputedStyle(p);
+      if (cs.position === "fixed") return;   // заковани слоеве — сами си знаят мястото; само лентата
+      if (/auto|scroll/.test(cs.overflowY) && p.scrollHeight > p.clientHeight + 1) { var s0 = p.scrollTop; p.scrollTop = s0 + d; d -= p.scrollTop - s0; if (Math.abs(d) < 1) return; }
+    }
+    kbGo(Math.max(0, Math.round(window.scrollY + d)));
+  }
   function kbOff() {
-    var S = KB.S; KB.on = false; KB.S = null; clearTimeout(KB.t);
+    var S = KB.S; KB.on = false; KB.S = null; KB.el = null; clearTimeout(KB.t);
     document.body.classList.remove("kbopen");
     var kl = document.querySelector("#p-kuhnya .klist.kbk"); if (kl) { kl.classList.remove("kbk"); kl.style.height = ""; }
     if (S && S.sdd) srchDdPlace(S);   // старото правило (160–420, над лентата)
@@ -6947,10 +6983,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function kbSync(why) {
     var vv = window.visualViewport; if (!vv) return;
-    var S = kbSrch(document.activeElement), full = kbFull(), on = !!S && vv.height * (vv.scale || 1) < full - KB_DH;
+    var a = document.activeElement, S = kbSrch(a), el = !S && kbKey(a) ? a : null, full = kbFull(), on = (!!S || !!el) && vv.height * (vv.scale || 1) < full - KB_DH;
     if (!on) { if (KB.on) kbOff(); return; }
-    if (!KB.on || KB.S !== S) { KB.on = true; KB.S = S; document.body.classList.add("kbopen"); kbPlace(true); return; }
-    kbPlace(why === "rs");   // височината на клавиатурата се смени — полето пак горе; страницата е преместена — само списъкът
+    if (KB.on && !KB.S !== !S) kbOff();   // Т202: търсачката ↔ друго поле — старото място се затваря както при прибиране
+    if (S) {
+      if (!KB.on || KB.S !== S) { KB.on = true; KB.S = S; KB.el = null; document.body.classList.add("kbopen"); kbPlace(true); return; }
+      kbPlace(why === "rs");   // височината на клавиатурата се смени — полето пак горе; страницата е преместена — само списъкът
+      return;
+    }
+    var nw = !KB.on || KB.el !== el;   // Т202: всяко друго поле — лентата скрита; полето и бутонът му — над клавиатурата
+    KB.on = true; KB.el = el; document.body.classList.add("kbopen");
+    if (nw || why === "rs") kbFit(el);   // ново поле / клавиатурата смени височината; превъртането от човека — не се пипа
   }
   (function kbWire() {
     var vv = window.visualViewport; if (!vv) return;
@@ -9778,7 +9821,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     t199: { mount: function (el, key, o) { var S = srchNew(key, o); el.innerHTML = srchHtml(S); srchList(S); return S; }, srch: function (k) { return SRCH[k]; }, fpkOpen: function (host, id, o) { return fpkOpen(host, id && typeof id === "object" ? id : KIT.byId[id], o); },
       fpk: function () { return FPK; }, fst: function () { return KIT.fst; }, hitRank: hitRank, layers: function () { return LY.map(function (L) { return L.k; }); }, del2: function () { return DEL2; },
       lg: function () { return { tab: LG.tab, dd: LG.dd ? LG.dd.k : null, full: logFull(), trd: TRD, ft: FT, day: ftFor(foodToday()), today: foodToday() }; } },   // Т199 Е3
-    kb: function () { return { on: KB.on, key: KB.S ? KB.S.sk : null, full: KB.h0, top: kbTop() }; } };   // Т201
+    kb: function () { return { on: KB.on, key: KB.S ? KB.S.sk : KB.el ? "field" : null, el: KB.el ? KB.el.id || KB.el.className : null, full: KB.h0, top: kbTop() }; } };   // Т201; Т202 — и другите полета
   window.__app.kitFit = kitFit;   // Т100: сверката със солвъра на Python (тестовете)
   window.__app.kitCg = kitCg; window.__app.kitTags = kitTags;   // Т198: групата на каталога (каймата) и „Какво носи“ (тестовете)
 
