@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.66.0">
+<meta name="version" content="v1.67.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2266,6 +2266,30 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #p-kuhnya #kBody > .card.klist.kbk::-webkit-scrollbar { display: none; }
   #p-kuhnya #kBody > .card.klist.kbk > .khead { position: sticky; top: 0; z-index: 1; background: #fff; }
   :where(body.skin2.dark) #p-kuhnya #kBody > .card.klist.kbk > .khead { background: var(--card); }
+  /* ════════ Т205 (DEC-0105; Chris 23.11.2026 14:39–14:54, приемането — черновата v40): 1) в „История на храненето“ смяната и тренировката —
+     букви, едно до друго в заглавието на деня (събират се с ккал и макросите); ≤ 359 px — под датата */
+  .qd-food > summary > .d-dts, .qd-cnt > summary > .d-dts { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; min-width: 0; max-width: 100%; justify-self: start; }
+  .qd-food > summary > .d-dts { grid-column: 3 / 5; grid-row: 1; }
+  .d-dts > .d-dt { flex: none; }
+  .d-dt.d-ab { min-width: 20px; text-align: center; }
+  @media (max-width: 359px) { .qd-food > summary > .d-dts { grid-column: 1 / 4; grid-row: 2; } }
+  /* Т205 2) (Chris 14:46): „Защо 21 дни?“ / „Какво следва?“ — на реда на „ЛОГ“, вдясно; под „Днес“ — само смяната и тренировката (без тях — редът се скрива) */
+  .sec[data-key="logsec"] > h2.lgh { display: flex; align-items: center; }
+  .sec > h2.lgh #logMore { margin-left: auto; flex: none; padding: 6px 0; border: none; background: none; color: var(--accent-dark); font-family: inherit; font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; text-decoration: underline; text-decoration-color: var(--accent-a40); text-underline-offset: 2px; text-transform: none; letter-spacing: normal; }
+  .lmrow:has(#dtBox:empty):has(#trBox:empty) { display: none; }
+  /* Т205 3) смяната — вляво, тренировката — вдясно (Chris 14:49: „раздели ги едното да е в дясно другото в ляво“); само едното — вляво, както е */
+  .lmrow #dtBox:not(:empty) + #trBox:not(:empty) { margin-left: auto; }
+  .lmrow { justify-content: flex-start; } .lmrow #trBox { margin-left: auto; }   /* Chris 15:17 (въпросник) „Винаги вдясно“: тренировката — ВИНАГИ вдясно, смяната — ВИНАГИ вляво (и когато е само едното) */
+  /* ════════ Т205 добавка (Chris 23.11.2026 14:58–15:07; приемането — черновата v44): а) без двойната черта под заглавката на историята
+     (горната черта на първия месец — точно под чертата на заглавката); и в светлата */
+  .hist[data-key="h_food"] > .body > .acc > .hm:first-child { border-top: 0; }   /* само историята на храненето (другите истории — както досега: въпрос към Chris) */
+  /* Т205 добавка б) зебра в тъмната — дните се редуват тъмно / светло, винаги, отворени и затворени
+     (Chris 15:02: „две съседни пак се сливат, по добре да направим зебра винаги, тъмно, светло и така да се редуват без повтаряне“);
+     текстът стои на мястото си (фонът излиза с 8 px наляво; надясно — не); чертите между дните — излишни */
+  body.skin2.dark .hist[data-key="h_food"] details.qday { margin: 0 0 0 -8px; padding: 0 4px 0 8px; border-radius: 10px; border-top-color: transparent; }   /* вдясно — без излизане (иначе страницата се превърта настрани; CDB-GYM 15:47) */
+  /* месецът (заглавието + „средно на ден“) е тъмният в редуването — първият ден под него е светлият (Chris 15:04: „трябва да започваш и да броиш и месеца иначе веднага първото се повтаря“) */
+  /* цветът на ивицата — този на заглавката „История на храненето“ (Chris 15:05: „ползвай само един цвят този на история на храненето пак ще стане“) */
+  body.skin2.dark .hist[data-key="h_food"] details.qday:nth-of-type(odd) { background: rgb(29, 36, 45); }
 </style>
 </head>
 <body>
@@ -4323,7 +4347,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function logCardHtml(open) {
     var n = logDays(), ft = ftOn(), full = logFull();   // Т132: целта — вместо брояча; Т199 Е3: пълният лог — целта е в „Денят“, тук — ⓘ на табовете
     var chip = full ? "" : ft ? ftHeadHtml() : '<span class="lcnt' + (n >= LOG_TARGET ? " inf" : "") + '" id="logCnt" title="дни със записи">' + logCounter(n) + "</span>";
-    var inner = '<div class="lmrow"><span id="dtBox">' + dtBtnHtml() + '</span><span id="trBox">' + trBtnHtml() + '</span><button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></div>'   // Т109: „График“ вляво; Т199 Е3: + „Тренировка“
+    var inner = '<div class="lmrow"><span id="dtBox">' + dtBtnHtml() + '</span><span id="trBox">' + trBtnHtml() + '</span></div>'   // Т205: „Защо 21 дни?“ / „Какво следва?“ (#logMore) — в заглавието „Лог“ (logSecHtml); Т109: „График“ вляво; Т199 Е3: + „Тренировка“
       + (full ? lgTabsHtml() + '<div class="lface"><div class="lfc' + lgOff("free") + '" data-lface="free">' : "")   // Т199 Е3: „Текст“ — както досега
       + '<div class="lf lw" id="logWrite"><label for="f_text" style="position:absolute;left:-9999px">Какво и колко хапна или пи</label>'
       + '<textarea id="f_text" rows="2" placeholder="какво и колко хапна или пи"></textarea>'
@@ -8190,7 +8214,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function logSecHtml(open) {   // [„Денят“ — отделна карта, Т200] + „Лог“: „Днес“
     var full = logFull(); if (full) ftInfoSync();
-    return (full ? dayCardHtml() : "") + '<div class="sec" data-key="logsec"' + (full ? ' data-full="1"' : "") + "><h2>Лог" + infoBtn("log") + "</h2>" + logCardHtml(open) + "</div>";
+    return (full ? dayCardHtml() : "") + '<div class="sec" data-key="logsec"' + (full ? ' data-full="1"' : "") + "><h2 class=\"lgh\">Лог" + infoBtn("log") + '<button type="button" class="lm" id="logMore" aria-haspopup="dialog" aria-expanded="false" aria-controls="infoPop"></button></h2>' + logCardHtml(open) + "</div>";   // Т205: „Защо 21 дни?“ / „Какво следва?“ — тук, вдясно от „Лог“
   }
   function hranaFullSync(full) {   // Т200 (Chris 06:57): при пълния лог „Режимът“ — скрит (храненията — в таба „Режим“, целият — „Виж целия режим ›“), „Моите ястия“ — няма я (таба „Ястия“)
     var h = P.hrana; if (!h) return;
@@ -9261,13 +9285,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return (j === 0 ? lfMark() : "") + monthCard(prefix + m.ym, m.ym, subOf(list), parts.join(""), i === 0, keys, extraOf ? extraOf(list) : "");
     }).join("");
   }
+  // Т205 (Chris 23.11 14:39): буквите на смяната в заглавието на деня — първата буква на всяка дума, последната — главна
+  //   („Дневна“ → Д, „Нощна“ → Н, „След нощна“ → сН, „Почивка“ → П; и своите етикети — по същото правило)
+  function dtAbbr(s) { var w = String(s).trim().split(/\s+/); return w.map(function (x, i) { var c = x.charAt(0); return i === w.length - 1 ? c.toUpperCase() : c.toLowerCase(); }).join(""); }
   function foodHistHtml() {
     var past = foodPastDays();
     var inner = !past.length ? hEmpty("Още няма минали дни.") : histMonths("hm_food_", past, function (g) { return g.day; },
       function (list) { return daysWord(list.length) + " · " + entriesWord(list.reduce(function (a, g) { return a + g.rows.length; }, 0)); },
       function (g) {
         var s = daySum(g.rows);   // Т56: ден с числа → сборът в заглавието; без числа → броят записи както досега (не „0 ккал“)
-        var dt = DT.on ? DT.days[g.day] : null, dts = dt ? '<span class="d-dt">' + esc(dt) + "</span>" : "";   // Т107: типът до датата
+        var dt = DT.on ? DT.days[g.day] : null, tt = trOn() ? TRD[g.day] : null, dts = (dt || tt) ? '<span class="d-dts">' + (dt ? '<span class="d-dt d-ab" title="' + esc(dt) + '" aria-label="' + esc(dt) + '">' + esc(dtAbbr(dt)) + "</span>" : "") + (tt ? '<span class="d-dt d-ab d-trc" title="Тренировка" aria-label="Тренировка">Т</span>' : "") + "</span>" : ""; dt = dt || tt;   // Т107: типът до датата; Т205 (Chris 23.11 14:39): смяната — буквите (Д, Н, сН, П), тренировката — „Т“, без час; пълното име — title / aria-label
         return qday(g.day, (s.n ? "qd-food" : "qd-cnt") + (dt ? " hdt" : ""), s.n ? dts + sumCells(s) : dt ? dts + '<span class="d-cnt">' + esc(entriesWord(g.rows.length)) + "</span>" : dayCount(entriesWord(g.rows.length)), '<div class="lrows">' + trMerge(g.day, g.rows) + "</div>", 'data-day="' + g.day + '" data-key="hd_food_' + g.day + '"');   // Т199 Е3: + тренировката
       }, null, function (list) { return CALC ? monthAvgHtml(list) : ""; }, lfOn() ? F.from : null);   // Т106: средното под месеца — само при сметката; Т180: разделителят
     return multiAcc(histCard("h_food", "history", "История на храненето", foodNavSub(), inner, null, "hist_food"));   // Т112
