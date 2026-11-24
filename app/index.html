@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.70.0">
+<meta name="version" content="v1.71.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2372,6 +2372,51 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* мерките — единственото изключение от гамите: имената в „Ново мерене“ са в цвета на мярката (имената в графиките), в ДВЕТЕ теми (Chris 10:32) */
   body.skin2.dark .mn.mchip { background: var(--card); border-color: var(--border); color: var(--ink); }
   body.skin2.dark .mn.mchip.on { background: var(--cs); border-color: color-mix(in srgb, var(--cc) 45%, var(--card)); color: var(--cc); }
+  /* ════════ Т209 (DEC-0110; Chris 24.11.2026 13:49–14:18, приемането — черновата v66): подредбата на тоновете в двете теми — полето за писане е
+     най-светло, всеки слой нагоре е по-тъмен, бутоните и избраният таб — най-тъмни (Chris 13:49). Тъмната: поле #56627a · карта #414b59 ·
+     лента/заглавка/зебра #343e4b · ненатиснато #2a3340 · бутони и избран таб #1f2630 · фон #000000 (само той, 13:56). Светлата — извлечена от
+     оранжевото на шапката (14:03; color-mix: % от --accent върху бяло): фон и поле #ffffff · карта 12 % · лента/заглавка/зебра 25 % · ненатиснато 35 % ·
+     бутони и избран таб 55 %. Оранжевото и мерките не се пипат; треньорският изглед в светлата остава сив (:where(:not(.coach-on))).
+     Стои последен — тоновете от Т199/Т206/Т207 по-горе са със старите роли, тези тук ги заместват */
+  html body.skin2:not(.dark):not(.coach-on) { background: #ffffff; }
+  html body.skin2.dark { background: #000000; }
+  body.skin2:not(.dark):where(:not(.coach-on)) { --bg: #ffffff; --card: color-mix(in srgb, var(--accent) 12%, #ffffff); --soft: color-mix(in srgb, var(--accent) 25%, #ffffff); --soft2: color-mix(in srgb, var(--accent) 35%, #ffffff); --line: color-mix(in srgb, var(--accent) 35%, #ffffff); --btn-off: color-mix(in srgb, var(--accent) 35%, #ffffff); --ate: color-mix(in srgb, var(--accent) 12%, #ffffff); --tp-soft: color-mix(in srgb, var(--accent) 12%, #ffffff);
+    --g-strip: color-mix(in srgb, var(--accent) 25%, #ffffff); --g-off: color-mix(in srgb, var(--accent) 35%, #ffffff); --g-field: #ffffff; --g-ph: #5f4e2e; --g-on: color-mix(in srgb, var(--accent) 55%, #ffffff); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .card.panel > .body, body.skin2:not(.dark):where(:not(.coach-on)) .card.hm > .body, body.skin2:not(.dark):where(:not(.coach-on)) .ipop, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop, body.skin2:not(.dark):where(:not(.coach-on)) .tp, body.skin2:not(.dark):where(:not(.coach-on)) .acctpop, body.skin2:not(.dark):where(:not(.coach-on)) .vpage { background: color-mix(in srgb, var(--accent) 12%, #ffffff); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kfpop { --kfbg: color-mix(in srgb, var(--accent) 12%, #ffffff); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .dish .dst, body.skin2:not(.dark):where(:not(.coach-on)) .mfrom { background: color-mix(in srgb, var(--accent) 35%, #ffffff); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kft .kfoh, body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya .klist > .khead, body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya.kbox .klist > .khead, body.skin2:not(.dark):where(:not(.coach-on)) .srch .sdl > .khead { background: color-mix(in srgb, var(--accent) 12%, #ffffff); }
+  body.skin2:not(.dark):where(:not(.coach-on)) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]), textarea, select) { background: #ffffff; color: #1c2733; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .btn, body.skin2:not(.dark):where(:not(.coach-on)) .btn.ghost, body.skin2:not(.dark):where(:not(.coach-on)) .lf .lwr button:not(.idle), body.skin2:not(.dark):where(:not(.coach-on)) .card .body .qa .qabtn, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epok, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epno, body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpb { background: color-mix(in srgb, var(--accent) 55%, #ffffff); border-color: color-mix(in srgb, var(--accent) 55%, #ffffff); color: #1c2733; font-weight: 700; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kseg button.on, body.skin2:not(.dark):where(:not(.coach-on)) .kchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .dtchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .io:has(input:checked), body.skin2:not(.dark):where(:not(.coach-on)) .lmrow .lm.dtb.on { background: color-mix(in srgb, var(--accent) 55%, #ffffff); border-color: color-mix(in srgb, var(--accent) 55%, #ffffff); color: #1c2733; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); color: #fff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday:nth-of-type(odd) { background: color-mix(in srgb, var(--accent) 25%, #ffffff); }
+  body.skin2.dark { --bg: #000000; --card: #414b59; --soft: #343e4b; --soft2: #2a3340; --line: #2a3340; --btn-off: #2a3340; --ate: #414b59; --tp-soft: #414b59;
+    --g-strip: #343e4b; --g-off: #2a3340; --g-field: #56627a; --g-ph: #e8ebee; --g-on: #1f2630; --muted: #b8c0ca; }
+  body.skin2.dark .card.panel > .body, body.skin2.dark .card.hm > .body, body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop, body.skin2.dark .vpage { background: #414b59; }
+  body.skin2.dark .kfpop { --kfbg: #414b59; }
+  body.skin2.dark .dish .dst, body.skin2.dark .mfrom { background: #2a3340; }
+  body.skin2.dark .kft .kfoh, body.skin2.dark #p-kuhnya .klist > .khead, body.skin2.dark #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2.dark #p-kuhnya.kbox .klist > .khead, body.skin2.dark .srch .sdl > .khead { background: #414b59; }
+  body.skin2.dark :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]), textarea, select) { background: #56627a; color: #ffffff; }
+  body.skin2.dark .btn, body.skin2.dark .btn.ghost, body.skin2.dark .lf .lwr button:not(.idle), body.skin2.dark .card .body .qa .qabtn, body.skin2.dark .eatpop .epok, body.skin2.dark .eatpop .epno, body.skin2.dark .tp .tpb { background: #1f2630; border-color: #1f2630; color: #ffffff; font-weight: 700; }
+  body.skin2.dark .kseg button.on, body.skin2.dark .kchip.on, body.skin2.dark .dtchip.on, body.skin2.dark .io:has(input:checked), body.skin2.dark .lmrow .lm.dtb.on { background: #1f2630; border-color: #1f2630; color: #ffffff; }
+  body.skin2.dark .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); color: #fff; }
+  body.skin2.dark .hist details.qday:nth-of-type(odd) { background: #343e4b; }
+  html body.skin2.dark nav.tabs .nav-mlayer, html body.skin2.dark nav.tabs .nav-pill { background: #2a3340; }
+  html body.skin2.dark nav.tabs .nav-slide { background: #1f2630; }
+  body.skin2.dark .hbtn.acct, body.skin2.dark .hbtn.acct:hover { background: #343e4b; }
+  /* часовникът (Chris 14:05): циферблатът = полето (най-светло); числата — по-светли от него; избраното и стрелката — най-тъмното, като натиснат бутон */
+  body.skin2.dark .tp .tpface { fill: #56627a; stroke: #343e4b; }
+  body.skin2.dark .tp .tpdial text { fill: #ffffff; }
+  body.skin2.dark .tp .tpdial text.in { fill: #e8ebee; }
+  body.skin2.dark .tp .tpdial text.sel { fill: #ffffff; }
+  body.skin2.dark .tp .tphand { stroke: #1f2630; stroke-width: 3; }
+  body.skin2.dark .tp .tpknob, body.skin2.dark .tp .tpdot { fill: #1f2630; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpface { fill: #ffffff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .tp .tphand { stroke: var(--accent-dark); stroke-width: 2.5; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpdot { fill: var(--accent-dark); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpknob { fill: var(--g-on); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpdial text.sel { fill: var(--ink); }
 </style>
 </head>
 <body>
