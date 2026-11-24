@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.71.0">
+<meta name="version" content="v1.71.1">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -6251,6 +6251,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   редовете с избори). Само горният слой. prefers-reduced-motion — без движение: пуснат след прага — само се затваря.
   //   drag: false — без (картинката: своето влачене, с приближаването); { down: false } — само настрани (редакторът); { sel } — мести се
   //   елементът под пръста (редакторът: картата .ded в кухнята — тя се рисува наново).
+  //   Т211 (DEC-0112; Chris 24.11.2026 16:43 „когато е дропнато менюто и излезе клавиатурата, ако тегля с пъста … менюто се фейдва и затваря …
+  //   махнем махането с влапене но само надолу , да може да дърпа страницата надолу и да затваря клавиатурата“; 16:46 „давай“): САМО падащият
+  //   списък (k: "sdd" — търсачката, лентите в лога), докато клавиатурата е отворена (KB.on): най-горе и надолу = "p" — списъкът стои (не се
+  //   мести, не избледнява, не се затваря), полето губи фокус (клавиатурата се прибира — kbOff) и страницата върви след пръста (сама не тръгва:
+  //   списъкът е overscroll-behavior: contain; мести ли я в момента двигателят — двете се събират). Без клавиатура, настрани, нагоре, превъртян
+  //   списък и всички други слоеве — както досега.
   var LD_NO = "input, textarea, select, button, a, label, [contenteditable], .tpdial, .mcmp, .mchs, .ktb, .kchips, [data-nodrag]", LD_FRAC = 1 / 3, LD_FLICK = 0.6;
   function ldScrollsX(t, root) {
     for (var n = t; n && n !== root; n = n.parentNode) if (n.nodeType === 1 && n.scrollWidth > n.clientWidth + 1 && /(auto|scroll)/.test(getComputedStyle(n).overflowX)) return true;
@@ -6287,10 +6293,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var p = e.touches[0], dx = p.clientX - g.x0, dy = p.clientY - g.y0;
       if (!g.m) {   // посоката — от първото движение (после браузърът вече скролва)
         if (!dx && !dy) return;
-        g.m = Math.abs(dx) > Math.abs(dy) * 1.5 ? (g.sx ? "x" : "") : dy > 0 && g.top ? "y" : "";
+        g.m = Math.abs(dx) > Math.abs(dy) * 1.5 ? (g.sx ? "x" : "") : dy > 0 && g.top ? (L.k === "sdd" && KB.on ? "p" : "y") : "";
         if (!g.m) { g = null; return; }
       }
       e.preventDefault();
+      if (g.m === "p") {   // Т211: страницата — след пръста (цели пиксели, остатъкът — за следващото движение)
+        if (dy > 8 && KB.on) try { document.activeElement.blur(); } catch (x) {}   // клавиатурата се прибира (докосване на ред с леко мърдане — не)
+        var d = Math.round(g.ly - p.clientY); g.ly -= d;
+        if (ACC_RUN) { ACC_RUN.y0 += d; ACC_RUN.y1 += d; } else window.scrollBy(0, d);
+        return;
+      }
       var dt = e.timeStamp - g.lt; if (dt > 0) g.v = (g.m === "x" ? p.clientX - g.lx : p.clientY - g.ly) / dt;
       g.lx = p.clientX; g.ly = p.clientY; g.lt = e.timeStamp;
       g.dx = g.m === "x" ? dx : 0; g.dy = g.m === "y" ? Math.max(0, dy) : 0;
@@ -6300,7 +6312,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     host.addEventListener("touchmove", tm, { passive: false });
     function end(cancel) {
       var x = g; g = null;
-      if (!x || !x.m) return;
+      if (!x || !x.m || x.m === "p") return;   // "p" (Т211) — страницата остава, където е
       var d = x.m === "x" ? x.dx : x.dy, size = x.m === "x" ? window.innerWidth : window.innerHeight;
       var shut = !cancel && (Math.abs(d) > size * LD_FRAC || (Math.abs(d) > 30 && Math.abs(x.v) > LD_FLICK && x.v * d > 0));
       if (!shut || L.done) { ldBack(x.el); return; }
