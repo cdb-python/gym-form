@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.68.0">
+<meta name="version" content="v1.69.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2111,8 +2111,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .kseg { background: var(--g-strip); }
   body.skin2.dark .kseg button { color: var(--g-offt); }
   body.skin2.dark .kseg button.on { background: var(--g-on); color: #fff; box-shadow: none; }
-  body.skin2.dark .mn.mchip { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
-  body.skin2.dark .mn.mchip.on { background: var(--g-on); border-color: var(--g-on); color: #fff; }
   body.skin2.dark .io { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
   body.skin2.dark .io:has(input:checked) { background: var(--g-on); border-color: var(--g-on); color: #fff; }
   body.skin2.dark .ded .dgb { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
@@ -2327,6 +2325,51 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   nav.tabs button[data-tab="merki"] svg { transform: scale(.792); }
   nav.tabs button[data-tab="danni"] svg { transform: scale(.81); }
   nav.tabs button[data-tab="razgovor"] svg { transform: scale(.855); }
+  /* ════════ Т207 (DEC-0108; Chris 24.11.2026 10:17–10:37, приемането — черновата v63; законът — laws/app.md правило 24): СВЕТЛАТА —
+     кремавата гама, двойникът на сивата в тъмната: фон #f8efe6 · карта #ffffff · лента/заглавка/зебра #fbf1e6 · ненатиснато #f0dcc0 · поле #e9cfa9 ·
+     натиснато #dcb889; текстът върху тоновете — #1c2733 (--ink), подсказката — #5f4e2e. Правилата са на тъмната (var(--g-…), Т199 и Т206) за светлата —
+     смени ли се някое от тях, смени и двойника тук. Треньорският изглед (body.coach-on) остава сив (Т21/Т45) — :where(:not(.coach-on)), нулева тежест.
+     Оранжевото остава (иконите, заглавията, текстовете, предупрежденията, лентата, шапката, ★, акаунтът, рамката на „Филтри“) — чака дума на Chris */
+  body.skin2:not(.dark):where(:not(.coach-on)) { --g-strip: #fbf1e6; --g-off: #f0dcc0; --g-offt: #1c2733; --g-field: #e9cfa9; --g-ph: #5f4e2e; --g-on: #dcb889; --soft2: #f0dcc0; --line: #f0dcc0; --btn-off: #f0dcc0; --ate: #ffffff; --tp-soft: #ffffff; }
+  /* двойниците на правилата с var(--g-…) в тъмната */
+  :where(body.skin2:not(.dark):not(.coach-on)) :where(input:not([type=checkbox], [type=radio], [type=range], [type=file], [type=hidden], [type=button], [type=submit], [type=reset], [type=color]), textarea, select, [contenteditable]:not([contenteditable=false])) { background-color: var(--g-field, #414b59); color: var(--ink); }
+  :where(body.skin2:not(.dark):not(.coach-on)) .eatpop .eptm { background: var(--g-field, #414b59); }
+  :where(body.skin2:not(.dark):not(.coach-on)) ::placeholder { color: var(--g-ph, #b8c0ca); opacity: 1; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kseg { background: var(--g-strip); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kseg button { color: var(--g-offt); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kseg button.on { background: var(--g-on); color: var(--ink); box-shadow: none; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .io { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .io:has(input:checked) { background: var(--g-on); border-color: var(--g-on); color: var(--ink); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .ded .dgb { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .ded .dgb.lk { background: var(--g-on); border-color: var(--g-on); color: var(--ink); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .cmenu .crxbar button.crb.on { background: var(--g-on); box-shadow: none; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kchip, body.skin2:not(.dark):where(:not(.coach-on)) .dtchip, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epam button, body.skin2:not(.dark):where(:not(.coach-on)) .kpop .kb, body.skin2:not(.dark):where(:not(.coach-on)) .ded .dszb, body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpksz, body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpkf, body.skin2:not(.dark):where(:not(.coach-on)) .tp button.tpd { background: var(--g-off); border-color: var(--g-off); color: var(--g-offt); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .dtchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epam button.on, body.skin2:not(.dark):where(:not(.coach-on)) .kpop .kb.on, body.skin2:not(.dark):where(:not(.coach-on)) .ded .dszb.on, body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpksz.on, body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpkf.on, body.skin2:not(.dark):where(:not(.coach-on)) .tp button.tpd.on { background: var(--g-on); border-color: var(--g-on); color: var(--ink); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .lmrow .lm.dtb.on { background: var(--g-on); color: var(--ink); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .srch .ksrch .scnt { color: var(--g-ph); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpka, body.skin2:not(.dark):where(:not(.coach-on)) .fpk select, body.skin2:not(.dark):where(:not(.coach-on)) .fpk .fpkt, body.skin2:not(.dark):where(:not(.coach-on)) .trpop .fpkt { background: var(--g-field); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .btn, body.skin2:not(.dark):where(:not(.coach-on)) .btn.ghost, body.skin2:not(.dark):where(:not(.coach-on)) .lf .lwr button:not(.idle), body.skin2:not(.dark):where(:not(.coach-on)) .card .body .qa .qabtn, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epok, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epno, body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpb { background: var(--g-off); border-color: var(--g-off); color: var(--ink); font-weight: 700; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .btn:active, body.skin2:not(.dark):where(:not(.coach-on)) .btn.ghost:active, body.skin2:not(.dark):where(:not(.coach-on)) .lf .lwr button:not(.idle):active, body.skin2:not(.dark):where(:not(.coach-on)) .card .body .qa .qabtn:active, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epok:active, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop .epno:active, body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpb:active { background: var(--g-on); border-color: var(--g-on); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .lbar { background: var(--g-field); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .lbar .lbc { color: var(--g-ph); }
+  /* двойниците на Т206: панелните тела, балоните, изключените полета, страниците, кухнята; полетата; зебрата на историите (всички) */
+  body.skin2:not(.dark):where(:not(.coach-on)) .card.panel > .body { background: #ffffff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .ipop, body.skin2:not(.dark):where(:not(.coach-on)) .eatpop, body.skin2:not(.dark):where(:not(.coach-on)) .tp, body.skin2:not(.dark):where(:not(.coach-on)) .acctpop { background: #ffffff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .iform input:disabled, body.skin2:not(.dark):where(:not(.coach-on)) .iform textarea:disabled, body.skin2:not(.dark):where(:not(.coach-on)) input:disabled { background: #fbf1e6; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kfpop { --kfbg: #ffffff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .dish .dst, body.skin2:not(.dark):where(:not(.coach-on)) .mfrom { background: #f0dcc0; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .vpage { background: #ffffff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]), textarea, select) { background: #e9cfa9; color: var(--ink); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday { margin: 0 0 0 -8px; padding: 0 4px 0 8px; border-radius: 10px; border-top-color: transparent; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday:nth-of-type(odd) { background: #fbf1e6; }
+  /* оранжевото, което тъмната пази с отделно правило: рамката на „Филтри“ · ★ натисната; изключеният „Изпрати“ — тъмното мастило (бял текст върху
+     кремавото не се чете) — Chris / CDB-GYM 10:37 */
+  body.skin2:not(.dark):where(:not(.coach-on)) .kchip.kfbtn { border-color: var(--accent); color: var(--g-offt); }
+  body.skin2:not(.dark):where(:not(.coach-on)) .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); color: #fff; }
+  body.skin2:not(.dark):where(:not(.coach-on)) .crow button:disabled { color: var(--ink); }
+  /* мерките — единственото изключение от гамите: имената в „Ново мерене“ са в цвета на мярката (имената в графиките), в ДВЕТЕ теми (Chris 10:32) */
+  body.skin2.dark .mn.mchip { background: var(--card); border-color: var(--border); color: var(--ink); }
+  body.skin2.dark .mn.mchip.on { background: var(--cs); border-color: color-mix(in srgb, var(--cc) 45%, var(--card)); color: var(--cc); }
 </style>
 </head>
 <body>
