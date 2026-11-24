@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.71.1">
+<meta name="version" content="v1.72.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#c77d2e">
@@ -2372,12 +2372,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* мерките — единственото изключение от гамите: имената в „Ново мерене“ са в цвета на мярката (имената в графиките), в ДВЕТЕ теми (Chris 10:32) */
   body.skin2.dark .mn.mchip { background: var(--card); border-color: var(--border); color: var(--ink); }
   body.skin2.dark .mn.mchip.on { background: var(--cs); border-color: color-mix(in srgb, var(--cc) 45%, var(--card)); color: var(--cc); }
-  /* ════════ Т209 (DEC-0110; Chris 24.11.2026 13:49–14:18, приемането — черновата v66): подредбата на тоновете в двете теми — полето за писане е
-     най-светло, всеки слой нагоре е по-тъмен, бутоните и избраният таб — най-тъмни (Chris 13:49). Тъмната: поле #56627a · карта #414b59 ·
-     лента/заглавка/зебра #343e4b · ненатиснато #2a3340 · бутони и избран таб #1f2630 · фон #000000 (само той, 13:56). Светлата — извлечена от
-     оранжевото на шапката (14:03; color-mix: % от --accent върху бяло): фон и поле #ffffff · карта 12 % · лента/заглавка/зебра 25 % · ненатиснато 35 % ·
-     бутони и избран таб 55 %. Оранжевото и мерките не се пипат; треньорският изглед в светлата остава сив (:where(:not(.coach-on))).
-     Стои последен — тоновете от Т199/Т206/Т207 по-горе са със старите роли, тези тук ги заместват */
+  /* ════════ Т209 + Т212 (DEC-0110, DEC-0113; Chris 24.11.2026 13:49–14:18 и 17:10–17:51, приемането — черновите v66 и v69): подредбата на тоновете.
+     Светлата (Т209, v66) — извлечена от оранжевото на шапката (14:03; color-mix: % от --accent върху бяло): фон и поле #ffffff · карта 12 % ·
+     лента/заглавка/зебра 25 % · ненатиснато 35 % · бутони и избран таб 55 %. Тъмната — ПРЕНАРЕДЕНА (Т212, v69; 17:10 „картите трябваше да са най
+     тъмното а после бутоните да са най тъмното след него и така надолу … само за тъмната тема“): карта #1f2630 < бутони и избран таб #2a3340 <
+     ненатиснато #343e4b < лента/заглавка/зебра #414b59 < поле #56627a; фон #000000 (само той); лентата долу #343e4b, маркерът #2a3340; балоните и
+     падащите — един тон над картите (#2a3340; вътре бутоните и избраното #1f2630). Оранжевото и мерките не се пипат; треньорският изглед остава сив
+     (:where(:not(.coach-on))). Стои последен — тоновете от Т199/Т206/Т207 по-горе са със старите роли, тези тук ги заместват */
   html body.skin2:not(.dark):not(.coach-on) { background: #ffffff; }
   html body.skin2.dark { background: #000000; }
   body.skin2:not(.dark):where(:not(.coach-on)) { --bg: #ffffff; --card: color-mix(in srgb, var(--accent) 12%, #ffffff); --soft: color-mix(in srgb, var(--accent) 25%, #ffffff); --soft2: color-mix(in srgb, var(--accent) 35%, #ffffff); --line: color-mix(in srgb, var(--accent) 35%, #ffffff); --btn-off: color-mix(in srgb, var(--accent) 35%, #ffffff); --ate: color-mix(in srgb, var(--accent) 12%, #ffffff); --tp-soft: color-mix(in srgb, var(--accent) 12%, #ffffff);
@@ -2391,21 +2392,21 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2:not(.dark):where(:not(.coach-on)) .kseg button.on, body.skin2:not(.dark):where(:not(.coach-on)) .kchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .dtchip.on, body.skin2:not(.dark):where(:not(.coach-on)) .io:has(input:checked), body.skin2:not(.dark):where(:not(.coach-on)) .lmrow .lm.dtb.on { background: color-mix(in srgb, var(--accent) 55%, #ffffff); border-color: color-mix(in srgb, var(--accent) 55%, #ffffff); color: #1c2733; }
   body.skin2:not(.dark):where(:not(.coach-on)) .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); color: #fff; }
   body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday:nth-of-type(odd) { background: color-mix(in srgb, var(--accent) 25%, #ffffff); }
-  body.skin2.dark { --bg: #000000; --card: #414b59; --soft: #343e4b; --soft2: #2a3340; --line: #2a3340; --btn-off: #2a3340; --ate: #414b59; --tp-soft: #414b59;
-    --g-strip: #343e4b; --g-off: #2a3340; --g-field: #56627a; --g-ph: #e8ebee; --g-on: #1f2630; --muted: #b8c0ca; }
-  body.skin2.dark .card.panel > .body, body.skin2.dark .card.hm > .body, body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop, body.skin2.dark .vpage { background: #414b59; }
-  body.skin2.dark .kfpop { --kfbg: #414b59; }
-  body.skin2.dark .dish .dst, body.skin2.dark .mfrom { background: #2a3340; }
-  body.skin2.dark .kft .kfoh, body.skin2.dark #p-kuhnya .klist > .khead, body.skin2.dark #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2.dark #p-kuhnya.kbox .klist > .khead, body.skin2.dark .srch .sdl > .khead { background: #414b59; }
+  body.skin2.dark { --bg: #000000; --card: #1f2630; --soft: #414b59; --soft2: #343e4b; --line: #343e4b; --btn-off: #343e4b; --ate: #1f2630; --tp-soft: #1f2630;
+    --g-strip: #414b59; --g-off: #343e4b; --g-field: #56627a; --g-ph: #e8ebee; --g-on: #2a3340; --muted: #b8c0ca; }
+  body.skin2.dark .card.panel > .body, body.skin2.dark .card.hm > .body, body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop, body.skin2.dark .vpage { background: #1f2630; }
+  body.skin2.dark .kfpop { --kfbg: #1f2630; }
+  body.skin2.dark .dish .dst, body.skin2.dark .mfrom { background: #343e4b; }
+  body.skin2.dark .kft .kfoh, body.skin2.dark #p-kuhnya .klist > .khead, body.skin2.dark #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2.dark #p-kuhnya.kbox .klist > .khead, body.skin2.dark .srch .sdl > .khead { background: #1f2630; }
   body.skin2.dark :is(input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=hidden]):not([type=button]):not([type=submit]), textarea, select) { background: #56627a; color: #ffffff; }
-  body.skin2.dark .btn, body.skin2.dark .btn.ghost, body.skin2.dark .lf .lwr button:not(.idle), body.skin2.dark .card .body .qa .qabtn, body.skin2.dark .eatpop .epok, body.skin2.dark .eatpop .epno, body.skin2.dark .tp .tpb { background: #1f2630; border-color: #1f2630; color: #ffffff; font-weight: 700; }
-  body.skin2.dark .kseg button.on, body.skin2.dark .kchip.on, body.skin2.dark .dtchip.on, body.skin2.dark .io:has(input:checked), body.skin2.dark .lmrow .lm.dtb.on { background: #1f2630; border-color: #1f2630; color: #ffffff; }
+  body.skin2.dark .btn, body.skin2.dark .btn.ghost, body.skin2.dark .lf .lwr button:not(.idle), body.skin2.dark .card .body .qa .qabtn, body.skin2.dark .eatpop .epok, body.skin2.dark .eatpop .epno, body.skin2.dark .tp .tpb { background: #2a3340; border-color: #2a3340; color: #ffffff; font-weight: 700; }
+  body.skin2.dark .kseg button.on, body.skin2.dark .kchip.on, body.skin2.dark .dtchip.on, body.skin2.dark .io:has(input:checked), body.skin2.dark .lmrow .lm.dtb.on { background: #2a3340; border-color: #2a3340; color: #ffffff; }
   body.skin2.dark .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); color: #fff; }
-  body.skin2.dark .hist details.qday:nth-of-type(odd) { background: #343e4b; }
-  html body.skin2.dark nav.tabs .nav-mlayer, html body.skin2.dark nav.tabs .nav-pill { background: #2a3340; }
-  html body.skin2.dark nav.tabs .nav-slide { background: #1f2630; }
+  body.skin2.dark .hist details.qday:nth-of-type(odd) { background: #414b59; }
+  html body.skin2.dark nav.tabs .nav-mlayer, html body.skin2.dark nav.tabs .nav-pill { background: #343e4b; }
+  html body.skin2.dark nav.tabs .nav-slide { background: #2a3340; }
   body.skin2.dark .hbtn.acct, body.skin2.dark .hbtn.acct:hover { background: #343e4b; }
-  /* часовникът (Chris 14:05): циферблатът = полето (най-светло); числата — по-светли от него; избраното и стрелката — най-тъмното, като натиснат бутон */
+  /* часовникът (Chris 14:05): циферблатът = полето (най-светло); числата — по-светли от него; избраното и стрелката — най-тъмното (#1f2630), без промяна от Т209 */
   body.skin2.dark .tp .tpface { fill: #56627a; stroke: #343e4b; }
   body.skin2.dark .tp .tpdial text { fill: #ffffff; }
   body.skin2.dark .tp .tpdial text.in { fill: #e8ebee; }
@@ -2417,6 +2418,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpdot { fill: var(--accent-dark); }
   body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpknob { fill: var(--g-on); }
   body.skin2:not(.dark):where(:not(.coach-on)) .tp .tpdial text.sel { fill: var(--ink); }
+  /* ТЪМНАТА: балоните и падащите — следващият тон над картите (Chris 24.11 17:14: „балоните и дроп менютата не трябва ли да са следващия тон по надолу?“):
+     карта #1f2630 → балон / падащ списък #2a3340; вътре в него бутоните и избраното — #1f2630 (иначе се сливат с балона) */
+  body.skin2.dark :is(.ipop, .eatpop, .tp, .acctpop, .kpop, .dtpop, .trpop, .cmenu, .fpk), body.skin2.dark .srch .sdl, body.skin2.dark .srch .sdl > .khead { background: #2a3340; }
+  body.skin2.dark .kfpop { --kfbg: #2a3340; background: #2a3340; }
+  body.skin2.dark :is(.ipop, .eatpop, .tp, .acctpop, .kfpop, .kpop, .dtpop, .trpop, .cmenu, .fpk) .btn, body.skin2.dark .tp .tpb, body.skin2.dark .eatpop .epok, body.skin2.dark .eatpop .epno { background: #1f2630; border-color: #1f2630; color: #fff; }
+  html body.skin2.dark .tp button.tpd.on, html body.skin2.dark .tp .tpd.on, html body.skin2.dark .eatpop .epam button.on, body.skin2.dark :is(.eatpop, .tp, .kfpop, .kpop, .dtpop, .trpop, .fpk) :is(.kchip, .dtchip, .kb, .fpksz, .fpkf, .tpd, button).on { background: #1f2630; border-color: #1f2630; color: #fff; }
+  body.skin2.dark .kfpop .kchip.kstar.on { background: var(--accent-solid, var(--accent)); border-color: var(--accent-solid, var(--accent)); }
+  /* Chris 24.11 17:46: „лентата (с макросите) да стане същия цвят като дроп менюто и филтрите всичко в по светлия цвят“ — заглавният ред на падащите списъци и папките на „Филтри“ */
+  html body.skin2.dark .srch .sdl > .khead, html body.skin2.dark .kft .kfoh { background: #2a3340; }
 </style>
 </head>
 <body>
