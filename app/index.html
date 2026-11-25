@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.76.0">
+<meta name="version" content="v1.77.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -419,7 +419,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
 
   /* формите (мерки, свободен лог, „Изядох") */
   .lf label { display: block; font-weight: 600; font-size: 14px; margin: 10px 0 4px; }
-  .lf input, .lf textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .lf input, .lf textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
   .lf textarea { min-height: 110px; resize: vertical; }
   .lf .hint { color: var(--muted); font-size: 13px; margin: 3px 0 0; }
   .lf .row2 { display: flex; gap: 10px; }
@@ -429,7 +429,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т185: „Постави линка“ на екрана „Липсва код“ */
   .mtok { margin: 16px 0 0; text-align: left; }
   .mtok label { display: block; margin: 0 0 6px; font-size: 14px; font-weight: 600; color: var(--ink); }
-  .mtok input { display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 11px 12px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .mtok input { display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 11px 12px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 10px; }
   .mtok input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
   .mtok input[aria-invalid="true"] { border-color: #b3261e; }
   .mtok .mterr { margin: 8px 0 0; font-size: 14px; line-height: 1.4; color: #b3261e; }
@@ -445,7 +445,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eat { margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
   .eat .er { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
   .eat .er label { margin: 0; font-size: 14px; font-weight: 600; flex: none; }
-  .eat .er input { width: 132px; flex: none; padding: 9px 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; background: #fff; color: var(--ink); }
+  .eat .er input { width: 132px; flex: none; padding: 9px 10px; font-size: 16px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; background: #fff; color: var(--ink); }
   .eat .er button { flex: 1 1 100%; margin: 0; padding: 12px 10px; white-space: nowrap; }
   .eat .eh { margin: 6px 0 0; font-size: 12.5px; color: var(--muted); }
   .eat .eok { display: none; margin-top: 8px; font-size: 13.5px; font-weight: 700; color: var(--accent-dark); }
@@ -483,7 +483,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .lw textarea { min-height: 70px; max-height: 170px; resize: none; overflow-y: auto; line-height: 1.45; }
   /* Т15: час + бутон на един ред — час ~40 %, бутон ~60 %, еднаква височина 42 px (като полето в Разговор), 8 px между тях */
   .lwr { display: flex; align-items: stretch; gap: 8px; margin-top: 8px; }
-  .lf .lwr input { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
+  .lf .lwr input { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--fbd); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
   .lf .lwr button { flex: 1 1 0; min-width: 0; width: auto; height: 42px; margin: 0; padding: 0 8px; border-radius: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   @media (max-width: 360px) { .lf .lwr button { padding: 0 4px; font-size: 15px; } }   /* Т39: „Няма записи днес“ на един ред на 320 */
   .lwr span { flex: 1 1 150px; min-width: 0; font-size: 12.5px; color: var(--muted); }
@@ -587,7 +587,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card .body .qa .qi { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid var(--border); }
   .card .body .qa .qi:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
   .card .body .qa .qq { font-weight: 700; font-size: 15px; margin: 0 0 6px; }
-  .card .body .qa textarea { width: 100%; min-height: 54px; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; }
+  .card .body .qa textarea { width: 100%; min-height: 54px; padding: 10px 11px; font-size: 16px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; resize: vertical; }
   .card .body .qa .qst { margin-top: 4px; font-size: 12.5px; font-weight: 600; color: var(--accent-dark); }
   .card .body .qa .qst.pend { color: var(--warn); }
   .card .body .qa .qabtn:active { background: var(--accent-dark); }
@@ -612,7 +612,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .iform .imiss { float: right; margin: 2px 0 0 10px; font-size: 12px; font-weight: 600; line-height: 1.4; color: var(--muted); white-space: nowrap; }   /* Т69 */
   .iform .k { display: block; font-size: 14.5px; font-weight: 700; color: var(--ink); margin: 0 0 3px; }
   .iform .ih { font-size: 12.5px; color: var(--muted); margin: 0 0 6px; line-height: 1.4; }
-  .iform input[type=text], .iform textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .iform input[type=text], .iform textarea { width: 100%; padding: 10px 11px; font-size: 16px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
   .iform textarea { min-height: 64px; resize: none; line-height: 1.45; }
   /* Т97: полетата растат с текста (височината — от JS: agFit); бившите едноредови (.ag1) — един ред, който се пренася */
   textarea.ag { resize: none; overflow-y: hidden; -webkit-appearance: none; appearance: none; }
@@ -776,12 +776,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eatok:empty { display: none; }
   @media (max-width: 359px) { .eatbtn .eatx { display: none; } .eatbtn .eatv { padding: 0 6px; } }   /* 320: само иконата (aria-label „Изядох“) */
   /* банерът: под храненето, върху съдържанието (не го бута); с ширината на картата */
-  .eatpop { position: absolute; z-index: 55; box-sizing: border-box; padding: 10px 12px 12px; background: #fff; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; }
+  /* Т219 (DEC-0123, правило 25): ВСИЧКО, което се отваря отгоре (балони, падащи списъци, менюта, часовникът), е с класа .lay — ъгъл 14, без рамка, отстояние вътре 12
+     (списъци с редове — 8: .lay-r; менютата с редове до ръба — своите), ниво 3 (--sh3). Мястото — layPlace. Нищо отворено няма свой ъгъл, рамка или сянка. */
+  .lay { border: 0; border-radius: 14px; box-shadow: var(--sh3); padding: 12px; }
+  .lay-r { padding: 0 8px; }
+  .eatpop { position: absolute; z-index: 55; box-sizing: border-box; padding-top: 10px; background: #fff; outline: none; }
   .eatpop .eph { margin: 0 0 8px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
   .eatpop .epr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .eatpop .epl { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 600; color: var(--accent-dark); }
   .eatpop .epb { display: flex; gap: 8px; margin-left: auto; }   /* двата бутона заедно, вдясно */
-  .eatpop .eptm { box-sizing: border-box; width: 112px; height: 42px; margin: 0; padding: 0 8px; font-size: 16px; font-family: inherit; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .eatpop .eptm { box-sizing: border-box; width: 112px; height: 42px; margin: 0; padding: 0 8px; font-size: 16px; font-family: inherit; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 10px; }
   .eatpop .epok, .eatpop .epno { height: 40px; margin: 0; padding: 0 14px; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
   .eatpop .epok { border: 1px solid var(--accent); background: var(--accent); color: #fff; }
   .eatpop .epno { border: 1px solid var(--border); background: #fff; color: var(--ink); font-weight: 600; }
@@ -794,7 +798,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ibtn:focus { outline: none; }
   .ibtn:focus-visible svg.ic { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
   .ibtn[aria-expanded="true"] { color: var(--accent-dark); }
-  .ipop { position: absolute; z-index: 55; box-sizing: border-box; padding: 8px 12px 12px; background: #fff; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; text-align: left; }
+  .ipop { position: absolute; z-index: 55; box-sizing: border-box; padding-top: 8px; background: #fff; outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; text-align: left; }
   /* Т82 (Chris 04:33–04:42): балонът — лек тинт на акцента (~9 % върху бялото), за да се различава от белите карти: при клиента
      оранжев (#c77d2e → #faf3ec), при треньора сив (Т26: #5f6b78 → #f1f2f3). Сменя ли се акцентът — и тук. Рамката и сянката — както бяха. */
   .ipop { background: #faf3ec; }
@@ -947,14 +951,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т92: нашият часовник — балонът е като ⓘ (ширина, радиус, сянка, отстъпи, шрифт, фон на изгледа); акцентът — за избраното */
   input.tpin { cursor: pointer; caret-color: transparent; text-align: center; font-variant-numeric: tabular-nums; }
   input.tpin:disabled { cursor: not-allowed; }
-  .tp { position: absolute; z-index: 56; box-sizing: border-box; padding: 8px 12px 12px; background: #faf3ec; border: 1px solid var(--accent); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.20); outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .tp { position: absolute; z-index: 56; box-sizing: border-box; padding-top: 8px; background: #faf3ec; outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
   body.coach-on .tp { background: #f1f2f3; }
   .tp .tph { display: flex; align-items: center; justify-content: center; gap: 6px; padding-top: 4px; }
   .tp .tpd { box-sizing: border-box; width: 84px; height: 60px; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 40px; font-weight: 700; line-height: 1; text-align: center; font-variant-numeric: tabular-nums; cursor: pointer; }
   .tp .tpd.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .tp .tpd:focus { outline: none; }
   .tp button.tpd:focus-visible { box-shadow: 0 0 0 2px var(--accent-dark); }
-  .tp input.tpd { cursor: text; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
+  .tp input.tpd { border-color: var(--fbd); cursor: text; -webkit-appearance: none; appearance: none; -webkit-user-select: text; user-select: text; }
   .tp input.tpd:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-a40, rgba(199,125,46,0.4)); }
   .tp input.tpd[aria-invalid="true"] { border-color: #c24a4a; background: #fdecec; color: #9a3b3b; }
   .tp .tpc { font-size: 40px; font-weight: 700; line-height: 1; color: var(--ink); }
@@ -978,7 +982,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .kseg button { flex: 1 1 0; min-width: 0; height: 36px; margin: 0; padding: 0 6px; border: 0; border-radius: 9px; background: none; color: var(--accent-dark); font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .kseg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(28,39,51,0.14); }
   .ksrch { position: relative; margin: 0 0 8px; }
-  .ksrch input { display: block; width: 100%; box-sizing: border-box; height: 42px; margin: 0; padding: 0 12px 0 40px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; -webkit-appearance: none; appearance: none; }
+  .ksrch input { display: block; width: 100%; box-sizing: border-box; height: 42px; margin: 0; padding: 0 12px 0 40px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 10px; -webkit-appearance: none; appearance: none; }
   .ksrch svg.ic { position: absolute; left: 11px; top: 11px; width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
   .kchips { display: flex; gap: 6px; margin: 0 0 8px; padding: 0 0 2px; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .kchips::-webkit-scrollbar { display: none; }
@@ -988,7 +992,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .kchips.kgrp .kchip { height: 30px; font-size: 13.5px; }
   /* Т102ж: един ред — „Филтри · N“, „★ Любими“ и избраните (с ×) в скрол настрани; броячът — вдясно, извън скрола */
   .kfrow { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; }
-  .kfrow > .kchips { flex: 1 1 auto; min-width: 0; margin: 0; }
+  .kfrow > .kchips { flex: 1 1 auto; min-width: 0; margin: 0; padding-bottom: 0; }
   .kfrow > .kcnt { flex: none; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; }
   .kchip.kfbtn { border-color: var(--accent); color: var(--accent-dark); font-weight: 700; }
   .kchip.ksel { align-self: center; height: 28px; padding: 0 10px; font-size: 13px; }
@@ -1074,14 +1078,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т158б: рецептата — полетата (готово, порции, резен), живата таблица; „Изядох“ на рецепта — порция · резен · грамове */
   .ded .drf { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0 4px; }
   .ded .drf label { display: grid; gap: 3px; margin: 0; font-size: 12.5px; font-weight: 700; color: var(--muted); }
-  .ded .drf input { box-sizing: border-box; width: 100%; height: 36px; padding: 0 8px; font: inherit; font-size: 15px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); }
+  .ded .drf input { box-sizing: border-box; width: 100%; height: 36px; padding: 0 8px; font: inherit; font-size: 15px; border: 1px solid var(--fbd); border-radius: 8px; background: #fff; color: var(--ink); }
   .ded .drec { margin: 10px 0 0; }
   .ded .dlive { margin: 8px 0 0; }   /* Т178: живата таблица на треньора без цел (г · ккал · П · В · М + „Общо“) */
   .bank .bkn i { font-style: normal; color: var(--muted); font-size: 12.5px; font-weight: 500; }
   .eatpop .epam { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0 0 8px; }
   .eatpop .epam button { height: 34px; margin: 0; padding: 0 12px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
   .eatpop .epam button.on { border-color: var(--accent); background: var(--accent); color: #fff; }
-  .eatpop .epam input { box-sizing: border-box; width: 80px; height: 34px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; border: 1px solid var(--border); border-radius: 8px; color: var(--ink); }
+  .eatpop .epam input { box-sizing: border-box; width: 80px; height: 34px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; border: 1px solid var(--fbd); border-radius: 8px; color: var(--ink); }
   .eatpop .epam input[hidden] { display: none; }
   .ded .dstsel { font: inherit; font-size: 13.5px; height: 30px; padding: 0 6px; border: 1px solid var(--border); border-radius: 8px; background: #fff; color: var(--ink); max-width: 100%; }
   .kpop .kunh { margin: 0 0 4px; color: var(--muted); font-size: 12.5px; font-weight: 700; }
@@ -1132,7 +1136,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.ded { padding: 12px; }
   .ded .dlab { display: block; margin: 10px 0 4px; font-size: 14px; font-weight: 600; }
   .ded .dlab:first-child { margin-top: 0; }
-  .ded input[type="text"], .ded textarea { display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 9px 11px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 9px; }
+  .ded input[type="text"], .ded textarea { display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 9px 11px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 9px; }
   .ded textarea { resize: vertical; min-height: 60px; }
   .ded .dits { margin: 8px 0 0; }
   .ded .drow { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 6px; padding: 7px 0; border-top: 1px solid var(--border); }
@@ -1198,7 +1202,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mn.mchip.on { background: var(--cs); color: var(--cc); border-color: color-mix(in srgb, var(--cc) 45%, #fff); }
   .mn.mchip:disabled { cursor: not-allowed; opacity: 0.6; }   /* огледалото: треньорът вижда избора, не го сменя */
   .mfw .cmperr { margin: 4px 0 0; }
-  .mbig input { flex: 1; min-width: 0; padding: 11px 12px; font-size: 22px; font-weight: 700; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; text-align: right; }
+  .mbig input { flex: 1; min-width: 0; padding: 11px 12px; font-size: 22px; font-weight: 700; border: 1px solid var(--fbd); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; text-align: right; }
   .mbig .mu, .msm .mu { flex: 0 0 24px; color: var(--muted); font-size: 14.5px; }
   .mmore { margin: 2px 0 0; border-top: 1px solid var(--border); padding-top: 4px; }
   .mmore > summary { cursor: pointer; color: var(--accent-dark); font-weight: 700; font-size: 14.5px; padding: 8px 0; list-style: none; }
@@ -1208,14 +1212,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .mgrid { display: flex; flex-direction: column; gap: 8px; margin: 2px 0 6px; }
   .msm { display: flex; align-items: center; gap: 10px; }
   .msm .mn { flex: 0 0 112px; font-size: 14.5px; font-weight: 600; }
-  .msm input { flex: 1; min-width: 0; padding: 9px 10px; font-size: 17px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; text-align: right; }
+  .msm input { flex: 1; min-width: 0; padding: 9px 10px; font-size: 17px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; text-align: right; }
   .mcard .btn { margin-top: 12px; }
   .mwr { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; }   /* Т162: часът на мерението + „Запиши“ — като реда в лога на храната */
-  .mwr input.tpin { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
+  .mwr input.tpin { flex: 0 0 calc((100% - 8px) * 0.4); min-width: 0; width: auto; margin: 0; padding: 0 10px; font-size: 16px; line-height: normal; border: 1px solid var(--fbd); border-radius: 10px; font-family: inherit; color: var(--ink); background: #fff; -webkit-appearance: none; appearance: none; }
   .mcard .mwr .btn { flex: 1 1 0; min-width: 0; width: auto; margin-top: 0; }
   .mbp { display: flex; align-items: center; gap: 8px; }
   .mbp .mn { flex: 0 0 104px; font-size: 14.5px; font-weight: 600; }
-  .mbp input { flex: 1 1 0; min-width: 0; width: 0; padding: 9px 8px; font-size: 17px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; text-align: center; }
+  .mbp input { flex: 1 1 0; min-width: 0; width: 0; padding: 9px 8px; font-size: 17px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; text-align: center; }
   .mbp .msl { flex: none; color: var(--muted); font-size: 18px; }
   .mbp .mu { flex: 0 0 44px; color: var(--muted); font-size: 13px; }
   @media (max-width: 412px) { .mbp { flex-wrap: wrap; row-gap: 4px; } .mbp .mn { flex: 0 0 100%; } }   /* Т119/Т119б: до 412 px (320, 375, 390, 393) „Кръвно“ — на свой ред; полетата под него на цялата ширина (подсказките „горно“/„долно“ се виждат цели) */
@@ -1377,7 +1381,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* изследвания (Т7) */
   .up .labdate { display: block; margin: 0 0 4px; font-size: 14px; font-weight: 700; text-align: left; }
   .up .labdate span { color: var(--muted); font-weight: 600; }
-  .up input[type=date] { display: block; width: 100%; margin: 0 0 10px; padding: 9px 10px; font-size: 16px; border: 1px solid var(--border); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
+  .up input[type=date] { display: block; width: 100%; margin: 0 0 10px; padding: 9px 10px; font-size: 16px; border: 1px solid var(--fbd); border-radius: 9px; font-family: inherit; color: var(--ink); background: #fff; }
   .up .ioff { margin: 0 0 10px; padding: 9px 12px; border: 1px dashed #d9b46a; border-radius: 9px; background: #fbf0dc; color: var(--warn); font-size: 13.5px; font-weight: 700; }
   .upmsg { display: none; margin-top: 10px; padding: 9px 12px; border-radius: 9px; background: var(--soft2); border: 1px solid var(--okline); color: var(--accent-dark); font-size: 14px; text-align: left; }
   .upmsg.show { display: block; }
@@ -1491,7 +1495,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     #p-kuhnya.kbox #kBody > .klist[hidden] { display: none; }
     #p-kuhnya.kbox .klist > .khead { position: sticky; top: 0; z-index: 1; background: #fff; }
   }
-  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--btn); color: #fff; font-size: 21px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.28); cursor: pointer; }
+  .cdown { display: none; position: absolute; right: 10px; bottom: 10px; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: var(--btn); color: #fff; font-size: 21px; line-height: 1; box-shadow: var(--sh1); cursor: pointer; }
   .cdown.show { display: block; }
   .cdown:active { background: var(--accent-dark); }
   .cempty { margin: 6px 0; color: var(--muted); font-size: 14px; text-align: center; }
@@ -1532,7 +1536,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .cmenu .crxbar button.crb.ro { opacity: 0.45; }
   .cmsg > .cb { position: relative; }
   .cmsg.hrx > .cb { margin-bottom: 13px; }
-  .crx { position: absolute; bottom: -14px; z-index: 1; display: inline-flex; align-items: center; gap: 2px; margin: 0; padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-family: inherit; font-size: 13.5px; line-height: 1.4; color: var(--ink); box-shadow: 0 1px 3px rgba(28,39,51,0.12); white-space: nowrap; -webkit-tap-highlight-color: transparent; }
+  .crx { position: absolute; bottom: -14px; z-index: 1; display: inline-flex; align-items: center; gap: 2px; margin: 0; padding: 1px 7px; border: 1px solid var(--border); border-radius: 999px; background: var(--card); font-family: inherit; font-size: 13.5px; line-height: 1.4; color: var(--ink); white-space: nowrap; -webkit-tap-highlight-color: transparent; }
   .cmsg.me .crx { left: 10px; }
   .cmsg.them .crx { right: 10px; }
   button.crx { cursor: pointer; }
@@ -1546,12 +1550,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #whoBtn { display: inline-flex; align-items: center; vertical-align: top; }
   #whoBtn .wn { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #whoBtn .ar { flex: none; margin-left: 5px; display: inline-flex; }
-  .lmenu { position: absolute; z-index: 70; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 24px)); padding: 6px; background: #fff; color: var(--ink); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(28,39,51,0.18); text-align: left; }
+  .lmenu { position: absolute; z-index: 70; box-sizing: border-box; padding: 6px; background: #fff; color: var(--ink); text-align: left; }
   .lmenu a, .lmenu button { display: block; width: 100%; padding: 11px 12px; border: none; border-radius: 9px; background: none; color: var(--accent-dark); font: inherit; font-size: 15px; font-weight: 700; text-align: left; text-decoration: none; cursor: pointer; }
   .lmenu a:hover, .lmenu button:hover { background: var(--soft); }
   .lmenu .lm-note { padding: 8px 12px; color: var(--muted); font-size: 13px; }
   .lmenu .lm-ok { color: var(--accent-dark); }
-  @media (max-width: 359px) { .lmenu { width: calc(100% - 12px); } .lmenu a, .lmenu button { padding-left: 8px; padding-right: 8px; } }   /* Т67: „Отвори приложението на клиента“ на един ред и на 320 */
+  @media (max-width: 359px) { .lmenu a, .lmenu button { padding-left: 8px; padding-right: 8px; } }   /* Т67: „Отвори приложението на клиента“ на един ред и на 320 */
   /* Т21: режим треньор — сивото на старата лента (#2b3540) вместо цвета на клиента навсякъде; червеното остава. Т45: и кремът/оранжевото */
   body.coach-on {   /* Т26: по-светлото сиво (на телефона #2b3540 биеше на черно); кантовете — още по-светли */
     --accent: #5f6b78; --accent-dark: #4b5866; --edge: #8a96a3; --soft: #eef0f2;
@@ -1578,7 +1582,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .hbtn.acct.ro { opacity: 0.5; }
   header.h3.hac2 { grid-template-columns: 80px minmax(0, 1fr) 80px; }
   header.h3 > .hacts { justify-self: end; display: inline-flex; align-items: center; gap: 8px; }
-  .acctpop { position: absolute; z-index: 70; box-sizing: border-box; padding: 8px 6px 8px; background: #fff; color: var(--ink); border-radius: 16px; box-shadow: 0 10px 30px rgba(28,39,51,0.22); text-align: left; outline: none; }
+  .acctpop { position: absolute; z-index: 70; box-sizing: border-box; padding: 8px 6px 8px; background: #fff; color: var(--ink); text-align: left; outline: none; }
   .acctpop .aname { padding: 8px 12px 6px; font-size: 15px; font-weight: 700; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .acctpop .arow { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; box-sizing: border-box; margin: 0; padding: 8px 12px; border: none; border-radius: 10px; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; line-height: 1.3; text-align: left; cursor: pointer; }
   .acctpop .arow svg.ic { flex: none; width: 20px; height: 20px; color: var(--accent); }
@@ -1591,7 +1595,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т216 (DEC-0119; Chris 25.11.2026 10:52, картинката temi/menu.png — 10:54) + Т217 (DEC-0120; Chris 13:52 „темите са супер качваме за всички … сближиш дроп менюто и
      тема надписа“): редът „Тема“ с хапчето „● Име ▾“ — непосредствено до надписа (8 px) — и падащия списък; при всеки с менюто, в огледалото — бледи и изключени.
      Ширината на менюто — по най-дългия ред с избраното име (Т192н; при смяна — acctPlace, десният ръб не мърда); списъкът е върху менюто (то не расте).
-     Падащият — като .sdl (сянка, ъгли, без лента). Около кръгчетата — тънка линия (Chris 14:02) */
+     Падащият — като .sdl (.lay; без лента). Около кръгчетата — тънка линия (Chris 14:02) */
   .acctpop .thmr { position: relative; display: flex; align-items: center; }
   .acctpop .thmr .arow { flex: 0 0 auto; width: auto; min-width: 0; padding-right: 8px; }
   .acctpop .thmb { position: relative; flex: none; display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box; height: 28px; margin: 0 12px 0 0; padding: 0 10px; border: 0; border-radius: 999px; background: var(--g-off, var(--soft2)); color: var(--ink); font: inherit; font-size: 13.5px; font-weight: 700; line-height: 1; cursor: pointer; -webkit-tap-highlight-color: transparent; }
@@ -1599,7 +1603,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .acctpop .thmb:disabled { cursor: default; }
   .acctpop .thmd { flex: none; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0,0,0,.28); }
   body.skin2.dark .acctpop .thmd { box-shadow: 0 0 0 1px rgba(255,255,255,.55); }
-  .acctpop .thml { position: absolute; z-index: 2; right: 8px; top: calc(100% + 2px); box-sizing: border-box; width: 150px; max-height: 170px; padding: 4px 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.28); -webkit-overflow-scrolling: touch; }
+  .acctpop .thml { position: absolute; z-index: 2; box-sizing: border-box; max-height: 170px; padding: 4px 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }   /* Т219: точно колкото менюто, 6 px под хапчето (thmPlace) */
   .acctpop .thml::-webkit-scrollbar { display: none; }
   .acctpop .thmo { display: flex; align-items: center; gap: 10px; width: 100%; box-sizing: border-box; margin: 0; padding: 9px 14px; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 14.5px; font-weight: 600; line-height: 19.5px; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .acctpop .thmo .thmd { width: 16px; height: 16px; }
@@ -1613,7 +1617,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .creply .crt { flex: 1; min-width: 0; color: var(--muted); overflow-wrap: anywhere; }
   .creply button { flex: none; padding: 2px 6px; border: none; background: none; color: var(--muted); font-size: 16px; cursor: pointer; }
   .crow { display: flex; align-items: flex-end; gap: 8px; }
-  .crow textarea { flex: 1; min-width: 0; height: 42px; min-height: 42px; padding: 10px 12px; line-height: 20px; border: 1px solid var(--border); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: none; overflow-y: hidden; display: block; }
+  .crow textarea { flex: 1; min-width: 0; height: 42px; min-height: 42px; padding: 10px 12px; line-height: 20px; border: 1px solid var(--fbd); border-radius: 12px; background: #fff; color: var(--ink); font-family: inherit; font-size: 16px; resize: none; overflow-y: hidden; display: block; }
   .crow button { flex: none; width: 42px; height: 42px; padding: 0; border: none; border-radius: 12px; background: var(--btn); color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; }
   .crow button:disabled { background: var(--btn-off); opacity: 1; cursor: default; }
   .crow button:active { background: var(--accent-dark); }
@@ -1622,7 +1626,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* Т114 (Chris 13.11 08:41): менюто при задържане на балон (~450 мс) / десен бутон — Отговори · Копирай · Редактирай · Изтрий за двамата.
      Редактирай / Изтрий — само на своите; изгледът като клиента — изключени (Т91б). „редактирано“ — сиво до часа; при треньора — и предишните
      текстове (докосване). Изтритото: при клиента изчезва; при треньора — бледо, „изтрито“. */
-  .cmenu { position: absolute; z-index: 40; min-width: 200px; max-width: calc(100% - 8px); box-sizing: border-box; padding: 4px 0; background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 26px rgba(28,39,51,0.18); }
+  .cmenu { position: absolute; z-index: 40; min-width: 200px; max-width: calc(100% - 8px); box-sizing: border-box; padding: 4px 0; background: var(--card); }
   .cmenu:focus { outline: none; }
   .cmenu button { display: block; width: 100%; box-sizing: border-box; padding: 11px 16px; border: none; background: none; text-align: left; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--ink); cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .cmenu button + button { border-top: 1px solid var(--border); }
@@ -1663,7 +1667,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   nav.tabs { --navic: 40px; position: fixed; bottom: calc(var(--navgap) + env(safe-area-inset-bottom, 0px)); left: 0; right: 0; margin: 0 auto; width: -moz-fit-content; width: fit-content; max-width: calc(100% - 20px); z-index: 60;
     display: flex; gap: 8px; align-items: center; transition: opacity .25s ease; }
   nav.tabs.dim { opacity: 0.4; }   /* притъмнява при скрол надолу; остава тапваема */
-  nav.tabs .nav-pill { position: static; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: 0 8px 30px rgba(0,0,0,.16); }
+  nav.tabs .nav-pill { position: static; display: flex; align-items: center; gap: 0; padding: 4px; background: var(--accent); border: none; border-radius: 32px; box-shadow: var(--sh2); }   /* Т219: ниво 2 */
   nav.tabs button { position: relative; flex: 1 0 56px; width: 56px; height: 40px; margin: 0; padding: 0; background: transparent; border: none; border-radius: 22px; display: grid; place-items: center; place-content: center;   /* Т37: и по-висока от бутона иконата остава в средата */
     color: #fff; cursor: pointer; font-family: inherit; -webkit-tap-highlight-color: transparent; transition: color 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-ic { position: relative; z-index: 1; display: grid; place-items: center; }   /* иконата е над маркера */
@@ -1676,7 +1680,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      които не са позиционирани; бутоните идват след него → иконите и точките са отгоре). Слоят е изрязан по двете хапчета
      (clip-path: path(…) — смята го navClip() от кутиите им) → в процепа маркерът минава „под“ него и не се вижда.
      JS (navSlide) дава translateX и ширината от целевия бутон; времето — 220 ms + 30 ms на всяка следваща стъпка (до 340). */
-  nav.tabs .nav-mlayer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; }
+  nav.tabs .nav-mlayer { position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: none; background-image: var(--gl2); }   /* Т219: отблясъкът — под маркера, иконите и точките */
   nav.tabs .nav-slide { position: absolute; left: 0; top: 4px; height: 40px; width: 56px; border-radius: 22px; background: #fff; pointer-events: none;
     transition: transform 220ms cubic-bezier(.4,0,.2,1), width 220ms cubic-bezier(.4,0,.2,1); }
   nav.tabs .nav-side { width: 68px; height: 48px; box-sizing: border-box; flex: 0 0 auto; }
@@ -1859,18 +1863,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .vpage .tpg .tp-now h3 { color: #ffffff; }
   body.skin2.dark .vpage .tpg .tp-chain i { background: rgba(255,255,255,calc(var(--tp-a) * 0.55)); }   /* хапчетата във веригата — по-малко бяло върху тъмния кафяв (белият текст ≥ 4,5:1) */
   html:has(body.skin2.dark) { background: var(--d-page); }
-  body.skin2.dark nav.tabs .nav-pill { background: var(--card); box-shadow: 0 8px 30px rgba(0,0,0,0.6); }
+  body.skin2.dark nav.tabs .nav-pill { background: var(--card); }
   body.skin2.dark nav.tabs .nav-slide { background: var(--accent-solid); }   /* Т190б: маркерът — плътното лилаво с бяла икона */
-  body.skin2.dark .acctpop { box-shadow: 0 10px 30px rgba(0,0,0,0.6); }
   /* ════════ Т190 (Chris 21.11 16:05–16:07, DEC-0070): без оранжевите рамки и без линията при писане — „скин 2“, двете теми ════════
-     1. Балоните и изскачащите (.ipop — и балонът на храна .kpop, .eatpop, .tp) — без рамката в акцента (прозрачна, мястото остава); сянката — същата.
+     1. Балоните и изскачащите (.ipop — и балонът на храна .kpop, .eatpop, .tp) — без рамката в акцента (Т219: без рамка изобщо — .lay).
      2. Полетата за писане — при докосване без линия (и браузърната) и без смяна на рамката; курсорът остава.
      3. Фокусните знаци на бутоните (outline и пръстените със сянка) — махнати. Където рамката е единственият знак за състояние
         (.flash — „ето къде отиде“, .cflash .cb и избраното съобщение .cmsg.cmon > .cb) — вместо нея лек фон в тона на акцента (--hl). */
-  body.skin2 .ipop, body.skin2 .eatpop, body.skin2 .tp { border-color: transparent; }
   body.skin2 *:focus, body.skin2 *:focus-visible { outline: none !important; }
-  body.skin2 .mtok input:focus { border-color: var(--border); }
-  body.skin2 .tp input.tpd:focus { border-color: var(--border); box-shadow: none; }
+  body.skin2 .mtok input:focus { border-color: var(--fbd); }
+  body.skin2 .tp input.tpd:focus { border-color: var(--fbd); box-shadow: none; }
   body.skin2 .lrow .lfx:focus-visible, body.skin2 .lrow .ldel:focus-visible, body.skin2 .mrow .mfb:focus-visible, body.skin2 .ctk:focus-visible,
   body.skin2 .tp button.tpd:focus-visible, body.skin2 .tp .tpk:focus-visible, body.skin2 .tp .tpb:focus-visible,
   body.skin2 .eatbtn:focus-visible .eatv, body.skin2 .ibtn:focus-visible svg.ic { box-shadow: none; }
@@ -1893,7 +1895,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         на картата (#1f2630, Т192и) с бялата икона; сянката — както в светлата; червените точки — с ръба на светлата (Т217). (Т191б — лилавото с бели икони; Т192 — оранжевото.)
      2. Иконката на акаунта — Т192 я замени с копчето с фон и плътното човече (по-долу); от Т191б остава зоната за натискане — 44 px
         (невидимото поле ::after). */
-  body.skin2.dark nav.tabs .nav-pill { background: #000000; box-shadow: 0 0 0 1px var(--d-line), 0 8px 30px rgba(0,0,0,.16); }   /* Т192г: контур 1 px като картите */
+  body.skin2.dark nav.tabs .nav-pill { background: #000000; }
   body.skin2.dark nav.tabs .nav-slide { background: var(--card); }   /* Т192и: сивото на картата (#1f2630) */
   body.skin2 .hbtn.acct { position: relative; }
   body.skin2 .hbtn.acct::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; }
@@ -1922,8 +1924,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      Фонът — 66 % (не 62): белите икони ≥ 4,5:1 и в най-лошия случай — бяло зад лентата, под маркера (4,66:1).
      Без backdrop-filter (стар браузър) — плътното черно с контура #2f363e и сивия маркер, както досега (Т192в–д). Светлата — без промяна. */
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    body.skin2.dark nav.tabs .nav-pill { background: transparent; box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 8px 24px rgba(0,0,0,.35); }
-    body.skin2.dark nav.tabs .nav-mlayer { background: rgba(16,18,22,.66); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+    body.skin2.dark nav.tabs .nav-pill { background: transparent; }
+    body.skin2.dark nav.tabs .nav-mlayer { background-color: rgba(16,18,22,.66); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
     body.skin2.dark nav.tabs .nav-slide { background: rgba(255,255,255,.12); }
   }
   /* ════════ Т192ж (Chris 21.11 20:21, DEC-0080): еднакво разстояние между картите — по-широкото, 18 px („скин 2“, двете теми) ════════
@@ -1942,7 +1944,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
     body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop, body.skin2.dark .vpage {
       background: rgba(16,18,22,.92); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
-    body.skin2.dark .ipop, body.skin2.dark .eatpop, body.skin2.dark .tp, body.skin2.dark .acctpop { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 10px 30px rgba(0,0,0,.5); }
     body.skin2.dark .kfpop { --kfbg: #101216; }   /* Т198: закачените заглавия на папките — плътният тон на стъклото (rgba(16,18,22,.92) над тъмното) */
   }
   /* ════════ Т192й (Chris 21.11 20:45, DEC-0083): текстът под долната лента избледнява („скин 2“, двете теми) ════════
@@ -1974,9 +1975,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2 nav.tabs .nav-side { flex: 1 1 8px; width: auto; }
   body.skin2 nav.tabs .nav-pill button { flex: 1 1 0; width: auto; min-width: 0; }
   @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    body.skin2:not(.dark) nav.tabs .nav-pill { background: transparent; box-shadow: 0 0 0 1px rgba(255,255,255,.5), 0 8px 24px rgba(0,0,0,.16); }
-    body.skin2:not(.dark) nav.tabs .nav-mlayer { background: rgba(var(--l-bar-rgb),.94); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
-    body.skin2.coach-on:not(.dark) nav.tabs .nav-mlayer { background: rgba(95,107,120,.94); }
+    body.skin2:not(.dark) nav.tabs .nav-pill { position: relative; background: transparent; }   /* Т219: позиционирано — светлият ръб отгоре (--sh2) е над стъклото; маркерът се вижда през него, иконите и точките са вътре — отгоре */
+    body.skin2:not(.dark) nav.tabs .nav-mlayer { background-color: rgba(var(--l-bar-rgb),.94); -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
+    body.skin2.coach-on:not(.dark) nav.tabs .nav-mlayer { background-color: rgba(95,107,120,.94); }
     body.skin2:not(.dark) nav.tabs .nav-slide { background: rgba(255,255,255,.9); }   /* треньорът; клиентът — --l-mark (Т214) */
     body.skin2:not(.dark) .ipop, body.skin2:not(.dark) .eatpop, body.skin2:not(.dark) .tp, body.skin2:not(.dark) .acctpop, body.skin2:not(.dark) .vpage {
       -webkit-backdrop-filter: blur(16px) saturate(1.4); backdrop-filter: blur(16px) saturate(1.4); }
@@ -1985,8 +1986,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     body.skin2:not(.dark) .eatpop, body.skin2:not(.dark) .acctpop { background: rgba(255,255,255,.97); }
     body.skin2:not(.dark) .vpage { background: rgba(248,239,230,.98); }
     body.skin2.coach-on:not(.dark) .vpage { background: rgba(244,246,248,.98); }
-    body.skin2:not(.dark) .ipop, body.skin2:not(.dark) .eatpop, body.skin2:not(.dark) .tp { box-shadow: 0 0 0 1px rgba(28,39,51,.08), 0 8px 26px rgba(28,39,51,.20); }
-    body.skin2:not(.dark) .acctpop { box-shadow: 0 0 0 1px rgba(28,39,51,.08), 0 10px 30px rgba(28,39,51,.22); }
   }
   /* ════════ Т192м (Chris 21.11 21:25–21:31, DEC-0086): тъмната — полетата за писане в сивото на кръгчето „мъж / жена“ #3b3b3b („скин 2“) ════════
      Всяко поле — текст, число, дата, час, търсачката в кухнята, бележките, мерките, чатът, формите — фонът #3b3b3b (Chris 21:31: „цвета, който е в кръгчето
@@ -2061,8 +2060,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .srch .ksrch .scnt { position: absolute; right: 12px; top: 0; height: 42px; display: flex; align-items: center; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; pointer-events: none; font-variant-numeric: tabular-nums; }
   .srch .ksrch .scnt:empty { display: none; }
   .srch .kfrow .ibtn { flex: none; margin: 0 -6px 0 -4px; }
-  .srch .sdl { position: absolute; left: -8px; right: -8px; top: calc(100% + 6px); z-index: 25; box-sizing: border-box; max-height: 340px; padding: 0 10px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
-    background: var(--card); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 14px 40px rgba(0,0,0,.28); -webkit-overflow-scrolling: touch; }
+  .srch .sdl { position: absolute; z-index: 25; box-sizing: border-box; max-height: 340px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; background: var(--card); -webkit-overflow-scrolling: touch; }   /* Т219: мястото — layPlace (6 px под реда с филтрите / лентата) */
+  .srch .sdl .khead, .srch .sdl .krow { grid-template-columns: minmax(0, 1fr) 34px 36px 34px 32px 12px; column-gap: 4px; }   /* Т219 (6): само в падащите — имената да не се чупят повече от преди (списъкът е по-тесен); заглавният ред с подредбата — същият */
   .srch .sdl::-webkit-scrollbar { display: none; }
   .srch .sdl > .khead { position: sticky; top: 0; z-index: 1; background: var(--card); }
   .srch .sdl .sdr > .krow:first-child { border-top: 0; }
@@ -2070,7 +2069,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .srch .sdl .knone { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 14px 0; color: var(--muted); font-size: 14.5px; }
   .srch .sdl .knone .btn { width: auto; margin: 0; padding-left: 16px; padding-right: 16px; }
   /* (2) балонът за добавяне — един навсякъде: името · [количество 72 px · мярка · състояние — един ред, 36 px] · числата на живо · бутоните */
-  .fpk { display: flex; flex-direction: column; gap: 8px; margin: 0 0 8px; padding: 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--soft2); outline: none; }
+  .fpk { display: flex; flex-direction: column; gap: 8px; margin: 0 0 8px; background: var(--soft2); outline: none; }
   .fpk[hidden] { display: none; }
   .fpk .fpkh { display: flex; align-items: baseline; gap: 8px; }
   .fpk .fpkn { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 4px; font-size: 15px; line-height: 1.3; overflow-wrap: anywhere; }
@@ -2085,7 +2084,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk .fpkr.fpk-frac > .fpkf.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .fpk .fpkr > * { box-sizing: border-box; width: 100%; min-width: 0; height: 36px; margin: 0; }
   .fpk .fpka, .fpk select { padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 9px; }
-  .fpk .fpka { text-align: right; font-variant-numeric: tabular-nums; }
+  .fpk .fpka { text-align: right; font-variant-numeric: tabular-nums; border-color: var(--fbd); }
   .fpk select { padding: 0 4px; text-overflow: ellipsis; }
   .fpk .fpk1 { display: flex; align-items: center; padding: 0 4px; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fpk .fpksz { padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
@@ -2095,7 +2094,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk .fpkbb { flex: 1 1 150px; min-width: 150px; display: flex; gap: 8px; }
   .fpk .fpkb .btn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
   .fpk .fpkb .btn.ghost { background: #fff; color: var(--accent-dark); border: 1px solid var(--accent); }
-  .fpk .fpkt, .trpop .fpkt { flex: 0 0 112px; box-sizing: border-box; width: 112px; height: 42px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 10px; }
+  .fpk .fpkt, .trpop .fpkt { flex: 0 0 112px; box-sizing: border-box; width: 112px; height: 42px; margin: 0; padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 10px; }
   .fpk .fpkm { margin: -2px 0 0; color: #9a3b3b; font-size: 13.5px; font-weight: 600; }
   .fpk .fpkm:empty { display: none; }
   /* (4) изтриването: „Да изтрия ли?“ → „Изтрива се завинаги — сигурен ли си?“ — същата кутия (.mask / .cask), сменят се думите */
@@ -2213,7 +2212,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   #p-hrana .card.panel.sddo > .ch { border-top-left-radius: 7px 11px; border-top-right-radius: 11px; }   /* ъглите на заглавието — както ги реже картата (12 px − рамката 5 / 1 px) */
   /* т. 16: „Ястия ▾ | Рецепти ▾“ · „Храненията от режима ▾“ — като полето на търсачката (42 px); падащият — общият (.sdl) */
   .lbars { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
-  .lbar { display: flex; align-items: center; justify-content: space-between; gap: 6px; box-sizing: border-box; width: 100%; min-width: 0; height: 42px; margin: 0; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 700; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .lbar { display: flex; align-items: center; justify-content: space-between; gap: 6px; box-sizing: border-box; width: 100%; min-width: 0; height: 42px; margin: 0; padding: 0 12px; border: 1px solid var(--fbd); border-radius: 10px; background: #fff; color: var(--ink); font-family: inherit; font-size: 15px; font-weight: 700; text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .lbar > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .lbar .lbc { flex: none; color: var(--muted); font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .lbar:disabled { cursor: not-allowed; opacity: 0.55; }
@@ -2222,8 +2221,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark .lbar .lbc { color: var(--g-ph); }   /* броят — като броят в полето на търсачката */
   /* т. 13, 15, 20 + Chris 23.11 00:35: балонът за добавяне над падащия списък — горе, ляво, дясно — неговите; по-висок от мястото → превърта се вътре */
   .fpk { container: fpkc / inline-size; }   /* тесен балон (над падащия на 360 px — 267 px вътре): часът · Запиши · Отказ не се събират в ред → */
-  @container fpkc (max-width: 269.9px) { .fpkb { --rows: 2; } .fpkbb { flex: 1 1 100%; } }   /* … два реда по замисъл (видът — същият като пренасянето досега) */
-  .fpk.fpkov { position: absolute; z-index: 26; margin: 0; box-sizing: border-box; overscroll-behavior: contain; box-shadow: 0 14px 40px rgba(0,0,0,.28); }
+  @container fpkc (max-width: 269.9px) { .fpkb { --rows: 2; } .fpkbb { flex: 1 1 100%; } .fpk .fpkc { font-size: 12px; } }   /* … два реда по замисъл (видът — същият като пренасянето досега); Т219: сметката — с колкото е по-тесен балонът (13 × 229 / 248), за да се събира каквото се събираше */
+  .fpk.fpkov { position: absolute; z-index: 26; margin: 0; box-sizing: border-box; overscroll-behavior: contain; }
   /* ястия т. 23: „Тренировка“ — до „График“ в реда на „Защо 21 дни?“; Т204: балонът „Тренировки“ — като на смените: „Тренировка“ (вкл. / изкл.) · часът */
   .lmrow #logMore { margin-left: auto; }
   .lmrow #trBox { flex: none; display: flex; align-items: center; }
@@ -2264,7 +2263,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .sumr .l2 { color: var(--muted); font-size: 13px; white-space: nowrap; }
   .sumr .r2 { color: var(--accent-dark); font-size: 13.5px; font-weight: 600; text-align: right; white-space: nowrap; }
   @media (max-width: 340px) { .sumr { column-gap: 4px; } .sumr .l2 { font-size: 11px; } .sumr .r2 { font-size: 11.5px; } }   /* 320 px: % и грамовете — на един ред (премерено) */
-  body.skin2 #p-hrana > .sec[data-key="logsec"][data-full="1"] { padding-left: 10px; padding-right: 10px; }
   body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .ch { padding-left: 0; padding-right: 0; background: none; border-bottom: 0; }
   body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .body { padding: 0 0 4px; background: none; }
   #p-hrana > .sec[data-key="menu"][hidden] { display: none; }
@@ -2327,7 +2325,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* долната лента — по-светлият тон #343e4b (Chris 15:52: „направи ботом бара по светлия тон“; беше вариант А #2a3340, 15:45): лентата #2a3340, иконите бели, маркерът — натиснатото #56627a (като табовете в кухнята и лога) */
   /*   в лентата има стъклен слой (.nav-mlayer: полупрозрачно + размазване) над цвета → плътният цвят е на него, без стъклото (Chris 15:50: „не си личи да е цвета … в него има стъкло и мат“) */
   html body.skin2.dark nav.tabs .nav-mlayer { -webkit-backdrop-filter: none; backdrop-filter: none; }
-  html body.skin2.dark nav.tabs .nav-pill { box-shadow: 0 8px 30px rgba(0,0,0,.5); }
   /* Т206: иконите в долната лента — всички с 10 % по-малки, линията изтънява със същия процент (Chris 16:12:
      „да ги намалим малко, но колкото процента намаляш линията трябва да изтънява за да не се слива … намали ги с 10%“);
      отгоре — оптичното изравняване (затворените форми — по-малки): кантарът ×0,88, „Данни“ ×0,90, чатът ×0,95 (Chris 16:48 — кантарът) */
@@ -2422,19 +2419,27 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --l-msgt: var(--l-ink); --d-msgt: var(--d-ink);     /* буквите в съобщението на треньора (както всички) */
     --l-cqt: var(--l-dim); --d-cqt: var(--d-dim);       /* Т217 (DEC-0120): цитатът в него — текстът (както дребните) */
     --l-cqn: var(--l-ink); --d-cqn: var(--d-ink);       /* … и името (както буквите) */
+    --l-fbd: #d6bf9b;     /* тъмната — --d-line */  /* Т219: рамката на полетата за писане, търсачките, часа, лентите „Ястия ▾“ (към картата 1,70 : 1) */
+    /* Т219 (DEC-0123, правило 25): сенките на трите нива — 1 картите · 2 долната лента · 3 отвореното; едно число на едно място (темите могат да ги сменят) */
+    --l-sh1: 0 1px 2px rgba(20,18,16,.12), 0 3px 8px -1px rgba(20,18,16,.10), 0 14px 18px -10px rgba(20,18,16,.30);
+    --l-sh2: inset 0 1px 0 rgba(255,255,255,.55), 0 -3px 14px -2px rgba(20,18,16,.20), 0 3px 6px rgba(20,18,16,.22), 0 14px 20px -6px rgba(20,18,16,.50);
+    --l-sh3: 0 1px 6px rgba(20,18,16,.18), 0 4px 12px -2px rgba(20,18,16,.20), 0 22px 28px -14px rgba(20,18,16,.56);
+    --d-sh1: inset 0 1px 0 rgba(255,255,255,.10), 0 0 0 1px rgba(255,255,255,.055), 0 12px 18px -8px #000;
+    --d-sh2: 0 -1px 0 rgba(255,255,255,.34), 0 0 0 1px rgba(255,255,255,.16), 0 -8px 22px rgba(0,0,0,.95), 0 10px 22px #000;
+    --d-sh3: inset 0 1px 0 rgba(255,255,255,.24), 0 0 0 1px rgba(255,255,255,.14), 0 20px 28px -10px #000;
   }
   /* ТЕМИТЕ (ЦВЕТОВЕ) — начало (Т216, DEC-0119; Orange и Gray са таблицата горе): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
-  :root[data-thl="bw-1-svetla"] { --l-page: #ffffff; --l-card: #fafafa; --l-strip: #f1f1f1; --l-line: #f1f1f1; --l-rim: #e9e9e9; --l-frame: #e9e9e9; --l-edge: #d4d4d4; --l-off: #e9e9e9; --l-offt: #262626; --l-btn: #cfcfcf; --l-btnt: #262626; --l-sel: #dcdcdc; --l-selt: #262626; --l-io: #e9e9e9; --l-pop: #fafafa; --l-add: #e9e9e9; --l-field: #ffffff; --l-fld: #ffffff; --l-fieldt: #262626; --l-hint: #5f5f5f; --l-head: #ededed; --l-headt: #262626; --l-brand: #262626; --l-bar: #ededed; --l-bar-rgb: 237,237,237; --l-bart: #3a3a3a; --l-markt: #262626; --l-acc: #d4d4d4; --l-acc-rgb: 154,154,154; --l-link: #4a4a4a; --l-ink: #262626; --l-title: #474747; --l-dim: #5f5f5f; --l-num: #474747; --l-th: #474747; --l-me: #e3e3e3; --l-hand: #4a4a4a; --l-mark: #ffffff; --l-newt: #262626; }
-  :root[data-thl="vaylet-svetla"] { --l-page: #fffcf4; --l-card: #fef7e6; --l-strip: #faedcb; --l-line: #faedcb; --l-rim: #e2cfc4; --l-frame: #e2cfc4; --l-edge: #dbcdf0; --l-off: #e2cfc4; --l-offt: #222831; --l-btn: #c9e4de; --l-btnt: #222831; --l-sel: #f9c6c9; --l-selt: #222831; --l-io: #e2cfc4; --l-pop: #fef7e6; --l-add: #e2cfc4; --l-field: #fffcf4; --l-fld: #fffcf4; --l-fieldt: #222831; --l-hint: #6a6d84; --l-head: #dbcdf0; --l-headt: #222831; --l-brand: #222831; --l-bar: #dbcdf0; --l-bar-rgb: 219,205,240; --l-bart: #3c415c; --l-markt: #3c415c; --l-acc: #5c527f; --l-acc-rgb: 219,205,240; --l-link: #5c527f; --l-ink: #222831; --l-title: #3c415c; --l-dim: #6a6d84; --l-num: #3c415c; --l-th: #3c415c; --l-me: #c6def1; --l-hand: #5c527f; }
-  :root[data-thl="tyurkoaz-svetla"] { --l-page: #f8fcfc; --l-card: #f0f8f8; --l-strip: #d0eae8; --l-line: #d0eae8; --l-rim: #c8ebf6; --l-frame: #c8ebf6; --l-edge: #d9c5e0; --l-off: #c8ebf6; --l-offt: #1a2030; --l-btn: #d1e5ac; --l-btnt: #1a2030; --l-sel: #e8f0bd; --l-selt: #1a2030; --l-io: #c8ebf6; --l-pop: #f0f8f8; --l-add: #c8ebf6; --l-field: #f8fcfc; --l-fld: #f8fcfc; --l-fieldt: #1a2030; --l-hint: #667080; --l-head: #d9c5e0; --l-headt: #1a2030; --l-brand: #1a2030; --l-bar: #d9c5e0; --l-bar-rgb: 217,197,224; --l-bart: #3d4554; --l-markt: #744b84; --l-acc: #744b84; --l-acc-rgb: 217,197,224; --l-link: #744b84; --l-ink: #1a2030; --l-title: #3d4554; --l-dim: #667080; --l-num: #3d4554; --l-th: #3d4554; --l-me: #d9c5e0; --l-hand: #744b84; }
-  :root[data-thl="romantik-svetla"] { --l-page: #fdfbf8; --l-card: #f9f3eb; --l-strip: #f3e7d7; --l-line: #f3e7d7; --l-rim: #f7d7cd; --l-frame: #f7d7cd; --l-edge: #e5989b; --l-off: #f7d7cd; --l-offt: #2c2126; --l-btn: #e5989b; --l-btnt: #2c2126; --l-sel: #f8c7c9; --l-selt: #2c2126; --l-io: #f7d7cd; --l-pop: #f9f3eb; --l-add: #f7d7cd; --l-field: #fdfbf8; --l-fld: #fdfbf8; --l-fieldt: #2c2126; --l-hint: #7a636a; --l-head: #e0c0c7; --l-headt: #2c2126; --l-brand: #2c2126; --l-bar: #e0c0c7; --l-bar-rgb: 224,192,199; --l-bart: #6b3f49; --l-markt: #a5424f; --l-acc: #a5424f; --l-acc-rgb: 229,152,155; --l-link: #a5424f; --l-ink: #2c2126; --l-title: #5a444b; --l-dim: #7a636a; --l-num: #5a444b; --l-th: #5a444b; --l-me: #c7b9c5; --l-hand: #a5424f; }
-  :root[data-thl="zalez-svetla"] { --l-page: #fffbf3; --l-card: #fef4e0; --l-strip: #fce8c4; --l-line: #fce8c4; --l-rim: #fad48b; --l-frame: #fad48b; --l-edge: #fb7337; --l-off: #fad48b; --l-offt: #3a1c0c; --l-btn: #fa8b43; --l-btnt: #3a1c0c; --l-sel: #f7c15d; --l-selt: #3a1c0c; --l-io: #fad48b; --l-pop: #fef4e0; --l-add: #fad48b; --l-field: #fffbf3; --l-fld: #fffbf3; --l-fieldt: #3a1c0c; --l-hint: #85583c; --l-head: #fb7337; --l-headt: #3a1c0c; --l-brand: #3a1c0c; --l-bar: #fb7337; --l-bar-rgb: 251,115,55; --l-bart: #ffffff; --l-markt: #c24a10; --l-acc: #fb7337; --l-acc-rgb: 251,115,55; --l-link: #c24a10; --l-ink: #3a1c0c; --l-title: #6b3a1c; --l-dim: #85583c; --l-num: #6b3a1c; --l-th: #6b3a1c; --l-me: #fad48b; --l-hand: #c24a10; --l-newt: #3a1c0c; }
-  :root[data-thl="powerful-svetla"] { --l-page: #fffaf3; --l-card: #fef3e5; --l-strip: #fce7ce; --l-line: #fce7ce; --l-rim: #f9d9b3; --l-frame: #f9d9b3; --l-edge: #de772c; --l-off: #f9d9b3; --l-offt: #2b1710; --l-btn: #d34201; --l-btnt: #ffffff; --l-sel: #f4c08c; --l-selt: #2b1710; --l-io: #f9d9b3; --l-pop: #fef3e5; --l-add: #f9d9b3; --l-field: #fffaf3; --l-fld: #fffaf3; --l-fieldt: #2b1710; --l-hint: #7d5a49; --l-head: #b32301; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #b32301; --l-bar-rgb: 179,35,1; --l-bart: #ffffff; --l-markt: #d34201; --l-acc: #b32301; --l-acc-rgb: 179,35,1; --l-link: #d34201; --l-ink: #2b1710; --l-title: #5e3a2a; --l-dim: #7d5a49; --l-num: #5e3a2a; --l-th: #5e3a2a; --l-me: #f9d9b3; --l-hand: #d34201; }
-  :root[data-thl="fire-1-svetla"] { --l-page: #fffaf5; --l-card: #fff4eb; --l-strip: #ffe6d3; --l-line: #ffe6d3; --l-rim: #fed0ac; --l-frame: #fed0ac; --l-edge: #e73a25; --l-off: #fed0ac; --l-offt: #33060e; --l-btn: #cc1b24; --l-btnt: #fff4eb; --l-sel: #feae71; --l-selt: #33060e; --l-io: #fed0ac; --l-pop: #fff4eb; --l-add: #fed0ac; --l-field: #fffaf5; --l-fld: #fffaf5; --l-fieldt: #33060e; --l-hint: #9f4345; --l-head: #cc1b24; --l-headt: #fff4eb; --l-brand: #fff4eb; --l-bar: #ad1320; --l-bar-rgb: 173,19,32; --l-bart: #fff4eb; --l-markt: #ad1320; --l-acc: #cc1b24; --l-acc-rgb: 247,97,33; --l-link: #ad1320; --l-ink: #33060e; --l-title: #760719; --l-dim: #9f4345; --l-num: #760719; --l-th: #760719; --l-me: #fed0ac; --l-hand: #ad1320; --l-mark: #fff4eb; }
-  :root[data-thl="emerald-1-svetla"] { --l-page: #fafef6; --l-card: #f2fce8; --l-strip: #e2f9cb; --l-line: #e2f9cb; --l-rim: #c4f1a9; --l-frame: #c4f1a9; --l-edge: #41a57d; --l-off: #c4f1a9; --l-offt: #112222; --l-btn: #41a57d; --l-btnt: #112222; --l-sel: #a7e797; --l-selt: #112222; --l-io: #c4f1a9; --l-pop: #f2fce8; --l-add: #c4f1a9; --l-field: #fafef6; --l-fld: #fafef6; --l-fieldt: #112222; --l-hint: #316261; --l-head: #356a69; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #356a69; --l-bar-rgb: 53,106,105; --l-bart: #ffffff; --l-markt: #356a69; --l-acc: #356a69; --l-acc-rgb: 65,165,125; --l-link: #356a69; --l-ink: #112222; --l-title: #254a4a; --l-dim: #316261; --l-num: #254a4a; --l-th: #254a4a; --l-me: #d4f6b2; --l-hand: #356a69; }
-  :root[data-thl="coffee-1-svetla"] { --l-page: #fdf9f5; --l-card: #faefe5; --l-strip: #f4dfcb; --l-line: #f4dfcb; --l-rim: #e6d0bf; --l-frame: #e6d0bf; --l-edge: #c98b64; --l-off: #e6d0bf; --l-offt: #2c1311; --l-btn: #c98b64; --l-btnt: #2c1311; --l-sel: #d7b497; --l-selt: #2c1311; --l-io: #e6d0bf; --l-pop: #faefe5; --l-add: #e6d0bf; --l-field: #fdf9f5; --l-fld: #fdf9f5; --l-fieldt: #2c1311; --l-hint: #7c5347; --l-head: #6e4033; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #6e4033; --l-bar-rgb: 110,64,51; --l-bart: #ffffff; --l-markt: #6e4033; --l-acc: #ab664c; --l-acc-rgb: 201,139,100; --l-link: #864a32; --l-ink: #2c1311; --l-title: #583329; --l-dim: #7c5347; --l-num: #583329; --l-th: #583329; --l-me: #f0d1b4; --l-hand: #864a32; }
-  :root[data-thl="ashrose-1-svetla"] { --l-page: #fcf7f9; --l-card: #f8edf2; --l-strip: #efd7e3; --l-line: #efd7e3; --l-rim: #e9c8d8; --l-frame: #e9c8d8; --l-edge: #ba6e8f; --l-off: #e9c8d8; --l-offt: #231433; --l-btn: #ba6e8f; --l-btnt: #0a031a; --l-sel: #dba5be; --l-selt: #231433; --l-io: #e9c8d8; --l-pop: #f8edf2; --l-add: #e9c8d8; --l-field: #fcf7f9; --l-fld: #fcf7f9; --l-fieldt: #231433; --l-hint: #5d3c64; --l-head: #7b466a; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #7b466a; --l-bar-rgb: 123,70,106; --l-bart: #ffffff; --l-markt: #7b466a; --l-acc: #7b466a; --l-acc-rgb: 186,110,143; --l-link: #7b466a; --l-ink: #231433; --l-title: #492e53; --l-dim: #5d3c64; --l-num: #492e53; --l-th: #492e53; --l-me: #e1bfce; --l-hand: #7b466a; }
-  :root[data-thl="bordeaux-1-svetla"] { --l-page: #fbfbf8; --l-card: #f6f5f0; --l-strip: #e9e7df; --l-line: #e9e7df; --l-rim: #e1ded6; --l-frame: #e1ded6; --l-edge: #9a948c; --l-off: #e1ded6; --l-offt: #1c1a18; --l-btn: #9a948c; --l-btnt: #000000; --l-sel: #ccc8c0; --l-selt: #1c1a18; --l-io: #e1ded6; --l-pop: #f6f5f0; --l-add: #e1ded6; --l-field: #fbfbf8; --l-fld: #fbfbf8; --l-fieldt: #1c1a18; --l-hint: #55514c; --l-head: #e4e1d9; --l-headt: #5e0f0f; --l-brand: #5e0f0f; --l-bar: #e4e1d9; --l-bar-rgb: 228,225,217; --l-bart: #3a3633; --l-markt: #1c1a18; --l-acc: #5c5853; --l-acc-rgb: 154,148,140; --l-link: #5e0f0f; --l-ink: #1c1a18; --l-title: #5e0f0f; --l-dim: #55514c; --l-num: #3a3633; --l-th: #3a3633; --l-me: #dfdcd4; --l-hand: #5c5853; --l-mark: #ffffff; }
+  :root[data-thl="bw-1-svetla"] { --l-page: #ffffff; --l-card: #fafafa; --l-strip: #f1f1f1; --l-line: #f1f1f1; --l-rim: #e9e9e9; --l-frame: #e9e9e9; --l-edge: #d4d4d4; --l-off: #e9e9e9; --l-offt: #262626; --l-btn: #cfcfcf; --l-btnt: #262626; --l-sel: #dcdcdc; --l-selt: #262626; --l-io: #e9e9e9; --l-pop: #fafafa; --l-add: #e9e9e9; --l-field: #ffffff; --l-fld: #ffffff; --l-fieldt: #262626; --l-hint: #5f5f5f; --l-head: #ededed; --l-headt: #262626; --l-brand: #262626; --l-bar: #ededed; --l-bar-rgb: 237,237,237; --l-bart: #3a3a3a; --l-markt: #262626; --l-acc: #d4d4d4; --l-acc-rgb: 154,154,154; --l-link: #4a4a4a; --l-ink: #262626; --l-title: #474747; --l-dim: #5f5f5f; --l-num: #474747; --l-th: #474747; --l-me: #e3e3e3; --l-hand: #4a4a4a; --l-mark: #ffffff; --l-fbd: #c4c4c4; --l-newt: #262626; }
+  :root[data-thl="vaylet-svetla"] { --l-page: #fffcf4; --l-card: #fef7e6; --l-strip: #faedcb; --l-line: #faedcb; --l-rim: #e2cfc4; --l-frame: #e2cfc4; --l-edge: #dbcdf0; --l-off: #e2cfc4; --l-offt: #222831; --l-btn: #c9e4de; --l-btnt: #222831; --l-sel: #f9c6c9; --l-selt: #222831; --l-io: #e2cfc4; --l-pop: #fef7e6; --l-add: #e2cfc4; --l-field: #fffcf4; --l-fld: #fffcf4; --l-fieldt: #222831; --l-hint: #6a6d84; --l-head: #dbcdf0; --l-headt: #222831; --l-brand: #222831; --l-bar: #dbcdf0; --l-bar-rgb: 219,205,240; --l-bart: #3c415c; --l-markt: #3c415c; --l-acc: #5c527f; --l-acc-rgb: 219,205,240; --l-link: #5c527f; --l-ink: #222831; --l-title: #3c415c; --l-dim: #6a6d84; --l-num: #3c415c; --l-th: #3c415c; --l-me: #c6def1; --l-hand: #5c527f; --l-fbd: #cebdb4; }
+  :root[data-thl="tyurkoaz-svetla"] { --l-page: #f8fcfc; --l-card: #f0f8f8; --l-strip: #d0eae8; --l-line: #d0eae8; --l-rim: #c8ebf6; --l-frame: #c8ebf6; --l-edge: #d9c5e0; --l-off: #c8ebf6; --l-offt: #1a2030; --l-btn: #d1e5ac; --l-btnt: #1a2030; --l-sel: #e8f0bd; --l-selt: #1a2030; --l-io: #c8ebf6; --l-pop: #f0f8f8; --l-add: #c8ebf6; --l-field: #f8fcfc; --l-fld: #f8fcfc; --l-fieldt: #1a2030; --l-hint: #667080; --l-head: #d9c5e0; --l-headt: #1a2030; --l-brand: #1a2030; --l-bar: #d9c5e0; --l-bar-rgb: 217,197,224; --l-bart: #3d4554; --l-markt: #744b84; --l-acc: #744b84; --l-acc-rgb: 217,197,224; --l-link: #744b84; --l-ink: #1a2030; --l-title: #3d4554; --l-dim: #667080; --l-num: #3d4554; --l-th: #3d4554; --l-me: #d9c5e0; --l-hand: #744b84; --l-fbd: #a7c4d0; }
+  :root[data-thl="romantik-svetla"] { --l-page: #fdfbf8; --l-card: #f9f3eb; --l-strip: #f3e7d7; --l-line: #f3e7d7; --l-rim: #f7d7cd; --l-frame: #f7d7cd; --l-edge: #e5989b; --l-off: #f7d7cd; --l-offt: #2c2126; --l-btn: #e5989b; --l-btnt: #2c2126; --l-sel: #f8c7c9; --l-selt: #2c2126; --l-io: #f7d7cd; --l-pop: #f9f3eb; --l-add: #f7d7cd; --l-field: #fdfbf8; --l-fld: #fdfbf8; --l-fieldt: #2c2126; --l-hint: #7a636a; --l-head: #e0c0c7; --l-headt: #2c2126; --l-brand: #2c2126; --l-bar: #e0c0c7; --l-bar-rgb: 224,192,199; --l-bart: #6b3f49; --l-markt: #a5424f; --l-acc: #a5424f; --l-acc-rgb: 229,152,155; --l-link: #a5424f; --l-ink: #2c2126; --l-title: #5a444b; --l-dim: #7a636a; --l-num: #5a444b; --l-th: #5a444b; --l-me: #c7b9c5; --l-hand: #a5424f; --l-fbd: #d4b7b0; }
+  :root[data-thl="zalez-svetla"] { --l-page: #fffbf3; --l-card: #fef4e0; --l-strip: #fce8c4; --l-line: #fce8c4; --l-rim: #fad48b; --l-frame: #fad48b; --l-edge: #fb7337; --l-off: #fad48b; --l-offt: #3a1c0c; --l-btn: #fa8b43; --l-btnt: #3a1c0c; --l-sel: #f7c15d; --l-selt: #3a1c0c; --l-io: #fad48b; --l-pop: #fef4e0; --l-add: #fad48b; --l-field: #fffbf3; --l-fld: #fffbf3; --l-fieldt: #3a1c0c; --l-hint: #85583c; --l-head: #fb7337; --l-headt: #3a1c0c; --l-brand: #3a1c0c; --l-bar: #fb7337; --l-bar-rgb: 251,115,55; --l-bart: #ffffff; --l-markt: #c24a10; --l-acc: #fb7337; --l-acc-rgb: 251,115,55; --l-link: #c24a10; --l-ink: #3a1c0c; --l-title: #6b3a1c; --l-dim: #85583c; --l-num: #6b3a1c; --l-th: #6b3a1c; --l-me: #fad48b; --l-hand: #c24a10; --l-fbd: #deb978; --l-newt: #3a1c0c; }
+  :root[data-thl="powerful-svetla"] { --l-page: #fffaf3; --l-card: #fef3e5; --l-strip: #fce7ce; --l-line: #fce7ce; --l-rim: #f9d9b3; --l-frame: #f9d9b3; --l-edge: #de772c; --l-off: #f9d9b3; --l-offt: #2b1710; --l-btn: #d34201; --l-btnt: #ffffff; --l-sel: #f4c08c; --l-selt: #2b1710; --l-io: #f9d9b3; --l-pop: #fef3e5; --l-add: #f9d9b3; --l-field: #fffaf3; --l-fld: #fffaf3; --l-fieldt: #2b1710; --l-hint: #7d5a49; --l-head: #b32301; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #b32301; --l-bar-rgb: 179,35,1; --l-bart: #ffffff; --l-markt: #d34201; --l-acc: #b32301; --l-acc-rgb: 179,35,1; --l-link: #d34201; --l-ink: #2b1710; --l-title: #5e3a2a; --l-dim: #7d5a49; --l-num: #5e3a2a; --l-th: #5e3a2a; --l-me: #f9d9b3; --l-hand: #d34201; --l-fbd: #d7b998; }
+  :root[data-thl="fire-1-svetla"] { --l-page: #fffaf5; --l-card: #fff4eb; --l-strip: #ffe6d3; --l-line: #ffe6d3; --l-rim: #fed0ac; --l-frame: #fed0ac; --l-edge: #e73a25; --l-off: #fed0ac; --l-offt: #33060e; --l-btn: #cc1b24; --l-btnt: #fff4eb; --l-sel: #feae71; --l-selt: #33060e; --l-io: #fed0ac; --l-pop: #fff4eb; --l-add: #fed0ac; --l-field: #fffaf5; --l-fld: #fffaf5; --l-fieldt: #33060e; --l-hint: #9f4345; --l-head: #cc1b24; --l-headt: #fff4eb; --l-brand: #fff4eb; --l-bar: #ad1320; --l-bar-rgb: 173,19,32; --l-bart: #fff4eb; --l-markt: #ad1320; --l-acc: #cc1b24; --l-acc-rgb: 247,97,33; --l-link: #ad1320; --l-ink: #33060e; --l-title: #760719; --l-dim: #9f4345; --l-num: #760719; --l-th: #760719; --l-me: #fed0ac; --l-hand: #ad1320; --l-mark: #fff4eb; --l-fbd: #e3b697; }
+  :root[data-thl="emerald-1-svetla"] { --l-page: #fafef6; --l-card: #f2fce8; --l-strip: #e2f9cb; --l-line: #e2f9cb; --l-rim: #c4f1a9; --l-frame: #c4f1a9; --l-edge: #41a57d; --l-off: #c4f1a9; --l-offt: #112222; --l-btn: #41a57d; --l-btnt: #112222; --l-sel: #a7e797; --l-selt: #112222; --l-io: #c4f1a9; --l-pop: #f2fce8; --l-add: #c4f1a9; --l-field: #fafef6; --l-fld: #fafef6; --l-fieldt: #112222; --l-hint: #316261; --l-head: #356a69; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #356a69; --l-bar-rgb: 53,106,105; --l-bart: #ffffff; --l-markt: #356a69; --l-acc: #356a69; --l-acc-rgb: 65,165,125; --l-link: #356a69; --l-ink: #112222; --l-title: #254a4a; --l-dim: #316261; --l-num: #254a4a; --l-th: #254a4a; --l-me: #d4f6b2; --l-hand: #356a69; --l-fbd: #a4cd91; }
+  :root[data-thl="coffee-1-svetla"] { --l-page: #fdf9f5; --l-card: #faefe5; --l-strip: #f4dfcb; --l-line: #f4dfcb; --l-rim: #e6d0bf; --l-frame: #e6d0bf; --l-edge: #c98b64; --l-off: #e6d0bf; --l-offt: #2c1311; --l-btn: #c98b64; --l-btnt: #2c1311; --l-sel: #d7b497; --l-selt: #2c1311; --l-io: #e6d0bf; --l-pop: #faefe5; --l-add: #e6d0bf; --l-field: #fdf9f5; --l-fld: #fdf9f5; --l-fieldt: #2c1311; --l-hint: #7c5347; --l-head: #6e4033; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #6e4033; --l-bar-rgb: 110,64,51; --l-bart: #ffffff; --l-markt: #6e4033; --l-acc: #ab664c; --l-acc-rgb: 201,139,100; --l-link: #864a32; --l-ink: #2c1311; --l-title: #583329; --l-dim: #7c5347; --l-num: #583329; --l-th: #583329; --l-me: #f0d1b4; --l-hand: #864a32; --l-fbd: #cdb7a8; }
+  :root[data-thl="ashrose-1-svetla"] { --l-page: #fcf7f9; --l-card: #f8edf2; --l-strip: #efd7e3; --l-line: #efd7e3; --l-rim: #e9c8d8; --l-frame: #e9c8d8; --l-edge: #ba6e8f; --l-off: #e9c8d8; --l-offt: #231433; --l-btn: #ba6e8f; --l-btnt: #0a031a; --l-sel: #dba5be; --l-selt: #231433; --l-io: #e9c8d8; --l-pop: #f8edf2; --l-add: #e9c8d8; --l-field: #fcf7f9; --l-fld: #fcf7f9; --l-fieldt: #231433; --l-hint: #5d3c64; --l-head: #7b466a; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #7b466a; --l-bar-rgb: 123,70,106; --l-bart: #ffffff; --l-markt: #7b466a; --l-acc: #7b466a; --l-acc-rgb: 186,110,143; --l-link: #7b466a; --l-ink: #231433; --l-title: #492e53; --l-dim: #5d3c64; --l-num: #492e53; --l-th: #492e53; --l-me: #e1bfce; --l-hand: #7b466a; --l-fbd: #d0b2c3; }
+  :root[data-thl="bordeaux-1-svetla"] { --l-page: #fbfbf8; --l-card: #f6f5f0; --l-strip: #e9e7df; --l-line: #e9e7df; --l-rim: #e1ded6; --l-frame: #e1ded6; --l-edge: #9a948c; --l-off: #e1ded6; --l-offt: #1c1a18; --l-btn: #9a948c; --l-btnt: #000000; --l-sel: #ccc8c0; --l-selt: #1c1a18; --l-io: #e1ded6; --l-pop: #f6f5f0; --l-add: #e1ded6; --l-field: #fbfbf8; --l-fld: #fbfbf8; --l-fieldt: #1c1a18; --l-hint: #55514c; --l-head: #e4e1d9; --l-headt: #5e0f0f; --l-brand: #5e0f0f; --l-bar: #e4e1d9; --l-bar-rgb: 228,225,217; --l-bart: #3a3633; --l-markt: #1c1a18; --l-acc: #5c5853; --l-acc-rgb: 154,148,140; --l-link: #5e0f0f; --l-ink: #1c1a18; --l-title: #5e0f0f; --l-dim: #55514c; --l-num: #3a3633; --l-th: #3a3633; --l-me: #dfdcd4; --l-hand: #5c5853; --l-mark: #ffffff; --l-fbd: #c1beb7; }
   :root[data-thd="bw-1-tamna"] { --d-page: #000000; --d-card: #0c0c0c; --d-strip: #242424; --d-line: #191919; --d-rim: #1f1f1f; --d-frame: #191919; --d-off: #1f1f1f; --d-offt: #c8c8c8; --d-btn: #3a3a3a; --d-btnt: #f0f0f0; --d-sel: #383838; --d-selt: #f0f0f0; --d-io: #383838; --d-pop: #191919; --d-add: #191919; --d-pbtn: #3a3a3a; --d-pbtnt: #f0f0f0; --d-psel: #383838; --d-pselt: #f0f0f0; --d-field: #2b2b2b; --d-fld: #2b2b2b; --d-fieldt: #e4e4e4; --d-hint: #e4e4e4; --d-head: #0c0c0c; --d-headt: #e4e4e4; --d-brand: #e4e4e4; --d-bar: #1f1f1f; --d-bart: #d6d6d6; --d-mark: #3a3a3a; --d-markt: #f0f0f0; --d-acc: #4a4a4a; --d-acc-rgb: 120,120,120; --d-link: #bdbdbd; --d-ink: #e4e4e4; --d-title: #a2a2a2; --d-dim: #a2a2a2; --d-num: #c8c8c8; --d-th: #e4e4e4; --d-me: #1c1c1c; --d-hand: #bdbdbd; --d-stript: #e4e4e4; --d-tree: #191919; --d-newt: #f0f0f0; }
   :root[data-thd="vaylet-tamna"] { --d-page: #151515; --d-card: #222831; --d-strip: #3e2c41; --d-line: #333a4d; --d-rim: #3c415c; --d-frame: #333a4d; --d-off: #3c415c; --d-offt: #e9e3e3; --d-btn: #b4a5a5; --d-btnt: #151515; --d-sel: #5c527f; --d-selt: #ffffff; --d-io: #5c527f; --d-pop: #333a4d; --d-add: #333a4d; --d-pbtn: #b4a5a5; --d-pbtnt: #151515; --d-psel: #5c527f; --d-pselt: #ffffff; --d-field: #454b69; --d-fld: #454b69; --d-fieldt: #ffffff; --d-hint: #ffffff; --d-head: #222831; --d-headt: #ffffff; --d-brand: #b4a5a5; --d-bar: #3c415c; --d-bart: #ffffff; --d-mark: #5c527f; --d-markt: #ffffff; --d-acc: #b4a5a5; --d-acc-rgb: 180,165,165; --d-link: #b4a5a5; --d-ink: #ffffff; --d-title: #cfc5c5; --d-dim: #cfc5c5; --d-num: #e9e3e3; --d-th: #ffffff; --d-me: #5c527f; --d-hand: #b4a5a5; --d-stript: #ffffff; --d-tree: #333a4d; --d-newt: #222831; }
   :root[data-thd="tyurkoaz-tamna"] { --d-page: #000000; --d-card: #0e131f; --d-strip: #4c5361; --d-line: #293040; --d-rim: #3a4250; --d-frame: #293040; --d-off: #3a4250; --d-offt: #dfe6e8; --d-btn: #92d3cd; --d-btnt: #0e131f; --d-sel: #69989f; --d-selt: #0e131f; --d-io: #69989f; --d-pop: #293040; --d-add: #293040; --d-pbtn: #92d3cd; --d-pbtnt: #0e131f; --d-psel: #69989f; --d-pselt: #0e131f; --d-field: #616874; --d-fld: #616874; --d-fieldt: #ffffff; --d-hint: #ffffff; --d-head: #0e131f; --d-headt: #ffffff; --d-brand: #92d3cd; --d-bar: #3a4250; --d-bart: #ffffff; --d-mark: #69989f; --d-markt: #0e131f; --d-acc: #92d3cd; --d-acc-rgb: 146,211,205; --d-link: #92d3cd; --d-ink: #ffffff; --d-title: #bcc6cb; --d-dim: #bcc6cb; --d-num: #dfe6e8; --d-th: #ffffff; --d-me: #3c565f; --d-hand: #92d3cd; --d-stript: #ffffff; --d-tree: #293040; --d-newt: #0e131f; }
@@ -2449,7 +2454,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* ТЕМИТЕ (ЦВЕТОВЕ) — край */
   body.skin2:not(.dark):where(:not(.coach-on)), html.ld:not(.ldd) body { --bg: var(--l-page); --card: var(--l-card); --ink: var(--l-ink); --muted: var(--l-dim); --accent: var(--l-acc); --accent-dark: var(--l-link); --edge: var(--l-edge); --border: var(--l-line); --accent-a40: rgba(var(--l-acc-rgb),0.4);
     --soft: var(--l-strip); --soft2: var(--l-off); --line: var(--l-rim); --btn-off: var(--l-off); --ate: var(--l-card); --tp-soft: var(--l-card); --me: var(--l-me);
-    --g-strip: var(--l-strip); --g-off: var(--l-off); --g-offt: var(--l-offt); --g-field: var(--l-fld); --g-ph: var(--l-hint); --g-on: var(--l-btn); --g-sel: var(--l-sel); --g-io: var(--l-io); }
+    --g-strip: var(--l-strip); --g-off: var(--l-off); --g-offt: var(--l-offt); --g-field: var(--l-fld); --g-ph: var(--l-hint); --g-on: var(--l-btn); --g-sel: var(--l-sel); --g-io: var(--l-io); --fbd: var(--l-fbd); }
   body.skin2.dark, html.ldd body { --bg: var(--d-page); --card: var(--d-card); --ink: var(--d-ink); --muted: var(--d-dim); --border: var(--d-line); --soft: var(--d-strip); --soft2: var(--d-off); --line: var(--d-rim); --btn-off: var(--d-off); --ate: var(--d-card); --tp-soft: var(--d-card); --me: var(--d-me);
     --g-strip: var(--d-strip); --g-off: var(--d-off); --g-offt: var(--d-offt); --g-field: var(--d-fld); --g-ph: var(--d-hint); --g-on: var(--d-btn); --g-sel: var(--d-sel); --g-io: var(--d-io); }
   /* шапката, ивицата под часовника, шапката на страниците-слоеве */
@@ -2466,7 +2471,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2:not(.dark):where(:not(.coach-on)) nav.tabs .nav-slide { background: var(--l-mark); }
   body.skin2:not(.dark):where(:not(.coach-on)) nav.tabs button { color: var(--l-bart); }
   body.skin2:not(.dark):where(:not(.coach-on)) nav.tabs button.on { color: var(--l-markt); }
-  html body.skin2.dark nav.tabs .nav-mlayer, html body.skin2.dark nav.tabs .nav-pill { background: var(--d-bar); }
+  html body.skin2.dark nav.tabs .nav-mlayer, html body.skin2.dark nav.tabs .nav-pill { background-color: var(--d-bar); }
   html body.skin2.dark nav.tabs .nav-slide { background: var(--d-mark); }
   body.skin2.dark nav.tabs button { color: var(--d-bart); }
   body.skin2.dark nav.tabs button.on { color: var(--d-markt); }
@@ -2474,7 +2479,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2:not(.dark):where(:not(.coach-on)) .card.panel > .body, body.skin2:not(.dark):where(:not(.coach-on)) .card.hm > .body, body.skin2:not(.dark):where(:not(.coach-on)) .vpage { background: var(--l-card); }
   body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya .klist > .khead, body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2:not(.dark):where(:not(.coach-on)) #p-kuhnya.kbox .klist > .khead { background: var(--l-card); }
   body.skin2.dark .card.panel > .body, body.skin2.dark .card.hm > .body, body.skin2.dark .vpage { background: var(--d-card); }
-  body.skin2.dark #p-kuhnya .klist > .khead, body.skin2.dark #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2.dark #p-kuhnya.kbox .klist > .khead { background: var(--d-card); }
+  body.skin2.dark #p-kuhnya .klist > .khead, body.skin2.dark #p-kuhnya #kBody > .card.klist.kbk > .khead, body.skin2.dark #p-kuhnya.kbox .klist > .khead { background: var(--d-card) var(--gl1); }   /* Т219: и отблясъкът на картата — същият, от същия горен ръб */
   /* балоните, менютата, падащите и заглавният им ред, папките на „Филтри“ (Chris 24.11 17:14, 17:46: тъмната — следващият тон над картите; вътре бутоните и
      избраното — най-тъмното); балонът за добавяне */
   body.skin2:not(.dark):where(:not(.coach-on)) :is(.ipop, .eatpop, .tp, .acctpop, .kpop, .dtpop, .trpop, .cmenu), body.skin2:not(.dark):where(:not(.coach-on)) .srch .sdl, body.skin2:not(.dark):where(:not(.coach-on)) .srch .sdl > .khead, body.skin2:not(.dark):where(:not(.coach-on)) .kft .kfoh { background: var(--l-pop); }
@@ -2561,6 +2566,53 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2:not(.dark) .acctpop .thmo.on { background: var(--l-sel); color: var(--l-selt); }
   body.skin2.dark .acctpop .thml { background: var(--d-pop); }
   body.skin2.dark .acctpop .thmo.on { background: var(--d-psel); color: var(--d-pselt); }
+  /* ════════ Т219 (DEC-0123; Chris 25.11.2026 18:04–18:54 „да точно така … давай“; законът — laws/app.md правило 25): НИВАТА И СЛОЕВЕТЕ ════════
+     0 фонът · 1 картите (всички най-външни) · 2 долната лента · 3 отвореното (.lay). Числата на сенките — в таблицата на Т214 (--l-sh1…3, --d-sh1…3);
+     тук — ролите за вид, нивото 1 и отстоянието 12 / 12. Нищо няма своя сянка; нов слой — само с .lay и layPlace (тестът t219 пада иначе). */
+  :root { --sh1: var(--l-sh1); --sh2: var(--l-sh2); --sh3: var(--l-sh3); --gl1: none; --gl2: linear-gradient(180deg, rgba(255,255,255,.26), rgba(255,255,255,0) 45%, rgba(0,0,0,.05)); }
+  html.ldd, body.skin2.dark { --sh1: var(--d-sh1); --sh2: var(--d-sh2); --sh3: var(--d-sh3); --gl1: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,0) 90px); --gl2: linear-gradient(180deg, rgba(255,255,255,.17), rgba(255,255,255,.03) 45%, rgba(0,0,0,.16)); }
+  body { --fbd: var(--border); }   /* рамката на полетата: светлата на клиента — --l-fbd (горе, с тоновете); тъмните, ?c= и без менюто — както досега */
+  body.skin2:not(.dark):where(:not(.coach-on)) :is(.lrow textarea.lfix, .mrow input.mfi, .ded input.dg) { border-color: var(--fbd); }   /* полетата на място (✎) и грамовете */
+  /* НИВО 1 — най-външните карти на всички екрани (не — кутиите вътре в карта, таблиците, табовете, търсачката). position: relative — следващата карта е над сянката на предната */
+  body.skin2 :is(.pane, #instHost, #mCmp, #kBody) > :is(.sec, .card, .now, .start, .inst, .mcard, .state, .hempty, details.qacard), body.skin2 .chatwrap > .chat, body.skin2 .vpage .vreg > .card { position: relative; box-shadow: var(--sh1); background-image: var(--gl1); }
+  body.skin2 .cform { position: relative; }   /* полето под чата — над сянката му */
+  body.skin2 .vpage .tpg :is(.tp-card, .tp-step:not(.tp-next), .tp-soil) { box-shadow: var(--sh1); }   /* „Твоят път“ — картите; листата и корените са рисунката */
+  body.skin2 .vpage .tpg .tp-step.tp-cur { box-shadow: 0 0 0 1px var(--accent), var(--sh1); }
+  @media print { html, body { --sh1: none !important; --sh2: none !important; --sh3: none !important; --gl1: none !important; } }   /* печатът — без сенки */
+  /* залепеният заглавен ред е плътен и стои над светлия ръб на списъка (тъмната) → тънката ивица отгоре му е същата сянка, изрязана само до ръба ѝ, по дъгата на ъгъла */
+  :where(body.skin2) #p-kuhnya .klist > .khead { position: relative; }
+  body.skin2.dark :is(.srch .sdl, #p-kuhnya .klist) > .khead::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 8px; border-radius: inherit; pointer-events: none; clip-path: inset(0 0 4px 0); box-shadow: var(--sh3); }
+  body.skin2.dark #p-kuhnya .klist > .khead::before { box-shadow: var(--sh1); }
+  body.skin2.dark .srch .sdl > .khead { border-radius: 6px 6px 0 0 / 1.4px 1.4px 0 0; }
+  body.skin2.dark #p-kuhnya .klist > .khead { border-radius: 4px 4px 0 0 / 0.6px 0.6px 0 0; }
+  /* 12 / 12 — съдържанието на най-външната карта: 12 px от ръба ѝ ляво и дясно, с рамката (светлата 2 + 10 / 1 + 11, тъмната 1 + 11 / 1 + 11) */
+  body.skin2 { --pl: 10px; --pr: 11px; }
+  body.skin2.dark { --pl: 11px; }
+  body.skin2 :is(.pane, #kBody) > .sec, body.skin2 :is(.pane, #mCmp) > .mcard, body.skin2 .pane > :is(.now, .start, .card:not(.panel)), body.skin2 #kBody > .card:not(.panel), body.skin2 .vpage .vreg > .card,
+  body.skin2 :is(.pane, #kBody) > .card.panel > :is(.ch, .body), body.skin2 .card.panel.ldday > :is(.ch, .ldsum), body.skin2 .pane > details.qacard > :is(summary, .qc-body) { padding-left: var(--pl); padding-right: var(--pr); }
+  body.skin2 .pane > :is(.state, .hempty), body.skin2 .chatwrap > .chat, body.skin2 #instHost > .inst { padding-left: 11px; padding-right: 11px; }   /* без ивица: 1 + 11 */
+  body.skin2 #instHost > .inst .ih { padding-right: 29px; }   /* мястото на × */
+  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] { margin-left: calc(-1 * var(--pl)); margin-right: calc(-1 * var(--pr)); border-radius: 0 0 14px 14px; }   /* логът без целта: лентата на „Днес“ — от ръб до ръб, иконата и полетата — на 12; долу — ъглите на картата */
+  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] > .body { background: none; }
+  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] > :is(.ch, .body) { padding-left: var(--pl); padding-right: var(--pr); }
+  body.skin2 .card.panel.ldday > .ch > .ibtn { margin-right: -7px; }
+  /* редовете вътре — до същото отстояние (без своите 2–4 px) */
+  body.skin2 .card.hist .card.hm > .ch, body.skin2 .card.hist .card.hm.open > .ch, body.skin2 .card.panel .card.panel.hist > .ch, body.skin2 .card.panel .card.panel.hist.open > .ch, body.skin2 .card.hist details.qacard > summary, body.skin2 .card.hist details.qacard .qc-body { padding-left: 0; padding-right: 0; }
+  body.skin2 .card[data-key="h_labs"] details.qacard .qc-body { padding-left: 14px; }
+  body.skin2 .card.panel[data-key="qa"] > .body .qpend > .card > :is(.ch, .body), body.skin2 .card.panel[data-key="qa"] > .body .qmonths > .card.hm > :is(.ch, .body) { padding-left: 0; padding-right: 0; }
+  body.skin2 .card.panel[data-key="qa"] > .body #qaEmpty { margin-left: 0; margin-right: 0; }
+  body.skin2 .bank .bk { padding-left: 0; padding-right: 0; }
+  body.skin2 .bank .bki .dfoot { margin-right: 0; }
+  /* датата и „видяно“ в ъгъла — на същото място (Т84б, Т111: до ръба, ~8 px) */
+  body.skin2 .sec > .card > .seenrow, body.skin2 .vpage .vreg > .card > .seenrow { margin-right: -3px; }
+  body.skin2 :is(.pane, #kBody, .sec) > .card.panel > .ch > .seenrow { flex-basis: calc(100% + 3px); margin-right: -3px; }
+  /* редакторът в кухнята: балонът за добавяне застава точно на мястото на кутията с търсачката (26–334), тя не стърчи отдолу */
+  body.skin2 .ded .dpick:has(> .fpk) { padding: 0; border: 0; background: none; }
+  body.skin2 .ded .dpick > .fpk { margin-bottom: 0; }
+  /* „Твоят път“ — картите: 1 + 11 */
+  body.skin2 .vpage .tpg :is(.tp-card, .tp-step) { padding-left: 11px; padding-right: 11px; }
+  /* (5) редът с филтрите → списъкът на книгата: 6 px (както падащите и балоните под него) */
+  body.skin2 #kBody > .srch > .kfrow { margin-bottom: 6px; }
   /* „Зарежда…“ и екраните без данни (преди „скин 2“): същите тонове — html.ld / html.ldd, скриптът в <head>; acctInit ги маха */
   html.ld { background: var(--l-page); }
   html.ld header { background: var(--l-head); color: var(--l-headt); }
@@ -4132,15 +4184,20 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function thmOpen() {
     var r = ACCT.pop && ACCT.pop.querySelector(".thmr"), b = document.getElementById("acctThm"); if (!r || !b || THL) return;
     var k = themeSide(), cur = themeOf(k), el = document.createElement("div");
-    el.className = "thml"; el.id = "thmList"; el.setAttribute("role", "listbox"); el.setAttribute("aria-label", k === "d" ? "Тъмни теми" : "Светли теми");
+    el.className = "thml lay"; el.id = "thmList"; el.setAttribute("role", "listbox"); el.setAttribute("aria-label", k === "d" ? "Тъмни теми" : "Светли теми");
     el.innerHTML = THEMES[k].map(function (t) {
       return '<button type="button" class="thmo' + (t === cur ? " on" : "") + '" role="option" aria-selected="' + (t === cur) + '" data-thm="' + t[0] + '" data-ldrow="1">' + thmDot(t) + "<span>" + esc(t[1]) + "</span></button>";
     }).join("");
     r.appendChild(el);
     var H = THL = { el: el, k: k }; b.setAttribute("aria-expanded", "true");
-    el.style.maxHeight = Math.max(84, Math.min(170, Math.floor(barLim() - el.getBoundingClientRect().top))) + "px";   /* над лентата долу (нисък екран) */
+    thmPlace();
     var on = el.querySelector(".on"); if (on && on.offsetTop + on.offsetHeight > el.clientHeight) el.scrollTop = on.offsetTop - (el.clientHeight - on.offsetHeight) / 2;   /* избраната се вижда */
     H.L = layerOpen({ k: "thm", st: { thm: 1 }, el: el, close: function () { if (THL === H) thmClose(true); } });   /* „Назад“ и дръпването */
+  }
+  function thmPlace() {   /* Т219: точно колкото менюто, 6 px под хапчето; над лентата долу (нисък екран) */
+    var b = document.getElementById("acctThm"); if (!THL || !b || !ACCT.pop) return;
+    var at = layPlace(THL.el, { box: ACCT.pop, y: b.getBoundingClientRect().bottom });
+    THL.el.style.maxHeight = Math.max(84, Math.min(170, Math.floor(barLim() - at.top))) + "px";
   }
   function thmClose(back) {
     var H = THL, b = document.getElementById("acctThm"); if (!H) return;
@@ -4215,16 +4272,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function acctPlace() {
     var p = ACCT.pop, b = ACCT.btn; if (!p || !b) return;
-    var r = b.getBoundingClientRect(), vw = document.documentElement.clientWidth;
     p.style.width = "max-content";   // Т192н (Chris 21:49): „максимално тясно, с нормални отстояния, но да няма излишно“ — колкото най-дългият ред (беше 250)
-    var w = Math.min(Math.ceil(p.getBoundingClientRect().width), vw - 16);
-    p.style.width = w + "px"; p.style.top = Math.round(r.bottom + window.scrollY + 6) + "px";
-    p.style.left = Math.round(Math.max(8, Math.min(vw - 8 - w, r.right - w)) + window.scrollX) + "px";
+    layPlace(p, { w: Math.ceil(p.getBoundingClientRect().width), at: "r", y: b.getBoundingClientRect().bottom });   // Т219: своя ширина, десният ръб — на линията (колоната − 12)
+    thmPlace();
   }
   function acctOpen() {
     if (ACCT.pop || !ACCT.btn) return;
     var p = document.createElement("div");
-    p.className = "acctpop" + (acctRo() ? " ro" : ""); p.id = "acctPop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Акаунт"); p.tabIndex = -1;
+    p.className = "acctpop lay" + (acctRo() ? " ro" : ""); p.id = "acctPop"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Акаунт"); p.tabIndex = -1;
     document.body.appendChild(p); ACCT.pop = p; acctRender(); acctPlace();
     ACCT.btn.setAttribute("aria-expanded", "true");
     window.addEventListener("resize", acctPlace);
@@ -6115,7 +6170,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (cmOwn(m)) list.push(["edit", "Редактирай", ""]);
       if (cmDelOk(m)) list.push(["del", "Изтрий за двамата", "cmdel"]);
       var el = document.createElement("div");
-      el.className = "cmenu"; el.setAttribute("role", "menu"); el.setAttribute("aria-label", "Съобщение"); el.tabIndex = -1;
+      el.className = "cmenu lay"; el.setAttribute("role", "menu"); el.setAttribute("aria-label", "Съобщение"); el.tabIndex = -1;
       var cur = rxMine(m), bar = m.rx ? '<div class="crxbar" role="group" aria-label="Реакция">' + REACTS.map(function (x) {   // Т116: най-горе — реакциите
         return '<button type="button" class="crb' + (cur === x ? " on" : "") + (act ? "" : " ro") + '" data-rx="' + x + '" aria-label="' + RX_NAME[x] + '" aria-pressed="' + (cur === x) + '"' + (act ? "" : ' disabled aria-disabled="true"') + ">" + x + "</button>";
       }).join("") + "</div>" : "";
@@ -6126,11 +6181,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       wrap.appendChild(el);
       function place() {
         var wr = wrap.getBoundingClientRect(), r = msg.querySelector(".cb").getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
-        var top = r.bottom - wr.top + 6;
-        if (top + h > wr.height - 4) top = r.top - wr.top - h - 6;   // под балона не стига → над него
-        top = Math.max(4, Math.min(top, wr.height - h - 4));
-        var left = msg.classList.contains("me") ? r.right - wr.left - w : r.left - wr.left;
-        el.style.top = Math.round(top) + "px"; el.style.left = Math.round(Math.max(4, Math.min(left, wr.width - w - 4))) + "px";
+        var top = r.bottom + LAY_GAP;
+        if (top + h > wr.bottom - 4) top = r.top - h - LAY_GAP;   // под балона не стига → над него
+        top = Math.max(wr.top + 4, Math.min(top, wr.bottom - h - 4));
+        layPlace(el, { w: w, at: msg.classList.contains("me") ? r.right - w : r.left, top: top });   // Т219: своя ширина, в линиите на колоната
       }
       CMENU = { el: el, msg: msg, id: id, st: box.scrollTop, w: window.innerWidth, place: place };
       var CQ = CMENU; CMENU.L = layerOpen({ k: "cm", st: { cm: 1 }, el: el, close: function () { if (CMENU === CQ) cmClose(); } });   // Т181
@@ -6306,7 +6360,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т59: банерът „Изядох“ и ⓘ балонът — целият над лентата долу. Ако страницата свършва преди това (балон под последната карта),
   //   страницата се удължава с невидим маркер 1 px на нужната височина (#popSpacer) и той се маха при затваряне.
   // Т66: превъртането над лентата и връщането при затваряне (ако страницата е била удължена) — през двигателя (ACC_MS, accEase).
-  // Т143б (Chris 15.11 16:31 „искам балона да е по-надолу до ботом бара, за да покрива задните текстове“): ⓘ балонът (класът точно
+  // Т143б (Chris 15.11 16:31 „искам балона да е по-надолу до ботом бара, за да покрива задните текстове“): ⓘ балонът (само
   //   „ipop“ — от infoOpen; кухнята, „Филтри“, „График“ и „Изядох“ си имат свое място) — без капачката 60vh. Събира ли се на екрана —
   //   цял (страницата се вдига колкото трябва, както досега). По-висок е от екрана → стига до горния ръб на лентата (8 px въздух),
   //   текстът се превърта вътре; ако под реда му има поне половин екран — страницата не мърда, иначе се вдига, докато горе останат 8 px.
@@ -6336,7 +6390,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function barY() { return ACC_RUN ? ACC_RUN.y1 : window.scrollY; }   // къде ще е страницата (и докато двигателят я мести)
   function popFit(pop) {
     if (pop.classList.contains("invp")) return;   // Т144б: върху страница — infoPlace (на екрана)
-    if (pop.className === "ipop") {   // Т143б
+    if (pop.matches(".ipop:not(.kfpop, .kpop, .dtpop)")) {   // Т143б (Т219: видът — класът .lay)
       var L = popLim(), room = L.lim - 8, p0;
       pop.style.maxHeight = "none"; p0 = pop.getBoundingClientRect();
       if (p0.height > room) {
@@ -6371,17 +6425,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function eatPlace() {
     if (!EAT) return;
-    var card = EAT.el.closest(".card");
-    if (!EAT.el.isConnected || !card || !EAT.el.getClientRects().length) { eatClose(); return; }
-    var cr = card.getBoundingClientRect(), r = EAT.el.getBoundingClientRect(), st = EAT.pop.style;
-    st.left = (cr.left + window.scrollX) + "px"; st.width = cr.width + "px"; st.top = (r.bottom + window.scrollY + 4) + "px";
+    if (!EAT.el.isConnected || !EAT.el.closest(".card") || !EAT.el.getClientRects().length) { eatClose(); return; }
+    layPlace(EAT.pop, { ref: EAT.el, y: EAT.el.getBoundingClientRect().bottom });   // Т219
   }
   function eatOpen(btn) {
     var box = btn.closest(".eatc"), el = box && box.closest("[data-meal]"), same = EAT && EAT.btn === btn;
     eatClose();
     if (same || !box || !el || !CAN_WRITE) return;   // истински клиент / треньор: банер не се отваря (и wr() не пише)
     var name = box.getAttribute("data-meal-name"), pop = document.createElement("div");
-    pop.className = "eatpop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Изядох — " + name); pop.tabIndex = -1;
+    pop.className = "eatpop lay"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Изядох — " + name); pop.tabIndex = -1;
     var rcp = el.hasAttribute("data-rec") ? KIT.dishes.filter(function (x) { return String(x.id) === el.getAttribute("data-dish"); })[0] : null;   // Т158б
     pop.innerHTML = '<div class="eph">' + esc(name) + "</div>" + (rcp ? kitEatAmtHtml(rcp) : "")
       + '<div class="epr"><input type="text" class="eptm tpin" readonly inputmode="none" autocomplete="off" value="' + nowHM() + '" aria-label="Час" aria-haspopup="dialog" aria-expanded="false">'   // Т199 Е2: като балона за добавяне — без думата „Час“
@@ -6426,7 +6478,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ Т181 (Chris 19.11 11:13–11:27, DEC-0059): „НАЗАД“ И ЗАТВАРЯНЕТО С ДРЪПВАНЕ — ЕДИН МЕХАНИЗЪМ ЗА ВСИЧКИ СЛОЕВЕ ════════
   // Chris 11:27: „всичко да се включва с един и същи патент“. Слой е всичко отгоре: ⓘ балоните (IPOP — ⓘ, храната, „Филтри“, „График“),
   //   страниците (vpage), картинката (imv), „Изядох“ (EAT), часовникът (TP), менюто на съобщение (CMENU), менюто с линка (треньорът) и
-  //   редакторът в кухнята (KIT.ed). Включва се с ЕДИН ред: L = layerOpen({ k, st, el, close, tab?, ask?, askShow?, drag? }); затваря ли се
+  //   редакторът в кухнята (KIT.ed). Мястото и видът — layPlace и .lay (Т219). Включва се с ЕДИН ред: L = layerOpen({ k, st, el, close, tab?, ask?, askShow?, drag? }); затваря ли се
   //   по свой път (×, Отказ, Esc, извън) — layerDone(L) в своето затваряне. NAV — огледалото на нашите записи в историята, в нейния ред:
   //   разделите (пътят на човека; еднаквите поредни — без запис) и слоевете (по един). „Назад“ (Android, браузърът) маха горния запис:
   //   слой → затваря се (редакторът с въведено → остава и пита „Да затворя ли без запис?“); раздел → предишният по пътя; на основата
@@ -6583,7 +6635,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     host.addEventListener("touchcancel", tc);
     L.unwire = function () { host.removeEventListener("touchstart", ts); host.removeEventListener("touchmove", tm); host.removeEventListener("touchend", te); host.removeEventListener("touchcancel", tc); };   // слушателите — махнати при затваряне (редакторът е в кухнята, тя остава)
   }
-  // Т59: ⓘ балонът — под реда със заглавието, с ширината на картата/раздела; върху съдържанието (не го бута); по един.
+  // Т59: ⓘ балонът — под реда със заглавието, на линиите на колоната (Т219 — layPlace); върху съдържанието (не го бута); по един.
   //   Затваря се: ×, докосване извън, Esc, „Назад“ (отварянето слага запис в историята), смяна на раздела.
   //   ⓘ в заглавие на акордеон (<summary> или .ch) не отваря/затваря акордеона (preventDefault + stopPropagation).
   //   Историята: ЕДИН запис „балонът е отворен“ — Т181: слой (layerOpen); балон → балон — същият запис (layerDone с keep).
@@ -6593,25 +6645,63 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var I = IPOP, L = { k: "ipop", st: { ipop: 1 }, el: I.pop, close: function () { if (IPOP === I) infoClose(true); } };
     I.L = layerOpen(L);
   }
-  function infoBox(btn) { return btn.closest(".card, details, .mcard, .sec, .kfrow, .now") || btn.parentElement; }   // Т143б: и „Ново за теб“ (ⓘ, камбанката) — с ширината на картите   // Т102ж: „Филтри“ — с ширината на реда
-  function infoRow(btn) { return btn.closest(".ch, summary, h2, .mhead, .krow") || btn.parentElement; }   // Т94: балонът на храната — под реда
+  // ════════ Т219 (DEC-0123; Chris 25.11.2026 18:04–18:54; laws/app.md правило 25): МЯСТОТО НА ВСИЧКО ОТВОРЕНО — ЕДНА ФУНКЦИЯ ════════
+  //   Chris 18:04 „… израрнят всички балони и дроп листи и филтрите да се препокриват точнто, точно едно върху друго“; 18:17 „… по отстоянията на
+  //   детайлите в картата“. Всичко, което се отваря отгоре, застава с layPlace и е с класа .lay (видът; списък с редове — и .lay-r):
+  //   • ляво / дясно — колоната + 12 / − 12 (layCol: #main; в страница-слой — нейната .vpa); малко меню (w) — своя ширина, ръбът му на същите линии;
+  //   • горе — 6 px под реда / полето, от което се отваря (y); долу — над лентата, както досега (popFit, barFit, *Place);
+  //   • от отворено (over) — точно върху него: същите ляво, дясно и горе; долното е скрито (layCover), докато горното е отворено, и се връща с
+  //     превъртането си. Падащ от меню (box) — точно колкото менюто.
+  //   Нов слой — само с тази функция и с реда си в теста t219 („нов слой без правило 25“ пада).
+  var LAY_IN = 12, LAY_GAP = 6, LAYC = [];   // LAYC — кое върху кое стои: [{ el, ov }]
+  function layCol(ref) {   // линиите на колоната (на екрана): ляво + 12, дясно − 12
+    var vp = ref && ref.closest && ref.closest(".vpage"), c = vp ? vp.querySelector(".vpa") : document.getElementById("main"), cs = getComputedStyle(c), r = c.getBoundingClientRect();
+    var l = r.left + (parseFloat(cs.paddingLeft) || 0) + LAY_IN, z = r.right - (parseFloat(cs.paddingRight) || 0) - LAY_IN;
+    return { left: l, right: z, width: z - l };
+  }
+  function layPlace(el, o) {   // o: ref (откъде — за колоната) · y (долният ръб на реда) | top (точно място) · over | box · w + at ("r" | лявото); → мястото на екрана
+    var c = layCol(o.ref || el), br = o.over || o.box ? (o.over || o.box).getBoundingClientRect() : null, st = el.style;
+    var w = br ? br.width : o.w ? Math.min(o.w, c.width) : c.width;
+    var l = br ? br.left : o.w ? (o.at === "r" ? c.right - w : Math.max(c.left, Math.min(o.at, c.right - w))) : c.left;
+    var t = o.over ? br.top : o.top != null ? o.top : o.y + LAY_GAP, x = 0, y = 0;
+    if (getComputedStyle(el).position !== "fixed") {   // в своята кутия: страницата (body) или родителят, в който е
+      var p = el.offsetParent;
+      if (p && p !== document.body) { var pr = p.getBoundingClientRect(); x = p.scrollLeft - pr.left - p.clientLeft; y = p.scrollTop - pr.top - p.clientTop; }
+      else { x = window.scrollX; y = window.scrollY; }
+    }
+    st.left = (l + x) + "px"; st.width = w + "px"; st.top = (t + y) + "px";
+    return { left: l, top: t, width: w };
+  }
+  function layCover(el, ov) {   // el — точно върху ov: ov е скрит, докато el е отворен (подредбата и превъртането му остават)
+    if (!el || !ov) return;
+    LAYC.push({ el: el, ov: ov }); ov.style.visibility = "hidden";
+  }
+  function layUncover(el) {   // el се затваря → долното се вижда пак (ако друго не стои върху него)
+    var gone = LAYC.filter(function (x) { return x.el === el; });
+    LAYC = LAYC.filter(function (x) { return x.el !== el; });
+    gone.forEach(function (g) { if (!LAYC.some(function (x) { return x.ov === g.ov; })) g.ov.style.visibility = ""; });
+  }
+  function layUnder(btn) {   // върху кое отворено е натиснатото: балон (и за добавяне), „Изядох“; в търсачка с пуснат списък — списъкът
+    var p = btn.closest(".ipop, .eatpop, .fpk"), S = p ? null : srchOf(btn);
+    return p || (S && S.sdd ? document.getElementById(S.si.dd) : null);
+  }
+  function layRowY(btn) {   // долният ръб на реда, под който се отваря; избраната смяна / тренировка е хапче, по-високо от реда си → неговият
+    if (btn.id === "brandBtn" || btn.id === "acctBtn") return document.getElementById("hdr").getBoundingClientRect().bottom;   // Т140 / Т187: под цялата шапка
+    var y = infoRow(btn).getBoundingClientRect().bottom;
+    return btn.classList.contains("dtb") && btn.classList.contains("on") ? Math.max(y, btn.getBoundingClientRect().bottom) : y;
+  }
+  function infoRow(btn) { return btn.closest(".ch, summary, h2, .mhead, .krow, .kfrow") || btn.parentElement; }   // Т94: балонът на храната — под реда; Т219: ⓘ и „Филтри“ — под реда с филтрите
   function infoPlace() {
     if (!IPOP) return;
-    var box = infoBox(IPOP.btn), row = infoRow(IPOP.btn);
-    if (!IPOP.btn.isConnected || !IPOP.btn.getClientRects().length) { infoClose(); return; }
-    var br = box.getBoundingClientRect(), rr = row.getBoundingClientRect(), st = IPOP.pop.style;
-    if (IPOP.pop.classList.contains("invp")) {   // Т144б: балон върху страница — на екрана, с ширината на колоната ѝ, до долния край
-      var col = IPOP.btn.closest(".vpage").querySelector(".vpa"), cr0 = col.getBoundingClientRect(), cc0 = getComputedStyle(col), rb0 = IPOP.btn.getBoundingClientRect(), vv0 = window.visualViewport, vb0 = vv0 ? vv0.offsetTop + vv0.height : window.innerHeight;
-      var pl0 = parseFloat(cc0.paddingLeft) || 0, pr0 = parseFloat(cc0.paddingRight) || 0;
-      st.left = (cr0.left + pl0) + "px"; st.width = (cr0.width - pl0 - pr0) + "px"; st.top = (rb0.bottom + 4) + "px"; st.maxHeight = Math.max(120, Math.floor(vb0 - 8 - (rb0.bottom + 4))) + "px";
+    var b = IPOP.btn, pop = IPOP.pop, st = pop.style, inv = pop.classList.contains("invp");
+    if (!b.isConnected || !b.getClientRects().length) { infoClose(); return; }
+    var at = layPlace(pop, { ref: b, over: IPOP.over && IPOP.over.isConnected ? IPOP.over : null, y: inv ? b.getBoundingClientRect().bottom : layRowY(b) });   // Т219
+    if (inv) {   // Т144б: балон върху страница — на екрана, с ширината на колоната ѝ, до долния край
+      var vv0 = window.visualViewport, vb0 = vv0 ? vv0.offsetTop + vv0.height : window.innerHeight;
+      st.maxHeight = Math.max(120, Math.floor(vb0 - 8 - at.top)) + "px";
       return;
     }
-    if (IPOP.btn.id === "brandBtn" || IPOP.btn.id === "acctBtn") {   // Т140: балонът „Какво е Victus“ — под цялата шапка, с ширината на картите; Т187: и „Известия“ от менюто
-      var mn = document.getElementById("main"), mc = getComputedStyle(mn), mr = mn.getBoundingClientRect(), pl = parseFloat(mc.paddingLeft) || 0, pr = parseFloat(mc.paddingRight) || 0;
-      br = { left: mr.left + pl, width: mr.width - pl - pr }; rr = document.getElementById("hdr").getBoundingClientRect();
-    }
-    st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (rr.bottom + window.scrollY + 4) + "px";
-    if (IPOP.pop.getAttribute("data-tall")) st.maxHeight = Math.max(120, Math.floor(popLim().lim - (rr.bottom + 4))) + "px";   // Т143б
+    if (pop.getAttribute("data-tall")) st.maxHeight = Math.max(120, Math.floor(popLim().lim - at.top)) + "px";   // Т143б
     kitPopPlace();   // Т98: храната в бокса — цялата над лентата
     kitFiltPlace();   // Т102ж: „Филтри“ — височината до лентата
   }
@@ -6619,6 +6709,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!IPOP) return;
     var b = IPOP.btn, IL = IPOP.L;
     if (IPOP.pop.parentNode) IPOP.pop.parentNode.removeChild(IPOP.pop);
+    layUncover(IPOP.pop);   // Т219
     popUnfit();
     b.setAttribute("aria-expanded", "false"); IPOP = null;
     window.removeEventListener("resize", infoPlace);
@@ -6637,7 +6728,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (same || !f) return;
     markSeen("seen_i_" + key); svNote("seen_i_" + key);   // Т147: клиентът — отворил балона (без светене); треньорът / изгледът — нищо не се пише; Т186: и в посещението
     var pop = document.createElement("div");
-    pop.className = "ipop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
+    pop.className = "ipop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.t); pop.setAttribute("data-info", key); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>' + esc(f.t) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>"
       + '<div class="ipbody">' + f.b.map(function (p) { return Array.isArray(p) ? '<h3 class="ipq">' + esc(p[0]) + "</h3><p>" + infoText(p[1]) + "</p>" : p.indexOf("|q|") === 0 ? '<p class="vq">' + infoText(p.slice(3)).replace(/\n/g, "<br>") + "</p>" : "<p>" + infoText(p).replace(/\n/g, "<br>") + "</p>"; }).join("") + "</div>";   // Т140в: „|q|“ — цитат; нов ред → <br>
     if (COACH) {   // Т147: при треньора — кога клиентът е отворил този балон („Какво е Victus“ — и от натискането на „cdb-Victus“, Т144д)
@@ -6650,9 +6741,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var vpb = btn.closest(".vpb"), rb1 = btn.getBoundingClientRect(); if (vpb && rb1.bottom > window.innerHeight * 0.4) vpb.scrollTop += rb1.bottom - window.innerHeight * 0.25;
     }
     document.body.appendChild(pop);
-    IPOP = { btn: btn, pop: pop };
+    IPOP = { btn: btn, pop: pop, over: layUnder(btn) };   // Т219: ⓘ от отворено — точно върху него
     btn.setAttribute("aria-expanded", "true");
     infoPlace(); window.addEventListener("resize", infoPlace);
+    layCover(pop, IPOP.over);
     popFit(pop);   // целият балон над лентата долу
     ipPush();   // „Назад“ затваря балона
     pop.querySelector(".ipx").addEventListener("click", function () { infoClose(true); });
@@ -7019,15 +7111,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     infoClose(false, false, !same);
     if (same) return;
     var pop = document.createElement("div");
-    pop.className = "ipop kfpop kftree"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Филтри"); pop.setAttribute("data-info", "kfilt"); pop.tabIndex = -1;
+    pop.className = "ipop kfpop kftree lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Филтри"); pop.setAttribute("data-info", "kfilt"); pop.tabIndex = -1;
     var cx = btn.getAttribute("data-fctx") || "book"; if (!SRCH[cx]) cx = "book";   // Т199 Е1: контекстът на търсачката; Т198: дървото, без заглавието „Филтри“ (✕ — на реда на първата папка)
     srchUse(SRCH[cx]);
     pop.innerHTML = '<div class="ipbody" id="kfBody"></div><div class="kfft"></div>';
     document.body.appendChild(pop);
-    IPOP = { btn: btn, pop: pop, ctx: cx };
+    IPOP = { btn: btn, pop: pop, ctx: cx, over: layUnder(btn) };   // Т219: пуснатият списък отдолу — скрит, на същото място
     btn.setAttribute("aria-expanded", "true");
     kitFiltFill();
     infoPlace(); window.addEventListener("resize", infoPlace);
+    layCover(pop, IPOP.over);
     if (!kitInBox()) popFit(pop);
     ipPush();
     kitLpWire(pop);   // Т198: ✕ на дървото — в kitTreeClick (редът се прерисува); задържането
@@ -7256,7 +7349,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     S.shown = n;
   }
   function srchDdPlace(S) {   // под реда с филтрите, върху съдържанието; височината — до лентата долу (и над клавиатурата)
-    var d = S.sdd && document.getElementById(S.si.dd); if (!d) return;
+    var d = S.sdd && document.getElementById(S.si.dd), row = d && d.parentNode.querySelector(".kfrow"); if (!d || !row) return;
+    layPlace(d, { y: row.getBoundingClientRect().bottom });   // Т219: 6 px под реда с филтрите, на линиите на колоната
     var kb = KB.on && KB.S === S, room = Math.floor(popLim().lim - d.getBoundingClientRect().top + (kb ? kbDy() : 0));   // Т201: клавиатурата — до нея (лентата е скрита), без 160 / 420
     d.style.maxHeight = (kb ? Math.max(0, room) : Math.max(160, Math.min(420, room))) + "px";
   }
@@ -7266,7 +7360,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var inp = document.getElementById(S.si.q);
     if (on) {
       S.sdd = true;
-      root.insertAdjacentHTML("beforeend", '<div class="sdl" id="' + S.si.dd + '" role="listbox" aria-label="Храните"></div>');
+      root.insertAdjacentHTML("beforeend", '<div class="sdl lay lay-r" id="' + S.si.dd + '" role="listbox" aria-label="Храните"></div>');
       var pc = root.closest("#p-hrana .card.panel"); if (pc) pc.classList.add("sddo");   // Т199 Е3: логът — картата не реже падащия
       srchDdFill(S, true);
       var d = document.getElementById(S.si.dd);
@@ -7509,7 +7603,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         + '<select class="fpku" aria-label="Мярка">' + (m === "units" ? "" : '<option value="-1"' + (P.unit < 0 ? " selected" : "") + ">г</option>")
         + us.map(function (u, i) { return '<option value="' + i + '"' + (P.unit === i ? " selected" : "") + ">" + esc(u.u) + (m === "units" && u.u === "г" && u.gr === 1 ? "" : " (" + kitG(u.gr) + " г)") + "</option>"; }).join("") + "</select>" + stSel;   // Т199 Е3: рецептата — и „г“
     var ok = fpkOk(P) ? "" : " disabled";
-    return '<div class="fpk' + (o.log ? " fpklog" : "") + '" data-fpkm="' + m + '" role="group" aria-label="' + esc(f.n) + '" tabindex="-1">'
+    return '<div class="fpk lay' + (o.log ? " fpklog" : "") + '" data-fpkm="' + m + '" role="group" aria-label="' + esc(f.n) + '" tabindex="-1">'
       + '<div class="fpkh"><b class="fpkn">' + esc(f.n) + (o.info ? infoBtn(o.info) : "") + "</b>" + (o.link ? '<button type="button" class="fpkl" data-fpkl="1">' + esc(o.link.t) + "</button>" : "") + "</div>"
       + (o.desc ? '<div class="fpkd">' + esc(o.desc) + "</div>" : "")
       + '<div class="fpkr fpk-' + m + '"' + (m === "frac" ? ' role="group" aria-label="Колко от него"' : "") + ">" + row + "</div>"
@@ -7531,7 +7625,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var m = fpkMode(o), P = { f: f, o: o, m: m, host: host, unit: m === "units" ? 0 : -1, amt: o.amt == null ? (m === "units" ? "1" : "100") : String(o.amt), st: o.remember === false || m === "units" || m === "frac" ? "" : fpkSt0(f), s: null, fr: 1, tm: o.log ? o.tm || nowHM() : "", busy: false };
     var w = document.createElement("div"); w.innerHTML = fpkHtml(P); P.el = w.firstChild;
     P.ov = o.over && o.over.isConnected ? o.over : null;   // Т199 Е3: над списъка (логът) — в body, по правилото на балона над списък (fpkPlace)
-    if (P.ov) { P.el.classList.add("fpkov"); document.body.appendChild(P.el); fpkPlace(P); popFit(P.el); P.y = barY(); P.rs = function () { fpkPlace(P); }; window.addEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.addEventListener("resize", P.rs); }   // целият балон — над лентата долу (страницата се вдига, както при „Изядох“)
+    if (P.ov) { P.el.classList.add("fpkov"); document.body.appendChild(P.el); fpkPlace(P); layCover(P.el, P.ov); popFit(P.el); P.y = barY(); P.rs = function () { fpkPlace(P); }; window.addEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.addEventListener("resize", P.rs); }   // целият балон — над лентата долу (страницата се вдига, както при „Изядох“)
     else { host.hidden = true; host.parentNode.insertBefore(P.el, host.nextSibling); }
     FPK = P;
     P.L = layerOpen({ k: "fpk", st: { fpk: 1 }, el: P.el, drag: { down: false }, close: function () { if (FPK === P) fpkClose(true); } });   // Т181
@@ -7567,13 +7661,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function fpkPlace(P) {   // Т199 Е3: над списъка — listPopPlace (горе, ляво, дясно — неговите; висок → превърта се вътре); списъкът не се вижда → под горния му ръб, без ограничение
     if (!P.ov || !P.ov.isConnected) return;
     if (listPopPlace(P.el, P.ov, true)) return;
-    var r = P.ov.getBoundingClientRect(), st = P.el.style;
-    st.left = (r.left + window.scrollX) + "px"; st.width = r.width + "px"; st.top = (r.top + window.scrollY) + "px"; st.maxHeight = ""; st.overflowY = "";
+    layPlace(P.el, { over: P.ov }); P.el.style.maxHeight = ""; P.el.style.overflowY = "";   // Т219
   }
   function fpkClose(cancel) {
     var P = FPK; if (!P) return; FPK = null;
     if (P.el.parentNode) P.el.parentNode.removeChild(P.el);
     if (P.rs) { window.removeEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.removeEventListener("resize", P.rs); }   // Т199 Е3
+    layUncover(P.el);   // Т219: списъкът отдолу — пак, с превъртането си
     if (P.ov) popUnfit();
     P.host.hidden = false;
     layerDone(P.L);   // „назад“ — вече махнат (layerDone е веднъж)
@@ -7818,7 +7912,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     infoClose(false, false, !same && !!f);
     if (same || !f) return;
     var pop = document.createElement("div");
-    pop.className = "ipop kpop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.n); pop.setAttribute("data-info", "kfood"); pop.setAttribute("data-fid", String(f.id)); pop.tabIndex = -1;
+    pop.className = "ipop kpop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", f.n); pop.setAttribute("data-info", "kfood"); pop.setAttribute("data-fid", String(f.id)); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>' + esc(f.n) + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="ipbody">' + (f.t === "dish" ? kitDishPop(f) : kitPopBody(f)) + "</div>";   // Т157
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
@@ -7831,7 +7925,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     try { pop.focus({ preventScroll: true }); } catch (x) {}
   }
   // ── Т199 Е2 (Chris 23.11 00:00 → 00:35, Android): БАЛОНЪТ НАД СПИСЪК ХРАНИ покрива ТОЧНО картата на списъка — горният ръб = горният
-  //   ръб на картата (под реда „търсачка + Филтри“), левият и десният — нейните, долният — не по-ниско от нейния (по-висок → превърта се
+  //   ръб на картата (под реда „търсачка + Филтри“), левият и десният — линиите на колоната (Т219), долният — не по-ниско от нейния (по-висок → превърта се
   //   вътре в себе си); никога върху реда с филтрите, табовете и шапката; не зависи от натиснатия ред, нито от превъртането вътре в картата.
   //   ЕДНО правило за всеки такъв балон: книгата (балонът на храната); Е3 — „Храни“ в лога (list = картата на списъка). Без закачени филтри.
   //   Картата не се вижда (страницата превъртяна — само при ниския хоризонтален екран, без бокса) → както досега (Т98: под / над реда).
@@ -7841,7 +7935,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var bot = Math.min(lr.bottom, L.lim + 8);
     if (lr.top < top0 - 0.5 || (!grow && bot - lr.top < 120)) return false;
     var st = pop.style;
-    st.left = (lr.left + window.scrollX) + "px"; st.width = lr.width + "px"; st.top = (lr.top + window.scrollY) + "px";
+    layPlace(pop, grow ? { over: list } : { top: lr.top });   // Т219
     if (grow) { st.maxHeight = ""; st.overflowY = ""; var room = Math.floor(L.lim - Math.max(top0, 8) - 8); if (pop.getBoundingClientRect().height > room) { st.maxHeight = room + "px"; st.overflowY = "auto"; } return true; }
     st.maxHeight = Math.floor(bot - lr.top) + "px"; st.overflowY = "auto";
     return true;
@@ -7856,9 +7950,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var pop = IPOP.pop, pr = pop.getBoundingClientRect(), rr = IPOP.btn.getBoundingClientRect(), nav = document.querySelector("nav.tabs");
     var lim = (nav && nav.getClientRects().length ? nav.getBoundingClientRect().top : window.innerHeight) - 8;
     if (pr.bottom > lim) {
-      var top = rr.top - pr.height - 4;
+      var top = rr.top - pr.height - LAY_GAP;
       if (top < 8) top = Math.max(8, lim - pr.height);
-      pop.style.top = (top + window.scrollY) + "px";
+      layPlace(pop, { top: top });   // Т219
     }
     return true;
   }
@@ -8706,7 +8800,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   горният ръб на списъка, той — по-нисък, превърта се вътре). Смяна на размера на прозореца — само височината, без превъртане (не под 160).
   function lgDdPlace(fit) {
     var D = LG.dd; if (!D) return;
-    var el = D.el, st = el.style, sc0 = el.scrollTop; st.maxHeight = "none";   // sc0 — превъртането вътре остава (мери се за миг без височина)
+    var el = D.el, st = el.style, sc0 = el.scrollTop; st.maxHeight = "none"; layPlace(el, { y: D.bar.getBoundingClientRect().bottom });   // Т219; sc0 — превъртането вътре остава (мери се за миг без височина)
     var r = el.getBoundingClientRect(), full = r.height, rows = el.querySelectorAll(".sdr > .krow"), n = Math.min(4, rows.length);
     var h4 = n < rows.length ? rows[n - 1].getBoundingClientRect().bottom - r.top + (parseFloat(getComputedStyle(el).borderBottomWidth) || 0) : full;   // заглавният ред + 4 реда
     var lim = barLim(), want = Math.min(full, Math.max(h4, Math.min(420, lim - r.top))), d = 0;
@@ -8732,7 +8826,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function lgDdOpen(k) {
     var same = LG.dd && LG.dd.k === k, bar = P.hrana && P.hrana.querySelector('[data-lbar="' + k + '"]'), root = bar && bar.closest(".lgbars"), go = !same && !!root && !bar.disabled;
     lgDdClose(go); if (!go) return;
-    var el = document.createElement("div"); el.className = "sdl"; el.id = "lgDd"; el.setAttribute("role", "listbox"); el.setAttribute("aria-label", bar.firstChild.textContent);
+    var el = document.createElement("div"); el.className = "sdl lay lay-r"; el.id = "lgDd"; el.setAttribute("role", "listbox"); el.setAttribute("aria-label", bar.firstChild.textContent);
     root.appendChild(el);
     var pc = root.closest("#p-hrana .card.panel"); if (pc) pc.classList.add("sddo");   // картата не реже падащия
     var D = LG.dd = { k: k, el: el, bar: bar };
@@ -8877,7 +8971,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (same || !trOn() || !trWho()) return;
     TR.err = false; TR.q = null; TR.tm = TRD[todayStr()] || trLast() || nowHM();
     var pop = document.createElement("div");
-    pop.className = "ipop dtpop trpop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Тренировки"); pop.setAttribute("data-info", "trday"); pop.tabIndex = -1;
+    pop.className = "ipop dtpop trpop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Тренировки"); pop.setAttribute("data-info", "trday"); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>Тренировки</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>" + trPopHtml();
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
@@ -8967,14 +9061,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!TP) return;
     var f = TP.field;
     if (!f.isConnected || !f.getClientRects().length) { tpClose(); return; }
-    var box = f.closest(".eatpop, .ipop, .fpkov") || f.closest(".card, .mcard, details, .sec") || f.parentElement, br = box.getBoundingClientRect(), fr = f.getBoundingClientRect(), st = TP.pop.style;   // Т199 Е3: + балоните „Тренировки“ и над списъка
-    st.left = (br.left + window.scrollX) + "px"; st.width = br.width + "px"; st.top = (fr.bottom + window.scrollY + 4) + "px";
+    layPlace(TP.pop, { ref: f, over: TP.over, y: f.getBoundingClientRect().bottom });   // Т219: 6 px под полето; от балон („Изядох“, „Тренировки“, за добавяне) — точно върху него
   }
   function tpResize() { tpPlace(); if (TP && !TP.kb) tpRender(); }
   function tpClose(back) {
     if (!TP) return;
     var f = TP.field, TL = TP.L;
     if (TP.pop.parentNode) TP.pop.parentNode.removeChild(TP.pop);
+    layUncover(TP.pop);   // Т219
     window.removeEventListener("resize", tpResize);
     f.setAttribute("aria-expanded", "false"); TP = null;
     layerDone(TL);   // Т181
@@ -8987,14 +9081,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var mm = /^(\d{1,2}):(\d{2})$/.exec(f.value || "");
     if (!mm || +mm[1] > 23 || +mm[2] > 59) mm = /^(\d{2}):(\d{2})$/.exec(nowHM());   // започва от часа в полето
     var pop = document.createElement("div");
-    pop.className = "tp"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Час"); pop.tabIndex = -1;
+    pop.className = "tp lay"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Час"); pop.tabIndex = -1;
     pop.innerHTML = '<div class="tph"></div><svg class="tpdial" viewBox="0 0 240 240" aria-hidden="true" focusable="false"></svg>'
       + '<div class="tpf"><button type="button" class="tpk"></button><button type="button" class="tpb tpno">Отказ</button><button type="button" class="tpb tpnow">Сега</button><button type="button" class="tpb tpok">Готово</button></div>';
     document.body.appendChild(pop);
-    TP = { field: f, pop: pop, h: +mm[1], m: +mm[2], mode: "h", kb: false, drag: false, bad: false };
+    TP = { field: f, pop: pop, h: +mm[1], m: +mm[2], mode: "h", kb: false, drag: false, bad: false, over: layUnder(f) };
     var TQ = TP; TP.L = layerOpen({ k: "tp", st: { tp: 1 }, el: pop, close: function () { if (TP === TQ) tpClose(true); } });   // Т181 (циферблатът — без дръпване)
     f.setAttribute("aria-expanded", "true");
     tpPlace(); tpRender(); window.addEventListener("resize", tpResize);
+    layCover(pop, TP.over);   // Т219
     popFit(pop);   // целият балон над лентата долу
     tpWire(pop);
     try { pop.focus({ preventScroll: true }); } catch (x) {}
@@ -9835,7 +9930,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     infoClose(false, false, !same);
     if (same || !DT.on || !CAN_WRITE) return;
     var pop = document.createElement("div");
-    pop.className = "ipop dtpop"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "График"); pop.setAttribute("data-info", "dtype"); pop.tabIndex = -1;
+    pop.className = "ipop dtpop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "График"); pop.setAttribute("data-info", "dtype"); pop.tabIndex = -1;
     pop.innerHTML = '<div class="iph"><b>График</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="dtc">' + dtPopHtml() + "</div>";
     document.body.appendChild(pop);
     IPOP = { btn: btn, pop: pop };
@@ -10315,10 +10410,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function linkMenu() {
     var btn = document.getElementById("whoBtn"), old = document.getElementById("linkMenu");
     if (old) { closeLinkMenu(); return; }
-    var m = document.createElement("div"); m.className = "lmenu"; m.id = "linkMenu"; m.setAttribute("role", "menu");
+    var m = document.createElement("div"); m.className = "lmenu lay"; m.id = "linkMenu"; m.setAttribute("role", "menu");
     m.innerHTML = '<div class="lm-note">Зарежда…</div>';
     document.getElementById("hdr").appendChild(m);
     btn.setAttribute("aria-expanded", "true");
+    linkPlace(); window.addEventListener("resize", linkPlace);
     LINKL = layerOpen({ k: "lm", st: { lm: 1 }, el: m, close: function () { closeLinkMenu(); } });   // Т181
     (LINK ? Promise.resolve({ data: LINK }) : safe(sb.rpc("coach_client_link", { p_client_id: COACH_CID }))).then(function (res) {
       if (!document.getElementById("linkMenu")) return;
@@ -10332,8 +10428,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       m.innerHTML = h;
     });
   }
+  function linkPlace() {   // Т219: до 320 px, по средата, на линиите на колоната; 6 px под шапката
+    var m = document.getElementById("linkMenu"); if (!m) return;
+    var c = layCol(m), w = Math.min(320, c.width);
+    layPlace(m, { w: w, at: c.left + (c.width - w) / 2, y: document.getElementById("hdr").getBoundingClientRect().bottom });
+  }
   function closeLinkMenu(nav) {   // nav — „Отвори приложението на клиента“: страницата си отива, записът остава (без наше „назад“ — то би спряло отиването)
     var m = document.getElementById("linkMenu"); if (m) m.parentNode.removeChild(m);
+    window.removeEventListener("resize", linkPlace);
     var L = LINKL; LINKL = null; layerDone(L, nav === true);   // Т181
     var b = document.getElementById("whoBtn"); if (b) b.setAttribute("aria-expanded", "false");
   }
