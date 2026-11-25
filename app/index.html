@@ -4,10 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.75.0">
+<meta name="version" content="v1.76.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
-<meta name="theme-color" content="#ef6c00">
+<meta name="theme-color" content="#ededed">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -64,14 +64,24 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // Т214: „Зарежда…“ (преди данните, без „скин 2“) — в тоновете на темата от първия кадър: html.ld (светлата), html.ld.ldd (тъмната); acctInit ги маха.
   //   Треньорът (?c=) — своите. Ивицата — след стила. Т216 + Т217 (DEC-0120, Chris 25.11.2026 14:05): страната и избраните теми (data-thl / data-thd на html) са на
   //   ТЕЛЕФОНА, не на акаунта — всеки акаунт, отворен на него (и „като клиент“, &from, чужд линк на устройството на треньора), е в тях от първия кадър.
+  //   Т218 (DEC-0121, Chris 25.11.2026 15:16 „уайт става дефолт за бяла, а блак става дефолт за тъмна“): без избор за страната (или с непознато id) — първата (White /
+  //   Black), от първия кадър. Акаунт без менюто (cdbgym_theme_off = кодът му, пише го acctInit) — само избраното, иначе таблицата, както преди.
+  //   Т218 (6) (DEC-0122, 15:22 „да супер точно така давай“): страната — Auto (както телефона, prefers-color-scheme), докато човекът не избере Light / Dark (cdbgym_theme).
+  /* ТЕМИТЕ (ПЪРВИЯТ КАДЪР) — начало (id-тата на темите; първото — по подразбиране, Т218): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
+  var THI = { l: ["bw-1-svetla", "oranzh-svetla", "vaylet-svetla", "tyurkoaz-svetla", "romantik-svetla", "zalez-svetla", "powerful-svetla", "fire-1-svetla", "emerald-1-svetla", "coffee-1-svetla", "ashrose-1-svetla", "bordeaux-1-svetla"], d: ["bw-1-tamna", "siva-tamna", "vaylet-tamna", "tyurkoaz-tamna", "romantik-tamna", "more-tamna", "modern-tamna", "ash-3-tamna", "emerald-2-tamna", "coffee-1-tamna", "ashrose-1-tamna", "bordeaux-1-tamna"] };
+  /* ТЕМИТЕ (ПЪРВИЯТ КАДЪР) — край */
   function ldTone() {
-    try {
-      var q0 = new URLSearchParams(location.search), h = document.documentElement;
-      if (q0.get("c")) return;
-      h.classList.add("ld");
-      if (localStorage.getItem("cdbgym_theme") === "dark") h.classList.add("ldd");
-      ["l", "d"].forEach(function (k) { var v = localStorage.getItem("cdbgym_theme_" + k); if (v) h.setAttribute("data-th" + k, v); });
-    } catch (e) {}
+    var q0 = new URLSearchParams(location.search), h = document.documentElement;
+    if (q0.get("c")) return;
+    h.classList.add("ld");
+    function get(k) { try { return localStorage.getItem("cdbgym_theme" + k); } catch (e) { return null; } }
+    var off = get("_off"), noacct = !!off && off === (q0.get("t") || TOK.redir), md = get(""), sys = false;
+    try { sys = !!window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; } catch (e) {}
+    if (md === "dark" || (md !== "light" && sys && !noacct)) h.classList.add("ldd");   // Т218 (6), DEC-0122: без избор — Auto, страната от телефона
+    ["l", "d"].forEach(function (k) {
+      var v = get("_" + k); if (THI[k].indexOf(v) < 0) v = noacct ? null : THI[k][0];
+      if (v) h.setAttribute("data-th" + k, v);
+    });
   }
   try {
     var qs = new URLSearchParams(location.search), t = qs.get("t");
@@ -2361,7 +2371,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      (DEC-0110, DEC-0113), този блок ги замества. Мерките, сигналите и червените точки не се пипат; треньорският изглед в светлата остава сив
      (:where(:not(.coach-on))). Стои последен */
   /* ── ТАБЛИЦАТА: ЕДНОТО МЯСТО за числата на двете теми (Chris 25.11 08:14 и нататък): --l-… светлата · --d-… тъмната; всяка роля — своя променлива, правилата взимат
-        само тях. Нова гама = само числата тук (и <meta name="theme-color"> горе — само за миг, скриптът след стила го слага от --l-head / --d-head). На :root, за да
+        само тях. Нова гама = само числата тук (<meta name="theme-color"> горе — само за миг — е шапката на първата светла тема, пише го temi_gen.py; скриптът след стила го слага от --l-head / --d-head). На :root, за да
         ги вижда и html. Не са тук: мерките, сигналите, анализът и „Твоят път“ (своите цветове), бялото на ★ и „ново“, сивото на треньора */
   :root {
     --l-page: #fffdf9;    --d-page: #000000;      /* гърбът (и под жестовете) */
@@ -2413,19 +2423,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     --l-cqt: var(--l-dim); --d-cqt: var(--d-dim);       /* Т217 (DEC-0120): цитатът в него — текстът (както дребните) */
     --l-cqn: var(--l-ink); --d-cqn: var(--d-ink);       /* … и името (както буквите) */
   }
-  /* ТЕМИТЕ (ЦВЕТОВЕ) — начало (Т216, DEC-0119; Оранж и Сива са таблицата горе): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
+  /* ТЕМИТЕ (ЦВЕТОВЕ) — начало (Т216, DEC-0119; Orange и Gray са таблицата горе): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
+  :root[data-thl="bw-1-svetla"] { --l-page: #ffffff; --l-card: #fafafa; --l-strip: #f1f1f1; --l-line: #f1f1f1; --l-rim: #e9e9e9; --l-frame: #e9e9e9; --l-edge: #d4d4d4; --l-off: #e9e9e9; --l-offt: #262626; --l-btn: #cfcfcf; --l-btnt: #262626; --l-sel: #dcdcdc; --l-selt: #262626; --l-io: #e9e9e9; --l-pop: #fafafa; --l-add: #e9e9e9; --l-field: #ffffff; --l-fld: #ffffff; --l-fieldt: #262626; --l-hint: #5f5f5f; --l-head: #ededed; --l-headt: #262626; --l-brand: #262626; --l-bar: #ededed; --l-bar-rgb: 237,237,237; --l-bart: #3a3a3a; --l-markt: #262626; --l-acc: #d4d4d4; --l-acc-rgb: 154,154,154; --l-link: #4a4a4a; --l-ink: #262626; --l-title: #474747; --l-dim: #5f5f5f; --l-num: #474747; --l-th: #474747; --l-me: #e3e3e3; --l-hand: #4a4a4a; --l-mark: #ffffff; --l-newt: #262626; }
   :root[data-thl="vaylet-svetla"] { --l-page: #fffcf4; --l-card: #fef7e6; --l-strip: #faedcb; --l-line: #faedcb; --l-rim: #e2cfc4; --l-frame: #e2cfc4; --l-edge: #dbcdf0; --l-off: #e2cfc4; --l-offt: #222831; --l-btn: #c9e4de; --l-btnt: #222831; --l-sel: #f9c6c9; --l-selt: #222831; --l-io: #e2cfc4; --l-pop: #fef7e6; --l-add: #e2cfc4; --l-field: #fffcf4; --l-fld: #fffcf4; --l-fieldt: #222831; --l-hint: #6a6d84; --l-head: #dbcdf0; --l-headt: #222831; --l-brand: #222831; --l-bar: #dbcdf0; --l-bar-rgb: 219,205,240; --l-bart: #3c415c; --l-markt: #3c415c; --l-acc: #5c527f; --l-acc-rgb: 219,205,240; --l-link: #5c527f; --l-ink: #222831; --l-title: #3c415c; --l-dim: #6a6d84; --l-num: #3c415c; --l-th: #3c415c; --l-me: #c6def1; --l-hand: #5c527f; }
   :root[data-thl="tyurkoaz-svetla"] { --l-page: #f8fcfc; --l-card: #f0f8f8; --l-strip: #d0eae8; --l-line: #d0eae8; --l-rim: #c8ebf6; --l-frame: #c8ebf6; --l-edge: #d9c5e0; --l-off: #c8ebf6; --l-offt: #1a2030; --l-btn: #d1e5ac; --l-btnt: #1a2030; --l-sel: #e8f0bd; --l-selt: #1a2030; --l-io: #c8ebf6; --l-pop: #f0f8f8; --l-add: #c8ebf6; --l-field: #f8fcfc; --l-fld: #f8fcfc; --l-fieldt: #1a2030; --l-hint: #667080; --l-head: #d9c5e0; --l-headt: #1a2030; --l-brand: #1a2030; --l-bar: #d9c5e0; --l-bar-rgb: 217,197,224; --l-bart: #3d4554; --l-markt: #744b84; --l-acc: #744b84; --l-acc-rgb: 217,197,224; --l-link: #744b84; --l-ink: #1a2030; --l-title: #3d4554; --l-dim: #667080; --l-num: #3d4554; --l-th: #3d4554; --l-me: #d9c5e0; --l-hand: #744b84; }
   :root[data-thl="romantik-svetla"] { --l-page: #fdfbf8; --l-card: #f9f3eb; --l-strip: #f3e7d7; --l-line: #f3e7d7; --l-rim: #f7d7cd; --l-frame: #f7d7cd; --l-edge: #e5989b; --l-off: #f7d7cd; --l-offt: #2c2126; --l-btn: #e5989b; --l-btnt: #2c2126; --l-sel: #f8c7c9; --l-selt: #2c2126; --l-io: #f7d7cd; --l-pop: #f9f3eb; --l-add: #f7d7cd; --l-field: #fdfbf8; --l-fld: #fdfbf8; --l-fieldt: #2c2126; --l-hint: #7a636a; --l-head: #e0c0c7; --l-headt: #2c2126; --l-brand: #2c2126; --l-bar: #e0c0c7; --l-bar-rgb: 224,192,199; --l-bart: #6b3f49; --l-markt: #a5424f; --l-acc: #a5424f; --l-acc-rgb: 229,152,155; --l-link: #a5424f; --l-ink: #2c2126; --l-title: #5a444b; --l-dim: #7a636a; --l-num: #5a444b; --l-th: #5a444b; --l-me: #c7b9c5; --l-hand: #a5424f; }
   :root[data-thl="zalez-svetla"] { --l-page: #fffbf3; --l-card: #fef4e0; --l-strip: #fce8c4; --l-line: #fce8c4; --l-rim: #fad48b; --l-frame: #fad48b; --l-edge: #fb7337; --l-off: #fad48b; --l-offt: #3a1c0c; --l-btn: #fa8b43; --l-btnt: #3a1c0c; --l-sel: #f7c15d; --l-selt: #3a1c0c; --l-io: #fad48b; --l-pop: #fef4e0; --l-add: #fad48b; --l-field: #fffbf3; --l-fld: #fffbf3; --l-fieldt: #3a1c0c; --l-hint: #85583c; --l-head: #fb7337; --l-headt: #3a1c0c; --l-brand: #3a1c0c; --l-bar: #fb7337; --l-bar-rgb: 251,115,55; --l-bart: #ffffff; --l-markt: #c24a10; --l-acc: #fb7337; --l-acc-rgb: 251,115,55; --l-link: #c24a10; --l-ink: #3a1c0c; --l-title: #6b3a1c; --l-dim: #85583c; --l-num: #6b3a1c; --l-th: #6b3a1c; --l-me: #fad48b; --l-hand: #c24a10; --l-newt: #3a1c0c; }
   :root[data-thl="powerful-svetla"] { --l-page: #fffaf3; --l-card: #fef3e5; --l-strip: #fce7ce; --l-line: #fce7ce; --l-rim: #f9d9b3; --l-frame: #f9d9b3; --l-edge: #de772c; --l-off: #f9d9b3; --l-offt: #2b1710; --l-btn: #d34201; --l-btnt: #ffffff; --l-sel: #f4c08c; --l-selt: #2b1710; --l-io: #f9d9b3; --l-pop: #fef3e5; --l-add: #f9d9b3; --l-field: #fffaf3; --l-fld: #fffaf3; --l-fieldt: #2b1710; --l-hint: #7d5a49; --l-head: #b32301; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #b32301; --l-bar-rgb: 179,35,1; --l-bart: #ffffff; --l-markt: #d34201; --l-acc: #b32301; --l-acc-rgb: 179,35,1; --l-link: #d34201; --l-ink: #2b1710; --l-title: #5e3a2a; --l-dim: #7d5a49; --l-num: #5e3a2a; --l-th: #5e3a2a; --l-me: #f9d9b3; --l-hand: #d34201; }
   :root[data-thl="fire-1-svetla"] { --l-page: #fffaf5; --l-card: #fff4eb; --l-strip: #ffe6d3; --l-line: #ffe6d3; --l-rim: #fed0ac; --l-frame: #fed0ac; --l-edge: #e73a25; --l-off: #fed0ac; --l-offt: #33060e; --l-btn: #cc1b24; --l-btnt: #fff4eb; --l-sel: #feae71; --l-selt: #33060e; --l-io: #fed0ac; --l-pop: #fff4eb; --l-add: #fed0ac; --l-field: #fffaf5; --l-fld: #fffaf5; --l-fieldt: #33060e; --l-hint: #9f4345; --l-head: #cc1b24; --l-headt: #fff4eb; --l-brand: #fff4eb; --l-bar: #ad1320; --l-bar-rgb: 173,19,32; --l-bart: #fff4eb; --l-markt: #ad1320; --l-acc: #cc1b24; --l-acc-rgb: 247,97,33; --l-link: #ad1320; --l-ink: #33060e; --l-title: #760719; --l-dim: #9f4345; --l-num: #760719; --l-th: #760719; --l-me: #fed0ac; --l-hand: #ad1320; --l-mark: #fff4eb; }
+  :root[data-thl="emerald-1-svetla"] { --l-page: #fafef6; --l-card: #f2fce8; --l-strip: #e2f9cb; --l-line: #e2f9cb; --l-rim: #c4f1a9; --l-frame: #c4f1a9; --l-edge: #41a57d; --l-off: #c4f1a9; --l-offt: #112222; --l-btn: #41a57d; --l-btnt: #112222; --l-sel: #a7e797; --l-selt: #112222; --l-io: #c4f1a9; --l-pop: #f2fce8; --l-add: #c4f1a9; --l-field: #fafef6; --l-fld: #fafef6; --l-fieldt: #112222; --l-hint: #316261; --l-head: #356a69; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #356a69; --l-bar-rgb: 53,106,105; --l-bart: #ffffff; --l-markt: #356a69; --l-acc: #356a69; --l-acc-rgb: 65,165,125; --l-link: #356a69; --l-ink: #112222; --l-title: #254a4a; --l-dim: #316261; --l-num: #254a4a; --l-th: #254a4a; --l-me: #d4f6b2; --l-hand: #356a69; }
+  :root[data-thl="coffee-1-svetla"] { --l-page: #fdf9f5; --l-card: #faefe5; --l-strip: #f4dfcb; --l-line: #f4dfcb; --l-rim: #e6d0bf; --l-frame: #e6d0bf; --l-edge: #c98b64; --l-off: #e6d0bf; --l-offt: #2c1311; --l-btn: #c98b64; --l-btnt: #2c1311; --l-sel: #d7b497; --l-selt: #2c1311; --l-io: #e6d0bf; --l-pop: #faefe5; --l-add: #e6d0bf; --l-field: #fdf9f5; --l-fld: #fdf9f5; --l-fieldt: #2c1311; --l-hint: #7c5347; --l-head: #6e4033; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #6e4033; --l-bar-rgb: 110,64,51; --l-bart: #ffffff; --l-markt: #6e4033; --l-acc: #ab664c; --l-acc-rgb: 201,139,100; --l-link: #864a32; --l-ink: #2c1311; --l-title: #583329; --l-dim: #7c5347; --l-num: #583329; --l-th: #583329; --l-me: #f0d1b4; --l-hand: #864a32; }
+  :root[data-thl="ashrose-1-svetla"] { --l-page: #fcf7f9; --l-card: #f8edf2; --l-strip: #efd7e3; --l-line: #efd7e3; --l-rim: #e9c8d8; --l-frame: #e9c8d8; --l-edge: #ba6e8f; --l-off: #e9c8d8; --l-offt: #231433; --l-btn: #ba6e8f; --l-btnt: #0a031a; --l-sel: #dba5be; --l-selt: #231433; --l-io: #e9c8d8; --l-pop: #f8edf2; --l-add: #e9c8d8; --l-field: #fcf7f9; --l-fld: #fcf7f9; --l-fieldt: #231433; --l-hint: #5d3c64; --l-head: #7b466a; --l-headt: #ffffff; --l-brand: #ffffff; --l-bar: #7b466a; --l-bar-rgb: 123,70,106; --l-bart: #ffffff; --l-markt: #7b466a; --l-acc: #7b466a; --l-acc-rgb: 186,110,143; --l-link: #7b466a; --l-ink: #231433; --l-title: #492e53; --l-dim: #5d3c64; --l-num: #492e53; --l-th: #492e53; --l-me: #e1bfce; --l-hand: #7b466a; }
+  :root[data-thl="bordeaux-1-svetla"] { --l-page: #fbfbf8; --l-card: #f6f5f0; --l-strip: #e9e7df; --l-line: #e9e7df; --l-rim: #e1ded6; --l-frame: #e1ded6; --l-edge: #9a948c; --l-off: #e1ded6; --l-offt: #1c1a18; --l-btn: #9a948c; --l-btnt: #000000; --l-sel: #ccc8c0; --l-selt: #1c1a18; --l-io: #e1ded6; --l-pop: #f6f5f0; --l-add: #e1ded6; --l-field: #fbfbf8; --l-fld: #fbfbf8; --l-fieldt: #1c1a18; --l-hint: #55514c; --l-head: #e4e1d9; --l-headt: #5e0f0f; --l-brand: #5e0f0f; --l-bar: #e4e1d9; --l-bar-rgb: 228,225,217; --l-bart: #3a3633; --l-markt: #1c1a18; --l-acc: #5c5853; --l-acc-rgb: 154,148,140; --l-link: #5e0f0f; --l-ink: #1c1a18; --l-title: #5e0f0f; --l-dim: #55514c; --l-num: #3a3633; --l-th: #3a3633; --l-me: #dfdcd4; --l-hand: #5c5853; --l-mark: #ffffff; }
+  :root[data-thd="bw-1-tamna"] { --d-page: #000000; --d-card: #0c0c0c; --d-strip: #242424; --d-line: #191919; --d-rim: #1f1f1f; --d-frame: #191919; --d-off: #1f1f1f; --d-offt: #c8c8c8; --d-btn: #3a3a3a; --d-btnt: #f0f0f0; --d-sel: #383838; --d-selt: #f0f0f0; --d-io: #383838; --d-pop: #191919; --d-add: #191919; --d-pbtn: #3a3a3a; --d-pbtnt: #f0f0f0; --d-psel: #383838; --d-pselt: #f0f0f0; --d-field: #2b2b2b; --d-fld: #2b2b2b; --d-fieldt: #e4e4e4; --d-hint: #e4e4e4; --d-head: #0c0c0c; --d-headt: #e4e4e4; --d-brand: #e4e4e4; --d-bar: #1f1f1f; --d-bart: #d6d6d6; --d-mark: #3a3a3a; --d-markt: #f0f0f0; --d-acc: #4a4a4a; --d-acc-rgb: 120,120,120; --d-link: #bdbdbd; --d-ink: #e4e4e4; --d-title: #a2a2a2; --d-dim: #a2a2a2; --d-num: #c8c8c8; --d-th: #e4e4e4; --d-me: #1c1c1c; --d-hand: #bdbdbd; --d-stript: #e4e4e4; --d-tree: #191919; --d-newt: #f0f0f0; }
   :root[data-thd="vaylet-tamna"] { --d-page: #151515; --d-card: #222831; --d-strip: #3e2c41; --d-line: #333a4d; --d-rim: #3c415c; --d-frame: #333a4d; --d-off: #3c415c; --d-offt: #e9e3e3; --d-btn: #b4a5a5; --d-btnt: #151515; --d-sel: #5c527f; --d-selt: #ffffff; --d-io: #5c527f; --d-pop: #333a4d; --d-add: #333a4d; --d-pbtn: #b4a5a5; --d-pbtnt: #151515; --d-psel: #5c527f; --d-pselt: #ffffff; --d-field: #454b69; --d-fld: #454b69; --d-fieldt: #ffffff; --d-hint: #ffffff; --d-head: #222831; --d-headt: #ffffff; --d-brand: #b4a5a5; --d-bar: #3c415c; --d-bart: #ffffff; --d-mark: #5c527f; --d-markt: #ffffff; --d-acc: #b4a5a5; --d-acc-rgb: 180,165,165; --d-link: #b4a5a5; --d-ink: #ffffff; --d-title: #cfc5c5; --d-dim: #cfc5c5; --d-num: #e9e3e3; --d-th: #ffffff; --d-me: #5c527f; --d-hand: #b4a5a5; --d-stript: #ffffff; --d-tree: #333a4d; --d-newt: #222831; }
   :root[data-thd="tyurkoaz-tamna"] { --d-page: #000000; --d-card: #0e131f; --d-strip: #4c5361; --d-line: #293040; --d-rim: #3a4250; --d-frame: #293040; --d-off: #3a4250; --d-offt: #dfe6e8; --d-btn: #92d3cd; --d-btnt: #0e131f; --d-sel: #69989f; --d-selt: #0e131f; --d-io: #69989f; --d-pop: #293040; --d-add: #293040; --d-pbtn: #92d3cd; --d-pbtnt: #0e131f; --d-psel: #69989f; --d-pselt: #0e131f; --d-field: #616874; --d-fld: #616874; --d-fieldt: #ffffff; --d-hint: #ffffff; --d-head: #0e131f; --d-headt: #ffffff; --d-brand: #92d3cd; --d-bar: #3a4250; --d-bart: #ffffff; --d-mark: #69989f; --d-markt: #0e131f; --d-acc: #92d3cd; --d-acc-rgb: 146,211,205; --d-link: #92d3cd; --d-ink: #ffffff; --d-title: #bcc6cb; --d-dim: #bcc6cb; --d-num: #dfe6e8; --d-th: #ffffff; --d-me: #3c565f; --d-hand: #92d3cd; --d-stript: #ffffff; --d-tree: #293040; --d-newt: #0e131f; }
   :root[data-thd="romantik-tamna"] { --d-page: #000000; --d-card: #22223b; --d-strip: #4a4e69; --d-line: #32344d; --d-rim: #3e415b; --d-frame: #32344d; --d-off: #3e415b; --d-offt: #f2e9e4; --d-btn: #c9ada7; --d-btnt: #22223b; --d-sel: #9a8c98; --d-selt: #22223b; --d-io: #9a8c98; --d-pop: #32344d; --d-add: #32344d; --d-pbtn: #c9ada7; --d-pbtnt: #22223b; --d-psel: #9a8c98; --d-pselt: #22223b; --d-field: #62657c; --d-fld: #62657c; --d-fieldt: #f2e9e4; --d-hint: #f2e9e4; --d-head: #22223b; --d-headt: #f2e9e4; --d-brand: #c6ac8f; --d-bar: #3e415b; --d-bart: #f2e9e4; --d-mark: #9a8c98; --d-markt: #22223b; --d-acc: #c6ac8f; --d-acc-rgb: 198,172,143; --d-link: #c6ac8f; --d-ink: #f2e9e4; --d-title: #c9ada7; --d-dim: #c9ada7; --d-num: #f2e9e4; --d-th: #f2e9e4; --d-me: #645c6e; --d-hand: #c6ac8f; --d-stript: #f2e9e4; --d-tree: #32344d; --d-newt: #22223b; }
   :root[data-thd="more-tamna"] { --d-page: #000000; --d-card: #082743; --d-strip: #199aad; --d-line: #1a4771; --d-rim: #0c7797; --d-frame: #1a4771; --d-off: #0c7797; --d-offt: #dbe8e6; --d-btn: #1a4771; --d-btnt: #ffffff; --d-sel: #1a4771; --d-selt: #ffffff; --d-io: #1a4771; --d-pop: #1a4771; --d-add: #1a4771; --d-pbtn: #082743; --d-pbtnt: #ffffff; --d-psel: #082743; --d-pselt: #ffffff; --d-field: #78aca0; --d-fld: #78aca0; --d-fieldt: #082743; --d-hint: #082743; --d-head: #082743; --d-headt: #ffffff; --d-brand: #199aad; --d-bar: #0c7797; --d-bart: #ffffff; --d-mark: #1a4771; --d-markt: #ffffff; --d-acc: #199aad; --d-acc-rgb: 25,154,173; --d-link: #199aad; --d-ink: #ffffff; --d-title: #b9d3d0; --d-dim: #b9d3d0; --d-num: #dbe8e6; --d-th: #082743; --d-me: #1a4771; --d-hand: #082743; --d-stript: #082743; --d-tree: #1a4771; --d-newt: #082743; --d-tabt: #082743; --d-msgt: #082743; --d-cqt: #082743; --d-cqn: #082743; }
   :root[data-thd="modern-tamna"] { --d-page: #000000; --d-card: #15222b; --d-strip: #506372; --d-line: #283845; --d-rim: #3c4e5c; --d-frame: #283845; --d-off: #3c4e5c; --d-offt: #e3e7ea; --d-btn: #283845; --d-btnt: #ffffff; --d-sel: #283845; --d-selt: #ffffff; --d-io: #283845; --d-pop: #283845; --d-add: #283845; --d-pbtn: #15222b; --d-pbtnt: #ffffff; --d-psel: #15222b; --d-pselt: #ffffff; --d-field: #647787; --d-fld: #647787; --d-fieldt: #ffffff; --d-hint: #ffffff; --d-head: #15222b; --d-headt: #ffffff; --d-brand: #d9d8ac; --d-bar: #3c4e5c; --d-bart: #ffffff; --d-mark: #283845; --d-markt: #ffffff; --d-acc: #d9d8ac; --d-acc-rgb: 217,216,172; --d-link: #d9d8ac; --d-ink: #ffffff; --d-title: #c3cbd1; --d-dim: #c3cbd1; --d-num: #e3e7ea; --d-th: #ffffff; --d-me: #283845; --d-hand: #15222b; --d-stript: #ffffff; --d-tree: #283845; --d-newt: #15222b; }
   :root[data-thd="ash-3-tamna"] { --d-page: #000309; --d-card: #051017; --d-strip: #122c3d; --d-line: #163447; --d-rim: #163447; --d-frame: #163447; --d-off: #163447; --d-offt: #c3ced6; --d-btn: #4c6a7d; --d-btnt: #eff2f4; --d-sel: #2f4f63; --d-selt: #eff2f4; --d-io: #2f4f63; --d-pop: #0b1f2d; --d-add: #0b1f2d; --d-pbtn: #4c6a7d; --d-pbtnt: #eff2f4; --d-psel: #2f4f63; --d-pselt: #eff2f4; --d-field: #254458; --d-fld: #254458; --d-fieldt: #ffffff; --d-hint: #eff2f4; --d-head: #051017; --d-headt: #eff2f4; --d-brand: #98acb9; --d-bar: #163447; --d-bart: #ffffff; --d-mark: #2f4f63; --d-markt: #ffffff; --d-acc: #98acb9; --d-acc-rgb: 152,172,185; --d-link: #98acb9; --d-ink: #eff2f4; --d-title: #98acb9; --d-dim: #98acb9; --d-num: #c3ced6; --d-th: #eff2f4; --d-me: #163447; --d-hand: #c3ced6; --d-stript: #eff2f4; --d-tree: #0b1f2d; --d-newt: #051017; }
+  :root[data-thd="emerald-2-tamna"] { --d-page: #0a060e; --d-card: #0c2224; --d-strip: #1e5559; --d-line: #14383b; --d-rim: #1a494d; --d-frame: #14383b; --d-off: #1a494d; --d-offt: #dcebe0; --d-btn: #348352; --d-btnt: #ffffff; --d-sel: #2b7953; --d-selt: #ffffff; --d-io: #2b7953; --d-pop: #14383b; --d-add: #14383b; --d-pbtn: #348352; --d-pbtnt: #ffffff; --d-psel: #2b7953; --d-pselt: #ffffff; --d-field: #236257; --d-fld: #236257; --d-fieldt: #ffffff; --d-hint: #f0f6f1; --d-head: #0c2224; --d-headt: #f0f6f1; --d-brand: #80b58c; --d-bar: #1a494d; --d-bart: #ffffff; --d-mark: #2b7953; --d-markt: #ffffff; --d-acc: #80b58c; --d-acc-rgb: 128,181,140; --d-link: #80b58c; --d-ink: #f0f6f1; --d-title: #bed9c4; --d-dim: #bed9c4; --d-num: #dcebe0; --d-th: #f0f6f1; --d-me: #203253; --d-hand: #0c2224; --d-stript: #f0f6f1; --d-tree: #14383b; --d-newt: #0c2224; }
+  :root[data-thd="coffee-1-tamna"] { --d-page: #0d0606; --d-card: #241516; --d-strip: #5a3a34; --d-line: #3a2826; --d-rim: #4a302d; --d-frame: #3a2826; --d-off: #4a302d; --d-offt: #f8eadc; --d-btn: #ba7547; --d-btnt: #1a0c08; --d-sel: #85503f; --d-selt: #ffffff; --d-io: #85503f; --d-pop: #3a2826; --d-add: #3a2826; --d-pbtn: #ba7547; --d-pbtnt: #1a0c08; --d-psel: #85503f; --d-pselt: #ffffff; --d-field: #6b463d; --d-fld: #6b463d; --d-fieldt: #ffffff; --d-hint: #fcf5ef; --d-head: #241516; --d-headt: #fcf5ef; --d-brand: #de9f61; --d-bar: #4a302d; --d-bart: #ffffff; --d-mark: #85503f; --d-markt: #ffffff; --d-acc: #de9f61; --d-acc-rgb: 222,159,97; --d-link: #de9f61; --d-ink: #fcf5ef; --d-title: #f1d7bd; --d-dim: #f1d7bd; --d-num: #f8eadc; --d-th: #fcf5ef; --d-me: #4a262d; --d-hand: #241516; --d-stript: #fcf5ef; --d-tree: #3a2826; --d-newt: #241516; }
+  :root[data-thd="ashrose-1-tamna"] { --d-page: #070213; --d-card: #231433; --d-strip: #5d3c64; --d-line: #392346; --d-rim: #4d3156; --d-frame: #392346; --d-off: #4d3156; --d-offt: #f4e2ea; --d-btn: #ba6e8f; --d-btnt: #0c0420; --d-sel: #8d5580; --d-selt: #ffffff; --d-io: #8d5580; --d-pop: #392346; --d-add: #392346; --d-pbtn: #ba6e8f; --d-pbtnt: #0c0420; --d-psel: #8d5580; --d-pselt: #ffffff; --d-field: #6f4268; --d-fld: #6f4268; --d-fieldt: #ffffff; --d-hint: #fbf4f7; --d-head: #231433; --d-headt: #fbf4f7; --d-brand: #d391b0; --d-bar: #4d3156; --d-bart: #ffffff; --d-mark: #8d5580; --d-markt: #ffffff; --d-acc: #d391b0; --d-acc-rgb: 211,145,176; --d-link: #d391b0; --d-ink: #fbf4f7; --d-title: #eacad9; --d-dim: #eacad9; --d-num: #f4e2ea; --d-th: #fbf4f7; --d-me: #4f2c4c; --d-hand: #231433; --d-stript: #fbf4f7; --d-tree: #392346; --d-newt: #231433; }
+  :root[data-thd="bordeaux-1-tamna"] { --d-page: #000000; --d-card: #0d0d0c; --d-strip: #2e2c2a; --d-line: #1a1917; --d-rim: #272523; --d-frame: #1a1917; --d-off: #272523; --d-offt: #cfccc4; --d-btn: #5c5853; --d-btnt: #f0eee6; --d-sel: #514d49; --d-selt: #f0eee6; --d-io: #514d49; --d-pop: #1a1917; --d-add: #1a1917; --d-pbtn: #5c5853; --d-pbtnt: #f0eee6; --d-psel: #514d49; --d-pselt: #f0eee6; --d-field: #373532; --d-fld: #373532; --d-fieldt: #f0eee6; --d-hint: #f0eee6; --d-head: #0d0d0c; --d-headt: #c5474b; --d-brand: #c5474b; --d-bar: #272523; --d-bart: #d8d3ca; --d-mark: #5c5853; --d-markt: #f0eee6; --d-acc: #9a948c; --d-acc-rgb: 154,148,140; --d-link: #c5474b; --d-ink: #f0eee6; --d-title: #c5474b; --d-dim: #a49f97; --d-num: #cfccc4; --d-th: #f0eee6; --d-me: #1d1c1b; --d-hand: #9a948c; --d-stript: #f0eee6; --d-tree: #1a1917; --d-newt: #000000; }
   /* ТЕМИТЕ (ЦВЕТОВЕ) — край */
   body.skin2:not(.dark):where(:not(.coach-on)), html.ld:not(.ldd) body { --bg: var(--l-page); --card: var(--l-card); --ink: var(--l-ink); --muted: var(--l-dim); --accent: var(--l-acc); --accent-dark: var(--l-link); --edge: var(--l-edge); --border: var(--l-line); --accent-a40: rgba(var(--l-acc-rgb),0.4);
     --soft: var(--l-strip); --soft2: var(--l-off); --line: var(--l-rim); --btn-off: var(--l-off); --ate: var(--l-card); --tp-soft: var(--l-card); --me: var(--l-me);
@@ -2625,6 +2645,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     "account-fill": '<circle cx="12" cy="8.2" r="3.6"></circle><path d="M4.8 19.6c0-3.9 3.2-6.4 7.2-6.4s7.2 2.5 7.2 6.4v.4H4.8Z"></path>',
     analysis: '<path d="M3.5 20.5h17"></path><path d="M5.5 20.5v-7a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v7"></path><path d="M10.4 20.5v-13a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v13"></path><path d="M15.3 20.5v-10a1 1 0 0 1 1-1h1.2a1 1 0 0 1 1 1v10"></path>',
     ate: '<circle cx="12" cy="12" r="8.6"></circle><path d="M8.1 12.4l2.6 2.6 5.2-5.4"></path>',
+    auto: '<circle cx="12" cy="12" r="8.2"></circle><path d="M12 3.8a8.2 8.2 0 0 1 0 16.4Z" fill="currentColor" stroke="none"></path>',
     back: '<path d="M19.5 12h-15"></path><path d="M10 6.5 4.5 12l5.5 5.5"></path>',
     basic: '<rect x="2.8" y="5" width="18.4" height="14" rx="2.2"></rect><circle cx="8.4" cy="10.4" r="2"></circle><path d="M5.4 16.2a3 3 0 0 1 6 0"></path><path d="M14.2 10h4M14.2 13.4h4"></path>',
     bell: '<path d="M7 10.1a5 5 0 0 1 10 0v4.2c0 1.1.6 2 1.6 2.8H5.4c1-.8 1.6-1.7 1.6-2.8Z"></path><path d="M10.2 19.5a2 2 0 0 0 3.6 0"></path><path d="M12 5.1V3.5"></path>',
@@ -4068,7 +4089,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ Т187 (Chris 21.11 14:05–14:20, DEC-0067): МЕНЮТО ЗА АКАУНТА — горе вдясно. Чернова: само при clients.show_acct (засега Chris) ════════
   //   Кръгла икона (account) в шапката → панел под нея, бял, без линии между редовете, „икона + надпис“: името · Известия (bell / belloff —
   //   натискането прави същото като камбанката в „Ново за теб“: същият балон, едно положение) · Инсталирай аппа (install: подканата, иначе
-  //   указанията на Табло) ↔ „Аппът е инсталиран“ (installed, сиво, не се натиска; в инсталирания апп) · Тема (sun / moon — засега само
+  //   указанията на Табло) ↔ „Аппът е инсталиран“ (installed, сиво, не се натиска; в инсталирания апп) · Тема (sun / moon, Т218: auto — засега само
   //   иконата и изборът на телефона, cdbgym_theme; цветовете — когато ги даде Chris) · дребно версията. Затваряне: извън, Esc, „Назад“,
   //   дръпване — слоевете (Т181). Огледалото (?c=, изгледът като клиент): същото място и вид, бледо; редовете (и хапчето на темата) не правят нищо.
   var ACCT = { on: false, name: "", btn: null, pop: null, L: null }, ACCT_C = false, APP_ST = null, THEME_KEY = "cdbgym_theme";
@@ -4076,25 +4097,32 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   // ════════ Т216 (DEC-0119; Chris 25.11.2026 10:52 — редът; 12:21 „само на моя акаунт … качваме само по двойки , комплект“; 12:37 „ако е светла избрана
   //   дропа върти само светлите, ако е тъмна — само тъмните“; 12:39 „давай само в моят акаунт“): МНОГО ТЕМИ ════════
   //   Т217 (DEC-0120; Chris 25.11.2026 13:52 „темите са супер качваме за всички“; 14:05 „… да се отваря в моята тема?“): редът — при всеки с менюто (ACCT.on);
-  //   изборът е на ТЕЛЕФОНА, не на акаунта — светлата и тъмната поотделно (cdbgym_theme_l / _d = id от temi.json; без избор или непознат id — Orange / Gray,
-  //   таблицата на Т214) — и важи за всеки акаунт, отворен на него (themeOn): и изгледът като клиент. Сменя се само в своя акаунт; в огледалото редът и хапчето са
-  //   бледи и изключени. ?c= — сив, без тема (хапчето — името на първата светла).
-  //   Темата = data-thl / data-thd на html → числата от блока „ТЕМИТЕ (ЦВЕТОВЕ)“. Слънцето / луната — както досега; хапчето „● Име ▾“ → списъкът с
+  //   изборът е на ТЕЛЕФОНА, не на акаунта — светлата и тъмната поотделно (cdbgym_theme_l / _d = id от temi.json; без избор или непознат id — първата от списъка,
+  //   Т218: White / Black) — и важи за всеки акаунт, отворен на него (themeOn): и изгледът като клиент. Сменя се само в своя акаунт; в огледалото редът и хапчето са
+  //   бледи и изключени. ?c= — сив, без тема („Light“, слънцето и името на първата светла). Orange / Gray са таблицата на Т214 — без блок.
+  //   Т218 (6) (DEC-0122, Chris 25.11.2026 15:20–15:22 „да вържем темата с темата на телефона … трябва да иамаме ауто да върви с телефона“): страната има три състояния —
+  //   Auto (без cdbgym_theme: от телефона, и на живо при смяната му) · Light · Dark; думата на реда е състоянието, натискането върти Auto → Light → Dark → Auto,
+  //   менюто остава отворено. Без matchMedia — светла. Светлата и тъмната тема се помнят поотделно и в Auto. Редът = Auto / Light / Dark (преди — „Тема“).
+  //   Темата = data-thl / data-thd на html → числата от блока „ТЕМИТЕ (ЦВЕТОВЕ)“. Слънцето / луната (и полукръгът — Auto); хапчето „● Име ▾“ → списъкът с
   //   темите на избраната страна (слой върху менюто); изборът се вижда веднага, менюто и списъкът остават, ширината — по новото име.
-  /* ТЕМИТЕ (СПИСЪК) — начало (id · име · кръгче; първата — таблицата на Т214): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
+  /* ТЕМИТЕ (СПИСЪК) — начало (id · име · кръгче; първата — по подразбиране): генерирано от temi/temi.json с tools/app/proto/temi_gen.py — не на ръка */
   var THEMES = {
-    l: [["oranzh-svetla", "Orange", "#ff9800"], ["vaylet-svetla", "Violet", "#dbcdf0"], ["tyurkoaz-svetla", "Turquoise", "#d0eae8"], ["romantik-svetla", "Romantic", "#e5989b"], ["zalez-svetla", "Sunset", "#fb7337"], ["powerful-svetla", "Powerful", "#b32301"], ["fire-1-svetla", "Fire", "#e73a25"]],
-    d: [["siva-tamna", "Gray", "#6c7a87"], ["vaylet-tamna", "Violet", "#5c527f"], ["tyurkoaz-tamna", "Turquoise", "#92d3cd"], ["romantik-tamna", "Romantic", "#c9ada7"], ["more-tamna", "Sea", "#199aad"], ["modern-tamna", "Modern", "#d9d8ac"], ["ash-3-tamna", "Ash", "#617f93"]]
+    l: [["bw-1-svetla", "White", "#ffffff"], ["oranzh-svetla", "Orange", "#ff9800"], ["vaylet-svetla", "Violet", "#dbcdf0"], ["tyurkoaz-svetla", "Turquoise", "#d0eae8"], ["romantik-svetla", "Romantic", "#e5989b"], ["zalez-svetla", "Sunset", "#fb7337"], ["powerful-svetla", "Powerful", "#b32301"], ["fire-1-svetla", "Fire", "#e73a25"], ["emerald-1-svetla", "Emerald", "#41a57d"], ["coffee-1-svetla", "Coffee", "#c98b64"], ["ashrose-1-svetla", "Ash Rose", "#d391b0"], ["bordeaux-1-svetla", "Bordeaux", "#5e0f0f"]],
+    d: [["bw-1-tamna", "Black", "#000000"], ["siva-tamna", "Gray", "#6c7a87"], ["vaylet-tamna", "Violet", "#5c527f"], ["tyurkoaz-tamna", "Turquoise", "#92d3cd"], ["romantik-tamna", "Romantic", "#c9ada7"], ["more-tamna", "Sea", "#199aad"], ["modern-tamna", "Modern", "#d9d8ac"], ["ash-3-tamna", "Ash", "#617f93"], ["emerald-2-tamna", "Emerald", "#2b7953"], ["coffee-1-tamna", "Coffee", "#6e4033"], ["ashrose-1-tamna", "Ash Rose", "#7b466a"], ["bordeaux-1-tamna", "Bordeaux", "#5e0f0f"]]
   };
   /* ТЕМИТЕ (СПИСЪК) — край */
   var THL = null;   /* отвореният списък: { el, k, L } */
   function themeOn() { return ACCT.on && !COACH; }   /* Т217: темата на телефона важи */
   function themeSide() { return document.body.classList.contains("dark") ? "d" : "l"; }
-  function themeOf(k) { var v = themeOn() ? lsGet(THEME_KEY + "_" + k) : null; return THEMES[k].filter(function (t) { return t[0] === v; })[0] || THEMES[k][0]; }
-  function themeSet() {   /* атрибутите на html по избора (или без тях — таблицата) */
-    var h = document.documentElement;
-    ["l", "d"].forEach(function (k) { var t = themeOf(k); if (t === THEMES[k][0]) h.removeAttribute("data-th" + k); else h.setAttribute("data-th" + k, t[0]); });
+  var THEME_MQ = null; try { THEME_MQ = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null; } catch (x) {}   /* Т218 (6): страната на телефона */
+  function themeMode() { var v = COACH ? "light" : lsGet(THEME_KEY); return v === "light" || v === "dark" ? v : "auto"; }   /* състоянието: избраното, иначе Auto; ?c= — сив, светъл */
+  function themeDark() { var m = themeMode(); return m === "dark" || (m === "auto" && !!THEME_MQ && THEME_MQ.matches === true); }
+  function themeOf(k) { var v = themeOn() ? lsGet(THEME_KEY + "_" + k) : null; return THEMES[k].filter(function (t) { return t[0] === v; })[0] || THEMES[k][0]; }   /* избраната на телефона, иначе първата — по подразбиране (Т218) */
+  function themeSet() {   /* атрибутите на html по избора (където темите не важат — без тях, таблицата) */
+    var h = document.documentElement, on = themeOn();
+    ["l", "d"].forEach(function (k) { if (on) h.setAttribute("data-th" + k, themeOf(k)[0]); else h.removeAttribute("data-th" + k); });
   }
+  var THEME_MODES = { auto: ["auto", "Auto", "автоматично, както телефона"], light: ["sun", "Light", "светла"], dark: ["moon", "Dark", "тъмна"] };   /* Т218 (6): иконата, думата на реда, четецът */
   function thmDot(t) { return '<span class="thmd" style="background:' + t[2] + '"></span>'; }
   function thmChip() {   /* хапчето — темата на страната, която се вижда */
     var k = themeSide(), t = themeOf(k);
@@ -4128,16 +4156,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var b = document.getElementById("acctThm"); if (b) b.outerHTML = thmChip();
     acctPlace();   /* Т217: ширината — по новото име, десният ръб не мърда */
   }
-  function themeApply() {   // Т189: тъмната — само в „скин 2“; Т217: на телефона — и в изгледа като клиент (?c= — своите цветове); лентата на телефона — с нея
-    var dark = themeOn() && lsGet(THEME_KEY) === "dark";
+  function themeTc(dark) {   /* ивицата горе — шапката на темата */
+    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue(dark ? "--d-head" : "--l-head").trim());   // като шапката в темата (Т192д); Т214 — от таблицата на цветовете (--l-head / --d-head)
+  }
+  function themeApply() {   // Т189: тъмната — само в „скин 2“; Т217: на телефона — и в изгледа като клиент; Т218 (6): Auto — страната на телефона (?c= — своите цветове); лентата на телефона — с нея
+    var dark = themeOn() && themeDark();
     themeSet();   /* Т216 */
     document.body.classList.toggle("dark", dark);
-    var m = document.querySelector('meta[name="theme-color"]'); if (m && !COACH) m.setAttribute("content", getComputedStyle(document.documentElement).getPropertyValue(dark ? "--d-head" : "--l-head").trim());   // като шапката в темата (Т192д); Т214 — от таблицата на цветовете (--l-head / --d-head)
+    themeTc(dark);
+  }
+  if (THEME_MQ) {   /* Т218 (6): телефонът смени страната — в Auto и аппът, веднага; отворен списък с теми се затваря */
+    var themeFollow = function () {
+      if (themeMode() !== "auto" || !themeOn()) return;
+      thmClose(false); themeApply();
+      if (ACCT.pop) { acctRender(); acctPlace(); }
+    };
+    if (THEME_MQ.addEventListener) THEME_MQ.addEventListener("change", themeFollow); else if (THEME_MQ.addListener) THEME_MQ.addListener(themeFollow);
   }
   function acctInit(on, name) {
     ACCT.on = on === true; ACCT.name = name || "";
     document.documentElement.classList.remove("ld", "ldd");   // Т214: тоновете на „Зарежда…“ — оттук нататък са на „скин 2“
-    if (!ACCT.on) { themeSet(); return; }   /* Т216: без менюто — без тема */
+    var T0 = window.__cdbTok;   /* Т218: без менюто — следващия път и „Зарежда…“ е без White / Black (само за кода, който вече е запазен на телефона — Т45) */
+    if (!COACH && T0 && token && lsGet(T0.key) === token) { if (!ACCT.on) lsSet(THEME_KEY + "_off", token); else if (lsGet(THEME_KEY + "_off") === token) lsSet(THEME_KEY + "_off", null); }
+    if (!ACCT.on) { themeSet(); themeTc(false); return; }   /* Т216: без менюто — без тема; Т218: и ивицата */
     document.body.classList.add("skin2");   // Т188 (DEC-0068): show_acct — ключът на целия „скин 2“ (менюто, заглавията, после темата)
     themeApply();   // Т189: темата от телефона
     if (document.getElementById("acctBtn")) return;
@@ -4152,16 +4193,16 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function acctState() {
     var ro = acctRo(), env = INST_ENV || pwaEnv(), sa = !!env.standalone || !!(window.__cdbTok && window.__cdbTok.sa);
     var inst = ro ? !!(APP_ST && APP_ST.installed === true) : sa;
-    return { ro: ro, pon: ro ? !!(PUSH_RO && PUSH_RO.on) : PUSH.on, inst: inst, dark: themeSide() === "d", can: !ro && !inst && (!!instPrompt || !!env.ios || !!env.android) };
+    return { ro: ro, pon: ro ? !!(PUSH_RO && PUSH_RO.on) : PUSH.on, inst: inst, can: !ro && !inst && (!!instPrompt || !!env.ios || !!env.android) };
   }
   function acctHtml() {
-    var s = acctState(), off = ' disabled aria-disabled="true"', dis = s.ro ? off : "", m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
+    var s = acctState(), md = THEME_MODES[themeMode()], off = ' disabled aria-disabled="true"', dis = s.ro ? off : "", m = document.querySelector('meta[name="version"]'), v = m && m.getAttribute("content");
     return '<div class="aname">' + esc(ACCT.name) + "</div>"
       + '<button type="button" class="arow' + (s.pon ? "" : " off") + '" id="acctPush" aria-label="Известия: ' + (s.pon ? "включени" : "изключени") + '"' + dis + ">" + ic(s.pon ? "bell" : "belloff") + "<span>Известия</span></button>"
       + (s.inst ? '<button type="button" class="arow done" id="acctInst"' + off + ">" + ic("installed") + "<span>Аппът е инсталиран</span></button>"
         : '<button type="button" class="arow" id="acctInst"' + (s.can ? "" : off) + ">" + ic("install") + "<span>Инсталирай аппа</span></button>")
       + '<div class="thmr">'   /* Т216 */
-      + '<button type="button" class="arow" id="acctTheme" aria-label="Тема: ' + (s.dark ? "тъмна" : "светла") + '"' + dis + ">" + ic(s.dark ? "moon" : "sun") + "<span>Тема</span></button>"
+      + '<button type="button" class="arow" id="acctTheme" aria-label="Тема: ' + md[2] + '"' + dis + ">" + ic(md[0]) + "<span>" + md[1] + "</span></button>"   /* Т218 (6): Auto / Light / Dark */
       + thmChip() + "</div>"
       + (v ? '<div class="aver">cdb-Victus · ' + esc(v) + "</div>" : "");
   }
@@ -4217,7 +4258,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       return;
     }
     if (r.id === "acctInst") { acctClose(false); instDo(); return; }
-    if (r.id === "acctTheme") { lsSet(THEME_KEY, lsGet(THEME_KEY) === "dark" ? "light" : "dark"); themeApply(); acctClose(false); }   // Т189: и цветовете; Т192в (Chris 19:10): „след избиране на опция … трябва да се затваря“ — както „Известия“ и „Инсталирай“
+    if (r.id === "acctTheme") {   // Т218 (6): върти Auto → Light → Dark → Auto; менюто остава (Т192в отпада за този ред), ширината — по новите думи, десният ръб не мърда
+      var m0 = themeMode(); lsSet(THEME_KEY, m0 === "auto" ? "light" : m0 === "light" ? "dark" : null);
+      themeApply(); acctRender("acctTheme"); acctPlace();
+    }
   });
 
   // ════════ ИЗВЕСТИЯ (Т85, Chris 07:11–07:44) ════════
