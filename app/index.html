@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.77.0">
+<meta name="version" content="v1.78.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -2083,13 +2083,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .fpk .fpkr.fpk-frac > .fpkf:first-child { flex: 1.6 1 0; font-size: 13px; }
   .fpk .fpkr.fpk-frac > .fpkf.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .fpk .fpkr > * { box-sizing: border-box; width: 100%; min-width: 0; height: 36px; margin: 0; }
-  .fpk .fpka, .fpk select { padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--border); border-radius: 9px; }
-  .fpk .fpka { text-align: right; font-variant-numeric: tabular-nums; border-color: var(--fbd); }
+  .fpk .fpka, .fpk select { padding: 0 8px; font-family: inherit; font-size: 16px; color: var(--ink); background: #fff; border: 1px solid var(--fbd); border-radius: 9px; }   /* Т221 (Chris 25.11 21:39 „направи рамка и на грамовете“): мярката и състоянието — рамката на полето до тях */
+  .fpk .fpka { text-align: right; font-variant-numeric: tabular-nums; }
   .fpk select { padding: 0 4px; text-overflow: ellipsis; }
   .fpk .fpk1 { display: flex; align-items: center; padding: 0 4px; color: var(--muted); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .fpk .fpksz { padding: 0 10px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--ink); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
   .fpk .fpksz.on { background: var(--accent); border-color: var(--accent); color: #fff; }
   .fpk .fpkc { min-height: 18px; color: var(--muted); font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }   /* сметката — на един ред */
+  .fpkq .fpkc:empty::before { content: "\00a0"; }   /* Т221: празно количество (числото е задължително) — празен ред със същата височина: балонът не скача, щом се напише */
   .fpk .fpkb { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }   /* часът · Запиши · Отказ; тясно (320) — бутоните под часа */
   .fpk .fpkbb { flex: 1 1 150px; min-width: 150px; display: flex; gap: 8px; }
   .fpk .fpkb .btn { flex: 1 1 0; min-width: 0; width: auto; margin: 0; padding-left: 8px; padding-right: 8px; white-space: nowrap; }
@@ -2198,6 +2199,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel.ldday > .ch.ftgh { grid-template-columns: auto minmax(0, 1fr) 35px 40px 41px; }   /* без колоната на стрелката (не е акордеон) */
   .card.ldday > .ch .ttl .ibtn { vertical-align: -3px; }
   @media (max-width: 359px) { .card.ldday > .ch.ftgh > .ttl { grid-row: 1 / 3; } }   /* тясно: % — на свой ред (Т132) → „от …“ — до П · В · М */
+  /* Т221 (DEC-0125; Chris 25.11.2026 21:39 „картата на лога да не е згъваема, нека винаги е отворена перманентно“): „Днес“ — като „Денят“: без ▾ и без колоната му, обикновен
+     курсор; натискането — logCard в кода */
+  #p-hrana .card.panel[data-key="log"] > .ch { cursor: default; }
+  #p-hrana .card.panel[data-key="log"] > .ch::after { content: none; }
+  #p-hrana .card.panel[data-key="log"] > .ch.ftgh { grid-template-columns: auto minmax(0, 1fr) 35px 40px 41px; }
   /* т. 2, 6, 11, 16: табовете — лентата на кухнята (.kseg) с иконките; четирите лица — в една рамка: на едно място, височината — най-високото
      („Текст“) → картата не мърда при смяна на таба */
   /* Т200 (Chris 06:38 „табовете са дребни и свити“): височината (36 px), шрифтът (15 px) и тежестта (700) — на лентата на кухнята (.kseg), без свои */
@@ -2263,8 +2269,6 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .sumr .l2 { color: var(--muted); font-size: 13px; white-space: nowrap; }
   .sumr .r2 { color: var(--accent-dark); font-size: 13.5px; font-weight: 600; text-align: right; white-space: nowrap; }
   @media (max-width: 340px) { .sumr { column-gap: 4px; } .sumr .l2 { font-size: 11px; } .sumr .r2 { font-size: 11.5px; } }   /* 320 px: % и грамовете — на един ред (премерено) */
-  body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .ch { padding-left: 0; padding-right: 0; background: none; border-bottom: 0; }
-  body.skin2 #p-hrana > .sec[data-full="1"] > .card.panel[data-key="log"] > .body { padding: 0 0 4px; background: none; }
   #p-hrana > .sec[data-key="menu"][hidden] { display: none; }
   /* „Виж целия режим ›“ — режимът като страница-слой (като „Цялата рецепта ›“): картите отворени, само за четене */
   .vpage .vreg > .card > .ch { cursor: default; }
@@ -2592,9 +2596,17 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2 :is(.pane, #kBody) > .card.panel > :is(.ch, .body), body.skin2 .card.panel.ldday > :is(.ch, .ldsum), body.skin2 .pane > details.qacard > :is(summary, .qc-body) { padding-left: var(--pl); padding-right: var(--pr); }
   body.skin2 .pane > :is(.state, .hempty), body.skin2 .chatwrap > .chat, body.skin2 #instHost > .inst { padding-left: 11px; padding-right: 11px; }   /* без ивица: 1 + 11 */
   body.skin2 #instHost > .inst .ih { padding-right: 29px; }   /* мястото на × */
-  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] { margin-left: calc(-1 * var(--pl)); margin-right: calc(-1 * var(--pr)); border-radius: 0 0 14px 14px; }   /* логът без целта: лентата на „Днес“ — от ръб до ръб, иконата и полетата — на 12; долу — ъглите на картата */
-  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] > .body { background: none; }
-  body.skin2 #p-hrana > .sec[data-key="logsec"]:not([data-full="1"]) > .card.panel[data-key="log"] > :is(.ch, .body) { padding-left: var(--pl); padding-right: var(--pr); }
+  /* Т221 (DEC-0125; Chris 25.11.2026 21:39 „предпочитам да е с цвят като тайтъл на катрите но да влючква картата до горния ръб и лог тайтъла“ · 21:44 „да с лента е добре“): логът, без цел
+     и с цел — ЕДНА лента в тона на отворените заглавки (--soft = --l-strip / --d-strip): от горния ръб на картата (с ъглите ѝ, вътре в рамката) до долу на „Днес“, от ръб до ръб; иконата,
+     надписите и полетата — на 12; без черта под нея; хапчетата (без тях — полето / табовете) — 9 px под нея; долу — ъглите на картата */
+  body.skin2 #p-hrana > .sec[data-key="logsec"] > h2.lgh { margin: -12px calc(-1 * var(--pr)) 0 calc(-1 * var(--pl)); padding: 12px var(--pr) 0 var(--pl); background: var(--soft); border-radius: calc(var(--pl) + 4px) 15px 0 0 / 15px 15px 0 0; }
+  body.skin2 #p-hrana > .sec[data-key="logsec"] > .card.panel[data-key="log"] { margin-left: calc(-1 * var(--pl)); margin-right: calc(-1 * var(--pr)); border-top: 2px solid var(--soft); border-radius: 0 0 14px 14px; }
+  body.skin2 #p-hrana > .sec[data-key="logsec"] > .card.panel[data-key="log"] > .ch { padding-left: var(--pl); padding-right: var(--pr); border-bottom: 0; border-radius: 0; }
+  body.skin2 #p-hrana > .sec[data-key="logsec"] > .card.panel[data-key="log"] > .body { padding: 9px var(--pr) 4px var(--pl); background: none; }
+  body.skin2 #p-hrana > .sec[data-key="logsec"] > .card.panel[data-key="log"] > .body > .lmrow { margin-top: 3px; }   /* хапчето излиза 3 px над реда си → 9 px под лентата */
+  /* … буквите и линковете върху нея, тъмната — ролята за лента (както знаците на отворените заглавки; акцентът там не се чете) */
+  body.skin2.dark #p-hrana > .sec[data-key="logsec"] > h2.lgh, body.skin2.dark #p-hrana > .sec[data-key="logsec"] > h2.lgh :is(.ibtn, #logMore), body.skin2.dark #p-hrana > .sec[data-key="logsec"] > .card.panel[data-key="log"] > .ch :is(.ico, .ttl, .ibtn) { color: var(--d-stript); }
+  body.skin2.dark #p-hrana > .sec[data-key="logsec"] > h2.lgh #logMore { text-decoration-color: color-mix(in srgb, var(--d-stript) 40%, transparent); }
   body.skin2 .card.panel.ldday > .ch > .ibtn { margin-right: -7px; }
   /* редовете вътре — до същото отстояние (без своите 2–4 px) */
   body.skin2 .card.hist .card.hm > .ch, body.skin2 .card.hist .card.hm.open > .ch, body.skin2 .card.panel .card.panel.hist > .ch, body.skin2 .card.panel .card.panel.hist.open > .ch, body.skin2 .card.hist details.qacard > summary, body.skin2 .card.hist details.qacard .qc-body { padding-left: 0; padding-right: 0; }
@@ -4789,7 +4801,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function monthLabel(k) { var p = String(k).split("-"), mi = parseInt(p[1], 10) - 1; return (MONTH_NAMES[mi] || p[1]) + " " + p[0]; }
   // Т24: логът е карта-акордеон като другите (рамка + цветна страна, ▸/▾, цикълът от Т20). В затворения заглавен ред: „Днес“ + броячът.
   // Т64 (Chris 09.11 15:32, отменя Т24 „затворена при режим“ от 08.11 20:37): „Днес“ е ОТВОРЕНА при всяко зареждане, с режим или без.
-  //   Клиентът може да я затвори; при следващо отваряне на приложението пак е отворена — нищо не се помни.
+  //   Т221 (Chris 25.11.2026 21:39): вече и не се сгъва — винаги отворена, без ▾ (logCard); нищо не се помни.
   // Вътре най-горе „Защо 21 дни?“ (Т60: отваря балон — INFO.log21 / log_done), после полето (винаги видимо в отворената карта), часът + бутонът, днешните редове.
   // Миналите дни са в „История на храненето“ (отделната карта под нея).
   function logCardHtml(open) {
@@ -6449,11 +6461,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     pop.addEventListener("click", function (e) {   // Т158б: колко — порция · резен · грамове
       var b = e.target.closest && e.target.closest("[data-epam]"); if (!b) return;
       Array.prototype.forEach.call(pop.querySelectorAll("[data-epam]"), function (x) { var on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); });
-      var gi = pop.querySelector(".epg"); if (gi) { gi.hidden = b.getAttribute("data-epam") !== "grams"; if (!gi.hidden) { if (!gi.value) gi.value = "100"; try { gi.focus({ preventScroll: true }); } catch (x) {} } }
+      var gi = pop.querySelector(".epg"); if (gi) { gi.hidden = b.getAttribute("data-epam") !== "grams"; if (!gi.hidden) { try { gi.focus({ preventScroll: true }); } catch (x) {} } }
+      eatOkSync();
     });
+    pop.addEventListener("input", eatOkSync); eatOkSync();   // Т221: рецептата в грамове — „Запиши“ е изключено, докато няма число
     pop.querySelector(".epok").addEventListener("click", eatSave);
     pop.querySelector(".eptm").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); eatSave(); } });
     try { pop.focus({ preventScroll: true }); } catch (x) {}
+  }
+  function eatOkSync() {   // Т221 (2)
+    if (!EAT || EAT.busy) return;
+    var did = EAT.el.hasAttribute("data-rec") ? EAT.el.getAttribute("data-dish") : null;
+    EAT.pop.querySelector(".epok").disabled = !!did && kitEatAmt(EAT.pop, did) === false;
   }
   function eatSave() {
     if (!EAT || EAT.busy) return;
@@ -6472,7 +6491,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     }).catch(function () {
       if (cur.saved) return;
       cur.busy = false; okb.disabled = false;
-      if (EAT === cur) msg.textContent = "Неуспешно. Опитай пак.";
+      if (EAT === cur) { eatOkSync(); msg.textContent = "Неуспешно. Опитай пак."; }
     });
   }
   // ════════ Т181 (Chris 19.11 11:13–11:27, DEC-0059): „НАЗАД“ И ЗАТВАРЯНЕТО С ДРЪПВАНЕ — ЕДИН МЕХАНИЗЪМ ЗА ВСИЧКИ СЛОЕВЕ ════════
@@ -7498,7 +7517,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var vv = window.visualViewport; if (!vv || !el || !el.isConnected) return;
     var top = vv.offsetTop + kbTop(), bot = vv.offsetTop + vv.height - ACC_GAP, fr = el.getBoundingClientRect(), a = fr.top, z = fr.bottom, b = kbBtn(el);
     if (z - a > bot - top) return;   // полето е по-високо от мястото — браузърът си държи курсора
-    if (b) { var br = b.getBoundingClientRect(), a2 = Math.min(a, br.top), z2 = Math.max(z, br.bottom); if (z2 - a2 <= bot - top) { a = a2; z = z2; } }
+    [el.closest(".fpk.fpkov"), b].some(function (x) {   // Т221 (3): логът — целият балон; не се ли събира — полето и бутонът
+      if (!x) return false;
+      var br = x.getBoundingClientRect(), a2 = Math.min(a, br.top), z2 = Math.max(z, br.bottom); if (z2 - a2 > bot - top) return false;
+      a = a2; z = z2; return true;
+    });
     var d = z > bot ? z - bot : 0; if (a - d < top) d = a - top;   // долу — до клавиатурата; горе — никога под ивицата
     if (Math.abs(d) < 1) return;
     for (var p = el.parentElement; p && p !== document.body; p = p.parentElement) {   // своят скрол (бокс) — първо той
@@ -7549,13 +7572,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   42 px: кухнята — „Добави“ / „Отказ“; логът (opts.log) — часът (часовникът на аппа) · „Запиши“ · „Отказ“ — и в трите таба.
   //   Застава на мястото на host (той се скрива); затваря се → host се връща. Слой: „назад“ и дръпването настрани = „Отказ“ (надолу — не:
   //   балонът е в страницата, надолу е скрол).
-  //   fpkOpen(host, f, opts) — f: храната (KIT.byId) или { id, n } на ястието / рецептата / храненето; opts: log · amt (по подразбиране 100 —
-  //   храна, 1 — рецепта; "" — празно) · max (г, 2000) · okEmpty (празно е позволено — Е2: солвърът дава) · ph(P) (сивото число — Е2) ·
+  //   fpkOpen(host, f, opts) — f: храната (KIT.byId) или { id, n } на ястието / рецептата / храненето; opts: log · amt (по подразбиране празно —
+  //   храна, 1 — рецепта; Т221: Chris 25.11.2026 21:39 „искам да няма 100 цифра в цифровия бокс, там искам да е празно по дефолт“; празно в лога — и на фокус) · max (г, 2000) · okEmpty (празно е позволено — Е2: солвърът дава) · ph(P) (сивото число — Е2) ·
   //   sizes · units · frac · base · what („ястие“ | „хранене“) · desc · link { t, go(P) } · remember (false — без помненето) · tm (часът,
   //   по подразбиране сега) · info (ⓘ до името) · g0(P) (Е2: грамовете при празно поле — числото на солвъра; сметката е за него) · ok(r, P) — r: { f, id, amt, unit, ug, g, st, size, frac, kc, p, c, fat, tm }; върне ли
   //   Promise — чака („Неуспешно. Опитай пак.“ при грешка) · cancel(P).
   var FPK = null, FPK_FR = [[1, "цялото"], [0.75, "¾"], [2 / 3, "⅔"], [0.5, "½"], [1 / 3, "⅓"], [0.25, "¼"]];
   function fpkMode(o) { return o.frac ? "frac" : o.units ? "units" : o.sizes ? "sizes" : "food"; }
+  function fpkIsG(P) { var u = P.m === "units" ? fpkUs(P)[P.unit] : null; return !!u && u.u === "г" && u.gr === 1; }   // Т221: рецептата — мярката е „г“
   function fpkUnits(f) { return (KIT.un[f.id] || []).filter(function (u) { return u.gr != null && u.gr !== "" && Number(u.gr) > 0; }); }
   function fpkUs(P) { return P.m === "units" ? P.o.units.map(function (u) { return { u: u[0], gr: Number(u[1]) }; }) : fpkUnits(P.f); }
   function fpkUnitSt(f, u) {   // мярката казва състоянието („порция (варено)“, „чаша, сварено (USDA, 240 мл)“, „бр. (печено)“) → това, ако храната го има; иначе null
@@ -7603,7 +7627,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         + '<select class="fpku" aria-label="Мярка">' + (m === "units" ? "" : '<option value="-1"' + (P.unit < 0 ? " selected" : "") + ">г</option>")
         + us.map(function (u, i) { return '<option value="' + i + '"' + (P.unit === i ? " selected" : "") + ">" + esc(u.u) + (m === "units" && u.u === "г" && u.gr === 1 ? "" : " (" + kitG(u.gr) + " г)") + "</option>"; }).join("") + "</select>" + stSel;   // Т199 Е3: рецептата — и „г“
     var ok = fpkOk(P) ? "" : " disabled";
-    return '<div class="fpk lay' + (o.log ? " fpklog" : "") + '" data-fpkm="' + m + '" role="group" aria-label="' + esc(f.n) + '" tabindex="-1">'
+    return '<div class="fpk lay' + (o.log ? " fpklog" : "") + ((m === "food" || m === "units") && !o.okEmpty ? " fpkq" : "") + '" data-fpkm="' + m + '" role="group" aria-label="' + esc(f.n) + '" tabindex="-1">'
       + '<div class="fpkh"><b class="fpkn">' + esc(f.n) + (o.info ? infoBtn(o.info) : "") + "</b>" + (o.link ? '<button type="button" class="fpkl" data-fpkl="1">' + esc(o.link.t) + "</button>" : "") + "</div>"
       + (o.desc ? '<div class="fpkd">' + esc(o.desc) + "</div>" : "")
       + '<div class="fpkr fpk-' + m + '"' + (m === "frac" ? ' role="group" aria-label="Колко от него"' : "") + ">" + row + "</div>"
@@ -7622,7 +7646,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (!host || !f || !host.parentNode) return null;
     if (FPK) fpkClose(true);
     o = o || {};
-    var m = fpkMode(o), P = { f: f, o: o, m: m, host: host, unit: m === "units" ? 0 : -1, amt: o.amt == null ? (m === "units" ? "1" : "100") : String(o.amt), st: o.remember === false || m === "units" || m === "frac" ? "" : fpkSt0(f), s: null, fr: 1, tm: o.log ? o.tm || nowHM() : "", busy: false };
+    var m = fpkMode(o), P = { f: f, o: o, m: m, host: host, unit: m === "units" ? 0 : -1, amt: o.amt == null ? (m === "units" ? "1" : "") : String(o.amt), st: o.remember === false || m === "units" || m === "frac" ? "" : fpkSt0(f), s: null, fr: 1, tm: o.log ? o.tm || nowHM() : "", busy: false };
     var w = document.createElement("div"); w.innerHTML = fpkHtml(P); P.el = w.firstChild;
     P.ov = o.over && o.over.isConnected ? o.over : null;   // Т199 Е3: над списъка (логът) — в body, по правилото на балона над списък (fpkPlace)
     if (P.ov) { P.el.classList.add("fpkov"); document.body.appendChild(P.el); fpkPlace(P); layCover(P.el, P.ov); popFit(P.el); P.y = barY(); P.rs = function () { fpkPlace(P); }; window.addEventListener("resize", P.rs); if (window.visualViewport) window.visualViewport.addEventListener("resize", P.rs); }   // целият балон — над лентата долу (страницата се вдига, както при „Изядох“)
@@ -7633,8 +7657,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     P.el.addEventListener("change", function (e) {
       var t = e.target;
       if (t.classList.contains("fpku")) {
-        P.unit = +t.value;
-        if (P.m === "units") { var nu = fpkUs(P)[P.unit], a0 = fpkNum(P.amt), ai = P.el.querySelector(".fpka"); if (nu && a0 != null && (nu.gr === 1 ? a0 < 20 : a0 >= 20)) { P.amt = nu.gr === 1 ? "100" : "1"; if (ai) ai.value = P.amt; } }   // Т199 Е3: мярка ↔ г — количеството 1 ↔ 100 (като в тракера)
+        var g0 = fpkIsG(P); P.unit = +t.value;
+        if (P.m === "units" && fpkIsG(P) !== g0) { var ai = P.el.querySelector(".fpka"); P.amt = g0 ? "1" : ""; if (ai) ai.value = P.amt; }   // Т221: мярката → „г“ — празно; обратно — 1 (Т199 Е3 беше 1 ↔ 100)
         var su = P.m === "food" ? fpkUnitSt(f, fpkUs(P)[P.unit]) : null;   // „… (варено)“ → и състоянието
         if (su !== null && su !== P.st) { P.st = su; var ss = P.el.querySelector("select.fpks"); if (ss) ss.value = su; }
         fpkSync(P);
@@ -7654,7 +7678,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       }
     });
     P.el.addEventListener("keydown", function (e) { if (e.key === "Enter" && e.target.classList.contains("fpka")) { e.preventDefault(); fpkSave(P); } });
-    try { P.el.focus({ preventScroll: true }); } catch (x) {}
+    var fa = o.log && P.amt === "" ? P.el.querySelector(".fpka") : null;   // Т221 (3) (Chris 25.11 21:47 „да излиза“): логът, грамовете са задължителни (храна · рецепта само в „г“) → полето е на фокус в СЪЩОТО натискане (iOS вади клавиатурата само така); мястото над нея — kbFit
+    try { (fa || P.el).focus({ preventScroll: true }); } catch (x) {}
     if (!P.ov) try { P.el.scrollIntoView({ block: "nearest" }); } catch (x) {}
     return P;
   }
@@ -8455,7 +8480,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var o = [], pn = Number(d.pn) > 0, def = pn ? "portion" : "grams";
     if (pn) o.push(["portion", kitCap(lgUnit(d))]); o.push(["grams", "Грамове"]);
     return '<div class="epam" role="group" aria-label="Колко">' + o.map(function (x) { var on = x[0] === def; return '<button type="button" data-epam="' + x[0] + '" aria-pressed="' + on + '"' + (on ? ' class="on"' : "") + ">" + x[1] + "</button>"; }).join("")
-      + '<input type="text" class="epg" inputmode="decimal" autocomplete="off" aria-label="Грамове" value="' + (def === "grams" ? "100" : "") + '"' + (def === "grams" ? "" : " hidden") + "></div>";
+      + '<input type="text" class="epg" inputmode="decimal" autocomplete="off" aria-label="Грамове" value=""' + (def === "grams" ? "" : " hidden") + "></div>";   // Т221: празно
   }
   function kitEatAmt(pop, did) {   // → { g, lbl } или false (грамовете липсват)
     var d = KIT.dishes.filter(function (x) { return String(x.id) === String(did); })[0]; if (!d) return null;
@@ -8730,8 +8755,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     lgClose(); if (EAT && sec.contains(EAT.el)) eatClose(); if (IPOP && sec.contains(IPOP.btn)) infoClose(); if (TP && sec.contains(TP.field)) tpClose();
     var t = document.getElementById("f_text"), tm = document.getElementById("f_time");
     var keep = t ? { v: t.value, f: document.activeElement === t, s: [t.selectionStart, t.selectionEnd], tm: tm ? tm.value : "", tu: !!(tm && tm.getAttribute("data-user")) } : null;
-    var card = sec.querySelector(':scope > .card.panel[data-key="log"]'), open = !card || card.classList.contains("open");
-    var w = document.createElement("div"); w.innerHTML = logSecHtml(open);
+    var w = document.createElement("div"); w.innerHTML = logSecHtml(true);   // Т221: винаги отворена
     var nsec = w.querySelector(':scope > .sec[data-key="logsec"]'), od = P.hrana.querySelector(":scope > .card.ldday");   // Т200: „Денят“ — отделна карта пред „Лог“
     if (od) od.parentNode.removeChild(od);
     while (w.firstChild) sec.parentNode.insertBefore(w.firstChild, sec);
@@ -8845,7 +8869,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var b = kitRecBase(d), pn = Number(d.pn) || 0, us = [];
       if (pn > 0 && b > 0) us.push([lgUnit(d), Math.round(b / pn * 10) / 10]);
       us.push(["г", 1]);
-      o.units = us; o.amt = us.length > 1 ? "1" : "100"; o.remember = false;
+      o.units = us; o.amt = us.length > 1 ? "1" : ""; o.remember = false;   // Т221: само в грамове — празно; с порции — 1 порция (Chris 21:47)
       o.base = b > 0 ? { kc: d.m.kc * 100 / b, p: d.m.p * 100 / b, c: d.m.c * 100 / b, f: d.m.f * 100 / b } : null;
       o.desc = lgRecDesc(d); o.link = { t: "Виж в кухнята ›", go: function () { lgKitGo(d); } };
     } else if (D.k === "d") {   // ястието — само дроб (т. 18)
@@ -10059,6 +10083,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function accEase(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }   // ease-in-out cubic — една и съща за височината и за скрола
   function isOpen(n) { return n.tagName === "DETAILS" ? n.open : n.classList.contains("open"); }
   function wantOpen(n) { return n.__target != null ? n.__target : isOpen(n); }   // накъде отива (и по време на движение)
+  function logCard(n) { return !!n && !!n.classList && n.classList.contains("panel") && n.getAttribute("data-key") === "log"; }   // Т221 (5): „Днес“ — винаги отворена, не се сгъва
   function setOpen(n, o) { if (n.tagName === "DETAILS") n.open = o; else n.classList.toggle("open", o); if (o) agSoon(n); }   // Т97: полетата вътре — по текста
   // тялото на акордеона. <details> с повече от едно дете (или с текст направо в него) → обвива се веднъж в .dbody (Т25),
   // за да се движи ЦЯЛОТО съдържание, а не само първото дете
@@ -10175,6 +10200,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function accSet(n, open, opts) {
     opts = opts || {};
+    if (!open && logCard(n)) return;   // Т221 (5)
     if (open && n.getAttribute("data-key") === "intake") fxCloseAll();   // Т112б: картата „Форма за данни“ се отваря → разделите затворени
     var changes = [{ n: n, open: open }];
     if (open) {   // по един отворен на ниво (.acc): брат, който се затваря, върви в СЪЩИЯ цикъл; Т112: .acc.multi — не
@@ -10386,6 +10412,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var card = ch.parentElement;
     if (!card || !card.classList.contains("card")) return;
     if (card.classList.contains("ldday")) return;   // Т199 Е3: „Денят“ — не е акордеон; Т217: „Защо тези числа“ — само от ⓘ
+    if (logCard(card)) return;   // Т221 (5): логът не реагира — само ⓘ, връзките и броячът
     if (card.classList.contains("anp")) return;   // Т145: картите на анализа са само визуални — не се затварят
     if (card.classList.contains("ro") && card.classList.contains("archbox")) return;   // Т111: празният архив (изгледите на треньора) — не се отваря
     var open = !wantOpen(card);
