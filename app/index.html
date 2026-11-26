@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.80.0">
+<meta name="version" content="v1.81.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -2271,10 +2271,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .sumr .r2 { color: var(--accent-dark); font-size: 13.5px; font-weight: 600; text-align: right; white-space: nowrap; }
   @media (max-width: 340px) { .sumr { column-gap: 4px; } .sumr .l2 { font-size: 11px; } .sumr .r2 { font-size: 11.5px; } }   /* 320 px: % и грамовете — на един ред (премерено) */
   #p-hrana > .sec[data-key="menu"][hidden] { display: none; }
-  /* „Виж целия режим ›“ — режимът като страница-слой (като „Цялата рецепта ›“): картите отворени, само за четене */
-  .vpage .vreg > .card > .ch { cursor: default; }
-  .vpage .vreg > .card > .ch::after { content: none; }
-  .vpage .vreg > .card + .card { margin-top: 12px; }
+  /* Т225 (Chris 26.11.2026 12:4x „Да се махне“): страницата „Режимът“ (Т200 — страница-слой: vpage › vreg) — махната: вече няма път до нея (Т224 — препратките
+     водят в кухнята, „Режим“); картите на режима в кухнята — .card.panel.kreg .vreg (по-долу) */
   /* ════════ Т223 (DEC-0127; Chris 26.11.2026 09:18–09:50): „Режим“ в „Моите ястия“ · „От стария режим ▾“ · линиите между редовете ════════ */
   /* Т223 (Chris 26.11 09:23, 09:31): „Режим“ — картите на режима вътре в картата: вложени (като картите в „Архив“), отворени и само за четене (като страницата „Режимът“) */
   .card.panel.kreg .vreg > .card { border-left-width: 3px; margin: 0 0 10px; }
@@ -2564,6 +2562,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2.dark #kBody > .card.panel:is([data-key="kd_d"], [data-key="kd_r"]) > .body > .bank > .bk:nth-of-type(even), body.skin2.dark .card.panel.kreg > .body > .vreg .kz { --muted: var(--d-stript); }
   body.skin2.dark #kBody > .card.panel:is([data-key="kd_d"], [data-key="kd_r"]) > .body > .bank > .bk:nth-of-type(even) :is(.dbtn, .dlink), body.skin2.dark .card.panel.kreg > .body > .vreg .kz .eatok { color: var(--d-stript); }
   body.skin2.dark .card.panel.kreg > .body > .vreg .kz [style*="color"] { color: var(--d-stript) !important; }   /* цветът, писан в картата на режима (напр. числата #6b7886) — върху ивицата 1,35 : 1 */
+  /* ════════ Т225 (DEC-0127; Chris 26.11.2026 12:4x, въпросникът след Т224 — „Върху ивицата — по-тъмни“): линиите между редовете, които стоят ВЪРХУ
+     ивицата на зебрата (светлите теми) — в ролята на рамката на полетата (--l-fbd: 1,43–1,59 : 1 към ивицата във всичките 12 светли; беше --border =
+     --l-line — цветът на самата ивица, 1,00 : 1, невидими). Къде: отвореното ястие / рецепта на ивицата в „Моите ястия“ / „Моите рецепти“ — линиите между
+     продуктите и чертата над сбора („Цялото ястие“ / „Цялата рецепта“ — по същото правило); отвореният ден на ивицата в историите — линиите между записите
+     (храненето — както в „Днес“; и другите истории със записи) и между редовете на метъра и часовника (мерките) — една линия, една роля (Т223, правило 23).
+     Върху картата — както са (--border). Тъмните и ?c= (сивото на треньора, без зебра) — без промяна. „Режим“ — всяко хранене е един ред, вътре няма линии
+     (чертите между храненията са границата на ивицата, както в „Моите ястия“) — без промяна. Нова роля в темите — няма */
+  body.skin2:not(.dark):where(:not(.coach-on)) #kBody > .card.panel:is([data-key="kd_d"], [data-key="kd_r"]) > .body > .bank > .bk:nth-of-type(even) .ktb.kln > :nth-child(n+13):not(.sum):not(.per), body.skin2:not(.dark):where(:not(.coach-on)) #kBody > .card.panel:is([data-key="kd_d"], [data-key="kd_r"]) > .body > .bank > .bk:nth-of-type(even) .ktb.kln > .sum,
+  body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday:nth-of-type(odd) .lrow, body.skin2:not(.dark):where(:not(.coach-on)) .hist details.qday:nth-of-type(odd) .mblk > .mv ~ .mv { border-top-color: var(--l-fbd); }
   /* часовникът (Chris 24.11 14:05; 25.11 07:52 „не си забравил часовника и в двете теми“): циферблатът = полето; избраното и стрелката */
   body.skin2.dark .tp .tpface { fill: var(--d-field); stroke: var(--d-off); }
   body.skin2.dark .tp .tpdial text { fill: var(--d-fieldt); }
@@ -2624,7 +2631,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body { --fbd: var(--border); }   /* рамката на полетата: светлата на клиента — --l-fbd (горе, с тоновете); тъмните, ?c= и без менюто — както досега */
   body.skin2:not(.dark):where(:not(.coach-on)) :is(.lrow textarea.lfix, .mrow input.mfi, .ded input.dg) { border-color: var(--fbd); }   /* полетата на място (✎) и грамовете */
   /* НИВО 1 — най-външните карти на всички екрани (не — кутиите вътре в карта, таблиците, табовете, търсачката). position: relative — следващата карта е над сянката на предната */
-  body.skin2 :is(.pane, #instHost, #mCmp, #kBody) > :is(.sec, .card, .now, .start, .inst, .mcard, .state, .hempty, details.qacard), body.skin2 .chatwrap > .chat, body.skin2 .vpage .vreg > .card { position: relative; box-shadow: var(--sh1); background-image: var(--gl1); }
+  body.skin2 :is(.pane, #instHost, #mCmp, #kBody) > :is(.sec, .card, .now, .start, .inst, .mcard, .state, .hempty, details.qacard), body.skin2 .chatwrap > .chat { position: relative; box-shadow: var(--sh1); background-image: var(--gl1); }   /* Т225: без страницата „Режимът“ */
   body.skin2 .cform { position: relative; }   /* полето под чата — над сянката му */
   body.skin2 .vpage .tpg :is(.tp-card, .tp-step:not(.tp-next), .tp-soil) { box-shadow: var(--sh1); }   /* „Твоят път“ — картите; листата и корените са рисунката */
   body.skin2 .vpage .tpg .tp-step.tp-cur { box-shadow: 0 0 0 1px var(--accent), var(--sh1); }
@@ -2638,7 +2645,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   /* 12 / 12 — съдържанието на най-външната карта: 12 px от ръба ѝ ляво и дясно, с рамката (светлата 2 + 10 / 1 + 11, тъмната 1 + 11 / 1 + 11) */
   body.skin2 { --pl: 10px; --pr: 11px; }
   body.skin2.dark { --pl: 11px; }
-  body.skin2 :is(.pane, #kBody) > .sec, body.skin2 :is(.pane, #mCmp) > .mcard, body.skin2 .pane > :is(.now, .start, .card:not(.panel)), body.skin2 #kBody > .card:not(.panel), body.skin2 .vpage .vreg > .card,
+  body.skin2 :is(.pane, #kBody) > .sec, body.skin2 :is(.pane, #mCmp) > .mcard, body.skin2 .pane > :is(.now, .start, .card:not(.panel)), body.skin2 #kBody > .card:not(.panel),
   body.skin2 :is(.pane, #kBody) > .card.panel > :is(.ch, .body), body.skin2 .card.panel.ldday > :is(.ch, .ldsum), body.skin2 .pane > details.qacard > :is(summary, .qc-body) { padding-left: var(--pl); padding-right: var(--pr); }
   body.skin2 .pane > :is(.state, .hempty), body.skin2 .chatwrap > .chat, body.skin2 #instHost > .inst { padding-left: 11px; padding-right: 11px; }   /* без ивица: 1 + 11 */
   body.skin2 #instHost > .inst .ih { padding-right: 29px; }   /* мястото на × */
@@ -2662,7 +2669,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2 .bank .bk { padding-left: 0; padding-right: 0; }
   body.skin2 .bank .bki .dfoot { margin-right: 0; }
   /* датата и „видяно“ в ъгъла — на същото място (Т84б, Т111: до ръба, ~8 px) */
-  body.skin2 .sec > .card > .seenrow, body.skin2 .vpage .vreg > .card > .seenrow { margin-right: -3px; }
+  body.skin2 .sec > .card > .seenrow { margin-right: -3px; }   /* Т225: без страницата „Режимът“ */
   body.skin2 :is(.pane, #kBody, .sec) > .card.panel > .ch > .seenrow { flex-basis: calc(100% + 3px); margin-right: -3px; }
   /* редакторът в кухнята: балонът за добавяне застава точно на мястото на кутията с търсачката (26–334), тя не стърчи отдолу */
   body.skin2 .ded .dpick:has(> .fpk) { padding: 0; border: 0; background: none; }
@@ -7962,7 +7969,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (us.length) h += '<p class="kunh">Мерки</p><div class="kun">' + us.map(function (u) { return "<span>" + esc(u.u) + "</span><b>" + kitG(u.gr) + " г</b>"; }).join("") + "</div>";
     return h + (KIT_ROLE[f.r] ? '<p class="krole">' + esc(KIT_ROLE[f.r]) + "</p>" : "") + kitBtns(f);
   }
-  function kitTbl(rows, cls) {   // Т223: cls — „kln“: линиите между продуктите (ястието; Т224 — и рецептата); Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · П · В · М · ккал (Т199 Е4 — ястия т. 12; беше г · ккал · П · В · М); ккал — цели, П · В · М — един знак
+  function kitTbl(rows, cls) {   // Т223: cls — „kln“: линиите между продуктите (ястието; Т224 — и рецептата; Т225 — и редакторът, и рецептата от книгата); Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · П · В · М · ккал (Т199 Е4 — ястия т. 12; беше г · ккал · П · В · М); ккал — цели, П · В · М — един знак
     function v(x, d) { return x == null || x === "" || !isFinite(Number(x)) ? "—" : d ? kitN1(kitR1(Number(x))) : kitKc(x); }
     var h = '<div class="ktb' + (cls ? " " + cls : "") + '"><span></span><span class="h ml">г</span>' + macHead("h");
     rows.forEach(function (r) {
@@ -7982,7 +7989,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var g = Number(r[1]); if (!(g > 0)) return;
       rows.push({ n: r[0], g: g, kc: k.kc * g / 100, p: k.p * g / 100, c: k.c * g / 100, f: k.f * g / 100, cls: "per" });
     });
-    return '<p class="kmeta">Рецепта › ' + esc(f.k) + "</p>" + kitTbl(rows);
+    return '<p class="kmeta">Рецепта › ' + esc(f.k) + "</p>" + kitTbl(rows, "kln");   // Т225 (Chris 26.11 12:4x „Да, и там“): рецептата от книгата — същата таблица (линиите, чертата над сбора)
   }
   function kitOpen(btn) {
     var f = KIT.byId[btn.getAttribute("data-fid")], same = IPOP && IPOP.btn === btn;
@@ -8212,7 +8219,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       && kitOptOk(e.w, 20000) && (!pn || (/^\d+$/.test(pn) && +pn >= 1 && +pn <= 100)) && String(e.mk == null ? "" : e.mk).trim().length <= 30;   // Т199 Е2: мярката — до 30 знака
   }
   function kitRecMac() { var e = KIT.ed; return kitMac(e.items.filter(function (it) { return kitGOk(it.g); }).map(function (it) { return { id: it.id, g: kitGNum(it.g), st: it.st }; })); }
-  function kitRecPrev() { var e = KIT.ed; return '<div class="drec" id="dRec">' + kitTbl(kitRecRows(e.items, kitRecMac(), kitNum(e.w), kitNum(e.pn), e.mk)) + "</div>"; }
+  function kitRecPrev() { var e = KIT.ed; return '<div class="drec" id="dRec">' + kitTbl(kitRecRows(e.items, kitRecMac(), kitNum(e.w), kitNum(e.pn), e.mk), "kln") + "</div>"; }   // Т225: редакторът на рецептата — същата таблица като рецептата (kln)
   function kitRawPh() { var s = 0; KIT.ed.items.forEach(function (it) { if (kitGOk(it.g)) s += kitGNum(it.g); }); return s > 0 ? kitG(Math.round(s)) : ""; }   // т. 14: „Готово, г“ — в сиво сборът на суровите
   function kitRecEdHtml() {   // Т158б → Т199 Е2: продукти × количества (+ състояние) · Готово, г · Порции · Мярка → живата таблица · „Начин на приготвяне“
     var e = KIT.ed;
@@ -8381,7 +8388,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
     var m = ok.length ? kitMac(ok.map(function (it) { return { id: it.id, g: kitGNum(it.g), st: it.st }; })) : null;
     rows.push({ n: "Общо", g: tg || null, kc: m ? m.kc : null, p: m ? m.p : null, c: m ? m.c : null, f: m ? m.f : null, cls: "sum" });
-    return '<div class="dlive" id="dLive">' + kitTbl(rows) + "</div>";
+    return '<div class="dlive" id="dLive">' + kitTbl(rows, "kln") + "</div>";   // Т225: сглобяването на ястие — същата таблица като ястието (kln; „Общо“ — чертата над сбора)
   }
   function kitLiveSync() { var r = document.getElementById("dLive"); if (r && kitLiveOn()) r.outerHTML = kitLiveHtml(); }   // при писане — само таблицата (фокусът остава в полето)
   function kitNameHtml(lbl) {   // т. 9: светнатото „пре трен“ / „след трен“ — до „Име на ястието“, в оранжевото
@@ -9053,17 +9060,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     KIT.seg = "dishes";
     go("kuhnya:" + k, keep, instant);
   }
-  function lgRegPage(key) {   // Т200: режимът — страница-слой (vpOpen: „назад“, дръпване), като „Цялата рецепта ›“; картите отворени, само за четене (записът — табът „Режим“)
-    var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); }); if (!menus.length) return;
-    VPAGE.kreg = { t: "Режимът", h: function () { return '<div class="vreg">' + menus.map(function (r) { return cardHtml(r, true); }).join("") + "</div>"; } };
-    vpOpen("kreg");
-    var L = vpTop(); if (!L || L.key !== "kreg") return;
-    decorateMeals(L.el);   // изяденото днес — „✓ ЧЧ:ММ“, както в картата
-    Array.prototype.forEach.call(L.el.querySelectorAll(".eatbtn"), function (b) { b.parentNode.removeChild(b); });
-    markOpenSeen(L.el);
-    var t = key && L.el.querySelector('.vreg > .card[data-key="' + String(key).replace(/"/g, "") + '"]'), vb = L.el.querySelector(".vpb");
-    if (t && vb) vb.scrollTop = Math.max(0, t.getBoundingClientRect().top - vb.getBoundingClientRect().top - 8);
-  }
+  // Т225 (Chris 26.11.2026 12:4x „Да се махне“): страницата „Режимът“ (Т200 — страница-слой) — махната; вече няма път до нея: „Виж целия режим ›“ (Т223) и
+  //   препратките (Т224) водят в кухнята, „Моите ястия“, картата „Режим“; без пълния лог режимът е в „Храна“
   // ── „Запиши“ → записът със снимката (Т56); часът — „— ядено ЧЧ:ММ“, както „Изядох“
   function lgAmtTxt(r) {
     if (!r.unit || r.unit === "г") return kitG(Math.round((r.g || 0) * 10) / 10) + " г";
@@ -10537,7 +10535,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var root = P[tab], el = root && root.querySelector('[data-key="' + key.replace(/"/g, "") + '"]');
     if (!el && root && tab === "hrana" && /^an_\d+$/.test(key)) el = root.querySelector('[data-key="analysis"]');   // Т145: картата вече я няма (картата на пирамидата) → анализът
     if (!el) { if (same) accRun([], { y: 0 }, false); else window.scrollTo(0, 0); return; }   // Т66
-    if (tab === "hrana" && el.closest('.sec[data-key="menu"][hidden]')) { var rc = el.closest(".card[data-key]"); lgRegPage(rc ? rc.getAttribute("data-key") : null); return; }   // Т200: пълният лог — режимът е страница
+    if (tab === "hrana" && el.closest('.sec[data-key="menu"][hidden]')) { kitRegGo(kitRegKey(key) || "kd_reg", keep, instant); return; }   // Т225: режимът е скрит от „Храна“ (пълният лог) → кухнята, „Режим“, както препратките (Т224); беше Т200 — страницата
     if (key === "analysis") seenAnalysis();   // Т71
     var tgt = (el.tagName === "DETAILS" || el.classList.contains("card")) ? (accHead(el) || el) : el, head = null, fl = el;
     if (tab === "hrana" && key === "log") { var lgs = el.closest('.sec[data-key="logsec"]'); if (lgs) tgt = fl = lgs; }   // Т222 (Chris 26.11 04:30): логът — до горния ръб на лентата („Лог“), светва цялата карта
