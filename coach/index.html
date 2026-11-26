@@ -114,7 +114,10 @@
   .row .when { flex: none; align-self: flex-start; margin: -5px -5px 0 auto; color: var(--muted); font-size: 11.5px; line-height: 1.25; white-space: nowrap; }
   .row .dev { flex: none; padding: 0 7px; border-radius: 6px; background: #e7eaee; color: #4b5866; font-size: 11px; font-weight: 800; letter-spacing: 0.04em; }
   /* Т76: етапът („Режим“, „Анализ“, „21 дни · ден N“, „Свободен лог“) и „Личен“ — малки сиви чипове до името */
-  .row .stg { flex: none; max-width: 9em; padding: 0 7px; border-radius: 6px; background: var(--soft); color: #4b5866; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Т220 (3): знакът „предложение“ до целта (.prp) — хапчето на етапа (.stg), едно правило; в реда на целта — като група след П · В · М
+     (в реда — на основната линия на текста: без „overflow: hidden“, иначе хапчето стърчи нагоре) */
+  .row .stg, .row .l2 .prp { flex: none; max-width: 9em; padding: 0 7px; border-radius: 6px; background: var(--soft); color: #4b5866; font-size: 11px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .row .l2 .prp { display: inline-block; overflow: visible; }
   /* Т76 (Chris 22:09): часът на последната активност е винаги в ъгъла, цял, на първия ред — при теснота се съкращават чипът и името, не той */
   .row .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
   .row .b { padding: 1px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 700; white-space: nowrap; }
@@ -494,7 +497,7 @@
   function rich(r) { return "has_regime" in r || "log_mode" in r; }
   function stage(r) {
     if (!rich(r)) return "";
-    return r.has_regime ? "Режим" : (r.n_analysis || 0) > 0 ? "Анализ" : r.log_mode === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(r.log_days || 0, LOG_TARGET) : "Свободен лог";
+    return r.has_regime || ftOf(r) ? "Режим" :   /* Т220 (Chris 26.11.2026 15:5x „Да, „Режим“ при цел“): и при цел (ftOf — правилото на ftOn в аппа) — скачени съдове с „Твоят план“ */ (r.n_analysis || 0) > 0 ? "Анализ" : r.log_mode === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(r.log_days || 0, LOG_TARGET) : "Свободен лог";
   }
   // Броячът + готовността (Chris 15.11 14:08): поддръжката излиза при ≥ 14 дни с храна и ≥ 3 тегления, първото и последното на ≥ 14 дни
   //   (methodology/macro_model.md § 2.2). В лога (без анализ и без режим) до „последно“: „храна X/14 · тегления Y/3“; изпълненото — ✓;
@@ -530,13 +533,13 @@
   // Т134 (Chris 14.11 14:24–14:28 „да се знае, че вървят винаги заедно с акаунта — като скачени съдове“): целта за храната — същият
   //   източник и същото правило като в апа (Т132): цел И (собствен акаунт ИЛИ 21 дни лог). coach_food_targets() — едно извикване за
   //   списъка; няма го (старата база) / грешка → картата както досега.
-  var FTS = {};
+  var FTS = {}, FTP = {};   // Т220 (3): FTP — неодобреното предложение за цел по клиент (coach_food_targets → target.prop, Т220в); няма го → без знак
   function ftsLoad() {
     var q; try { q = sb.rpc("coach_food_targets"); } catch (x) { return Promise.resolve(); }
     return Promise.resolve(q).then(function (res) {
       if (!res || res.error || !Array.isArray(res.data)) return;
-      var m = {}; res.data.forEach(function (x) { if (x && x.client_id && x.target && x.target.day && x.target.day.kc > 0) m[x.client_id] = x.target.day; });
-      FTS = m; if (!list.classList.contains("hidden")) render();
+      var m = {}, p = {}; res.data.forEach(function (x) { if (x && x.client_id && x.target && x.target.day && x.target.day.kc > 0) { m[x.client_id] = x.target.day; if (x.target.prop && typeof x.target.prop === "object") p[x.client_id] = x.target.prop; } });   // Т220: + prop
+      FTS = m; FTP = p; if (!list.classList.contains("hidden")) render();
     }, function () {});
   }
   function ftOf(r) { var d = FTS[r.client_id]; return d && (r.coach_self === true || (r.log_days || 0) >= LOG_TARGET || r.log_mode === "free") ? d : null; }   // Т208: и при свободен лог (същото правило като ftOn в аппа — скачени съдове)
@@ -591,7 +594,7 @@
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
       + (ft   // Т134: при цел — „Цел {ккал} • П · В · М“ вместо „Лог x/21 • последно …“ (ккал — в слота на „Вчера“, едно под друго)
         ? '<div class="l2"><span class="c1"><span class="lb">Цел</span> <b class="n w4">' + Math.round(ft.kc) + "</b>" + NB + "ккал</span>"
-          + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))].concat(free ? ["Лог" + NB + '<b class="lg"><span class="n">' + days + "</span>" + NB + "/" + NB + "∞</b>"] : []), true) + "</span>"   // Т208 (Chris 24.11 11:46): свободен лог — целта И „Лог N / ∞“
+          + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))].concat(/* Т220 (3): знакът „предложение“ до целта */ FTP[r.client_id] ? ['<span class="prp">предложение</span>'] : []).concat(free ? ["Лог" + NB + '<b class="lg"><span class="n">' + days + "</span>" + NB + "/" + NB + "∞</b>"] : []), true) + "</span>"   // Т208 (Chris 24.11 11:46): свободен лог — целта И „Лог N / ∞“
         : '<div class="l2"><span class="c1">Лог <b class="lg">' + (free ? '<span class="n">' + days + "</span> / ∞" : days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
           + '<span class="c2">' + grps(readyCells(r).concat([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"]), true) + "</span>")
       + '<span class="c3">' + ms[0] + "</span>" + cell("c4", ms[1]) + cell("t1", t1) + cell("t2", t2) + cell("n1", n1) + cell("n2", n2) + cell("fm", fm) + "</div>"
