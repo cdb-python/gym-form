@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.82.0">
+<meta name="version" content="v1.82.1">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -793,11 +793,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .eatpop .epmsg:empty { display: none; }
   .card .body tr.ate > td { background: var(--ate); }
   /* Т59: ⓘ — бутонът до заглавието (видимо 18 px, зона 32 px; не мени височината на реда) и балонът (семейството на банера „Изядох“) */
-  .ibtn { display: inline-flex; flex: none; align-items: center; justify-content: center; box-sizing: border-box; width: 32px; height: 32px; margin: -7px -7px -7px -1px; padding: 0; border: 0; background: none; color: var(--accent); vertical-align: middle; font: inherit; letter-spacing: normal; text-transform: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .ibtn svg.ic { width: 18px; height: 18px; }
-  .ibtn:focus { outline: none; }
-  .ibtn:focus-visible svg.ic { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
+  .ibtn, .flipb { display: inline-flex; flex: none; align-items: center; justify-content: center; box-sizing: border-box; width: 32px; height: 32px; margin: -7px -7px -7px -1px; padding: 0; border: 0; background: none; color: var(--accent); vertical-align: middle; font: inherit; letter-spacing: normal; text-transform: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .ibtn svg.ic, .flipb svg.ic { width: 18px; height: 18px; }
+  .ibtn:focus, .flipb:focus { outline: none; }
+  .ibtn:focus-visible svg.ic, .flipb:focus-visible svg.ic { border-radius: 50%; box-shadow: 0 0 0 2px var(--accent); }
   .ibtn[aria-expanded="true"] { color: var(--accent-dark); }
+  /* Т226 (Chris 26.11 16:17): .flipb — знакът за обръщане на „Денят“ — в правилата на ⓘ горе: видимо 18 px, зона 32 px, цветът, фокусът (едно правило — сменя ли се ⓘ,
+     сменя се и знакът); не е ⓘ — без балон (без data-info) и без aria-expanded */
   .ipop { position: absolute; z-index: 55; box-sizing: border-box; padding-top: 8px; background: #fff; outline: none; color: var(--ink); font-size: 14.5px; font-weight: 400; line-height: 1.45; letter-spacing: normal; text-transform: none; text-align: left; }
   /* Т82 (Chris 04:33–04:42): балонът — лек тинт на акцента (~9 % върху бялото), за да се различава от белите карти: при клиента
      оранжев (#c77d2e → #faf3ec), при треньора сив (Т26: #5f6b78 → #f1f2f3). Сменя ли се акцентът — и тук. Рамката и сянката — както бяха. */
@@ -1732,7 +1734,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2:not(.dark)) details.lday > summary::after { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) .start a::after { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) details.qacard > summary::after { color: var(--accent-dark); }
-  :where(body.skin2:not(.dark)) .ibtn { color: var(--accent-dark); }
+  :where(body.skin2:not(.dark)) .ibtn, :where(body.skin2:not(.dark)) .flipb { color: var(--accent-dark); }   /* Т226 (Chris 26.11 16:17): и знакът за обръщане — като ⓘ */
   :where(body.skin2:not(.dark)) .km.k-like { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) .dish .dbtn { color: var(--accent-dark); }
   :where(body.skin2:not(.dark)) .ded .dtg > .dtv > i { color: var(--accent-dark); }
@@ -1875,7 +1877,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   body.skin2 .tp input.tpd:focus { border-color: var(--fbd); box-shadow: none; }
   body.skin2 .lrow .lfx:focus-visible, body.skin2 .lrow .ldel:focus-visible, body.skin2 .mrow .mfb:focus-visible, body.skin2 .ctk:focus-visible,
   body.skin2 .tp button.tpd:focus-visible, body.skin2 .tp .tpk:focus-visible, body.skin2 .tp .tpb:focus-visible,
-  body.skin2 .eatbtn:focus-visible .eatv, body.skin2 .ibtn:focus-visible svg.ic { box-shadow: none; }
+  body.skin2 .eatbtn:focus-visible .eatv, body.skin2 .ibtn:focus-visible svg.ic, body.skin2 .flipb:focus-visible svg.ic { box-shadow: none; }   /* Т226 (Chris 26.11 16:17): + знакът за обръщане (като ⓘ) */
   body.skin2 { --hl: color-mix(in srgb, var(--accent) 16%, var(--card)); }
   body.skin2 .flash { outline: none; background-color: var(--hl); transition: background-color 0.4s; }
   body.skin2 #p-hrana > .sec[data-key="logsec"].flash > h2.lgh, body.skin2 #p-hrana > .sec[data-key="logsec"].flash > .card.panel[data-key="log"] > .ch { background-color: var(--hl); transition: background-color 0.4s; }   /* Т222: логът светва цял — и лентата (картата — .flash) */
@@ -2263,6 +2265,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel.ldday > .ch > .ttl { flex: none; }
   .card.panel.ldday > .ch > .sub { display: block; flex: 0 1 auto; min-width: 0; color: var(--muted); font-size: 13px; font-weight: 400; white-space: nowrap; }
   .card.panel.ldday > .ch > .ibtn { margin: -6px -6px -6px auto; }
+  /* Т226 (Chris 26.11 16:17): знакът за обръщане — вляво от ⓘ, на лицето и на гърба; горе и долу — като ⓘ (зоната 32 px не мени височината на заглавката);
+     двете зони една до друга, между тях — междината на заглавката (8 px), както в пробата, която Chris избра (sloi/flip.png); ⓘ остава най-вдясно, където беше */
+  .card.panel.ldday > .ch > .flipb { margin: -6px 0 -6px auto; }
+  .card.panel.ldday > .ch > .flipb + .ibtn { margin-left: 0; }
   .ldsum { display: grid; row-gap: 10px; padding: 10px 10px 12px; }
   .sumr { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 10px; row-gap: 2px; align-items: baseline; font-size: 15px; line-height: 1.45; font-variant-numeric: tabular-nums; }
   .sumr .l1 { font-weight: 800; color: var(--accent-dark); }
@@ -2801,6 +2807,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     down: '<path d="M12 4.5v15"></path><path d="M6.5 14 12 19.5l5.5-5.5"></path>',
     edit: '<path d="M15.4 4.8a2.1 2.1 0 0 1 3 0l.8.8a2.1 2.1 0 0 1 0 3L8.6 19.2 4.2 20l.8-4.4Z"></path><path d="M13.6 6.6l3.8 3.8"></path>',
     fat: '<path d="M12 3.4C9 7.5 5.8 10.7 5.8 14.6a6.2 6.2 0 0 0 12.4 0c0-3.9-3.2-7.1-6.2-11.2Z"></path><path d="M14.3 12.6l-4.6 5.8"></path><circle cx="9.9" cy="13.3" r=".95"></circle><circle cx="14.1" cy="17.8" r=".95"></circle>',
+    flip: '<path d="M4.5 9.5A8 8 0 0 1 19 8.6M19.5 14.5A8 8 0 0 1 5 15.4"></path><path d="M19.4 4.6v4.2h-4.2M4.6 19.4v-4.2h4.2"></path>',
     goal: '<circle cx="12" cy="12" r="8.6"></circle><circle cx="12" cy="12" r="5.2"></circle><circle cx="12" cy="12" r="1.8"></circle>',
     habits: '<path d="M4.5 9.5h11v5a5.5 5.5 0 0 1-5.5 5.5A5.5 5.5 0 0 1 4.5 14.5Z"></path><path d="M15.5 11h1.2a2.6 2.6 0 0 1 0 5.2h-1.4"></path><path d="M8 3.5c-.9 1 .9 2 0 3M11.5 3.5c-.9 1 .9 2 0 3"></path>',
     health: '<path d="M5 3.5h2M14 3.5h2"></path><path d="M6 3.5v5a4.5 4.5 0 0 0 9 0v-5"></path><path d="M10.5 13v2.5a4.5 4.5 0 0 0 9 0V13"></path><circle cx="19.5" cy="11" r="2"></circle>',
@@ -8876,7 +8883,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function pmc(o, f) { return "П " + f(o.p) + " · В " + f(o.c) + " · М " + f(o.f); }
     function pc(x, k) { return Math.round(x * k * 100 / d.kc); }
     function row(l1, r1, l2, r2) { return '<div class="sumr"><span class="l1">' + l1 + '</span><span class="r1">' + r1 + '</span><span class="l2">' + l2 + '</span><span class="r2">' + r2 + "</span></div>"; }
-    return '<div class="card panel ldday' + (LD.bk ? " ldbk" : "") + '" data-key="ld_day"><div class="ch"><span class="ttl">Денят</span>' + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + infoBtn("ld_day") + "</div>"
+    return '<div class="card panel ldday' + (LD.bk ? " ldbk" : "") + '" data-key="ld_day"><div class="ch"><span class="ttl">Денят</span>' + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + ldFlipBtn() + infoBtn("ld_day") + "</div>"
       + '<div class="ldsum">' + row("Целта", fmtInt(d.kc) + " ккал", "П " + pc(d.p, 4) + " % · В " + pc(d.c, 4) + " % · М " + pc(d.f, 9) + " %", pmc(d, n0))
       + (m ? row("На хранене", fmtInt(m.kc) + " ккал", n ? n + (n === 1 ? " хранене" : " хранения") : "", pmc(m, n0)) : "")
       + (wk ? row("На кг", n1(d.kc / wk) + " ккал", "при " + n1(wk) + " кг", pmc({ p: d.p / wk, c: d.c / wk, f: d.f / wk }, n1)) : "") + "</div>"
@@ -8948,8 +8955,12 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!ms.length) ms.push("още тегления");   // тегленията са три, но по-близо от 14 дни — колко още, не се знае
       h += rw("Нуждата ти", "", ms[0], ms[1] || "");   // долу, без число горе (както „Смята се в понеделник“): на 320 px дългото горе вдясно реже реда под него
     }
-    return '<div class="ch ldb"><span class="ttl">Седмицата</span><span class="sub">' + esc(fmtDate(dayPlus(td, -7)).slice(0, 5) + " – " + fmtDate(dayPlus(td, -1)).slice(0, 5)) + "</span>" + infoBtn("ld_week") + "</div>"
+    return '<div class="ch ldb"><span class="ttl">Седмицата</span><span class="sub">' + esc(fmtDate(dayPlus(td, -7)).slice(0, 5) + " – " + fmtDate(dayPlus(td, -1)).slice(0, 5)) + "</span>" + ldFlipBtn() + infoBtn("ld_week") + "</div>"
       + '<div class="ldsum ldb">' + h + ldPropHtml(t) + "</div>";
+  }
+  function ldFlipBtn() {   // Т226 (DEC-0124, Chris 26.11.2026 16:17): знакът за обръщане — двете стрелки в кръг (IC.flip); в заглавката на лицето и на гърба, вляво от ⓘ;
+    //   натискането обръща картата — същото като натискане на картата (ldFlip; слушателят го вика изрично, веднъж). Само при цел (logFull — където картата се обръща). Огледалото — същото
+    return logFull() ? '<button type="button" class="flipb" data-ldflip="1" aria-label="Обърни картата">' + ic("flip") + "</button>" : "";
   }
   function ldFlip() {   // (1) лицето ↔ гърбът; кратко завъртане (CSS; „без анимации“ — без него)
     if (!logFull()) return;   // само при цел (ftOn — пълният лог)
@@ -10703,7 +10714,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
     if (sm) { e.preventDefault(); accSet(sm.parentElement, !wantOpen(sm.parentElement)); return; }
     var ldc = e.target.closest(".card.ldday");   // Т220 (1): „Денят“ — натискане на картата (не на ⓘ — той е свой, нито на бутоните и полетата) → гърбът и обратно
-    if (ldc) { if (e.target.closest("[data-ldok]")) ldApprove(); else if (!e.target.closest("button, a, input, textarea, select, label")) ldFlip(); return; }
+    if (ldc) { if (e.target.closest("[data-ldok]")) ldApprove(); else if (e.target.closest("[data-ldflip]") || !e.target.closest("button, a, input, textarea, select, label")) ldFlip(); return; }   // Т226: знакът за обръщане е бутон — вика обръщането изрично (веднъж)
     var ch = e.target.closest(".ch");
     if (!ch) return;
     var card = ch.parentElement;
