@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.81.0">
+<meta name="version" content="v1.82.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -1128,7 +1128,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .dish .mask button, .ded .mask button { width: auto; margin: 0; padding: 6px 16px; font-family: inherit; font-size: 14.5px; font-weight: 700; border-radius: 9px; cursor: pointer; }
   .dish .mask .myes, .ded .mask .myes { color: #fff; background: var(--btn); border: 1px solid var(--btn); }
   .dish .mask .mno, .ded .mask .mno { color: var(--accent-dark); background: #fff; border: 1px solid var(--accent); }
-  .dish .dfxe, .ded .dfxe { display: block; margin: 8px 0 0; padding: 8px 10px; border: 1px solid #f3c2c2; border-radius: 9px; background: #fdecec; color: #9a3b3b; font-size: 14px; text-align: center; }
+  .dish .dfxe, .ded .dfxe, .ldprop .dfxe { display: block; margin: 8px 0 0; padding: 8px 10px; border: 1px solid #f3c2c2; border-radius: 9px; background: #fdecec; color: #9a3b3b; font-size: 14px; text-align: center; }
   .dish .dbtn.dsh.on { border-radius: 9px; background: #5f6b78; color: #fff; }   /* Т178: „Споделено“ — в тона на треньора (като бившето „Споделено“ под картата) */
   .dish .dshi { margin: 4px 0 0; color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
   .dish .dtake { width: auto; margin: 8px 0 0; padding: 8px 18px; font-size: 14.5px; }
@@ -1803,7 +1803,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   :where(body.skin2.dark) .dish .dst { background: #22272d; }
   :where(body.skin2.dark) .dish.sized .dst { background: var(--accent-solid); }
   :where(body.skin2.dark) .dish .mask .mno, :where(body.skin2.dark) .ded .mask .mno { background: var(--card); }
-  :where(body.skin2.dark) .dish .dfxe, :where(body.skin2.dark) .ded .dfxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
+  :where(body.skin2.dark) .dish .dfxe, :where(body.skin2.dark) .ded .dfxe, :where(body.skin2.dark) .ldprop .dfxe { border: 1px solid #6b3a3a; background: #3a2326; color: #f08a8a; }
   :where(body.skin2.dark) .ded input[type="text"], :where(body.skin2.dark) .ded textarea { background: var(--card); }
   :where(body.skin2.dark) .ded .dszb { background: var(--card); }
   :where(body.skin2.dark) .ded .dszb.on { background: var(--accent-solid); border-color: var(--accent-solid); }
@@ -2335,6 +2335,30 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .card.panel > .body > .acc > :first-child, .card.panel > .body > :first-child { border-top-color: transparent; }
   /* Т206: „Денят“ — тънката разделителна черта между редовете (Целта · На хранене · На кг), като между записите в историята (Chris 15:55) */
   .card.ldday .sumr + .sumr { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  /* ════════ Т220 (DEC-0124; Chris 25.11.2026 19:03–19:39, 26.11.2026 14:5x въпросник): „Денят“ се обръща — натискане на картата (не на ⓘ, бутоните и полетата) →
+     гърбът „Седмицата“, пак → лицето. Гърбът — същата карта (рамката, сянката, ъглите) и същите редове (.ch, .ldsum, .sumr — един вид). Докато е обърната, лицето и
+     гърбът стоят в една клетка, едно върху друго: височината е общата и страницата не мърда; лицето е невидимо. Обръщането — кратко завъртане (0,24 s), само
+     картата (transform — без да мести нищо); при „без анимации“ (prefers-reduced-motion) — без него. Картата реагира → курсорът е като на бутон (беше обикновен — Т217) */
+  .card.panel.ldday, .card.panel.ldday > .ch { cursor: pointer; }
+  .card.panel.ldday.ldbk { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .card.panel.ldday.ldbk > .ch { grid-area: 1 / 1; }
+  .card.panel.ldday.ldbk > .ldsum { grid-area: 2 / 1; align-content: start; }
+  .card.panel.ldday.ldbk > :not(.ldb) { visibility: hidden; }
+  @keyframes ldflip { from { transform: perspective(900px) rotateY(-90deg); } to { transform: none; } }
+  @keyframes ldflop { from { transform: perspective(900px) rotateY(90deg); } to { transform: none; } }
+  .card.panel.ldday.ldanim { animation: ldflip 0.24s ease-out; }
+  .card.panel.ldday.ldanim:not(.ldbk) { animation-name: ldflop; }
+  @media (prefers-reduced-motion: reduce) { .card.panel.ldday.ldanim { animation: none; } }
+  html.rm .card.panel.ldday.ldanim { animation: none; }   /* „без движение“ в аппа (REDUCE — и тестовете) */
+  /* числата на гърба — в колона: десетица под десетица, запетая под запетая (целите — с невидимо „,0“, както в „Мерки“ — .mblk b.v0); мерната единица — в слот,
+     широк колкото „ккал“ (кг — вляво в него), за да свършват числата на едно място */
+  .ldsum.ldb .ldv.i0::after { content: ",0"; visibility: hidden; }
+  .ldsum.ldb .ldu { display: inline-grid; justify-items: start; }
+  .ldsum.ldb .ldu > span, .ldsum.ldb .ldu::after { grid-area: 1 / 1; }
+  .ldsum.ldb .ldu::after { content: "ккал"; visibility: hidden; }
+  /* треньорът (?c=): предложението за нова цел и „Одобри“ (големият бутон — .btn); чертата отгоре — като между редовете (Т206); грешката — като в кухнята (.dfxe) */
+  .card.ldday .sumr + .ldprop { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+  .ldprop .ldpt { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.45; }
   /* Т205 добавка б) зебра в тъмната — дните се редуват тъмно / светло, винаги, отворени и затворени
      (Chris 15:02: „две съседни пак се сливат, по добре да направим зебра винаги, тъмно, светло и така да се редуват без повтаряне“);
      текстът стои на мястото си (фонът излиза с 8 px наляво; надясно — не); чертите между дните — излишни */
@@ -2918,6 +2942,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // Т199 Е3 (лог т. 1, 10, 11): „Денят“ и табовете — черновите от пробата (infografiki/log_hrana.html, OV.day / OV.tabs), дословно;
     //   към ld_day — хронологията на целите (ftInfoSync, от target_hist)
     ld_day: { t: "Защо тези числа", b: ["Целта идва от анализа на 21-те дни: колко си ял и как се е менило теглото ти за същото време — това е измерената ти нужда. Белтъкът е по теглото ти, мазнината — фиксирана, въглехидратите — останалото. Нови числа има, когато се смени режимът — тогава почва нова цел от нова дата, а старата остава в хронологията."] },
+    // Т220 (5): ⓘ на гърба на „Денят“ („Седмицата“) — ЧЕРНОВА на CDB-GYM (разяснение: откъде са числата и кога се обновяват; нуждата — от последните 21 дни;
+    //   целта се сменя само след треньора); чака одобрението на Chris
+    ld_week: { t: "Седмицата", b: [
+      "Тук е последната ти седмица — седемте завършени дни преди днешния. „Средно на ден“ е средното от записаното в тях: колко калории и колко белтък, въглехидрати и мазнини. В средното влизат дните, в които всичко записано е сметнато, затова пише колко от седемте дни са влезли.",
+      "„Теглото“ е средното от тегленията в същите седем дни, а разликата е спрямо средното от предишните седем. Средното казва повече от едно теглене, защото теглото се мени от ден на ден. За него трябват поне две тегления в седмицата. Тези два реда се смятат наново всеки ден, от записите ти.",
+      "„Нуждата ти“ е колко калории ти трябват на ден, за да стои теглото ти на място. Измерена е от последните 21 дни — от записаната храна и от това как се е менило теглото ти за същото време. Смята се веднъж седмично, в понеделник. Излиза, когато в тези 21 дни има поне 14 дни със записи и поне три тегления, разпределени в поне две седмици; дотогава пише какво още липсва.",
+      "Целта ти не се сменя сама. Когато нуждата ти се измести ясно две поредни седмици, треньорът вижда това и решава дали да смени целта; новата цел важи едва след неговото одобрение."] },
     ld_tabs: { t: "Четири начина да запишеш", b: ["„Текст“ — пишеш с думи каквото си хапнал, сметката е приблизителна. „Храни“ — търсиш храна в базата и пишеш грамовете, числата са точни. „Ястия“ — сглобеното от теб в кухнята, и твоите рецепти. „Режим“ — менюто от треньора. Всичко отива в един и същ дневник."] },
     kd_rec: { t: "Готово, порции и мярка", b: ["Готово е теглото на цялата рецепта, претеглена след готвенето — при готвене водата излиза или се попива. Порциите казват на колко части излиза, а мярката — как се казва една част: палачинка, парче, резен. Тогава в лога пишеш „2 палачинки“. Ако не попълниш нищо, рецептата се записва в грамове по сбора на продуктите."] }
   };
@@ -6856,7 +6887,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   //   лог“. log_mode идва от _food_json (get_food_log и coach_get_client). Минали — ✓; текущата — плътен кръг + „Ти си тук · …“; следващите —
   //   бледи; „Самостоятелност“ засега не е текуща. Строи се при отваряне (данните — тогавашните). Огледалото: същото в ?c= и изгледа като клиента.
   function pathStage() {
-    if (D.content.some(function (r) { return r.section === "nutrition" && String(r.body || "").indexOf("data-meal=") > -1; })) return { i: 4, chip: "Ти си тук" };
+    if (ftOn() || D.content.some(function (r) { return r.section === "nutrition" && String(r.body || "").indexOf("data-meal=") > -1; })) return { i: nwGate() ? 5 : 4, chip: "Ти си тук" };   // Т220 (Chris 25.11 19:16): при цел — „Твоят план“ (и без режим в картите — Силвия); „Кръгът“ — с първия ред с минал гейт в седмичната нужда
     if (lfOn() ? AN_NEW : (A.cards || []).length > 0) return { i: 3, chip: "Ти си тук · Анализът е готов" };   // Т180: при новото начало — само анализ от него нататък
     var m = F.mode || "sprint";
     return { i: 2, chip: "Ти си тук · " + (m === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(logDays(), LOG_TARGET) : "Свободен лог") };
@@ -8845,15 +8876,104 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function pmc(o, f) { return "П " + f(o.p) + " · В " + f(o.c) + " · М " + f(o.f); }
     function pc(x, k) { return Math.round(x * k * 100 / d.kc); }
     function row(l1, r1, l2, r2) { return '<div class="sumr"><span class="l1">' + l1 + '</span><span class="r1">' + r1 + '</span><span class="l2">' + l2 + '</span><span class="r2">' + r2 + "</span></div>"; }
-    return '<div class="card panel ldday" data-key="ld_day"><div class="ch"><span class="ttl">Денят</span>' + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + infoBtn("ld_day") + "</div>"
+    return '<div class="card panel ldday' + (LD.bk ? " ldbk" : "") + '" data-key="ld_day"><div class="ch"><span class="ttl">Денят</span>' + (t.from ? '<span class="sub">от ' + esc(fmtDate(t.from)) + "</span>" : "") + infoBtn("ld_day") + "</div>"
       + '<div class="ldsum">' + row("Целта", fmtInt(d.kc) + " ккал", "П " + pc(d.p, 4) + " % · В " + pc(d.c, 4) + " % · М " + pc(d.f, 9) + " %", pmc(d, n0))
       + (m ? row("На хранене", fmtInt(m.kc) + " ккал", n ? n + (n === 1 ? " хранене" : " хранения") : "", pmc(m, n0)) : "")
-      + (wk ? row("На кг", n1(d.kc / wk) + " ккал", "при " + n1(wk) + " кг", pmc({ p: d.p / wk, c: d.c / wk, f: d.f / wk }, n1)) : "") + "</div></div>";
+      + (wk ? row("На кг", n1(d.kc / wk) + " ккал", "при " + n1(wk) + " кг", pmc({ p: d.p / wk, c: d.c / wk, f: d.f / wk }, n1)) : "") + "</div>"
+      + (LD.bk ? ldBackHtml(t, row, pmc, n0) : "") + "</div>";   // Т220: гърбът „Седмицата“ — само докато е обърната (лицето остава, невидимо — общата височина)
+  }
+  // ════════ Т220 (DEC-0124; Chris 25.11.2026 19:03–19:39, 26.11.2026 14:5x въпросник): ЖИВАТА КАРТА „ДЕНЯТ“ — гърбът „СЕДМИЦАТА“ ════════
+  //   Натискане на картата (не на ⓘ, бутоните и полетата) → гърбът; пак → лицето (ldFlip). Само при цел: картата я има само с пълния лог (logFull — ftOn).
+  //   Три реда (row / pmc на лицето — един вид): (а) „Средно на ден“ — последните 7 завършени дни (без днес): сборът на деня от историята на храненето (daySum —
+  //   числата на „✅“ и сметката CALC), средното — по правилото на средното за месеца (avgDays: дните с числа и без несметнати записи) → „N от 7 дни записани“;
+  //   (б) „Теглото“ — средното на тегленията в тези 7 дни (по едно на ден — първото, сутрешното: най-ранното по created_at, от мерките и от лога на храната, както сметката на нуждата в базата — Chris 26.11 15:5x; „Мерки“ — със своето правило) и разликата със средното на предишните 7
+  //   (± кг, една цифра); под 2 тегления — „още N“; (в) „Нуждата ти“ — последният ред от седмичната нужда (NW — нощният скрипт в понеделник): гейт → „≈ N ккал“
+  //   и разликата с предишния ред (ако и той е с гейт); без гейт — какво още липсва, без число; няма редове — „Смята се в понеделник“.
+  //   Треньорът (?c=): предложението (ldProp) + „Одобри“ (ldApprove). Клиентът и „като клиент“ предложението не го получават (get_food_target — само одобрените)
+  //   и тук не се показва и да го има. Огледалото — гърбът е същият (само чете); „Одобри“ — само в ?c=.
+  var LD = { bk: false, busy: false, err: false };   // обърната ли е; „Одобри“ — чака / не мина
+  var NW = null, NW_ASK = false;   // седмичната нужда: [{wk, d1, need?, gate, days, kc?, wd, span?, kg0?, kg1?, ref?, prop}], новата първа; null — няма (без цел / грешка)
+  function nwNum(x) { return x != null && x !== "" && isFinite(Number(x)); }
+  function nwGate() { return Array.isArray(NW) && NW.some(function (r) { return r.gate === true && nwNum(r.need); }); }   // (4) „Кръгът“ — с първия ред с минал гейт
+  function nwAsk() {   // веднъж, щом дойде целта: клиентът и „като клиент“ — get_need_week(p_token); треньорът — coach_get_need_week(p_client_id); грешка / null → няма
+    if (NW_ASK) return; NW_ASK = true;
+    var q; try { q = COACH ? sb.rpc("coach_get_need_week", { p_client_id: COACH_CID }) : sb.rpc("get_need_week", { p_token: token }); } catch (x) { return; }
+    safe(Promise.resolve(q)).then(function (r) {
+      var d = r && !r.error ? r.data : null;
+      NW = Array.isArray(d) ? d.filter(function (x) { return !!x && typeof x === "object"; }).sort(function (a, b) { return String(b.wk || "").localeCompare(String(a.wk || "")); }) : null;
+      if (logFull()) lgDaySync();
+    });
+  }
+  function ldProp() {   // (3) предложението — най-новият неодобрен ред (без „ap“) в историята на целите; САМО треньорът (?c=)
+    if (!COACH) return null;
+    var h = ftHist(), r = null; if (!h) return null;
+    h.forEach(function (x) { if (!x.ap && (!r || String(x.from) > String(r.from))) r = x; });
+    return r;
+  }
+  function ldPropHtml(t) {   // „Предложение: въглехидрати X (сега Y) — от ДД.ММ“ + „Одобри“; грешката — „Неуспешно. Опитай пак.“
+    var p = ldProp(); if (!p) return "";
+    return '<div class="ldprop"><p class="ldpt">Предложение: въглехидрати ' + Math.round(Number(p.c) || 0) + " (сега " + Math.round(t.day.c) + ") —\u00a0от\u00a0" + esc(fmtDate(String(p.from).slice(0, 10)).slice(0, 5)) + "</p>"
+      + '<button type="button" class="btn" data-ldok="1"' + (LD.busy ? " disabled" : "") + ">Одобри</button>" + (LD.err ? '<div class="dfxe">Неуспешно. Опитай пак.</div>' : "") + "</div>";
+  }
+  function ldBackHtml(t, row, pmc, n0) {   // (2) заглавката „Седмицата“ · „ДД.ММ – ДД.ММ“ · ⓘ и трите реда; числата — в колона (ldv — числото, ldu — мерната единица)
+    var td = foodToday(), by = {}, wt = {}, wk = [], w1 = [], w0 = [], i, x;
+    foodPastDays().forEach(function (g) { by[g.day] = g; });   // историята на храненето — без днес
+    var wa = {};   // Т220 (Chris 26.11.2026 15:5x „Първото, сутрешното“): по едно на ден — ПЪРВОТО (най-ранното по created_at), от мерките и от лога на храната — като _need_calc в базата; „Мерки“ (measRows) — без промяна
+    D.log.concat(F.entries).forEach(function (e) {
+      if (e.kind === "coach" || e.deleted_at || !hasVal(e.weight) || !isFinite(Number(e.weight))) return;
+      var d = e.entry_date || sofiaDay(e.created_at), at = tsNum(e.created_at);
+      if (!(d in wt) || at < wa[d]) { wt[d] = Number(e.weight); wa[d] = at; }
+    });
+    for (i = 1; i <= 14; i++) { x = dayPlus(td, -i); if (i <= 7 && by[x]) wk.push(by[x]); if (x in wt) (i <= 7 ? w1 : w0).push(wt[x]); }   // 1–7 — седмицата; 8–14 — предишната
+    function nv(v, dec) { return '<span class="ldv' + (dec ? "" : " i0") + '">' + v + "</span>"; }
+    function un(u) { return ' <span class="ldu"><span>' + u + "</span></span>"; }
+    function sg(v, f) { return (v < 0 ? "−" : v > 0 ? "+" : "") + f(Math.abs(v)); }
+    function avg(L) { return L.reduce(function (s, v) { return s + v; }, 0) / L.length; }
+    function tg(k) { return k === 1 ? " теглене" : " тегления"; }
+    function rw(l1, r1, l2, r2) { return row(l1, r1 || "\u00a0", l2 || "\u00a0", r2 || "\u00a0"); }   // празното място — с интервал: редът е висок колкото на лицето, каквито и да са данните
+    var a = avgDays(wk), h = rw("Средно на ден", a ? nv(fmtInt(a.k)) + un("ккал") : "", (a ? a.n : 0) + " от 7 дни записани", a ? pmc(a, n0) : "");
+    if (w1.length >= 2) {
+      var k1 = avg(w1), dk = w0.length >= 2 ? Math.round((k1 - avg(w0)) * 10) / 10 : null;
+      h += rw("Теглото", nv(num1(k1), 1) + un("кг"), "средно от " + w1.length + tg(w1.length), dk == null ? "" : nv(sg(dk, num1), 1) + " от миналата");
+    } else h += rw("Теглото", "още " + (2 - w1.length) + tg(2 - w1.length), w1.length ? "1 теглене в седмицата" : "няма теглене в седмицата", "");
+    var r0 = Array.isArray(NW) ? NW[0] : null, r9 = Array.isArray(NW) ? NW[1] : null;
+    if (!r0) h += rw("Нуждата ти", "", "Смята се в понеделник", "");
+    else if (r0.gate === true && nwNum(r0.need)) {
+      var dn = r9 && r9.gate === true && nwNum(r9.need) ? Math.round(Number(r0.need) - Number(r9.need)) : null;
+      h += rw("Нуждата ти", "≈ " + nv(fmtInt(r0.need)) + un("ккал"), "от последните 21 дни", dn == null ? "" : nv(sg(dn, fmtInt)) + " от миналата");
+    } else {   // без гейт — какво още липсва (гейтът на базата: ≥ 14 дни с ккал, ≥ 3 тегления, разпънати ≥ 14 дни), без число
+      var dl = Math.max(0, 14 - (Number(r0.days) || 0)), wl = Math.max(0, 3 - (Number(r0.wd) || 0)), ms = [];
+      if (dl) ms.push("още " + dl + (dl === 1 ? " ден" : " дни") + " със записи");
+      if (wl) ms.push("още " + wl + tg(wl));
+      if (!ms.length) ms.push("още тегления");   // тегленията са три, но по-близо от 14 дни — колко още, не се знае
+      h += rw("Нуждата ти", "", ms[0], ms[1] || "");   // долу, без число горе (както „Смята се в понеделник“): на 320 px дългото горе вдясно реже реда под него
+    }
+    return '<div class="ch ldb"><span class="ttl">Седмицата</span><span class="sub">' + esc(fmtDate(dayPlus(td, -7)).slice(0, 5) + " – " + fmtDate(dayPlus(td, -1)).slice(0, 5)) + "</span>" + infoBtn("ld_week") + "</div>"
+      + '<div class="ldsum ldb">' + h + ldPropHtml(t) + "</div>";
+  }
+  function ldFlip() {   // (1) лицето ↔ гърбът; кратко завъртане (CSS; „без анимации“ — без него)
+    if (!logFull()) return;   // само при цел (ftOn — пълният лог)
+    LD.bk = !LD.bk; LD.err = false;
+    lgDaySync();
+    var c = P.hrana && P.hrana.querySelector(":scope > .card.ldday");
+    if (c && !REDUCE) { c.classList.add("ldanim"); c.addEventListener("animationend", function () { c.classList.remove("ldanim"); }, { once: true }); }   // „без движение“ (REDUCE) — без завъртането
+  }
+  function ldApprove() {   // (3) „Одобри“ — САМО треньорът (?c=): coach_approve_food_target(p_client_id) → лицето; целта — наново от базата (ftLoad: историята с новия ред)
+    if (!COACH || LD.busy || !ldProp()) return;
+    LD.busy = true; LD.err = false; lgDaySync();
+    var q; try { q = sb.rpc("coach_approve_food_target", { p_client_id: COACH_CID }); } catch (x) { q = Promise.reject(x); }
+    safe(Promise.resolve(q)).then(function (r) {
+      LD.busy = false;
+      if (!r || r.error) { LD.err = true; lgDaySync(); return; }
+      var d = r.data; if (d && typeof d === "object" && d.meal && d.snack) KIT.target = d;   // кухнята — новата цел за сглобяването (както kitDishData)
+      LD.bk = false; lgDaySync(); ftLoad();
+    });
   }
   function lgDaySync() {   // целта / теглото / денят се смениха → „Денят“ на място
     var sec = P.hrana && P.hrana.querySelector(':scope > .sec[data-key="logsec"]'); if (!sec) return;
     ftInfoSync();
     var old = P.hrana.querySelector(":scope > .card.ldday"), h = logFull() ? dayCardHtml() : "";   // Т200: „Денят“ — отделна карта пред „Лог“
+    if (!h) LD.bk = false;   // Т220: картата я няма (без цел) — и гърбът
     if (old && old.__h === h) return;
     if (IPOP && old && old.contains(IPOP.btn)) infoClose();
     if (old) { if (h) old.outerHTML = h; else old.parentNode.removeChild(old); }
@@ -9987,11 +10107,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   // Т106 (Chris 12.11 09:58): средното на ден за месеца — само от завършените дни (историята е без днес) с числа и без несметнати записи
   //   („+ N без сметка“ дърпа средното надолу); % — от средните (П×4, В×4, М×9). Няма такъв ден → без ред.
-  function monthAvgHtml(list) {
+  function avgDays(list) {   // Т220: едно правило за средното на ден — средното за месеца (Т106) и „Средно на ден“ на гърба на „Денят“ → { n, k, p, c, f } | null
     var n = 0, a = { k: 0, p: 0, c: 0, f: 0 };
     list.forEach(function (g) { var s = daySum(g.rows); if (!s.n || s.nc) return; n++; a.k += s.k; a.p += s.p; a.c += s.c; a.f += s.f; });
-    if (!n) return "";
-    var m = { k: a.k / n, p: a.p / n, c: a.c / n, f: a.f / n };
+    return n ? { n: n, k: a.k / n, p: a.p / n, c: a.c / n, f: a.f / n } : null;
+  }
+  function monthAvgHtml(list) {
+    var m = avgDays(list);   // Т220: правилото — в avgDays
+    if (!m) return "";
     return '<div class="hm-avg"><span class="ma-l">средно на ден</span><span class="d-kc">' + Math.round(m.k) + " ккал</span>"
       + '<span class="d-nc d-pc">' + pctCell(m) + '</span><span class="d-m d-p">П <b>' + Math.round(m.p) + '</b></span><span class="d-m d-c">В <b>' + Math.round(m.c) + '</b></span><span class="d-m d-f">М <b>' + Math.round(m.f) + "</b></span></div>";
   }
@@ -10019,6 +10142,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var d = r && !r.error ? r.data : null;
       if (!d || typeof d !== "object" || !ftNum(d.day)) return;
       FT = { day: d.day, meal: ftNum(d.meal) ? d.meal : null, hist: Array.isArray(d.target_hist) ? d.target_hist.filter(function (x) { return !!x && typeof x === "object" && /^\d{4}-\d{2}-\d{2}/.test(String(x.from || "")) && ftNum({ p: Number(x.p), c: Number(x.c), f: Number(x.f), kc: 0 }); }) : null };   // Т199 Е3: + историята на целите (лог т. 1, 9)
+      nwAsk();   // Т220: седмичната нужда — за гърба на „Денят“ и „Твоят път“
       logSync(); ftHeadSync(); refreshNow();
     });
   }
@@ -10055,6 +10179,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function calcRefresh() {   // „Общо днес“ и историята — на място; отворените месеци и дни остават отворени
     if (!P.hrana) return;
     refreshLogView();
+    if (logFull()) lgDaySync();   // Т220: гърбът „Седмицата“ — от същите дни
     var old = P.hrana.querySelector('.card[data-key="h_food"]');
     if (!old) return;
     var open = {};
@@ -10577,6 +10702,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (g) { e.preventDefault(); go(g.getAttribute("data-go")); return; }
     var sm = e.target.closest("details > summary");   // всеки <details> (дни, групите на формата, „Още мерки“…) — плавно, по един на ниво в .acc
     if (sm) { e.preventDefault(); accSet(sm.parentElement, !wantOpen(sm.parentElement)); return; }
+    var ldc = e.target.closest(".card.ldday");   // Т220 (1): „Денят“ — натискане на картата (не на ⓘ — той е свой, нито на бутоните и полетата) → гърбът и обратно
+    if (ldc) { if (e.target.closest("[data-ldok]")) ldApprove(); else if (!e.target.closest("button, a, input, textarea, select, label")) ldFlip(); return; }
     var ch = e.target.closest(".ch");
     if (!ch) return;
     var card = ch.parentElement;
@@ -10597,6 +10724,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       fpk: function () { return FPK; }, fst: function () { return KIT.fst; }, hitRank: hitRank, layers: function () { return LY.map(function (L) { return L.k; }); }, del2: function () { return DEL2; },
       lg: function () { return { tab: LG.tab, dd: LG.dd ? LG.dd.k : null, full: logFull(), trd: TRD, ft: FT, day: ftFor(foodToday()), today: foodToday() }; } },   // Т199 Е3
     kb: function () { return { on: KB.on, key: KB.S ? KB.S.sk : KB.el ? "field" : null, el: KB.el ? KB.el.id || KB.el.className : null, full: KB.h0, top: kbTop() }; } };   // Т201; Т202 — и другите полета
+  window.__app.t220 = function () { return { bk: LD.bk, busy: LD.busy, err: LD.err, nw: NW, prop: ldProp(), stage: pathStage().i }; };   // Т220: гърбът, седмичната нужда, предложението, „Твоят път“
   window.__app.kitFit = kitFit;   // Т100: сверката със солвъра на Python (тестовете)
   window.__app.kitCg = kitCg; window.__app.kitTags = kitTags;   // Т198: групата на каталога (каймата) и „Какво носи“ (тестовете)
 
