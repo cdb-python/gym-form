@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.78.1">
+<meta name="version" content="v1.79.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -2275,6 +2275,29 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .vpage .vreg > .card > .ch { cursor: default; }
   .vpage .vreg > .card > .ch::after { content: none; }
   .vpage .vreg > .card + .card { margin-top: 12px; }
+  /* ════════ Т223 (DEC-0127; Chris 26.11.2026 09:18–09:50): „Режим“ в „Моите ястия“ · „От стария режим ▾“ · линиите между редовете ════════ */
+  /* Т223 (Chris 26.11 09:23, 09:31): „Режим“ — картите на режима вътре в картата: вложени (като картите в „Архив“), отворени и само за четене (като страницата „Режимът“) */
+  .card.panel.kreg .vreg > .card { border-left-width: 3px; margin: 0 0 10px; }
+  .card.panel.kreg .vreg > .card > .ch { cursor: default; }
+  .card.panel.kreg .vreg > .card > .ch::after { content: none; }
+  body.skin2 .card.panel.kreg .vreg > .card { border-left-width: 2px; border-radius: 16px; }
+  body.skin2.dark .card.panel.kreg .vreg > .card { border-left-width: 1px; }
+  /* Т223: без режим — само в огледалото: бледа, изключена, „Празно“ (както „Архив“ на Таблото) */
+  .card.panel.kreg.ro { opacity: 0.55; }
+  .card.panel.kreg.ro > .ch { cursor: not-allowed; }
+  /* Т223 (Chris 26.11 09:28, 09:31): „От стария режим ▾“ — под „Храненията от режима ▾“; в списъка — режимите със заглавния ред на групата (като „По рафт“ в книгата) */
+  .lgbars:not(.lbars) > .lbar + .lbar, .lnoreg + .lgbars { margin-top: 8px; }
+  .srch .sdl .sdr > .kgh { padding: 12px 0 4px; color: var(--muted); font-size: 12.5px; font-weight: 700; border-top: 1px solid var(--border); }
+  .srch .sdl .sdr > .kgh:first-child { padding-top: 8px; border-top: 0; }
+  .srch .sdl .sdr > .kgh + .krow { border-top: 0; }
+  /* Т223 (Chris 26.11 09:37 „сиви разделителни линии и на другите редове да стои като табличка“; 09:40 — и в историите; 09:50 — и в историята на мерките,
+     цветът — роля от таблицата на темите): тънката линия между редовете — ЕДНА роля и вид, както между записите в „Днес“ (.lrow): 1 px, --border
+     (= --l-line / --d-line от „ТЕМИТЕ (ЦВЕТОВЕ)“), без сянка. Ястието — между продуктите (от втория нататък; „Цялото ястие“ — своята, както е);
+     историята на храненето — записите (.lrow, както в „Днес“); историята на мерките — редовете на метъра и на часовника (от втория нататък) */
+  .ktb.kln > :nth-child(n+13):not(.sum):not(.per), .mblk > .mv ~ .mv { border-top: 1px solid var(--border); }
+  .ktb.kln > :nth-child(n+13):not(.sum):not(.per) { padding-top: 4px; }   /* като „Цялото ястие“ */
+  .ktb.kln > :nth-child(n+13):not(.sum):not(.per):not(.kk) { margin-right: -10px; padding-right: 10px; }   /* линията — плътна и през празното между колоните; числата — на мястото си */
+  .mblk > .mv ~ .mv { margin-top: 3px; padding-top: 4px; }   /* 3 px над линията, 4 под нея — като в ястието */
   /* ════════ Т201 (DEC-0101; Chris 23.11.2026 07:09 · 07:13): търсачката и клавиатурата ════════
      „при клик в сърча, излиза клавиатурата, ботом бара се качва над нея, страницата мърда не достатъчно нагоре и не се вижда дроп менюто“.
      Докато полето на общата търсачка е на фокус и клавиатурата е отворена (body.kbopen — kbSync по visualViewport): долната лента и ивицата
@@ -2853,6 +2876,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     //   балона; текстовете — черновите от пробата (infografiki/yastia_recepti.html, INFO kd_…), дословно
     kd_dishes: { t: "Моите ястия", b: ["Тук са ястията, които си сглобил. До всяко са белтъкът, въглехидратите, мазнините и калориите на цялото ястие. Натисни името, за да видиш продуктите и грамовете."] },
     kd_recs: { t: "Моите рецепти", b: ["Рецептата е за цяло ястие, което се готви — торта, мусака, баница. Числата до нея са на 100 г. В лога я записваш на порции, на резени или на грамове."] },
+    // Т223 (DEC-0127; Chris 26.11.2026 09:39 „… <- това е точно да.“): ⓘ „Режим“ — третата карта в „Моите ястия“; дословно (PLAN, Т223 (1))
+    kd_reg: { t: "Режим", b: ["Режимът го съставя треньорът за теб — храненията, с продуктите и грамовете. В него може да има и храни, които ги няма в кухнята. Записваш ги в лога, в „Режим“: избираш храненето и колко от него си изял. Когато режимът се смени, предишният остава най-долу в „Архив“, с датите, през които е важал — от него също можеш да запишеш хранене в лога."] },
     kd_tgt: { t: "Целта на храненето", b: ["Целта е колко белтък, въглехидрати и мазнини трябва да има в едно хранене. Добавяш храни и аппът предлага грамовете, така че да стигнеш целта. Ако напишеш свое количество, то се заключва и аппът нагласява останалите."] },
     kd_tr: { t: "Пре трен и след трен", b: ["Храненето около тренировката има повече въглехидрати и по-малко мазнини, а калориите и белтъкът остават същите. Отбележи го, ако ястието е за преди или след тренировка."] },
     kd_srch: { t: "Търсенето", b: ["Звездата показва само любимите ти храни. „Филтри“ стеснява списъка по група, произход и какво носи храната. Натисни П, В, М или ккал, за да подредиш от най-много към най-малко."] },
@@ -4652,11 +4677,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return { foods: foods, num: num };
   }
   function refreshMealMarks() {
-    Array.prototype.forEach.call(P.hrana.querySelectorAll(".eatc[data-meal-name]"), function (box) {
+    [P.hrana, P.kuhnya].forEach(function (R) { if (R) Array.prototype.forEach.call(R.querySelectorAll(".eatc[data-meal-name]"), function (box) {   // Т223: и „Режим“ в кухнята
       var name = box.getAttribute("data-meal-name"), el = box.closest("[data-meal]");
       box.querySelector(".eatok").textContent = eatOkText(name);
       if (el) el.classList.toggle("ate", eatenToday(name).length > 0);
-    });
+    }); });
   }
   // ── ЛОГЪТ (модел Victus): ред = ЧАС + ТЕКСТ. Без търсачка и без поле за грамаж — колко се пише в самия текст (Т61: с везна в грамове
   //    или на око: шепа, лъжица, филия…). Пише се през add_food_entry, чете се през get_food_log.
@@ -7094,7 +7119,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitBody() {
     var b = document.getElementById("kBody"); if (!b) return;
     kitBoxMode();   // Т98
-    if (KIT.seg === "dishes") { kitEdSrchDown(); kitDopenRead(); b.innerHTML = kitDishesHtml(); kitEdSrchUp(); kitEdSync(); return; }   // Т95 · Т181 · Т199 Е2: търсачката и панелите
+    if (KIT.seg === "dishes") { kitEdSrchDown(); kitDopenRead(); b.innerHTML = kitDishesHtml(); kitRegDecor(b); kitEdSrchUp(); kitEdSync(); return; }   // Т95 · Т181 · Т199 Е2: търсачката и панелите
     var h = srchHtml(srchNew("book", { mode: "list" }));   // Т199 Е1: общата търсачка (броят — в полето; Т198: Филтри · N · ★ · избраните)
     b.innerHTML = h + '<div class="card klist" data-sctx="book">' + kitHead() + '<div id="kRows"></div><div id="kMore"></div><div class="knone" id="kNone" hidden></div></div><p class="kempty" id="kEmpty" hidden>Още няма отбелязани храни.</p>';
     kitList();
@@ -7307,8 +7332,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function srchSort(S, a, Q) {
     if (S.sort) { var k = S.sort, d = S.dir; return a.sort(function (x, y) { return d * ((Number(x[k]) || 0) - (Number(y[k]) || 0)) || kitAlpha(x, y); }); }   // колоната — ↓ / ↑
     if (Q.w.length) return srchRank(a, Q);   // пишеш → търсенето
-    if (S.so.mode !== "dd") return a.sort(function (x, y) { return x.cgi - y.cgi || kitAlpha(x, y); });   // книгата — „По рафт“
-    return a.sort(kitAlpha);   // падащият списък — азбучно
+    if (S.so.mode !== "dd" && !(S.fs && S.fs.m && S.fs.m.indexOf("like") > -1)) return a.sort(function (x, y) { return x.cgi - y.cgi || kitAlpha(x, y); });   // книгата — „По рафт“; при ★ — азбучно, и с филтри (DEC-0128, Chris 26.11 10:25: „да както предлагаш“)
+    return a.sort(kitAlpha);   // падащият списък и книгата в ★ — азбучно
   }
   function srchFiltered(S) {   // храните на каталога: skip · филтрите на дървото (или „Търси във всичко“) · търсенето → подредени
     srchUse(S);   // Т199 Е2 (Chris — „намирай и по корена“): точните — първо (редът на тракера 1:1), СЛЕД тях намерените по корена („яйце“ → „Яйца“)
@@ -7911,9 +7936,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (us.length) h += '<p class="kunh">Мерки</p><div class="kun">' + us.map(function (u) { return "<span>" + esc(u.u) + "</span><b>" + kitG(u.gr) + " г</b>"; }).join("") + "</div>";
     return h + (KIT_ROLE[f.r] ? '<p class="krole">' + esc(KIT_ROLE[f.r]) + "</p>" : "") + kitBtns(f);
   }
-  function kitTbl(rows) {   // Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · П · В · М · ккал (Т199 Е4 — ястия т. 12; беше г · ккал · П · В · М); ккал — цели, П · В · М — един знак
+  function kitTbl(rows, cls) {   // Т223: cls — „kln“: линиите между продуктите (ястието); Т158: [{ n, st, g, kc, p, c, f, cls }] → таблица г · П · В · М · ккал (Т199 Е4 — ястия т. 12; беше г · ккал · П · В · М); ккал — цели, П · В · М — един знак
     function v(x, d) { return x == null || x === "" || !isFinite(Number(x)) ? "—" : d ? kitN1(kitR1(Number(x))) : kitKc(x); }
-    var h = '<div class="ktb"><span></span><span class="h ml">г</span>' + macHead("h");
+    var h = '<div class="ktb' + (cls ? " " + cls : "") + '"><span></span><span class="h ml">г</span>' + macHead("h");
     rows.forEach(function (r) {
       var c = r.cls ? " " + r.cls : "", cb = r.cls ? ' class="' + r.cls + '"' : "";
       h += '<span class="n' + c + '">' + esc(r.n) + (r.st ? " <i>" + esc(r.st) + "</i>" : "") + "</span><b" + cb + ">" + (r.g == null || r.g === "" ? "—" : kitG(Math.round(Number(r.g)))) + "</b>"
@@ -8104,6 +8129,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function kitDopenRead() {   // прерисуване → панелите остават, както са (отварят се от общото окабеляване на акордеона — accSet)
     var p = P.kuhnya; if (!p) return;
     Array.prototype.forEach.call(p.querySelectorAll('#kBody > .card.panel[data-key^="kd_"]'), function (c) { KIT.dopen[c.getAttribute("data-key").slice(3)] = wantOpen(c); });
+    Array.prototype.forEach.call(p.querySelectorAll('#kBody > .card.panel.kreg .card[data-key^="kd_r"]'), function (c) { KIT.dopen[c.getAttribute("data-key").slice(3)] = wantOpen(c); });   // Т223: „Архив“ в „Режим“ и старите режими
   }
   function kitVpHtml(d) {   // т. 18: страницата — таблицата, % и целият „Начин на приготвяне“ (редовете — както са написани)
     return '<div class="dish dpage">' + kitDishInner(d) + (d.m ? '<p class="dpcv">' + pctCell(d.m) + "</p>" : "")
@@ -8114,7 +8140,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     VPAGE.kdish = { t: d.n, h: function () { return kitVpHtml(d); } };
     vpOpen("kdish");
   }
-  function kitDishTbl(d) {   // Т158: оразмереното ястие — съставките (г готово · числата по състоянието) + „Цялото ястие“ = записаният сбор + на 100 г
+  function kitDishTbl(d) {   // Т158: оразмереното ястие — съставките (г готово · числата по състоянието) + „Цялото ястие“ = записаният сбор; Т223 — без „на 100 г“, с линиите
     var rows = [], g = 0;
     (d.items || []).forEach(function (it) {
       var n = kitStN(it.id, it.st), x = Number(it.g) || 0; g += x;
@@ -8122,8 +8148,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
         c: n ? (Number(n.c) || 0) * x / 100 : null, f: n ? (Number(n.f) || 0) * x / 100 : null });
     });
     rows.push({ n: "Цялото ястие", g: g, kc: d.m.kc, p: d.m.p, c: d.m.c, f: d.m.f, cls: "sum" });
-    if (g > 0) rows.push({ n: "на 100 г", g: 100, kc: d.m.kc * 100 / g, p: d.m.p * 100 / g, c: d.m.c * 100 / g, f: d.m.f * 100 / g, cls: "per" });
-    return kitTbl(rows);
+    // Т223 (Chris 26.11 09:37 „тук нямаме нужда от разкладката и реда на 100г това е ястие и го ядем цялото … 100г има нужда само в рецептите“): без „на 100 г“;
+    //   „… сиви разделителни линии и на другите редове да стои като табличка“ — линиите между продуктите (kln; CSS Т223)
+    return kitTbl(rows, "kln");
   }
   function kitNum(v) { var s = String(v == null ? "" : v).trim().replace(",", "."); return s !== "" && isFinite(+s) ? +s : null; }   // Т158б: празно → null
   function kitRecRows(items, m, w, pn, un) {   // Т158б → Т199 Е2: съставките → „Цялата рецепта“ = сборът → на 100 г · „1 <мярка>“ (т. 17: името на порцията; празно — „порция“); резенът отпада
@@ -8190,7 +8217,57 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     return '<div class="dtop">' + kitCBtn("data-dnew", "client", "btn", "＋ Ястие", "＋ Ястие", kitCanW()) + kitCBtn("data-dnew", "recipe", "btn", "＋ Рецепта", "＋ Рецепта", kitCanW()) + "</div>"   // т. 1: „＋ Комбинирай“ → „＋ Ястие“
       + kitPanelHtml("d", "Моите ястия", ds.length ? '<div class="bank">' + ds.map(kitDishRow).join("") + "</div>" : '<p class="kempty">Още няма ястия. Натисни „＋ Ястие“ и сглоби първото.</p>', ds.length, "kd_dishes")
       + (rs.length ? kitPanelHtml("r", "Моите рецепти", '<div class="bank">' + rs.map(kitDishRow).join("") + "</div>", rs.length, "kd_recs") : "")   // Т158б
+      + kitRegHtml()   // Т223: третата карта — „Режим“
       + (KIT.shared.length ? '<div class="sec"><h2>Общи ястия</h2>' + KIT.shared.map(kitSharedCard).join("") + "</div>" : "");   // както в v1.57.0 (т. 2 — само „Моите ястия“ / „Моите рецепти“)
+  }
+  // ── Т223 (DEC-0127; Chris 26.11.2026 09:18–09:39): „Режим“ — третата карта в „Моите ястия“ (след „Моите ястия“ и „Моите рецепти“), с ⓘ (kd_reg).
+  //   Вътре — сегашният режим: картите „nutrition“ без въпросниците (както „Режимът“ в „Храна“ и страницата „Режимът“), отворени и само за четене;
+  //   изяденото днес — „✓ ЧЧ:ММ“ (както в страницата), без „Изядох“ (Chris 09:28 / 09:31 — кухнята е за гледане, записът е в лога). Най-долу — „Архив“,
+  //   само ако има какво (Chris 09:28 „всяка с неин архив“): старите режими (секция 'arch_nutrition'; един archived_at = един режим), новият горе,
+  //   всеки — затворен, „от ДД.ММ до ДД.ММ“ (entry_date → archived_at). Няма режим: при клиента — няма картата; в огледалото (?c=, „като клиент“) —
+  //   бледа, изключена, „Празно“ (както „Архив“ на Таблото). Иконата — тази на таба „Режим“ в лога (LG_REG_SVG). Броят — храненията (както в лентата на лога).
+  var REG_ARCH = "arch_nutrition", REG_OLD = [], LG_OLD = null;   // REG_OLD — архивът на режима (отделно от D.content, като ARCH); LG_OLD — храненията му за лога
+  function regCards() { return D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); }); }
+  function regOld() {   // [{ key, at, from, to, cards }] — по режим, новият горе
+    var by = {}, out = [];
+    REG_OLD.forEach(function (r) { var k = String(r.archived_at || ""); if (!by[k]) { by[k] = { at: k, cards: [] }; out.push(by[k]); } by[k].cards.push(r); });
+    out.forEach(function (g) {
+      g.cards.sort(function (a, b) { return (Number(a.sort) || 0) - (Number(b.sort) || 0); });
+      g.from = g.cards.map(function (r) { return String(r.entry_date || "").slice(0, 10); }).filter(Boolean).sort()[0] || ""; g.to = g.at ? sofiaDay(g.at) : "";
+    });
+    out.sort(function (a, b) { return tsNum(b.at) - tsNum(a.at) || String(b.from).localeCompare(String(a.from)); });
+    out.forEach(function (g, i) { g.key = "kd_ro_" + i; });
+    return out;
+  }
+  function regSpan(g) { function dm(x) { return fmtDate(x).slice(0, 5); } var s = (g.from ? "от " + dm(g.from) : "") + (g.from && g.to ? " " : "") + (g.to ? "до " + dm(g.to) : ""); return s || "Стар режим"; }   // „от ДД.ММ до ДД.ММ“
+  function regMealN(html) { var t = document.createElement("div"); t.innerHTML = html; return Array.prototype.filter.call(t.querySelectorAll("[data-meal]"), function (el) { return !el.hasAttribute("data-dish") && !!el.getAttribute("data-meal"); }).length; }
+  function kitRegPanel(sub, inner, chip, ro) {
+    var h = panelHtml("kd_reg", "nutrition", "Режим", sub, inner, !ro && !!KIT.dopen.reg, chip, "kd_reg")
+      .replace(/<span class="ico">[\s\S]*?<\/svg><\/span>/, '<span class="ico">' + LG_REG_SVG + "</span>").replace('<div class="card panel', '<div class="card panel kreg' + (ro ? " ro" : ""));
+    return ro ? h.replace(' data-key="kd_reg">', ' data-key="kd_reg" aria-disabled="true">') : h;
+  }
+  function kitRegHtml() {
+    var cs = regCards(), gs = regOld(), mir = COACH || VIEW_AS;
+    if (!cs.length && !gs.length) return mir ? kitRegPanel("Празно", "", null, true) : "";
+    var cur = cs.length ? '<div class="vreg">' + cs.map(function (r) { return cardHtml(r, true); }).join("") + "</div>" : "", n = cs.length ? regMealN(cur) : 0;
+    return kitRegPanel("", cur + kitRegArch(gs, mir), n ? '<span class="lcnt">' + n + "</span>" : null, false);
+  }
+  function kitRegArch(gs, mir) {   // „Архив“ — най-долу в „Режим“; видът и поведението — като „Архив“ на Таблото (.archbox): затворен, вътре — затворените стари режими
+    var n = gs.length; if (!n && !mir) return "";
+    var h = panelHtml("kd_rega", "history", "Архив", n ? n + (n === 1 ? " режим" : " режима") : "Празно", n ? '<div class="acc">' + gs.map(kitRegOldCard).join("") + "</div>" : "", n > 0 && !!KIT.dopen.rega, null, null)
+      .replace('<div class="card panel', '<div class="card panel archbox' + (n ? "" : " ro"));
+    return n ? h : h.replace(' data-key="kd_rega">', ' data-key="kd_rega" aria-disabled="true">');
+  }
+  function kitRegOldCard(g) {   // старият режим — затворен, „от ДД.ММ до ДД.ММ“; вътре — картите му, както на сегашния
+    var op = !!KIT.dopen[g.key.slice(3)];
+    return '<div class="card' + (op ? " open" : "") + '" data-key="' + g.key + '"><div class="ch"><span>' + esc(regSpan(g)) + "</span></div>"
+      + '<div class="body"><div class="vreg">' + g.cards.map(function (r) { return cardHtml(r, true); }).join("") + "</div></div></div>";
+  }
+  function kitRegDecor(b) {   // след рисуването: изяденото днес „✓ ЧЧ:ММ“ (както страницата „Режимът“), без „Изядох“; старите — само за четене (като „Архив“); видяно
+    var v = b.querySelector(':scope > .card.panel.kreg > .body > .vreg');
+    if (v) { decorateMeals(v); Array.prototype.forEach.call(v.querySelectorAll(".eatbtn"), function (x) { x.parentNode.removeChild(x); }); }
+    archRo(b);
+    if (v && v.parentNode.parentNode.classList.contains("open") && current === "kuhnya") setTimeout(function () { if (v.isConnected) markOpenSeen(v); }, 60);
   }
   // ── сглобяването
   function kitEdOk() { var e = KIT.ed; return !!e && !e.busy && !!e.name.trim() && e.items.length > 0 && (!kitSolverOn() || e.items.some(function (it) { return Number(it.g) > 0; })); }
@@ -8785,10 +8862,11 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function lgFacesHtml() {
     return '<div class="lfc' + lgOff("base") + '" data-lface="base">' + srchHtml(lgSrch()) + "</div>"
       + '<div class="lfc' + lgOff("mine") + '" data-lface="mine"><div class="srch lgbars lbars">' + lgBar("d", "Ястия") + lgBar("r", "Рецепти") + "</div></div>"
-      + '<div class="lfc' + lgOff("reg") + '" data-lface="reg">' + (lgRegOn() ? '<div class="srch lgbars">' + lgBar("m", "Храненията от режима") + "</div>" : '<p class="lnoreg">' + esc(LG_NOREG) + "</p>") + "</div>";
+      + '<div class="lfc' + lgOff("reg") + '" data-lface="reg">' + (lgRegOn() ? '<div class="srch lgbars">' + lgBar("m", "Храненията от режима") + (lgOldOn() ? lgBar("o", "От стария режим") : "") + "</div>"
+        : '<p class="lnoreg">' + esc(LG_NOREG) + "</p>" + (lgOldOn() ? '<div class="srch lgbars">' + lgBar("o", "От стария режим") + "</div>" : "")) + "</div>";   // Т223: под сегашните — старите режими
   }
   function lgMount() { if (!logFull()) return; var S = SRCH.log; if (S && srchRoot(S)) srchList(S); lgBarsSync(); }
-  function lgBarsSync() { ["d", "r", "m"].forEach(function (k) { var c = P.hrana && P.hrana.querySelector('[data-lbc="' + k + '"]'); if (c) c.textContent = lgItems(k).length + " ▾"; }); }
+  function lgBarsSync() { ["d", "r", "m", "o"].forEach(function (k) { var c = P.hrana && P.hrana.querySelector('[data-lbc="' + k + '"]'); if (c) c.textContent = lgItems(k).length + " ▾"; }); }
   function lgTab(v) {
     if (!LG_TABS.some(function (t) { return t[0] === v; })) return;
     lgClose(); LG.tab = v;
@@ -8801,6 +8879,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function lgUnit(d) { return String(d.un == null ? "" : d.un).trim() || "порция"; }   // мярката на рецептата (ястия т. 17; празно — „порция“)
   function lgItems(k) {
     if (k === "m") return lgMeals();
+    if (k === "o") return lgOldMeals().slice();   // Т223
     return (KIT.dishes || []).filter(function (d) { return k === "r" ? d.k === "recipe" && d.m : d.st === "sized" && d.m && d.k !== "recipe"; }).sort(kitAlpha).map(function (d) {
       var m = d.m, lb = "";
       if (k === "r") { var b = kitRecBase(d), pn = Number(d.pn) || 0, g = pn > 0 ? b / pn : 100, kk = b > 0 ? g / b : 0; m = { p: m.p * kk, c: m.c * kk, f: m.f * kk, kc: m.kc * kk }; lb = pn > 0 ? lgUnit(d) : Number(d.w) > 0 ? "100 г" : "100 г сурово"; }   // като в банката: на мярка (без порции — на 100 г)
@@ -8811,11 +8890,32 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function lgMeals() {   // храненията от картите на режима — името и снимката (Т56: храните и числата от картата; без пълен ред с числата — без числа)
     return lgMealEls().map(function (el, i) { var nm = el.getAttribute("data-meal"), s = mealSnap(el, nm), n = s.num; return { id: "m:" + i, n: nm, nm: nm, p: n ? n.p : null, c: n ? n.c : null, f: n ? n.f : null, kc: n ? n.k : null, x: { el: el, foods: s.foods, num: n } }; });
   }
+  // Т223 (Chris 26.11 09:28 „… или да има в самия лог актуалните режим яденета и под тях архив та да листва и него за да маркирам изядох“; 09:31): „От стария режим ▾“ —
+  //   храненията на старите режими (архивът на „Режим“), по режим (новият горе), със заглавния ред „от ДД.ММ до ДД.ММ“; изборът — същият балон с дробта и „Запиши“,
+  //   записът — същият текст. Числата и храните — от картата (Т56, mealSnap; картите се четат веднъж, в скрита кутия — за дебелината на заглавието). Няма стар
+  //   режим — няма и реда; огледалото — редът е там, изключен (както лентите), и когато няма стар.
+  function lgOldMeals() {
+    if (LG_OLD) return LG_OLD;
+    var out = [], gs = regOld(); if (!gs.length || !document.body) return (LG_OLD = out);
+    var box = document.createElement("div"); box.hidden = true; document.body.appendChild(box);
+    try {
+      gs.forEach(function (g, gi) {
+        var w = document.createElement("div"); w.innerHTML = g.cards.map(function (r) { return '<div class="card"><div class="body">' + plainBody(r.body) + "</div></div>"; }).join(""); box.appendChild(w);
+        Array.prototype.forEach.call(w.querySelectorAll("[data-meal]"), function (el, i) {
+          var nm = el.getAttribute("data-meal"); if (!nm || el.hasAttribute("data-dish")) return;
+          var s = mealSnap(el, nm), n = s.num;
+          out.push({ id: "o:" + gi + ":" + i, n: nm, nm: nm, p: n ? n.p : null, c: n ? n.c : null, f: n ? n.f : null, kc: n ? n.k : null, g: gi, gl: regSpan(g), x: { foods: s.foods, num: n, gk: g.key } });
+        });
+      });
+    } finally { document.body.removeChild(box); }
+    return (LG_OLD = out);
+  }
+  function lgOldOn() { return lgOldMeals().length > 0 || ((COACH || VIEW_AS) && lgRegOn()); }
   function lgDdHtml() {
     var D = LG.dd, s = LG.ds, items = lgItems(D.k);
-    if (s.sort) items.sort(function (x, y) { return s.dir * ((Number(x[s.sort]) || 0) - (Number(y[s.sort]) || 0)) || kitAlpha(x, y); });   // колоната — като в книгата (↓ · ↑ · без)
+    if (s.sort) items.sort(function (x, y) { return (D.k === "o" ? x.g - y.g : 0) || s.dir * ((Number(x[s.sort]) || 0) - (Number(y[s.sort]) || 0)) || kitAlpha(x, y); });   // колоната — като в книгата (↓ · ↑ · без); Т223: старите — в своя режим
     D.items = items;
-    return srchHead(s) + '<div class="sdr">' + items.map(function (it) { return kitRow(it, true); }).join("") + "</div>"
+    return srchHead(s) + '<div class="sdr">' + items.map(function (it, i) { return (D.k === "o" && (!i || items[i - 1].g !== it.g) ? '<div class="kgh">' + esc(it.gl) + "</div>" : "") + kitRow(it, true); }).join("") + "</div>"   // Т223: заглавният ред на режима
       + (items.length ? "" : '<p class="kempty">' + (D.k === "d" ? "Още нямаш ястия." : D.k === "r" ? "Още нямаш рецепти." : "Няма хранения в режима.") + "</p>");
   }
   // Т203 (Chris 12:03 „… искам да отваря 4 реда с ястия + реда за протеин и ккал и в двете менюта, да се качват автоматично до над ботом
@@ -8878,7 +8978,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       o.link = { t: "Виж в кухнята ›", go: function () { lgKitGo(d); } };
     } else {   // храненето от режима — само дроб (т. 18); числата — от картата (Т56)
       o.frac = true; o.what = "хранене"; o.base = d.num ? { kc: d.num.k, p: d.num.p, c: d.num.c, f: d.num.f } : null; o.desc = d.foods || "";
-      o.link = { t: "Виж целия режим ›", go: function () { lgRegGo(d.el); } };
+      o.link = { t: "Виж целия режим ›", go: function () { lgRegGo(d.el, d.gk); } };   // Т223: старият — неговият режим в „Архив“
     }
     fpkOpen(D.bar.closest(".lgbars"), { id: it.id, n: it.nm }, o);
   }
@@ -8889,7 +8989,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     switchTab("kuhnya");
     setTimeout(function () { var r = document.querySelector('#p-kuhnya .bk.kd[data-did="' + d.id + '"]'); if (r) try { r.scrollIntoView({ block: "center" }); } catch (x) {} }, 80);
   }
-  function lgRegGo(el) { lgClose(); var c = el && el.closest(".card[data-key]"); lgRegPage(c ? c.getAttribute("data-key") : null); }   // Т200: „Виж целия режим ›“ → режимът като страница-слой, на картата на храненето
+  function lgRegGo(el, gk) {   // Т223 (Chris 26.11 09:22 „… едно място“): „Виж целия режим ›“ → кухнята, „Моите ястия“, картата „Режим“ — отворена, на картата на храненето
+    //   (старият режим — на него, в „Архив“), осветено (go — както всяка препратка; „Виж в кухнята ›“ — до ястието). Беше Т200 — страницата-слой (lgRegPage; остава за препратките — go)
+    lgClose(); var c = !gk && el && el.closest(".card[data-key]");
+    if (P.kuhnya) P.kuhnya.innerHTML = "";   // наново — „Моите ястия“ (както lgKitGo)
+    KIT.seg = "dishes";
+    go("kuhnya:" + (gk || (c ? c.getAttribute("data-key") : "kd_reg")));
+  }
   function lgRegPage(key) {   // Т200: режимът — страница-слой (vpOpen: „назад“, дръпване), като „Цялата рецепта ›“; картите отворени, само за четене (записът — табът „Режим“)
     var menus = D.content.filter(function (r) { return r.section === "nutrition" && !isQaCard(r); }); if (!menus.length) return;
     VPAGE.kreg = { t: "Режимът", h: function () { return '<div class="vreg">' + menus.map(function (r) { return cardHtml(r, true); }).join("") + "</div>"; } };
@@ -10250,6 +10356,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     qaReadSoon();   // Т146: карта с въпросник отворена (и пътят до нея) → отговорите — видени при треньора
     if (!seenOff() && n && n.getAttribute) { var k7 = n.getAttribute("data-key") || ""; if (n.classList.contains("panel")) markSeen("seen_p_" + k7); else if (/^arch_\d+$/.test(k7)) markSeen(k7); }   // Т147: клиентът — панел / архивна карта
     shOpened(n);   // Т77/Т79/Т81: натиснато — бутонът спира; видяното (и при клиента) се записва при напускане на раздела
+    if (n && n.getAttribute && n.getAttribute("data-key") === "kd_reg") setTimeout(function () { var v = n.querySelector(":scope > .body > .vreg"); if (v) markOpenSeen(v); }, 60);   // Т223: „Режим“ отворен — режимът е видян (както в страницата „Режимът“)
     svNote(svKey(n));   // Т186: натиснато (отворено) — видяно в това посещение
   }
   // data-go в дълбочина: пътят отгоре надолу (карта → месец → ден/дата) + братята, които се затварят по „един на ниво“ —
@@ -10417,6 +10524,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (logCard(card)) return;   // Т221 (5): логът не реагира — само ⓘ, връзките и броячът
     if (card.classList.contains("anp")) return;   // Т145: картите на анализа са само визуални — не се затварят
     if (card.classList.contains("ro") && card.classList.contains("archbox")) return;   // Т111: празният архив (изгледите на треньора) — не се отваря
+    if (card.classList.contains("ro") && card.classList.contains("kreg")) return;   // Т223: „Режим“ без режим (огледалото) — не се отваря
+    if (card.parentElement && card.parentElement.classList.contains("vreg")) return;   // Т223: картите на режима в „Режим“ — отворени, само за четене (като страницата „Режимът“)
     var open = !wantOpen(card);
     accSet(card, open);
     if (card.getAttribute("data-key") === "analysis" && open) seenAnalysis();   // Т71
@@ -10585,8 +10694,9 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     });
   }
   function boot(diary, food, analysis, nm, intake) {
-    D = { name: diary.name || "", content: (diary.content || []).filter(function (r) { return r.section !== "arch"; }), log: diary.log || [] };
+    D = { name: diary.name || "", content: (diary.content || []).filter(function (r) { return r.section !== "arch" && r.section !== REG_ARCH; }), log: diary.log || [] };
     ARCH = (diary.content || []).filter(function (r) { return r.section === "arch"; });   // Т111
+    REG_OLD = (diary.content || []).filter(function (r) { return r.section === REG_ARCH; }); LG_OLD = null;   // Т223: архивът на режима (кухнята — „Режим“; логът — „От стария режим“)
     if (!COACH) { SEEN_ON = !!diary.seen_items && typeof diary.seen_items === "object"; SEEN_DB = diary.seen_items || {}; }   // Т84 (при треньора — coachBoot)
     if (food) F = { entries: food.entries || [], mode: food.log_mode || "sprint", from: food.log_from || null };   // Т144: log_mode (липсва ли — 'sprint', като rich() при треньора); Т180: log_from
     if (logFree()) { var ldb = INFO.log_done.b.slice(); ldb[0] = [ldb[0][0], LOG_FREE_B0]; INFO.log_done = { t: INFO.log_done.t, b: ldb }; }   // Т208: свободен лог — без „Броячът спира на 21“
