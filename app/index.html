@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.82.1">
+<meta name="version" content="v1.82.2">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -833,7 +833,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
   .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
   .ipop .ipx svg.ic { width: 18px; height: 18px; }
-  #popSpacer { position: absolute; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }
+  #popSpacer, #layRoom { position: absolute; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }   /* Т227 (Chris 27.11 08:59): #layRoom — мястото отдолу на отворения слой (layRoom), същият невидим маркер */
   .ipop { display: flex; flex-direction: column; max-height: 60vh; }   /* Т60: дълъг текст → скрол вътре, заглавието и × остават */
   .ipop .ipbody { min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .ipop .ipbody { scrollbar-width: none; } .ipop .ipbody::-webkit-scrollbar { display: none; }   /* Т160 (Chris 16.11 23:49): балоните — без лента за скрол; скролът остава (пръст / ролка) */
@@ -6514,12 +6514,70 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (LG && LG.dd) { barFit(LG.dd.el, LG.dd.bar.getBoundingClientRect().top, LG.dd.y); return; }   // … и падащият на лента (балонът над него се затвори)
     var sp = document.getElementById("popSpacer"); if (!sp || !sp.parentNode) return;
     var y = window.scrollY, m = document.getElementById("main"), cs = getComputedStyle(document.body);
-    var natH = m.getBoundingClientRect().bottom + y + (parseFloat(cs.paddingBottom) || 0), max = Math.max(0, natH - window.innerHeight);   // без маркера
+    var natH = m.getBoundingClientRect().bottom + y + (parseFloat(cs.paddingBottom) || 0), max = Math.max(0, Math.max(natH, layEnd()) - window.innerHeight);   // без маркера; Т227: още отворен слой — до мястото му (#layRoom)
     if (y <= max + 0.5) { sp.parentNode.removeChild(sp); return; }   // скролът е в самата страница → махането не мести нищо
     spacerSet(y + window.innerHeight - natH + 1);   // ПРЕДИ махането: резервът държи страницата дълга (браузърът не дърпа скрола)
     sp.parentNode.removeChild(sp);
     accRun([], { y: max }, false);   // връщане до края на страницата — плавно
   }
+  // ════════ Т227 (DEC-0123 — правило 25; Chris 27.11.2026 08:59, бъг): ОТВОРЕНОТО НЕ ОСТАВА ПОД ДОЛНАТА ЛЕНТА — МЯСТО ОТДОЛУ ════════
+  //   „ако не е отворена хронологията …, не мога да издигна страницата нагоре за да натисна бутоните на часовника, остават зад ботм бара …
+  //   прегледай дали и другаде няма подобна ситуация“. Причината: мястото отдолу (#popSpacer, kbGo) се мереше веднъж — от превъртането при
+  //   отварянето и от прозореца в този миг. Отворен ли е слоят при отворена клавиатура (Android — прозорецът е по-нисък, лентата скрита) или
+  //   порасне ли после (часовникът — циферблатът следва височината на прозореца), страницата свършваше под него и не се превърташе.
+  //   Сега — ОБЩО за всички слоеве (общият им клас .lay — всичко отворено отгоре в страницата): докато слой е отворен, страницата стига поне до долния му ръб + височината на
+  //   долната лента (от горния ѝ ръб до дъното на прозореца; скрита от клавиатурата — последната мерена) + 8 px (въздухът над лентата —
+  //   правило 25, както barLim): невидимият маркер #layRoom. Мери се от мястото на слоя в страницата, не от прозореца — клавиатурата и
+  //   лентата на браузъра не го смаляват. Само ако съдържанието не стига (дълга страница — нищо). Без него: заковани слоеве (страница-слой,
+  //   картинката, балон върху страница) и страниците, които стоят („Разговор“, кухнята в бокс) — там слоят е в своята кутия. Списък с редове
+  //   (.lay-r — „Храни“, „Ястия“ … „От стария режим“: свой скрол, височината му се мери до лентата от мястото му) — място само за най-малката
+  //   му височина (160 px, правилото на падащите); останалото се превърта вътре (цялата би държала страницата там, където е — Т211).
+  //   Расте, докато слоят е отворен (мястото му — layPlace; превъртането — kbGo; размерът — ResizeObserver; прозорецът). Затвори ли се слой
+  //   (layerDone) или се прибере клавиатурата (kbOff — слоевете са по новите си места) — мери се наново: превъртяна ли е страницата в
+  //   махнатото място, слиза плавно (accRun, както popUnfit, в същия ход) до края на съдържанието или до мястото, което още отворен слой иска. Превъртането при отваряне — както досега (barFit /
+  //   lgDdPlace: само колкото долният ръб да е над лентата); маркерът е готов преди него, затова kbGo не слага втори.
+  var LAY_BAR = 0, LAY_Q = 0, LAY_LMIN = 160, LAY_RO = window.ResizeObserver ? new ResizeObserver(function () { layRoomSoon(); }) : null;
+  function layBarH() {   // долната лента: от горния ѝ ръб до дъното на прозореца; скрита (клавиатурата) — последната мерена (немерена — от CSS)
+    var nav = document.querySelector("nav.tabs"); if (!nav) return 0;
+    if (nav.getClientRects().length) LAY_BAR = Math.max(0, window.innerHeight - nav.getBoundingClientRect().top);
+    else if (!LAY_BAR) { var cs = getComputedStyle(document.documentElement); LAY_BAR = (parseFloat(cs.getPropertyValue("--navh")) || 0) + (parseFloat(cs.getPropertyValue("--navgap")) || 0); }
+    return LAY_BAR;
+  }
+  function layNat() { var m = document.getElementById("main"); return m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(getComputedStyle(document.body).paddingBottom) || 0); }   // краят на съдържанието — без маркерите
+  function layNeed() {   // докъде трябва да стига страницата заради отворените слоеве (0 — няма такъв)
+    var b = document.body, e = 0, bh = null;
+    if (b.classList.contains("chat-on") || kitInBox()) return 0;   // страницата стои — слоевете са в своята кутия
+    Array.prototype.forEach.call(document.querySelectorAll(".lay"), function (el) {   // и ⓘ, преди да е в стека (popFit е преди записа в историята)
+      if (!el.getClientRects().length) return;
+      for (var p = el; p && p !== b; p = p.offsetParent) if (getComputedStyle(p).position === "fixed") return;   // закован — сам си знае мястото на екрана
+      if (bh === null) bh = layBarH();
+      var r = el.getBoundingClientRect(), z = el.classList.contains("lay-r") ? Math.min(r.bottom, r.top + LAY_LMIN) : r.bottom;   // списък с редове: най-малката му височина (останалото — вътрешният скрол)
+      e = Math.max(e, z + window.scrollY + bh + ACC_GAP);
+    });
+    return e;
+  }
+  function layEnd() { var R = document.getElementById("layRoom"); return R && R.parentNode ? R.getBoundingClientRect().bottom + window.scrollY : 0; }   // докъде стига мястото (0 — няма)
+  function layRoom(exact) {   // мястото отдолу: само расте, докато слоят е отворен; exact — мери се наново (махнатото — без скок)
+    var R = document.getElementById("layRoom"), need = layNeed(), ih = window.innerHeight, nat = layNat();
+    var end = need > Math.max(nat, ih) + 0.5 ? Math.ceil(need) + 1 : 0, cur = R && R.parentNode ? R.__end || 0 : 0;   // + 1 — закръглянето на превъртането (kbGo): без втори маркер
+    if (end === cur || (end < cur && !exact)) return;
+    if (end < cur) {   // по-малко място: превъртяна ли е страницата в махнатото — държи се (резервът на accRun) и слиза плавно
+      var sp = document.getElementById("popSpacer"), E = Math.max(nat, end, sp ? sp.getBoundingClientRect().bottom + window.scrollY : 0), max = Math.max(0, E - ih), y = window.scrollY, y1 = barY();
+      if (Math.max(y, y1) > max + 0.5) { spacerSet(Math.max(spacerH(), y + ih - nat + 1)); laySet(R, end); accRun([], { y: Math.min(y1, max) }, false); return; }
+    }
+    laySet(R, end);
+  }
+  function laySet(R, end) {
+    if (!end) { if (R && R.parentNode) R.parentNode.removeChild(R); return; }
+    if (!R) { R = document.createElement("div"); R.id = "layRoom"; R.setAttribute("aria-hidden", "true"); }
+    if (!R.parentNode) document.body.appendChild(R);
+    R.style.top = (end - 1) + "px"; R.__end = end;
+  }
+  function layRoomSoon() {   // след текущия ход — слоят е с крайния си вид (часовникът рисува циферблата след мястото си); само расте
+    if (LAY_Q) return; LAY_Q = 1;
+    Promise.resolve().then(function () { LAY_Q = 0; layRoom(); });
+  }
+  window.addEventListener("resize", function () { layRoomSoon(); });   // лентата и слоевете — след своите места
   var EAT = null;   // отвореният банер: { el, btn, pop, name, busy }
   function eatClose(back) {
     if (!EAT) return;
@@ -6628,6 +6686,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       if (!NB && navTop() === r) try { history.replaceState(L.st, "", location.href); } catch (x) {}
     } else { L.r = { L: L, st: L.st }; navPush(L.r); }
     if (L.drag !== false && L.el) layerDrag(L);
+    if (LAY_RO && L.el && L.el.classList && L.el.classList.contains("lay")) try { LAY_RO.observe(L.el); } catch (x) {}   // Т227: порасне ли — мястото отдолу расте с него
     return L;
   }
   function layerDone(L, viaPop, keep) {   // слоят е затворен: вън от стека; записът — назад (точно веднъж) · за следващия (keep) · вече махнат (viaPop)
@@ -6635,6 +6694,8 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     L.done = true;
     if (L.unwire) L.unwire();
     var i = LY.indexOf(L); if (i > -1) LY.splice(i, 1);
+    if (LAY_RO && L.el) try { LAY_RO.unobserve(L.el); } catch (x) {}
+    layRoom(true);   // Т227: мястото отдолу — наново, без него (веднага, както popUnfit: плавното връщане тръгва в същия ход)
     if (viaPop) return;
     if (keep) { var r = L.r; LSPARE = r; setTimeout(function () { if (LSPARE === r) { LSPARE = null; navDrop(r); } }, 0); return; }
     navDrop(L.r);
@@ -6786,6 +6847,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       else { x = window.scrollX; y = window.scrollY; }
     }
     st.left = (l + x) + "px"; st.width = w + "px"; st.top = (t + y) + "px";
+    layRoomSoon();   // Т227: мястото отдолу — по новото място (след текущия ход: слоят — с крайния си вид)
     return { left: l, top: t, width: w };
   }
   function layCover(el, ov) {   // el — точно върху ov: ov е скрит, докато el е отворен (подредбата и превъртането му остават)
@@ -7601,6 +7663,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     kbSize(S);
   }
   function kbGo(y1) {   // превъртането до y1 — страницата достатъчно дълга (както popFit: невидим маркер, маха се при затваряне)
+    layRoom();   // Т227: първо мястото на отворения слой (#layRoom) — маркерът тук остава само за полетата с клавиатурата
     var y0 = window.scrollY; if (Math.abs(y1 - y0) < 1) return;
     var want = Math.ceil(y1 + window.innerHeight);
     if (document.documentElement.scrollHeight < want) {
@@ -7635,6 +7698,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (S && S.sdd) srchDdPlace(S);   // старото правило (160–420, над лентата)
     var on = document.querySelector("nav.tabs button.on"); if (on) { navSlidePlaced = false; navSlide(on.getAttribute("data-tab")); }   // маркерът — скритата лента не е мерена
     if (IPOP) infoPlace();
+    layRoom(true);   // Т227: клавиатурата си отиде, лентата е пак видима — мястото отдолу наново (слоевете — по новите си места)
     if (!EAT && !IPOP && !TP && !(FPK && FPK.ov)) popUnfit();   // удължената страница — до края си; балон над нея — той я връща
   }
   function kbSync(why) {
@@ -10423,9 +10487,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   function contentH() {
     var m = document.getElementById("main"), cs = getComputedStyle(document.body), sp = document.getElementById("popSpacer");
     var h = m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(cs.paddingBottom) || 0);
-    return sp ? Math.max(h, sp.getBoundingClientRect().bottom + window.scrollY) : h;   // Т66: балонът/банерът под последната карта
+    return Math.max(h, sp ? sp.getBoundingClientRect().bottom + window.scrollY : 0, layEnd());   // Т66: балонът/банерът под последната карта; Т227: и мястото отдолу на отворения слой
   }
   function maxScroll() { return Math.max(0, contentH() - window.innerHeight); }
+  function accFlow() { var m = document.getElementById("main"); return m.getBoundingClientRect().bottom + window.scrollY + (parseFloat(getComputedStyle(document.body).paddingBottom) || 0); }   // Т227: самото съдържание — без маркерите (резервът е в него)
   // changes: [{n, open}] · sc: null (без скрол) | {open: n} (заглавието на n горе) | {close: n} (ако заглавието е над екрана → горе) | {y: число}
   //   | {el} (el горе) | {el, head, end} (Т69: head горе, ако el … end се събират над лентата; иначе el горе)
   function accRun(changes, sc, instant) {
@@ -10434,7 +10499,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       cancelAnimationFrame(prev.raf); ACC_RUN = null;
       prev.items.forEach(function (it) { if (!changes.some(function (c) { return c.n === it.n; })) changes.push({ n: it.n, open: it.open }); });
     }
-    var y0 = window.scrollY, items = [], H0 = contentH();
+    var y0 = window.scrollY, items = [], H0 = accFlow();   // Т227: за резерва — съдържанието (маркерите #popSpacer / #layRoom не се удължават от него)
     var closeHead = sc && sc.close ? accHead(sc.close) : null, closeAbove = !!closeHead && closeHead.getBoundingClientRect().top < 0;
     changes.forEach(function (c) {
       var b = accBody(c.n);
@@ -10444,7 +10509,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     // крайната подредба — приложена и измерена в същия ход (не се рисува)
     items.forEach(function (it) { boxSet(it.b, null); setOpen(it.n, it.open); });
     items.forEach(function (it) { it.to = it.open ? boxOf(it.b) : ACC_ZERO; });
-    var H1 = contentH(), max = maxScroll(), y1 = y0;
+    var H1 = accFlow(), max = maxScroll(), y1 = y0;
     if (sc && sc.y != null) y1 = sc.y;
     else if (sc && sc.el) {
       y1 = sc.el.getBoundingClientRect().top + window.scrollY - topOffset();
