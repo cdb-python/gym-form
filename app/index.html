@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="version" content="v1.85.0">
+<meta name="version" content="v1.86.0">
 <title>cdb-V</title>
 <!-- Клиентската страница с 4 бутона (08.11.2026). Т57 (09.11.2026): приложението на всеки клиент — tools/me/ и form3L пренасочват тук. -->
 <meta name="theme-color" content="#ededed">
@@ -780,6 +780,18 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
      (списъци с редове — 8: .lay-r; менютата с редове до ръба — своите), ниво 3 (--sh3). Мястото — layPlace. Нищо отворено няма свой ъгъл, рамка или сянка. */
   .lay { border: 0; border-radius: 14px; box-shadow: var(--sh3); padding: 12px; }
   .lay-r { padding: 0 8px; }
+  /* Т231 (Chris 27.11 20:2x) „чертичка … на всички балони и менюта които се махат, затварят с влачене надолу и настрани“; 20:26 „само визуално“ (DEC-0136): ДРЪЖКАТА — всеки
+     слой, който се влачи, я получава сам: layerDrag слага data-grab (1 — целият слой; sel — елементът, който се мести: редакторът — .ded); drag: false
+     (картинката) — без. Само знак: ::before (без възел — нищо за екранния четец), без събития; 36 × 4, ъгъл 2, цветът на бледия текст (--muted) на 45 %,
+     в средата, 7 px от горния ръб — в горното отстояние: заглавието и височината не се местят; над залепените редове (заглавията на колоните в
+     списъците — z-index 1, папките във „Филтри“ — 2). Страницата-слой — в горната ѝ лента, под ивицата горе (--sat), в цвета на буквите на лентата
+     (както шапката: при треньора лентата е в същото сиво като --muted — дръжката не би се виждала). */
+  [data-grab="1"]:not(.vpage)::before, [data-grab="sel"] .card.ded::before, .vpage[data-grab="1"] > .vph::before { content: ""; position: absolute; top: 7px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: var(--muted); opacity: 0.45; pointer-events: none; z-index: 3; }
+  [data-grab="sel"] .card.ded::before { top: 6px; }   /* Т231 (Chris 27.11 20:2x): картата на редактора е с рамка 1 px — 7 px от ръба ѝ */
+  .vpage[data-grab="1"] > .vph { position: relative; }
+  .vpage[data-grab="1"] > .vph::before { top: calc(7px + var(--sat)); background: currentColor; }
+  .eatpop[data-grab="1"]::before, .tp[data-grab="1"]::before, .sdl[data-grab="1"]::before, .thml[data-grab="1"]::before { top: 4px; }   /* Т231 (Chris 27.11 20:2x); решение CDB-GYM 27.11 21:4x (т. 6 „б“): тесните места — „Изядох“, часовникът, списъците с реда „П В М“, темите: 4 px от горния ръб, за да има поне 4 px до съдържанието (размерите — същите) */
+  .fpk[data-grab="1"]:not(.fpkov) { position: relative; }   /* Т231 (Chris 27.11 20:2x): балонът за добавяне в редактора стои в реда — мястото на дръжката е неговото (над списъка е absolute) */
   .eatpop { position: absolute; z-index: 55; box-sizing: border-box; padding-top: 10px; background: #fff; outline: none; }
   .eatpop .eph { margin: 0 0 8px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; }
   .eatpop .epr { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
@@ -831,6 +843,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   .now h3 .pbell.ro { cursor: not-allowed; }   /* Т93: изгледите на треньора — камбанката на клиента, само за преглед (бледа като „Запиши“) */
   .now h3 .pbell.ro.own { opacity: 1; }   /* Т123 (Chris 17:26): собственият му акаунт (?c=) — в цвета на ⓘ; само цветът, пак само за преглед */
   .ipop .iph b { flex: 1; min-width: 0; padding-top: 6px; font-size: 15px; font-weight: 700; line-height: 1.3; color: var(--ink); }
+  .ipop .iph b.ipht { display: flex; align-items: center; gap: 4px; }   /* Т231 (Chris 27.11 20:2x): ⓘ до заглавието в заглавката („Тренировки“, „График“) — като ⓘ в балона за добавяне (.fpkn): 4 px след думата, в средата на реда; височината — същата */
   .ipop .ipx { display: inline-flex; flex: none; align-items: center; justify-content: center; width: 32px; height: 32px; margin: 0 -7px 0 0; padding: 0; border: 0; background: none; color: var(--accent-dark); cursor: pointer; }
   .ipop .ipx svg.ic { width: 18px; height: 18px; }
   #popSpacer, #layRoom { position: absolute; left: 0; width: 1px; height: 1px; visibility: hidden; pointer-events: none; }   /* Т227 (Chris 27.11 08:59): #layRoom — мястото отдолу на отворения слой (layRoom), същият невидим маркер */
@@ -2915,6 +2928,13 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       "Часът се слага сам; можеш да го смениш.",
       "„Тренировка“ горе вдясно отбелязва, че днес тренираш, и в колко часа. Тренировката застава в деня на своя час, между храненията — така се вижда какво си ял преди и след нея. В ден без тренировка не се отбелязва нищо.",   // Т230 (DEC-0135; Chris 27.11.2026 19:3x „Да, с този абзац“) — дословно
       "Целта са 21 дни с поне един запис. Виж „Защо 21 дни?“ горе вдясно."] },
+    // Т231 (Chris 27.11 20:2x) (DEC-0136; въпросник 20:1x — одобрени, дословно): ⓘ в заглавката на балоните „Тренировки“ и „График“ (ключовете ≠ trday / dtype — те отварят балоните)
+    tr_info: { t: "Тренировки", b: [
+      "Тук отбелязваш, че днес тренираш, и в колко часа. Отбелязва се само днешният ден — до края му можеш да премахнеш тренировката или да смениш часа.",
+      "Тренировката застава в лога на своя час, между храненията. Така се вижда какво си ял преди и след нея — важно за часовете на хранене и за белтъка около тренировката.",
+      "За тренировката не се добавят калории: нуждата ти се мери от храната и теглото и вече включва движението."] },
+    dt_info: { t: "График", b: [
+      "Тук отбелязваш каква смяна работиш днес. Така храненията се четат по твоя ден, а не по часовника: след нощна смяна храната до 10:00 сутринта влиза в деня на смяната. Отбелязва се само днешният ден."] },
     hist_food: { t: "История на храненето", b: [
       "Тук се вижда как се храниш във времето, не само днес: кои хранения се повтарят, в кои часове ядеш, кои дни излизат от ритъма. От тази картина тръгват промените в плана ти.",
       "Тук са всички дни със записи в лога, подредени по месеци. Отваряш деня и виждаш какво е имало в него и в колко часа.",
@@ -6842,6 +6862,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function layerDrag(L) {
     var host = L.el, D = L.drag || {}, g = null;
+    host.setAttribute("data-grab", D.sel ? "sel" : "1");   // Т231 (Chris 27.11 20:2x) (DEC-0136): дръжката — знакът, че слоят се влачи (видът — CSS [data-grab]); само знак: влаченето, навигацията и „назад“ — както са
     function ts(e) {
       g = null;
       if (L.done || e.touches.length !== 1 || LY[LY.length - 1] !== L) return;   // само горният слой, един пръст
@@ -6884,7 +6905,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     function te() { end(false); } function tc() { end(true); }
     host.addEventListener("touchend", te);
     host.addEventListener("touchcancel", tc);
-    L.unwire = function () { host.removeEventListener("touchstart", ts); host.removeEventListener("touchmove", tm); host.removeEventListener("touchend", te); host.removeEventListener("touchcancel", tc); };   // слушателите — махнати при затваряне (редакторът е в кухнята, тя остава)
+    L.unwire = function () { host.removeAttribute("data-grab"); host.removeEventListener("touchstart", ts); host.removeEventListener("touchmove", tm); host.removeEventListener("touchend", te); host.removeEventListener("touchcancel", tc); };   // слушателите — махнати при затваряне (редакторът е в кухнята, тя остава)
   }
   // Т59: ⓘ балонът — под реда със заглавието, на линиите на колоната (Т219 — layPlace); върху съдържанието (не го бута); по един.
   //   Затваря се: ×, докосване извън, Esc, „Назад“ (отварянето слага запис в историята), смяна на раздела.
@@ -6960,14 +6981,22 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
   }
   function infoClose(back, viaPop, keep) {
     if (!IPOP) return;
-    var b = IPOP.btn, IL = IPOP.L;
+    var b = IPOP.btn, IL = IPOP.L, par = IPOP.par;   // Т231 (Chris 27.11 20:2x): par — балонът под ⓘ („Тренировки“ / „График“)
     if (IPOP.pop.parentNode) IPOP.pop.parentNode.removeChild(IPOP.pop);
     layUncover(IPOP.pop);   // Т219
-    popUnfit();
+    if (!par) popUnfit();   // Т231 (Chris 27.11 20:2x): балонът отдолу остава — страницата не слиза (както часовникът над „Тренировки“)
     b.setAttribute("aria-expanded", "false"); IPOP = null;
     window.removeEventListener("resize", infoPlace);
     if (b.hasAttribute("data-fit")) fitDrop(b);   // Т228: ★ махната при „Моите“ — редът излиза след балона (както в книгата)
     else if (b.classList.contains("krow")) kitFavDrop(b);   // Т102 → Т198: отметката вече не минава през „Моите“ → редът излиза след балона
+    if (par) {   // Т231 (Chris 27.11 20:2x) (DEC-0136): ⓘ от балона — записът му назад; балонът отдолу пак е горният слой (на мястото си, с превъртането си)
+      layerDone(IL, viaPop);
+      IPOP = par; par.pop.id = "infoPop"; window.addEventListener("resize", infoPlace);
+      if (!back || !par.L || par.L.done) { infoClose(back, false, keep); return; }   // извън, раздел, друг балон — затваря и балона отдолу
+      infoPlace(); if (par.sync) par.sync();   // ✕ · Esc · „назад“ · дръпване — обратно в балона (изборът му — както е сега)
+      if (b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
+      return;
+    }
     layerDone(IL, viaPop, keep);   // Т181: записът — назад (точно веднъж) · за следващия балон (keep) · вече махнат (viaPop)
     if (back && b.isConnected) try { b.focus({ preventScroll: true }); } catch (x) {}
   }
@@ -6978,8 +7007,10 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     if (btn.getAttribute("data-info") === "dtype") return dtOpen(btn);   // Т109: „График“
     if (btn.getAttribute("data-info") === "trday") return trOpen(btn);   // Т199 Е3: „Тренировки“
     var key = btn.getAttribute("data-info"), f = INFO[key], same = IPOP && IPOP.btn === btn;
+    var par = !same && f && IPOP && !IPOP.par && IPOP.pop.contains(btn) ? IPOP : null;   // Т231 (Chris 27.11 20:2x): ⓘ в отворен балон („Тренировки“, „График“) — балонът на ⓘ застава върху него; затваряне → обратно в него
     if (btn.id === "brandBtn") nflSeen("victus");   // Т144д
-    infoClose(false, false, !same && !!f);   // към друг балон — записът в историята остава
+    if (par) { IPOP = null; par.pop.removeAttribute("id"); }   // Т231 (Chris 27.11 20:2x): остава отворен (скрит отдолу — layCover); id-то — на горния
+    else infoClose(false, false, !same && !!f);   // към друг балон — записът в историята остава
     if (same || !f) return;
     markSeen("seen_i_" + key); svNote("seen_i_" + key);   // Т147: клиентът — отворил балона (без светене); треньорът / изгледът — нищо не се пише; Т186: и в посещението
     var pop = document.createElement("div");
@@ -6996,7 +7027,7 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
       var vpb = btn.closest(".vpb"), rb1 = btn.getBoundingClientRect(); if (vpb && rb1.bottom > window.innerHeight * 0.4) vpb.scrollTop += rb1.bottom - window.innerHeight * 0.25;
     }
     document.body.appendChild(pop);
-    IPOP = { btn: btn, pop: pop, over: layUnder(btn) };   // Т219: ⓘ от отворено — точно върху него
+    IPOP = { btn: btn, pop: pop, over: layUnder(btn), par: par };   // Т219: ⓘ от отворено — точно върху него; Т231: par — балонът, в който е ⓘ
     btn.setAttribute("aria-expanded", "true");
     infoPlace(); window.addEventListener("resize", infoPlace);
     layCover(pop, IPOP.over);
@@ -9691,15 +9722,15 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     else if (!TR.err && e) e.parentNode.removeChild(e);
   }
   function trOpen(btn) {   // = dtOpen на смените
-    var same = IPOP && IPOP.btn === btn;
+    var same = !!IPOP && (IPOP.btn === btn || (!!IPOP.par && IPOP.par.btn === btn));   // Т231 (Chris 27.11 20:2x): и когато ⓘ е над него
     infoClose(false, false, !same);
     if (same || !trOn() || !trWho()) return;
     TR.err = false; TR.q = null; TR.tm = TRD[todayStr()] || trLast() || nowHM();
     var pop = document.createElement("div");
     pop.className = "ipop dtpop trpop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "Тренировки"); pop.setAttribute("data-info", "trday"); pop.tabIndex = -1;
-    pop.innerHTML = '<div class="iph"><b>Тренировки</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>" + trPopHtml();
+    pop.innerHTML = '<div class="iph"><b class="ipht">Тренировки' + infoBtn("tr_info") + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + "</button></div>" + trPopHtml();   // Т231 (Chris 27.11 20:2x): ⓘ до заглавието
     document.body.appendChild(pop);
-    IPOP = { btn: btn, pop: pop };
+    IPOP = { btn: btn, pop: pop, sync: trPopSync };   // Т231 (Chris 27.11 20:2x): sync — след ⓘ (записът може да е свършил, докато ⓘ е отгоре)
     btn.setAttribute("aria-expanded", "true");
     infoPlace(); window.addEventListener("resize", infoPlace);
     popFit(pop);
@@ -10656,14 +10687,14 @@ window.PWA_BASE = "";   // папката на manifest-а и иконите с�
     else if (!DT.err && e) e.parentNode.removeChild(e);
   }
   function dtOpen(btn) {
-    var same = IPOP && IPOP.btn === btn;
+    var same = !!IPOP && (IPOP.btn === btn || (!!IPOP.par && IPOP.par.btn === btn));   // Т231 (Chris 27.11 20:2x): и когато ⓘ е над него
     infoClose(false, false, !same);
     if (same || !DT.on || !CAN_WRITE) return;
     var pop = document.createElement("div");
     pop.className = "ipop dtpop lay"; pop.id = "infoPop"; pop.setAttribute("role", "dialog"); pop.setAttribute("aria-label", "График"); pop.setAttribute("data-info", "dtype"); pop.tabIndex = -1;
-    pop.innerHTML = '<div class="iph"><b>График</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="dtc">' + dtPopHtml() + "</div>";
+    pop.innerHTML = '<div class="iph"><b class="ipht">График' + infoBtn("dt_info") + '</b><button type="button" class="ipx" aria-label="Затвори">' + ic("close") + '</button></div><div class="dtc">' + dtPopHtml() + "</div>";   // Т231 (Chris 27.11 20:2x): ⓘ до заглавието
     document.body.appendChild(pop);
-    IPOP = { btn: btn, pop: pop };
+    IPOP = { btn: btn, pop: pop, sync: dtPopSync };   // Т231 (Chris 27.11 20:2x)
     DT.err = null;
     btn.setAttribute("aria-expanded", "true");
     infoPlace(); window.addEventListener("resize", infoPlace);
