@@ -497,6 +497,7 @@
   function rich(r) { return "has_regime" in r || "log_mode" in r; }
   function stage(r) {
     if (!rich(r)) return "";
+    if (r.log_mode === "measure") return (r.n_analysis || 0) > 0 ? "Анализ" : "Лог · знаещ";   /* Т232 (Chris 27.11 21:43) (DEC-0138): пътят „знаещи“ — станцията на лога и при режим / цел (не „Режим“); анализът (от log_from) — „Анализ“; аппът — „21 дни · ден N“ */
     return r.has_regime || ftOf(r) ? "Режим" :   /* Т220 (Chris 26.11.2026 15:5x „Да, „Режим“ при цел“): и при цел (ftOf — правилото на ftOn в аппа) — скачени съдове с „Твоят план“ */ (r.n_analysis || 0) > 0 ? "Анализ" : r.log_mode === "sprint" ? LOG_TARGET + " дни · ден " + Math.min(r.log_days || 0, LOG_TARGET) : "Свободен лог";
   }
   // Броячът + готовността (Chris 15.11 14:08): поддръжката излиза при ≥ 14 дни с храна и ≥ 3 тегления, първото и последното на ≥ 14 дни
@@ -506,7 +507,7 @@
   var RD_FOOD = 14, RD_W = 3, RD_SPAN = 14;
   function rdOf(v, max) { return '<b><span class="n">' + v + "</span>/" + max + "</b>"; }
   function readyCells(r) {
-    if (!("log_weigh_n" in r) || r.has_regime || (r.n_analysis || 0) > 0 || !((r.log_days || 0) > 0)) return [];
+    if (!("log_weigh_n" in r) || (r.has_regime && r.log_mode !== "measure") || (r.n_analysis || 0) > 0 || !((r.log_days || 0) > 0)) return [];   /* Т232 (Chris 27.11 22:4x): „знаещи“ — и при режим (мерим) */
     var fd = r.log_days || 0, wn = r.log_weigh_n || 0, sp = r.log_weigh_span || 0, wok = wn >= RD_W && sp >= RD_SPAN;
     var out = ["храна" + NB + (fd >= RD_FOOD ? "<b>✓</b>" : rdOf(fd, RD_FOOD)), "тегления" + NB + (wok ? "<b>✓</b>" : rdOf(wn, RD_W))];
     if (wn >= RD_W && !wok) out.push("период" + NB + rdOf(sp, RD_SPAN) + NB + "д");
@@ -542,7 +543,7 @@
       FTS = m; FTP = p; if (!list.classList.contains("hidden")) render();
     }, function () {});
   }
-  function ftOf(r) { var d = FTS[r.client_id]; return d && (r.coach_self === true || (r.log_days || 0) >= LOG_TARGET || r.log_mode === "free") ? d : null; }   // Т208: и при свободен лог (същото правило като ftOn в аппа — скачени съдове)
+  function ftOf(r) { var d = FTS[r.client_id]; return d && (r.coach_self === true || (r.log_days || 0) >= LOG_TARGET || r.log_mode === "free") ? d : null; }   // Т208: и при свободен лог (същото правило като ftOn в аппа — скачени съдове); Т232 (Chris 27.11 21:43): „знаещи“ (measure) — като sprint (от 21 дни)
   // Т110: last_open — последното отваряне на приложението от клиента (новата колона; старото RPC я няма → както преди).
   //   Подредбата: по-късното от писането (last_activity) и отварянето. Вълната (shimRow), „Активни“ и кликът остават по last_activity.
   function tms(ts) { return Date.parse(ts || "") || 0; }
@@ -556,7 +557,7 @@
     return '<span class="when">' + esc(o > a && wo !== wa ? "видяно " + wo : wa ? "писа " + wa : "") + "</span>";
   }
   function rowHtml(r) {
-    var days = r.log_days || 0, free = r.log_mode === "free";   // Т208: свободен лог — „N / ∞“
+    var days = r.log_days || 0, free = r.log_mode === "free";   // Т208: свободен лог — „N / ∞“; Т232 (Chris 27.11 21:43): „знаещи“ (measure) — „N / 21“, после „∞“ (както sprint)
     var tab = "nachalo";   // Т79 (Chris 23:54): винаги „Начало“ — лентата долу показва (с вълна) къде има ново; разделът го избира той
     var badges = "";
     if (r.unread_msgs) badges += '<span class="b msg">✉ ' + r.unread_msgs + (r.unread_msgs === 1 ? " ново съобщение" : " нови съобщения") + "</span>";
@@ -594,7 +595,7 @@
       + (badges ? '<div class="badges">' + badges + "</div>" : "")
       + (ft   // Т134: при цел — „Цел {ккал} • П · В · М“ вместо „Лог x/21 • последно …“ (ккал — в слота на „Вчера“, едно под друго)
         ? '<div class="l2"><span class="c1"><span class="lb">Цел</span> <b class="n w4">' + Math.round(ft.kc) + "</b>" + NB + "ккал</span>"
-          + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))].concat(/* Т220 (3): знакът „предложение“ до целта */ FTP[r.client_id] ? ['<span class="prp">предложение</span>'] : []).concat(free ? ["Лог" + NB + '<b class="lg"><span class="n">' + days + "</span>" + NB + "/" + NB + "∞</b>"] : []), true) + "</span>"   // Т208 (Chris 24.11 11:46): свободен лог — целта И „Лог N / ∞“
+          + '<span class="c2">' + grps([lv("П", Math.round(ft.p)), lv("В", Math.round(ft.c)), lv("М", Math.round(ft.f))].concat(/* Т220 (3): знакът „предложение“ до целта */ FTP[r.client_id] ? ['<span class="prp">предложение</span>'] : []).concat(free ? ["Лог" + NB + '<b class="lg"><span class="n">' + days + "</span>" + NB + "/" + NB + "∞</b>"] : []).concat(/* Т232 (Chris 27.11 22:4x): „знаещи“ с цел от 21 дни — и готовността */ r.log_mode === "measure" ? readyCells(r) : []), true) + "</span>"   // Т208 (Chris 24.11 11:46): свободен лог — целта И „Лог N / ∞“
         : '<div class="l2"><span class="c1">Лог <b class="lg">' + (free ? '<span class="n">' + days + "</span> / ∞" : days >= LOG_TARGET ? "∞" : '<span class="n">' + days + "</span> / " + LOG_TARGET) + "</b></span>"
           + '<span class="c2">' + grps(readyCells(r).concat([r.last_food_day ? lv("последно", ddmm(r.last_food_day)) : "още" + NB + "няма"]), true) + "</span>")
       + '<span class="c3">' + ms[0] + "</span>" + cell("c4", ms[1]) + cell("t1", t1) + cell("t2", t2) + cell("n1", n1) + cell("n2", n2) + cell("fm", fm) + "</div>"
